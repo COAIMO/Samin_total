@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LoaderView">
+    </declare-styleable>
+    <declare-styleable name="TopStatusView">
+        <attr name="isAlert" format="boolean"/>
+        <attr name="status_type">
+            <enum name="GasDock" value="0"/>
+            <enum name="GasRoom" value="1"/>
+            <enum name="WasteLiquor" value="2"/>
+            <enum name="Oxygen" value="3"/>
+            <enum name="Steamer" value="4"/>
+        </attr>
+    </declare-styleable>
+    <declare-styleable name="MenuIconView">
+        <attr name="menu_text" format="string" />
+        <attr name="menu_type">
+            <enum name="alarmlog" value="0"/>
+            <enum name="manager" value="1"/>
+            <enum name="setting" value="2"/>
+            <enum name="control" value="3"/>
+            <enum name="version" value="4"/>
+            <enum name="password" value="5"/>
+        </attr>
+    </declare-styleable>
+    <declare-styleable name="VersionView">
+        <attr name="app_version" format="string"/>
+    </declare-styleable>
+    <declare-styleable name="GasRoomView">
+        <attr name="gasColor" format="color"/>
+        <attr name="pressure" format="float"/>
+        <attr name="pressureMax" format="float"/>
+        <attr name="gasName" format="string"/>
+        <attr name="gasUnit">
+            <enum name="psi" value="0"/>
+            <enum name="bar" value="1"/>
+            <enum name="kgf_cm2" value="2"/>
+            <enum name="kPa" value="3"/>
+        </attr>
+    </declare-styleable>
+</resources>

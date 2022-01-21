@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="SecondaryTextColor">#ffffff</color>
+    <color name="QuaternaryColor">#7fba00</color>
+    <color name="QuinaryColor">#f25022</color>
+    <color name="NavigationBarColor">#f9f9f9</color>
+    <color name="SecondaryColor">#363737</color>
+    <color name="BackgroundColor">#ffffff</color>
+    <color name="MenuTextColor">#383939</color>
+    <color name="ToolbarFontColor">#389696</color>
+
+    <color name="HighLightColor">#FF5722</color>
+
+    <color name="SaveButtonBack">#0078D7</color>
+    <color name="SaveButtonText">#ffffff</color>
+
+    <color name="CancelButtonBack">#1d1d1d</color>
+    <color name="CancelButtonText">#ffffff</color>
+
+    <color name="AnotherButtonBack">#ff9800</color>
+    <color name="AnotherButtonBorder">#1d1d1d</color>
+    <color name="BackgroundContrasText">#1d1d1d</color>
+    <color name="TitleTextColor">#eb8c23</color>
+    <color name="PageNumberTextColor">#919191</color>
+
+</resources>

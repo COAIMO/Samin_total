@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="DialogView_height">500dp</dimen>
+    <dimen name="DialogView_width">500dp</dimen>
+    <dimen name="passwordDialogView_height">300dp</dimen>
+    <dimen name="passwordDialogView_width">400dp</dimen>
+</resources>
