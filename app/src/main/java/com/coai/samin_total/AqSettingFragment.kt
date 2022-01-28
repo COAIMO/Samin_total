@@ -18,6 +18,8 @@ private const val ARG_PARAM2 = "param2"
  * Use the [AqSettingFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+
+// TODO: 2022-01-28 AQ ID는 앱시작 시 호출되서 저장되어있으며, 저장된 아이디값은 받아와야야됨 (알람켜기, 끄기, led경고, 정상만)UI 작업
 class AqSettingFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null

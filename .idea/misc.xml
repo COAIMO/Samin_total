@@ -14,6 +14,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/button_setting.xml" value="0.17375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/button_sound.xml" value="0.41796875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/control_ic.xml" value="0.276953125" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/ic_aaaa.xml" value="0.2953125" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/ic_arrow_drop_down.xml" value="0.27734375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/ic_launcher_background.xml" value="0.417578125" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/labsislogo_ic.xml" value="0.263125" />
@@ -41,7 +42,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/activity_version.xml" value="0.147265625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_admin.xml" value="0.405859375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_alert_dialog.xml" value="0.405859375" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_alert_log.xml" value="0.405859375" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_alert_log.xml" value="0.22" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_aq_setting.xml" value="0.405859375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_blank.xml" value="0.405859375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_control.xml" value="0.5" />
