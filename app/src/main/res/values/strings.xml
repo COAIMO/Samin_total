@@ -34,4 +34,5 @@
     <string name="text_setting_pairing">세팅 연동 여부</string>
     <string name="text_aq_setting">AQ Setting</string>
     <string name="text_connection">연결</string>
+    <string name="title_id">ID</string>
 </resources>

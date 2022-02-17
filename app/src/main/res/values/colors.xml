@@ -20,6 +20,7 @@
     <color name="HighLightColor">#FF5722</color>
 
     <color name="SaveButtonBack">#0078D7</color>
+    <color name="SaveButtonBackRipple">#DF0078D7</color>
     <color name="SaveButtonText">#ffffff</color>
 
     <color name="CancelButtonBack">#1d1d1d</color>

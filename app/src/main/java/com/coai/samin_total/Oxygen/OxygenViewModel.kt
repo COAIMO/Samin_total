@@ -1,32 +1,16 @@
-package com.coai.samin_total
+package com.coai.samin_total.Oxygen
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 
-class MainViewModel {
-    companion object {
-        const val MAINFRAGMENT = 0
-        const val MAINSETTINGFRAGMENT = 1
-        const val ALERTDIALOGFRAGMENT = 2
-        const val SCANDIALOGFRAGMENT = 3
-        const val ALERTLOGFRGAMENT = 4
-        const val ADMINFRAGMENT = 5
-        const val AQSETTINGFRAGMENT = 6
-        const val CONTROLFRAGMENT = 7
-        const val VERSIONFRAGMENT = 8
-        const val PASSWORDFRAGMENT = 9
-        const val GASDOCKMAINFRAGMENT = 10
-        const val GASROOMMAINFRAGMENT = 11
-        const val WASTELIQUORMAINFRAGMENT = 12
-        const val OXYGENMAINFRAGMENT = 13
-        const val STEAMERMAINFRAGMENT = 14
-        const val GASSTORAGESETTINGFRAGMENT = 15
-    }
-
+class OxygenViewModel : ViewModel() {
     //내부에서 설정하는 자료형은 뮤터블로
     //변경가능하도록 설정
     private val _IDsList = MutableLiveData<List<Byte>>()
     private val _D_size = MutableLiveData<Int>()
+    private val _OxygenViewData = MutableLiveData<ArrayList<SetOxygenViewData>>()
+    private val _OxygenSensorID = MutableLiveData<Int>()
+    private val _OxygenSensorIDs = MutableLiveData<MutableList<Int>>()
 
     // 변경되지 않는 데이터를 가져올때 이름을 _ 언더스코어 없이 설정
     // 공개적으로 가져오는 변수는 private 이 아닌 퍼블릭으로 외부에서도 접근가능하도록 설정
@@ -37,10 +21,19 @@ class MainViewModel {
     val D_size: MutableLiveData<Int>
         get() = _D_size
 
+    val OxygenViewData: MutableLiveData<ArrayList<SetOxygenViewData>>
+        get() = _OxygenViewData
+
+    val OxygenSensorID: MutableLiveData<Int>
+        get() = _OxygenSensorID
+
+    val OxygenSensorIDs : MutableLiveData<MutableList<Int>>
+        get() = _OxygenSensorIDs
     init {
 //        Log.d(TAG, "MainViewModel - 생성자 호출")
 //        Log.d(TAG, "MainViewModel _currentValue : $_currentValue")
 //        _IDsList.value = IDs
+
 
     }
 }

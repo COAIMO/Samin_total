@@ -15,6 +15,7 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import com.coai.samin_total.BuildConfig
+import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.serviceTAG
 import com.hoho.android.usbserial.driver.UsbSerialDriver
@@ -36,7 +37,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         const val ACTION_USB_PERMISSION_NOT_GRANTED = "ACTION_USB_PERMISSION_NOT_GRANTED"
         const val ACTION_USB_DEVICE_DETACHED = "ACTION_USB_DEVICE_DETACHED"
         val INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB"
-        private const val BAUD_RATE = 250000
+        private const val BAUD_RATE = 1000000
         private const val WRITE_WAIT_MILLIS = 200
         private const val READ_WAIT_MILLIS = 200
         var SERVICE_CONNECTED = false
@@ -97,7 +98,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     //SerialInputOutputManager.Listener
     override fun onNewData(data: ByteArray?) {
         Log.d(serviceTAG, "onNewData : ${HexDump.dumpHexString(data)}")
-        mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, data).sendToTarget()
+        if (data != null) {
+            parseReceiveData(data)
+        }
+//        mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, data).sendToTarget()
 
     }
 
@@ -202,6 +206,102 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         } catch (ignored: IOException) {
         }
         usbSerialPort = null
+    }
+
+    fun sendData(data: ByteArray) {
+        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
+    }
+
+    fun checkModelandID() {
+        val protocol = SaminProtocol()
+        protocol.buzzer_On(1, 1)
+//        usbSerialPort?.write()
+    }
+
+    private val HEADER: ByteArray = byteArrayOf(0xFF.toByte(), 0xFE.toByte())
+    private var lastRecvTime: Long = System.currentTimeMillis()
+    private var bufferIndex: Int = 0
+    private var recvBuffer: ByteArray = ByteArray(1024)
+
+    fun parseReceiveData(data: ByteArray) {
+        lastRecvTime = System.currentTimeMillis()
+        try {
+            //1. 버퍼인덱스(이전 부족한 데이터크기) 및 받은 데이터 크기만큼 배열생성
+            val tmpdata = ByteArray(bufferIndex + data.size)
+            System.arraycopy(recvBuffer, 0, tmpdata, 0, bufferIndex)
+            //2. 데이터를 tmpdata로 이동
+            System.arraycopy(data, 0, tmpdata, bufferIndex, data.size)
+            var idx: Int = 0
+
+            if (tmpdata.size < 7) {
+                //3. 수신받은 데이터 부족 시 리시브버퍼로 데이터 이동
+                System.arraycopy(tmpdata, idx, recvBuffer, 0, tmpdata.size)
+                //4. 이전 받은 데이터 확인을 위해 버퍼 인덱스 수정
+                bufferIndex = tmpdata.size
+                return
+            }
+
+            while (true) {
+                val chkPos = indexOfBytes(tmpdata, idx, tmpdata.size)
+                if (chkPos != -1) {
+                    //해더 유무 체크 및 헤더 몇 번째 있는지 반환
+                    val scndpos = indexOfBytes(tmpdata, chkPos + 1, tmpdata.size)
+                    //다음 헤더가 없는 경우 -1 변환(헤더 중복 체크)
+                    if (scndpos == -1) {
+                        // 다음 데이터 없음
+                        if (tmpdata[chkPos + 4] + 4 + 1 == tmpdata.size - chkPos) {
+                            // 해당 전문을 다 받았을 경우
+                            val focusdata : ByteArray = tmpdata.drop(chkPos).toByteArray()
+                            //todo
+                            mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, data).sendToTarget()
+
+//                            protocolProcess(focusdata)
+
+                            bufferIndex = 0;
+                        }
+                        else {
+                            System.arraycopy(tmpdata, chkPos, recvBuffer, 0, tmpdata.size - chkPos)
+                            bufferIndex = tmpdata.size - chkPos
+                        }
+                        break
+                    } else {
+                        // 다중 데이터 순차처리
+                        val focusdata : ByteArray = tmpdata.drop(chkPos).take(scndpos - chkPos).toByteArray()
+
+//                        protocolProcess(focusdata)
+                        idx = scndpos
+                    }
+                } else {
+                    System.arraycopy(tmpdata, idx, recvBuffer, 0, tmpdata.size)
+                    bufferIndex = tmpdata.size
+                    break
+                }
+            }
+        } catch (ex: Exception) {
+//            ex.message?.let { Log.e(UsbService.TAG, it) }
+        }
+    }
+
+    private fun indexOfBytes(data: ByteArray, startIdx: Int, count: Int): Int {
+        if (data.size == 0 || count == 0 || startIdx >= count)
+            return -1
+        var i = startIdx
+        val endIndex = Math.min(startIdx + count, data.size)
+        var fidx: Int = 0
+        var lastFidx = 0
+        while (i < endIndex) {
+            lastFidx = fidx
+            fidx = if (data[i] == HEADER[fidx]) fidx + 1 else 0
+            if (fidx == 2) {
+                return i - fidx + 1
+            }
+            if (lastFidx > 0 && fidx == 0) {
+                i = i - lastFidx
+                lastFidx = 0
+            }
+            i++
+        }
+        return -1
     }
 
 }

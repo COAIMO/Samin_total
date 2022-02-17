@@ -68,6 +68,7 @@ class MainSettingFragment : Fragment() {
             activity?.onFragmentChange(MainViewModel.ALERTLOGFRGAMENT)
         }
 
+
         return mBinding.root
     }
 

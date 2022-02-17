@@ -3,11 +3,14 @@ package com.coai.samin_total.Oxygen
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.GasRoom.GasRoom_RecycleAdapter
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
@@ -31,11 +34,13 @@ class OxygenMainFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    lateinit var mBinding:FragmentOxygenMainBinding
+    private lateinit var mBinding:FragmentOxygenMainBinding
+    private lateinit var viewmodel: OxygenViewModel
     private lateinit var recycleAdapter: Oxygen_RecycleAdapter
     private val oxygenViewData = mutableListOf<SetOxygenViewData>()
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +49,12 @@ class OxygenMainFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
     }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+//        viewmodel = ViewModelProvider(this).get(OxygenViewModel::class.java)
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
@@ -67,28 +78,48 @@ class OxygenMainFragment : Fragment() {
     ): View? {
         mBinding = FragmentOxygenMainBinding.inflate(inflater, container, false)
         initRecycler()
-        mBinding.titleTv.setOnClickListener {
-            mBinding.oxygenRecyclerView.apply {
-                oxygenViewData.apply {
-                    add(
-                        SetOxygenViewData(
-                            isAlert = false,
-                            setValue = 21,
-                            setMinValue = 18
-                        )
-                    )
-                    add(
-                        SetOxygenViewData(
-                            isAlert = true,
-                            setValue = 21,
-                            setMinValue = 18
-                        )
-                    )
-                }
-                recycleAdapter.submitList(oxygenViewData)
-                recycleAdapter.notifyDataSetChanged()
-            }
-        }
+
+        viewmodel = ViewModelProvider(this).get(OxygenViewModel::class.java)
+
+        Log.d("태그", "11OxygenSensorID:${viewmodel.OxygenSensorID.value}")
+        Log.d("태그", "11OxygenSensorIDs:${viewmodel.OxygenSensorID.value}")
+
+        viewmodel.OxygenSensorID.observe(viewLifecycleOwner, Observer {
+            Log.d("태그", "OxygenSensorID:${viewmodel.OxygenSensorID}")
+            Log.d("태그", "OxygenSensorID:$it")
+
+        })
+
+        viewmodel.OxygenSensorIDs.observe(viewLifecycleOwner, Observer {
+            Log.d("태그", "OxygenSensorIDs:${viewmodel.OxygenSensorIDs}")
+            Log.d("태그", "OxygenSensorIDs:$it")
+
+        })
+//        viewmodel.OxygenViewData.observe(viewLifecycleOwner, dataObserver)
+
+
+//        mBinding.titleTv.setOnClickListener {
+//            mBinding.oxygenRecyclerView.apply {
+//                oxygenViewData.apply {
+//                    add(
+//                        SetOxygenViewData(
+//                            isAlert = false,
+//                            setValue = 21,
+//                            setMinValue = 18
+//                        )
+//                    )
+//                    add(
+//                        SetOxygenViewData(
+//                            isAlert = true,
+//                            setValue = 21,
+//                            setMinValue = 18
+//                        )
+//                    )
+//                }
+//                recycleAdapter.submitList(oxygenViewData)
+//                recycleAdapter.notifyDataSetChanged()
+//            }
+//        }
 
 
         return mBinding.root

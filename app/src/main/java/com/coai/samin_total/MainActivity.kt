@@ -9,12 +9,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.ScanDialogFragment
 import com.coai.samin_total.GasDock.GasDockMainFragment
 import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
+import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Oxygen.OxygenMainFragment
+import com.coai.samin_total.Oxygen.OxygenViewModel
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Service.SerialService
 import com.coai.samin_total.Steamer.SteamerMainFragment
@@ -41,12 +44,13 @@ class MainActivity : AppCompatActivity() {
     lateinit var steamerMainFragment: SteamerMainFragment
     lateinit var oxygenMainFragment: OxygenMainFragment
     lateinit var gasStorageSettingFragment: GasStorageSettingFragment
-
+    private lateinit var oxygenViewModel:OxygenViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
+        oxygenViewModel = ViewModelProvider(this).get(OxygenViewModel::class.java)
         setFragment()
 
     }
@@ -80,9 +84,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @ExperimentalUnsignedTypes
     val datahandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             Log.d(mainTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
+            val receiveParser = SaminProtocol()
+            receiveParser.parse(msg.obj as ByteArray)
+            when(receiveParser.modelName){
+                "Oxygen" -> {
+//                    val sensor_data = receiveParser.mProtocol.slice(7..8)
+//                    val demical_value = sensor_data.get(0).toFloat() / 100
+//                    val integer_value = sensor_data.get(1).toInt()
+
+                    oxygenViewModel.OxygenSensorID.value = receiveParser.mProtocol.get(3).toInt()
+                    oxygenViewModel.OxygenSensorIDs.value?.add(receiveParser.mProtocol.get(3).toInt())
+                    val sensor_Id = receiveParser.mProtocol.get(3)
+                    val demical_value = receiveParser.mProtocol.get(7).toFloat() / 100
+                    val integer_value = receiveParser.mProtocol.get(8).toInt()
+                    val oxygen = integer_value + demical_value
+                    //todo  에러 데이터 포함시킬것
+                    Log.d("태그","integer_value:$integer_value demical_value:$demical_value  sensor_Id:$sensor_Id")
+
+                }
+
+            }
 
 
             super.handleMessage(msg)

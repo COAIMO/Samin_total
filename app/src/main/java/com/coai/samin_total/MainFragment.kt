@@ -2,11 +2,14 @@ package com.coai.samin_total
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.databinding.FragmentMainBinding
+import kotlin.math.log
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -49,6 +52,13 @@ class MainFragment : Fragment() {
     ): View? {
         mBinding = FragmentMainBinding.inflate(inflater, container, false)
         setButtonClickEvent()
+
+        mBinding.btnSound.setOnClickListener {
+            val protocol = SaminProtocol()
+            protocol.buzzer_On(1,1)
+            Log.d("로그", "${protocol.mProtocol}")
+            activity?.serialService?.sendData(protocol.mProtocol)
+        }
 
         return mBinding.root
     }

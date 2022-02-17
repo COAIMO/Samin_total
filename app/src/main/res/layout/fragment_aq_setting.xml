@@ -6,9 +6,70 @@
     android:layout_height="match_parent"
     tools:context=".AqSettingFragment">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="@string/title_id"
+        app:layout_constraintBottom_toTopOf="@id/btn_id_save"
+        app:layout_constraintStart_toStartOf="@id/btn_id_save" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_id_save"
+        android:layout_width="500dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/button_blue"
+        android:text="ID 저장"
+        android:theme="@style/Theme.AppCompat.Light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_alert_on"
+        android:layout_width="500dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/button_blue"
+        android:text="알람 켜키"
+        android:theme="@style/Theme.AppCompat.Light"
+        app:layout_constraintTop_toBottomOf="@id/btn_id_save"
+        app:layout_constraintStart_toStartOf="@id/btn_id_save"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_alert_off"
+        android:layout_width="500dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/button_blue"
+        android:text="알람 끄기"
+       android:theme="@style/Theme.AppCompat.Light"
+        app:layout_constraintTop_toBottomOf="@id/btn_alert_on"
+        app:layout_constraintStart_toStartOf="@id/btn_id_save"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_warning_led"
+        android:layout_width="500dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/button_blue"
+        android:text="LED 경고"
+        android:theme="@style/Theme.AppCompat.Light"
+        app:layout_constraintTop_toBottomOf="@id/btn_alert_off"
+        app:layout_constraintStart_toStartOf="@id/btn_id_save"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_normal_led"
+        android:layout_width="500dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/button_blue"
+        android:text="LED 정상"
+        android:theme="@style/Theme.AppCompat.Light"
+        app:layout_constraintTop_toBottomOf="@id/btn_warning_led"
+        app:layout_constraintStart_toStartOf="@id/btn_id_save"/>
 
     <ImageView
-        android:id="@+id/logo_ImageView"
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_marginBottom="60dp"
