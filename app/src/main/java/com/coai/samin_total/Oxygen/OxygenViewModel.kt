@@ -11,6 +11,7 @@ class OxygenViewModel : ViewModel() {
     private val _OxygenViewData = MutableLiveData<ArrayList<SetOxygenViewData>>()
     private val _OxygenSensorID = MutableLiveData<Int>()
     private val _OxygenSensorIDs = MutableLiveData<MutableList<Int>>()
+    private val _OxygenValue = MutableLiveData<Int>()
 
     // 변경되지 않는 데이터를 가져올때 이름을 _ 언더스코어 없이 설정
     // 공개적으로 가져오는 변수는 private 이 아닌 퍼블릭으로 외부에서도 접근가능하도록 설정
@@ -27,8 +28,12 @@ class OxygenViewModel : ViewModel() {
     val OxygenSensorID: MutableLiveData<Int>
         get() = _OxygenSensorID
 
-    val OxygenSensorIDs : MutableLiveData<MutableList<Int>>
+    val OxygenSensorIDs: MutableLiveData<MutableList<Int>>
         get() = _OxygenSensorIDs
+
+    val OxygenValue: MutableLiveData<Int>
+        get() = _OxygenValue
+
     init {
 //        Log.d(TAG, "MainViewModel - 생성자 호출")
 //        Log.d(TAG, "MainViewModel _currentValue : $_currentValue")

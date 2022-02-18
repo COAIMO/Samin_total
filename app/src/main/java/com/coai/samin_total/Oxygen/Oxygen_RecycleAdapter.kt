@@ -42,6 +42,7 @@ class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
             view.findViewById<OxyzenView>(R.id.oxygen_view)
 
         fun bind(setOxygenViewData: SetOxygenViewData) {
+            oxygenView.id = setOxygenViewData.id
             oxygenView.setAlert(setOxygenViewData.isAlert)
             oxygenView.setOxyzenData(setOxygenViewData.setValue)
             oxygenView.setMinOxyzen(setOxygenViewData.setMinValue)

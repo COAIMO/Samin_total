@@ -55,9 +55,20 @@ class MainFragment : Fragment() {
 
         mBinding.btnSound.setOnClickListener {
             val protocol = SaminProtocol()
-            protocol.buzzer_On(1,1)
-            Log.d("로그", "${protocol.mProtocol}")
+            protocol.feedBack(3, 0)
+//            Log.d("로그", "${protocol.mProtocol}")
             activity?.serialService?.sendData(protocol.mProtocol)
+//            Thread{
+//                while (true){
+//
+//                val protocol = SaminProtocol()
+//                protocol.feedBack(3, 0)
+//                Log.d("로그", "${protocol.mProtocol}")
+//                activity?.serialService?.sendData(protocol.mProtocol)
+//                    Thread.sleep(1000)
+//                }
+//
+//            }.start()
         }
 
         return mBinding.root

@@ -96,14 +96,30 @@ class MainActivity : AppCompatActivity() {
 //                    val demical_value = sensor_data.get(0).toFloat() / 100
 //                    val integer_value = sensor_data.get(1).toInt()
 
-                    oxygenViewModel.OxygenSensorID.value = receiveParser.mProtocol.get(3).toInt()
-                    oxygenViewModel.OxygenSensorIDs.value?.add(receiveParser.mProtocol.get(3).toInt())
-                    val sensor_Id = receiveParser.mProtocol.get(3)
-                    val demical_value = receiveParser.mProtocol.get(7).toFloat() / 100
-                    val integer_value = receiveParser.mProtocol.get(8).toInt()
-                    val oxygen = integer_value + demical_value
-                    //todo  에러 데이터 포함시킬것
-                    Log.d("태그","integer_value:$integer_value demical_value:$demical_value  sensor_Id:$sensor_Id")
+                    try {
+                        oxygenViewModel.OxygenSensorID.value =
+                            receiveParser.mProtocol.get(3).toInt()
+                        oxygenViewModel.OxygenSensorIDs.value?.add(
+                            receiveParser.mProtocol.get(3).toInt()
+                        )
+                        val tempval = littleEndianConversion(receiveParser.mProtocol.slice(7..8).toByteArray()).toUShort()
+
+                        val oxygen = tempval.toInt() / 100
+
+
+                        val sensor_Id = receiveParser.mProtocol.get(3)
+                        val demical_value = receiveParser.mProtocol.get(7).toFloat() / 100
+                        val integer_value = receiveParser.mProtocol.get(8).toInt()
+
+                        oxygenViewModel.OxygenValue.value = oxygen
+                        //todo  에러 데이터 포함시킬것
+                        Log.d(
+                            "태그",
+                            "integer_value:$integer_value demical_value:$demical_value  sensor_Id:$sensor_Id"
+                        )
+                    } catch (ex: Exception){
+
+                    }
 
                 }
 
@@ -213,7 +229,13 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
-
+    fun littleEndianConversion(bytes: ByteArray): Int {
+        var result = 0
+        for (i in bytes.indices) {
+            result = result or (bytes[i].toUByte().toInt() shl 8 * i)
+        }
+        return result
+    }
 
     override fun onBackPressed() {
         super.onBackPressed()

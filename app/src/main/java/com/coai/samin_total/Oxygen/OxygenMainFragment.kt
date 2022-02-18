@@ -9,16 +9,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.GasRoom.GasRoom_RecycleAdapter
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
+import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
+import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentOxygenMainBinding
+import kotlin.concurrent.thread
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -34,8 +38,11 @@ class OxygenMainFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private lateinit var mBinding:FragmentOxygenMainBinding
-    private lateinit var viewmodel: OxygenViewModel
+    private lateinit var mBinding: FragmentOxygenMainBinding
+
+    //    private lateinit var viewmodel: OxygenViewModel
+    private val viewmodel by activityViewModels<OxygenViewModel>()
+
     private lateinit var recycleAdapter: Oxygen_RecycleAdapter
     private val oxygenViewData = mutableListOf<SetOxygenViewData>()
     private lateinit var onBackPressed: OnBackPressedCallback
@@ -58,7 +65,7 @@ class OxygenMainFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
-        onBackPressed = object : OnBackPressedCallback(true){
+        onBackPressed = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 activity!!.onFragmentChange(MainViewModel.MAINFRAGMENT)
             }
@@ -79,7 +86,7 @@ class OxygenMainFragment : Fragment() {
         mBinding = FragmentOxygenMainBinding.inflate(inflater, container, false)
         initRecycler()
 
-        viewmodel = ViewModelProvider(this).get(OxygenViewModel::class.java)
+//        viewmodel = ViewModelProvider(this).get(OxygenViewModel::class.java)
 
         Log.d("태그", "11OxygenSensorID:${viewmodel.OxygenSensorID.value}")
         Log.d("태그", "11OxygenSensorIDs:${viewmodel.OxygenSensorID.value}")
@@ -95,8 +102,66 @@ class OxygenMainFragment : Fragment() {
             Log.d("태그", "OxygenSensorIDs:$it")
 
         })
+
+        viewmodel.OxygenValue.observe(viewLifecycleOwner, Observer {
+            Log.d("태그", "OxygenValue:${viewmodel.OxygenValue}")
+            Log.d("태그", "OxygenValue:$it")
+            Log.d("태그", "child:${recycleAdapter.getItemId(0)}")
+
+            recycleAdapter.setOxygenViewData.set(0, SetOxygenViewData(0, false, it))
+            recycleAdapter.notifyDataSetChanged()
+
+//            mBinding.oxygenRecyclerView.apply {
+//                oxygenViewData.apply {
+//                    add(
+//                        SetOxygenViewData(
+//                            isAlert = false,
+//                            setValue = it,
+//                            setMinValue = 18
+//                        )
+//                    )
+//                }
+//                recycleAdapter.submitList(oxygenViewData)
+//                recycleAdapter.notifyDataSetChanged()
+//            }
+        })
+
+        mBinding.oxygenRecyclerView.apply {
+            oxygenViewData.apply {
+                add(
+                    SetOxygenViewData(
+                        isAlert = false,
+                        setValue = 0,
+                        setMinValue = 18
+                    )
+                )
+//                add(
+//                    SetOxygenViewData(
+//                        isAlert = false,
+//                        setValue = 0,
+//                        setMinValue = 18
+//                    )
+//                )
+            }
+            recycleAdapter.submitList(oxygenViewData)
+            recycleAdapter.notifyDataSetChanged()
+
+
+        }
 //        viewmodel.OxygenViewData.observe(viewLifecycleOwner, dataObserver)
 
+        mBinding.titleTv.setOnClickListener {
+            Thread {
+                while (true) {
+                    val protocol = SaminProtocol()
+                    protocol.feedBack(3, 0)
+//                    Log.d("로그", "${protocol.mProtocol}")
+                    activity?.serialService?.sendData(protocol.mProtocol)
+                    Thread.sleep(1000)
+                }
+
+            }.start()
+        }
 
 //        mBinding.titleTv.setOnClickListener {
 //            mBinding.oxygenRecyclerView.apply {
@@ -121,6 +186,30 @@ class OxygenMainFragment : Fragment() {
 //            }
 //        }
 
+
+//        mBinding.titleTv.setOnClickListener {
+//            val protocol = SaminProtocol()
+//            protocol.feedBack(3, 0)
+//            Log.d("로그", "${protocol.mProtocol}")
+//            Log.d("로그", "send" + HexDump.dumpHexString(protocol.mProtocol))
+//
+//            activity?.serialService?.sendData(protocol.mProtocol)
+//
+//            mBinding.oxygenRecyclerView.apply {
+//                oxygenViewData.apply {
+//                    add(
+//                        SetOxygenViewData(
+//                            isAlert = false,
+//                            setValue = 21f,
+//                            setMinValue = 18
+//                        )
+//                    )
+//                }
+//                recycleAdapter.submitList(oxygenViewData)
+//                recycleAdapter.notifyDataSetChanged()
+//            }
+//
+//        }
 
         return mBinding.root
     }
@@ -148,6 +237,7 @@ class OxygenMainFragment : Fragment() {
         }
 
     }
+
     companion object {
         /**
          * Use this factory method to create a new instance of

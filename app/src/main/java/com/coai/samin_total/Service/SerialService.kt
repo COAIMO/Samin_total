@@ -37,9 +37,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         const val ACTION_USB_PERMISSION_NOT_GRANTED = "ACTION_USB_PERMISSION_NOT_GRANTED"
         const val ACTION_USB_DEVICE_DETACHED = "ACTION_USB_DEVICE_DETACHED"
         val INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB"
-        private const val BAUD_RATE = 1000000
-        private const val WRITE_WAIT_MILLIS = 200
-        private const val READ_WAIT_MILLIS = 200
+        private const val BAUD_RATE = 9600
+        private const val WRITE_WAIT_MILLIS = 2000
+        private const val READ_WAIT_MILLIS = 2000
         var SERVICE_CONNECTED = false
         val RECEIVED_SERERIAL_DATA = 1
     }
@@ -97,12 +97,11 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     //SerialInputOutputManager.Listener
     override fun onNewData(data: ByteArray?) {
-        Log.d(serviceTAG, "onNewData : ${HexDump.dumpHexString(data)}")
+        Log.d("로그", "onNewData : ${HexDump.dumpHexString(data)}")
         if (data != null) {
             parseReceiveData(data)
         }
 //        mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, data).sendToTarget()
-
     }
 
     //SerialInputOutputManager.Listener
@@ -187,6 +186,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 UsbSerialPort.STOPBITS_1,
                 UsbSerialPort.PARITY_NONE
             )
+            usbSerialPort!!.rts = true
+            usbSerialPort!!.dtr = true
+
             usbIoManager = SerialInputOutputManager(usbSerialPort, this)
             usbIoManager!!.start()
             serialPortConnected = true
@@ -210,15 +212,17 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     fun sendData(data: ByteArray) {
         usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
+
+        Log.d("태그", "send data :${HexDump.dumpHexString(data)}")
     }
 
     fun checkModelandID() {
         val protocol = SaminProtocol()
-        protocol.buzzer_On(1, 1)
+        protocol.feedBack(3, 0)
 //        usbSerialPort?.write()
     }
 
-    private val HEADER: ByteArray = byteArrayOf(0xFF.toByte(), 0xFE.toByte())
+    private val HEADER: ByteArray = byteArrayOf(0xff.toByte(), 0xFE.toByte())
     private var lastRecvTime: Long = System.currentTimeMillis()
     private var bufferIndex: Int = 0
     private var recvBuffer: ByteArray = ByteArray(1024)
@@ -228,12 +232,14 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         try {
             //1. 버퍼인덱스(이전 부족한 데이터크기) 및 받은 데이터 크기만큼 배열생성
             val tmpdata = ByteArray(bufferIndex + data.size)
+            //2.이전 recvBurffer에 남아있는 데이터를 tmpdata로 이동함
             System.arraycopy(recvBuffer, 0, tmpdata, 0, bufferIndex)
-            //2. 데이터를 tmpdata로 이동
+            //3. 데이터를 tmpdata의 잔여 데이터 뒤에 데이터 사이즈만큼 넣음
             System.arraycopy(data, 0, tmpdata, bufferIndex, data.size)
             var idx: Int = 0
+            Log.d("태그", "received = ${HexDump.dumpHexString(data)}")
 
-            if (tmpdata.size < 7) {
+            if (tmpdata.size < 15) {
                 //3. 수신받은 데이터 부족 시 리시브버퍼로 데이터 이동
                 System.arraycopy(tmpdata, idx, recvBuffer, 0, tmpdata.size)
                 //4. 이전 받은 데이터 확인을 위해 버퍼 인덱스 수정
@@ -243,6 +249,8 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
             while (true) {
                 val chkPos = indexOfBytes(tmpdata, idx, tmpdata.size)
+                val num = tmpdata[chkPos + 4] + 4 + 1
+                num
                 if (chkPos != -1) {
                     //해더 유무 체크 및 헤더 몇 번째 있는지 반환
                     val scndpos = indexOfBytes(tmpdata, chkPos + 1, tmpdata.size)
@@ -251,24 +259,36 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                         // 다음 데이터 없음
                         if (tmpdata[chkPos + 4] + 4 + 1 == tmpdata.size - chkPos) {
                             // 해당 전문을 다 받았을 경우
-                            val focusdata : ByteArray = tmpdata.drop(chkPos).toByteArray()
+                            val focusdata: ByteArray =
+                                tmpdata.drop(chkPos).toByteArray()
                             //todo
-                            mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, data).sendToTarget()
-
-//                            protocolProcess(focusdata)
+                            mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, focusdata)
+                                .sendToTarget()
 
                             bufferIndex = 0;
-                        }
-                        else {
-                            System.arraycopy(tmpdata, chkPos, recvBuffer, 0, tmpdata.size - chkPos)
+
+                        } else {
+                            System.arraycopy(
+                                tmpdata,
+                                chkPos,
+                                recvBuffer,
+                                0,
+                                tmpdata.size - chkPos
+                            )
                             bufferIndex = tmpdata.size - chkPos
                         }
                         break
-                    } else {
-                        // 다중 데이터 순차처리
-                        val focusdata : ByteArray = tmpdata.drop(chkPos).take(scndpos - chkPos).toByteArray()
 
-//                        protocolProcess(focusdata)
+                    } else {
+
+                        //첫번째 헤더 앞부분 짤라냄.(drop) //첫번째 헤더부터 두번째 헤더 앞까지 짤라냄.(take)
+                        val focusdata: ByteArray =
+                            tmpdata.drop(chkPos).take(scndpos - chkPos).toByteArray()
+                        if (focusdata.size == 15){
+
+                        }
+                        mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, focusdata).sendToTarget()
+                        // 두번째 헤더 부분을 idx
                         idx = scndpos
                     }
                 } else {

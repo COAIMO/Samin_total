@@ -5,6 +5,7 @@ import kotlin.experimental.inv
 
 class SaminProtocol {
     var mProtocol: ByteArray = ByteArray(20)
+
     /**
      * model (저장고, 룸, 폐액통...)
      * id 대상 ID
@@ -60,37 +61,38 @@ class SaminProtocol {
     /**
      * Tab.송신 - 피드백 요청
      */
-    fun feedBack(model: Byte, id: Byte){
+    fun feedBack(model: Byte, id: Byte) {
         buildProtocol(model, id, 0xA1.toByte(), null)
     }
 
     /**
      * Tab.송신 - 부저 on
      */
-    fun buzzer_On(model: Byte, id: Byte){
+    fun buzzer_On(model: Byte, id: Byte) {
         buildProtocol(model, id, 0xA2.toByte(), 0x01)
     }
 
     /**
      * Tab.송신 - 부저 off
      */
-    fun buzzer_Off(model: Byte, id: Byte){
+    fun buzzer_Off(model: Byte, id: Byte) {
         buildProtocol(model, id, 0xA2.toByte(), 0x00)
     }
 
     /**
      * Tab.송신 - LED Normal State
      */
-    fun led_NormalState(model: Byte, id: Byte){
+    fun led_NormalState(model: Byte, id: Byte) {
         buildProtocol(model, id, 0xA3.toByte(), 0x1F)
     }
 
     /**
      * Tab.송신 - LED Alert State
      */
-    fun led_AlertState(model: Byte, id: Byte){
+    fun led_AlertState(model: Byte, id: Byte) {
         buildProtocol(model, id, 0xA3.toByte(), 0x00)
     }
+
     var modelName: String? = null
 
     @ExperimentalUnsignedTypes
@@ -100,20 +102,24 @@ class SaminProtocol {
             mProtocol = ByteArray(data.size)
             data.copyInto(mProtocol!!, endIndex = mProtocol!!.size)
 
-            if (mProtocol[4] + 4 + 1 != data.size)
+            if (mProtocol[4] + 4 + 1 > data.size)
                 return ret
 
             val chksum = checkSum()
+            //이후 아래 2줄삭제
+//            modelName = SaminModel.codesMap[mProtocol!![2].toUByte()].toString()
+//            ret = true
+//
             if (mProtocol[5] == chksum) {
                 try {
                     modelName = SaminModel.codesMap[mProtocol!![2].toUByte()].toString()
-//                    PacketName = Data!![5].toString().format("%g")
                     ret = true
                 } catch (e: Exception) {
                     ret = false
                 }
             } else ret = false
 
+            ret = true
         } catch (e: Exception) {
             Log.e("TAG", "Error", e)
         }
