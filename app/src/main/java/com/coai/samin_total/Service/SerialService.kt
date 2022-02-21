@@ -186,10 +186,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 UsbSerialPort.STOPBITS_1,
                 UsbSerialPort.PARITY_NONE
             )
-            usbSerialPort!!.rts = true
-            usbSerialPort!!.dtr = true
 
             usbIoManager = SerialInputOutputManager(usbSerialPort, this)
+            usbIoManager!!.readTimeout = 200
+            usbIoManager!!.writeTimeout = 200
             usbIoManager!!.start()
             serialPortConnected = true
 
@@ -211,7 +211,8 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     }
 
     fun sendData(data: ByteArray) {
-        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
+//        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
+        usbIoManager!!.writeAsync(data);
 
         Log.d("태그", "send data :${HexDump.dumpHexString(data)}")
     }

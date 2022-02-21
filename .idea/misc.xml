@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.23828125" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable-v24/ic_top_layer.xml" value="0.27734375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable-v24/pressure_unit_ic.xml" value="0.41796875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable-v24/screen_increase_ic.xml" value="0.27734375" />
@@ -20,6 +21,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/ic_arrow_drop_down.xml" value="0.27734375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/ic_launcher_background.xml" value="0.417578125" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/labsislogo_ic.xml" value="0.263125" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/layout_border.xml" value="0.23828125" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/nonalert_ic.xml" value="0.263125" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/password_ic.xml" value="0.276953125" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/pressed_nonalert_ic.xml" value="0.41796875" />
@@ -48,7 +50,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_alert_log.xml" value="0.22" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_aq_setting.xml" value="0.33" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_blank.xml" value="0.405859375" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_control.xml" value="0.5" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_control.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_dock_main.xml" value="0.241796875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_room_main.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_storage_setting.xml" value="0.405859375" />
