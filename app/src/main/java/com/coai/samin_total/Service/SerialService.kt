@@ -12,6 +12,7 @@ import android.hardware.usb.UsbManager
 import android.os.Binder
 import android.os.Handler
 import android.os.IBinder
+import android.os.Process
 import android.util.Log
 import android.widget.Toast
 import com.coai.samin_total.BuildConfig
@@ -32,12 +33,13 @@ import kotlin.concurrent.thread
 import kotlin.concurrent.timer
 
 class SerialService : Service(), SerialInputOutputManager.Listener {
+//    SerialInputOutputManager.Listener
     companion object {
         const val ACTION_USB_PERMISSION_GRANTED = "USB_PERMISSION_GRANTED"
         const val ACTION_USB_PERMISSION_NOT_GRANTED = "ACTION_USB_PERMISSION_NOT_GRANTED"
         const val ACTION_USB_DEVICE_DETACHED = "ACTION_USB_DEVICE_DETACHED"
         val INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB"
-        private const val BAUD_RATE = 9600
+        private const val BAUD_RATE = 1000000
         private const val WRITE_WAIT_MILLIS = 2000
         private const val READ_WAIT_MILLIS = 2000
         var SERVICE_CONNECTED = false
@@ -104,7 +106,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //        mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, data).sendToTarget()
     }
 
-    //SerialInputOutputManager.Listener
+//    SerialInputOutputManager.Listener
     override fun onRunError(e: Exception?) {
         mHandler.post(Runnable {
             disconnect()
@@ -179,6 +181,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         if (usbManager.hasPermission(device) && usbSerialPort == null) {
             usbConnection = usbManager.openDevice(device)
             usbSerialPort = usbDriver.ports[0]
+
             usbSerialPort!!.open(usbConnection)
             usbSerialPort!!.setParameters(
                 BAUD_RATE,
@@ -186,10 +189,24 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 UsbSerialPort.STOPBITS_1,
                 UsbSerialPort.PARITY_NONE
             )
-
+            usbSerialPort!!.dtr = true
+            usbSerialPort!!.rts = true
+//            Thread {
+//
+//                val buff = ByteArray(30)
+//                while (true){
+//                    val size = usbSerialPort!!.read(buff, READ_WAIT_MILLIS)
+//                    if (size > 0) {
+//                        Log.d("태그", "recieved data: ${HexDump.dumpHexString(buff)}")
+//                    }
+//                }
+//
+//            }.start()
+//
             usbIoManager = SerialInputOutputManager(usbSerialPort, this)
-            usbIoManager!!.readTimeout = 200
-            usbIoManager!!.writeTimeout = 200
+//            usbIoManager!!.readTimeout = 1000
+//            usbIoManager!!.writeTimeout = 200
+//            usbIoManager!!.readBufferSize = 1000
             usbIoManager!!.start()
             serialPortConnected = true
 
@@ -211,8 +228,8 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     }
 
     fun sendData(data: ByteArray) {
-//        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
-        usbIoManager!!.writeAsync(data);
+        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
+//        usbIoManager!!.writeAsync(data)
 
         Log.d("태그", "send data :${HexDump.dumpHexString(data)}")
     }
@@ -222,6 +239,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         protocol.feedBack(3, 0)
 //        usbSerialPort?.write()
     }
+
 
     private val HEADER: ByteArray = byteArrayOf(0xff.toByte(), 0xFE.toByte())
     private var lastRecvTime: Long = System.currentTimeMillis()
@@ -238,9 +256,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             //3. 데이터를 tmpdata의 잔여 데이터 뒤에 데이터 사이즈만큼 넣음
             System.arraycopy(data, 0, tmpdata, bufferIndex, data.size)
             var idx: Int = 0
-            Log.d("태그", "received = ${HexDump.dumpHexString(data)}")
+//            Log.d("태그", "received = ${HexDump.dumpHexString(data)}")
 
-            if (tmpdata.size < 15) {
+            if (tmpdata.size < 7) {
                 //3. 수신받은 데이터 부족 시 리시브버퍼로 데이터 이동
                 System.arraycopy(tmpdata, idx, recvBuffer, 0, tmpdata.size)
                 //4. 이전 받은 데이터 확인을 위해 버퍼 인덱스 수정
@@ -258,8 +276,8 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                     //다음 헤더가 없는 경우 -1 변환(헤더 중복 체크)
                     if (scndpos == -1) {
                         // 다음 데이터 없음
-                        if (tmpdata[chkPos + 4] + 4 + 1 == tmpdata.size - chkPos) {
-                            // 해당 전문을 다 받았을 경우
+                        if (tmpdata[chkPos + 4] + 4 + 1 <= tmpdata.size - chkPos) {
+                            // 해당 전문을 다 받았을 경우 ,또는 크거나
                             val focusdata: ByteArray =
                                 tmpdata.drop(chkPos).toByteArray()
                             //todo
@@ -269,6 +287,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                             bufferIndex = 0;
 
                         } else {
+                            //해당 전문보다 데이터가 작을경우
                             System.arraycopy(
                                 tmpdata,
                                 chkPos,
@@ -285,9 +304,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                         //첫번째 헤더 앞부분 짤라냄.(drop) //첫번째 헤더부터 두번째 헤더 앞까지 짤라냄.(take)
                         val focusdata: ByteArray =
                             tmpdata.drop(chkPos).take(scndpos - chkPos).toByteArray()
-                        if (focusdata.size == 15){
 
-                        }
                         mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, focusdata).sendToTarget()
                         // 두번째 헤더 부분을 idx
                         idx = scndpos

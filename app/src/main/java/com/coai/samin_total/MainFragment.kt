@@ -8,7 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.coai.samin_total.Logic.SaminProtocol
+import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentMainBinding
+import kotlinx.coroutines.delay
+import kotlin.concurrent.thread
 import kotlin.math.log
 
 // TODO: Rename parameter arguments, choose names that match
@@ -54,10 +57,18 @@ class MainFragment : Fragment() {
         setButtonClickEvent()
 
         mBinding.btnSound.setOnClickListener {
-            val protocol = SaminProtocol()
-            protocol.feedBack(3, 0)
-//            Log.d("로그", "${protocol.mProtocol}")
-            activity?.serialService?.sendData(protocol.mProtocol)
+            Thread {
+                for (model in 0..15) {
+                    for (id in 0..15) {
+                        val protocol = SaminProtocol()
+                        protocol.checkModel(model.toByte(), id.toByte())
+                        Log.d("로그", "${{ HexDump.dumpHexString(protocol.mProtocol)}}")
+                        activity?.serialService?.sendData(protocol.mProtocol)
+                        Thread.sleep(100)
+                    }
+                }
+            }.start()
+
 //            Thread{
 //                while (true){
 //

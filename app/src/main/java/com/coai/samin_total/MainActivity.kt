@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var steamerMainFragment: SteamerMainFragment
     lateinit var oxygenMainFragment: OxygenMainFragment
     lateinit var gasStorageSettingFragment: GasStorageSettingFragment
-    private lateinit var oxygenViewModel:OxygenViewModel
+    private lateinit var oxygenViewModel: OxygenViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,16 +63,22 @@ class MainActivity : AppCompatActivity() {
 //        }
         Log.d(mainTAG, "바인드 시작")
         val usbSerialServiceIntent = Intent(this, SerialService::class.java)
+//        val usbSerialServiceIntent = Intent(this, UsbSerialService::class.java)
         bindService(usbSerialServiceIntent, serialServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
-    var serialService: SerialService? = null
+        var serialService: SerialService? = null
+//    var usbSerialService: UsbSerialService? = null
     var isSerialSevice = false
 
+    @ExperimentalUnsignedTypes
     val serialServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as SerialService.SerialServiceBinder
             serialService = binder.getService()
+//            val binder = service as UsbSerialService.UsbSerialServiceBinder
+//            usbSerialService = binder.getService()
+
             //핸들러 연결
             serialService!!.setHandler(datahandler)
             isSerialSevice = true
@@ -90,7 +96,18 @@ class MainActivity : AppCompatActivity() {
             Log.d(mainTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
             val receiveParser = SaminProtocol()
             receiveParser.parse(msg.obj as ByteArray)
-            when(receiveParser.modelName){
+            when (receiveParser.modelName) {
+                "GasDock" -> {
+                    Log.d("태그", "GasDock // id:${receiveParser.mProtocol.get(3)} model:${receiveParser.mProtocol.get(2)}")
+                }
+                "GasRoom" -> {
+                    Log.d("태그", "GasRoom // id:${receiveParser.mProtocol.get(3)} model:${receiveParser.mProtocol.get(2)}")
+
+                }
+                "WasteLiquor" -> {
+                    Log.d("태그", "WasteLiquor // id:${receiveParser.mProtocol.get(3)} model:${receiveParser.mProtocol.get(2)}")
+
+                }
                 "Oxygen" -> {
 //                    val sensor_data = receiveParser.mProtocol.slice(7..8)
 //                    val demical_value = sensor_data.get(0).toFloat() / 100
@@ -102,7 +119,9 @@ class MainActivity : AppCompatActivity() {
                         oxygenViewModel.OxygenSensorIDs.value?.add(
                             receiveParser.mProtocol.get(3).toInt()
                         )
-                        val tempval = littleEndianConversion(receiveParser.mProtocol.slice(7..8).toByteArray()).toUShort()
+                        val tempval = littleEndianConversion(
+                            receiveParser.mProtocol.slice(7..8).toByteArray()
+                        ).toUShort()
 
                         val oxygen = tempval.toInt() / 100
 
@@ -117,12 +136,18 @@ class MainActivity : AppCompatActivity() {
                             "태그",
                             "integer_value:$integer_value demical_value:$demical_value  sensor_Id:$sensor_Id"
                         )
-                    } catch (ex: Exception){
+                    } catch (ex: Exception) {
 
                     }
 
                 }
 
+                "Steamer" -> {
+
+                }
+                "Temp_Hum" ->{
+
+                }
             }
 
 
@@ -222,13 +247,14 @@ class MainActivity : AppCompatActivity() {
             // hide the navigation bar.
             systemUiVisibility =
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or  View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 //                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
 //                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
 //                        View.SYSTEM_UI_FLAG_FULLSCREEN
 
         }
     }
+
     fun littleEndianConversion(bytes: ByteArray): Int {
         var result = 0
         for (i in bytes.indices) {

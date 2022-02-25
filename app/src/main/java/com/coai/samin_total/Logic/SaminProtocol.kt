@@ -1,6 +1,7 @@
 package com.coai.samin_total.Logic
 
 import android.util.Log
+import com.coai.samin_total.Service.HexDump
 import kotlin.experimental.inv
 
 class SaminProtocol {
@@ -100,6 +101,8 @@ class SaminProtocol {
         var ret = false
         try {
             mProtocol = ByteArray(data.size)
+            Log.d("로그", "parse : ${HexDump.dumpHexString(mProtocol)}")
+
             data.copyInto(mProtocol!!, endIndex = mProtocol!!.size)
 
             if (mProtocol[4] + 4 + 1 > data.size)
