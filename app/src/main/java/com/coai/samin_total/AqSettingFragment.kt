@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
+import com.coai.samin_total.Oxygen.OxygenViewModel
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -26,6 +28,7 @@ class AqSettingFragment : Fragment() {
     private var param2: String? = null
     var activity:MainActivity? = null
     private lateinit var onBackPressed: OnBackPressedCallback
+    private val viewmodel by activityViewModels<MainViewModel>()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

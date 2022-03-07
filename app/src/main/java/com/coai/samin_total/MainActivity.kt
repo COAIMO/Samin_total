@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.ScanDialogFragment
@@ -45,13 +47,21 @@ class MainActivity : AppCompatActivity() {
     lateinit var oxygenMainFragment: OxygenMainFragment
     lateinit var gasStorageSettingFragment: GasStorageSettingFragment
     private lateinit var oxygenViewModel: OxygenViewModel
+    private lateinit var mainViewModel: MainViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
         oxygenViewModel = ViewModelProvider(this).get(OxygenViewModel::class.java)
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+
         setFragment()
+
+//        mainViewModel.model_ID_Data.observe(this, Observer {
+//            Log.d("태그", "model_ID_Data: $it")
+//        })
 
     }
 
@@ -99,6 +109,25 @@ class MainActivity : AppCompatActivity() {
             when (receiveParser.modelName) {
                 "GasDock" -> {
                     Log.d("태그", "GasDock // id:${receiveParser.mProtocol.get(3)} model:${receiveParser.mProtocol.get(2)}")
+                    mainViewModel.model_ID_Data.value?.put("GasDock", receiveParser.mProtocol.get(3))
+
+                    val pin1_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(7..8).toByteArray()
+                    ).toFloat()
+                    val pin2_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(9..10).toByteArray()
+                    ).toFloat()
+                    val pin3_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(11..12).toByteArray()
+                    ).toFloat()
+                    val pin4_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(13..14).toByteArray()
+                    ).toFloat()
+                    Log.d("태그", "pin1_data : ${pin1_data} " +
+                            "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
+                    )
+
+
                 }
                 "GasRoom" -> {
                     Log.d("태그", "GasRoom // id:${receiveParser.mProtocol.get(3)} model:${receiveParser.mProtocol.get(2)}")
@@ -106,6 +135,22 @@ class MainActivity : AppCompatActivity() {
                 }
                 "WasteLiquor" -> {
                     Log.d("태그", "WasteLiquor // id:${receiveParser.mProtocol.get(3)} model:${receiveParser.mProtocol.get(2)}")
+                    mainViewModel.model_ID_Data.value?.put("WasteLiquor",receiveParser.mProtocol.get(3))
+
+                    val pin1_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(7..8).toByteArray()
+                    )
+                    val pin2_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(9..10).toByteArray()
+                    )
+                    val pin3_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(11..12).toByteArray()
+                    )
+                    val pin4_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(13..14).toByteArray()
+                    )
+
+                    mainViewModel.LevelValue.value = pin1_data
 
                 }
                 "Oxygen" -> {
@@ -144,6 +189,7 @@ class MainActivity : AppCompatActivity() {
 
                 "Steamer" -> {
 
+                    //
                 }
                 "Temp_Hum" ->{
 

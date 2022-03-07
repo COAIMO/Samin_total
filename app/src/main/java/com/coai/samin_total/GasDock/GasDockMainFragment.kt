@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import com.coai.samin_total.*
+import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.databinding.FragmentGasDockMainBinding
 import com.coai.uikit.GlobalUiTimer
 import kotlinx.coroutines.channels.consumesAll
@@ -37,6 +38,8 @@ class GasDockMainFragment : Fragment() {
     private lateinit var recycleAdapter: GasStorage_RecycleAdapter
     private lateinit var onBackPressed: OnBackPressedCallback
     val TAG = "GasDockMainFragment"
+    private lateinit var sendThread:Thread
+    var sending = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -78,27 +81,46 @@ class GasDockMainFragment : Fragment() {
         mBinding = FragmentGasDockMainBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment
         initRecycler()
-        mBinding.titleTv.setOnClickListener {
-            mBinding.gasStorageRecyclerView.apply {
-                gasStorageViewData.apply {
-                    add(
-                        SetGasdockViewData(
-                            2,
-                            "Ar",
-                            Color.parseColor("#6599CD"),
-                            200f,
-                            2000f,
-                            gasIndex = 0,
-                            pressure = 250f,
+//        mBinding.titleTv.setOnClickListener {
+//            mBinding.gasStorageRecyclerView.apply {
+//                gasStorageViewData.apply {
+//                    add(
+//                        SetGasdockViewData(
+//                            2,
+//                            "Ar",
+//                            Color.parseColor("#6599CD"),
+//                            200f,
+//                            2000f,
+//                            gasIndex = 0,
+//                            pressure = 250f,
+//
+//                            )
+//                    )
+//                }
+//                recycleAdapter.submitList(gasStorageViewData)
+//                recycleAdapter.notifyDataSetChanged()
+//            }
+//
+//
+//        }
 
-                            )
-                    )
+        mBinding.titleTv.setOnClickListener{
+            sending = true
+            sendThread = Thread {
+                while (sending){
+                    val protocol = SaminProtocol()
+//                    for (i in 0..7){
+                        protocol.feedBack(MainViewModel.GasDockStorage, 1.toByte())
+                        activity?.serialService?.sendData(protocol.mProtocol)
+                        Log.d("태그", "SendData: ${protocol.mProtocol}")
+                        Thread.sleep(200)
+//                    }
+
                 }
-                recycleAdapter.submitList(gasStorageViewData)
-                recycleAdapter.notifyDataSetChanged()
-            }
-        }
 
+            }
+            sendThread.start()
+        }
 
         mBinding.btnSetting.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.GASSTORAGESETTINGFRAGMENT)

@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentMainBinding
@@ -30,6 +32,7 @@ class MainFragment : Fragment() {
     private var param2: String? = null
     lateinit var mBinding: FragmentMainBinding
     var activity: MainActivity? = null
+    private val mainViewModel: MainViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         activity = getActivity() as MainActivity
@@ -82,6 +85,15 @@ class MainFragment : Fragment() {
 //            }.start()
         }
 
+//        mainViewModel.model_ID_Data.observe(viewLifecycleOwner, Observer {
+//            Log.d("태그", "model_ID_Data: $it")
+//        })
+
+//        mBinding.labIDTextView.setOnClickListener{
+//            mainViewModel.model_ID_Data.observe(viewLifecycleOwner, Observer {
+//                Log.d("태그", "model_ID_Data: $it")
+//            })
+//        }
         return mBinding.root
     }
 

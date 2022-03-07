@@ -4,16 +4,21 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.GasRoom.GasRoom_RecycleAdapter
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
+import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
+import com.coai.samin_total.Oxygen.OxygenViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
 import com.coai.samin_total.databinding.FragmentWasteLiquorMainBinding
@@ -37,6 +42,10 @@ class WasteLiquorMainFragment : Fragment() {
     private val wasteLiquorViewData = mutableListOf<SetWasteLiquorViewData>()
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
+    private val mainViewModel by activityViewModels<MainViewModel>()
+    private lateinit var sendThread: Thread
+    var sending = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +58,7 @@ class WasteLiquorMainFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
-        onBackPressed = object : OnBackPressedCallback(true){
+        onBackPressed = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 activity!!.onFragmentChange(MainViewModel.MAINFRAGMENT)
             }
@@ -71,29 +80,78 @@ class WasteLiquorMainFragment : Fragment() {
         mBinding = FragmentWasteLiquorMainBinding.inflate(inflater, container, false)
         initRecycler()
 
-        mBinding.titleTv.setOnClickListener {
-            mBinding.wasteLiquorRecyclerView.apply {
-                wasteLiquorViewData.apply {
-                    add(
-                        SetWasteLiquorViewData(
-                            liquidName = "폐액",
-                            isAlert = true
-                        )
-                    )
+//        mBinding.titleTv.setOnClickListener {
+//            mBinding.wasteLiquorRecyclerView.apply {
+//                wasteLiquorViewData.apply {
+//                    add(
+//                        SetWasteLiquorViewData(
+//                            liquidName = "폐액",
+//                            isAlert = true
+//                        )
+//                    )
+//
+//                    add(
+//                        SetWasteLiquorViewData(
+//                            liquidName = "폐액",
+//                            isAlert = false
+//                        )
+//                    )
+//                }
+//                recycleAdapter.submitList(wasteLiquorViewData)
+//                recycleAdapter.notifyDataSetChanged()
+//            }
+//        }
 
-                    add(
-                        SetWasteLiquorViewData(
-                            liquidName = "폐액",
-                            isAlert = false
-                        )
-                    )
-                }
-                recycleAdapter.submitList(wasteLiquorViewData)
-                recycleAdapter.notifyDataSetChanged()
+        mainViewModel.LevelValue.observe(viewLifecycleOwner, Observer {
+            Log.d("태그", "LevelValue:${mainViewModel.model_ID_Data}")
+            Log.d("태그", "LevelValue:$it")
+            if (it == 0) {
+                recycleAdapter.setWasteLiquorViewData.set(0, SetWasteLiquorViewData("폐액", true))
+            } else {
+                recycleAdapter.setWasteLiquorViewData.set(0, SetWasteLiquorViewData("폐액", false))
+
             }
+            recycleAdapter.notifyDataSetChanged()
+
+        })
+
+        mBinding.titleTv.setOnClickListener {
+            sending = true
+            sendThread = Thread {
+                while (sending) {
+                    val protocol = SaminProtocol()
+//                    for (i in 0..7){
+                    protocol.feedBack(MainViewModel.WasteLiquor, 1.toByte())
+                    activity?.serialService?.sendData(protocol.mProtocol)
+                    Log.d("태그", "SendData: ${protocol.mProtocol}")
+                    Thread.sleep(200)
+//                    }
+
+                }
+
+            }
+            sendThread.start()
         }
 
+
+        mBinding.wasteLiquorRecyclerView.apply {
+            wasteLiquorViewData.apply {
+                add(
+                    SetWasteLiquorViewData(
+                        isAlert = false
+                    )
+                )
+            }
+            recycleAdapter.submitList(wasteLiquorViewData)
+        }
+
+
         return mBinding.root
+    }
+
+    override fun onDestroy() {
+        sending = false
+        super.onDestroy()
     }
 
     private fun initRecycler() {
@@ -110,6 +168,7 @@ class WasteLiquorMainFragment : Fragment() {
         }
 
     }
+
     companion object {
         /**
          * Use this factory method to create a new instance of
