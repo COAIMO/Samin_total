@@ -47,6 +47,11 @@ class WasteLiquorMainFragment : Fragment() {
     var sending = false
 
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        sending = false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {

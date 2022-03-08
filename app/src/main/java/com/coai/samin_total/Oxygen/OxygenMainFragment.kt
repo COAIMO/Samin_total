@@ -154,10 +154,10 @@ class OxygenMainFragment : Fragment() {
             Thread {
                 while (true) {
                     val protocol = SaminProtocol()
-                    protocol.feedBack(3, 1)
+                    protocol.feedBack(MainViewModel.Oxygen, 1)
 //                    Log.d("로그", "${protocol.mProtocol}")
                     activity?.serialService?.sendData(protocol.mProtocol)
-                    Thread.sleep(1000)
+                    Thread.sleep(200)
                 }
 
             }.start()

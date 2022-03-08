@@ -2,13 +2,16 @@ package com.coai.samin_total.Steamer
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.GasRoom.GasRoom_RecycleAdapter
+import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.Oxygen.Oxygen_RecycleAdapter
@@ -31,11 +34,14 @@ class SteamerMainFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    lateinit var mBinding:FragmentSteamerMainBinding
+    lateinit var mBinding: FragmentSteamerMainBinding
     private lateinit var recycleAdapter: Steamer_RecycleAdapter
     private val steamerViewData = mutableListOf<SetSteamerViewData>()
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
+    private val mainViewModel by activityViewModels<MainViewModel>()
+    private lateinit var sendThread: Thread
+    var sending = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,10 +50,11 @@ class SteamerMainFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
     }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
-        onBackPressed = object : OnBackPressedCallback(true){
+        onBackPressed = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 activity!!.onFragmentChange(MainViewModel.MAINFRAGMENT)
             }
@@ -70,47 +77,59 @@ class SteamerMainFragment : Fragment() {
         initRecycler()
         mBinding.titleTv.setOnClickListener {
             mBinding.steamerRecyclerView.apply {
-                steamerViewData.apply {
-                    add(
-                        SetSteamerViewData(
-                            isAlertLow = true,
-                            isTemp = 22,
-                            isTempMin = 0
-                        )
-                    )
-                    add(
-                        SetSteamerViewData(
-                            isAlertLow = true,
-                            isTemp = 33,
-                            isTempMin = 0
-                        )
-                    )
-                    add(
-                        SetSteamerViewData(
-                            isAlertLow = false,
-                            isTemp = 44,
-                            isTempMin = 0
-                        )
-                    )
-                    add(
-                        SetSteamerViewData(
-                            isAlertLow = false,
-                            isTemp = 55,
-                            isTempMin = 66
-                        )
-                    )
+                sending = true
+                sendThread = Thread {
+                    while (sending) {
+                        val protocol = SaminProtocol()
+//                    for (i in 0..7){
+                        protocol.feedBack(MainViewModel.Steamer, 1.toByte())
+                        activity?.serialService?.sendData(protocol.mProtocol)
+                        Log.d("태그", "SendData: ${protocol.mProtocol}")
+                        Thread.sleep(200)
+//                    }
+
+                    }
+
                 }
-                recycleAdapter.submitList(steamerViewData)
-                recycleAdapter.notifyDataSetChanged()
+                sendThread.start()
             }
         }
+
+        mBinding.steamerRecyclerView.apply {
+            steamerViewData.apply {
+                add(
+                    SetSteamerViewData(
+                        false,
+                        0,
+                        0
+                    )
+                )
+            }
+            recycleAdapter.submitList(steamerViewData)
+        }
+
+//        mainViewModel.TempValue.observe(viewLifecycleOwner, {
+//            recycleAdapter.setSteamerViewData.set(0, SetSteamerViewData(isTemp = it))
+//            recycleAdapter.notifyDataSetChanged()
+//
+//        })
+//
+//        mainViewModel.WaterGauge.observe(viewLifecycleOwner, {
+//            recycleAdapter.setSteamerViewData.set(0, SetSteamerViewData(isAlertLow = it))
+//            recycleAdapter.notifyDataSetChanged()
+//
+//        })
+        mainViewModel.SteamerData.observe(viewLifecycleOwner,{
+            recycleAdapter.setSteamerViewData.set(0, it)
+            recycleAdapter.notifyDataSetChanged()
+        })
 
         return mBinding.root
     }
 
 
     private fun initRecycler() {
-        mBinding.steamerRecyclerView .apply {
+        mBinding.steamerRecyclerView.apply {
             layoutManager =
                 GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
 
@@ -131,6 +150,7 @@ class SteamerMainFragment : Fragment() {
         }
 
     }
+
     companion object {
         /**
          * Use this factory method to create a new instance of

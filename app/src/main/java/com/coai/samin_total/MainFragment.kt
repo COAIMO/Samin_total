@@ -89,11 +89,13 @@ class MainFragment : Fragment() {
 //            Log.d("태그", "model_ID_Data: $it")
 //        })
 
-//        mBinding.labIDTextView.setOnClickListener{
-//            mainViewModel.model_ID_Data.observe(viewLifecycleOwner, Observer {
-//                Log.d("태그", "model_ID_Data: $it")
-//            })
-//        }
+        val count = 0
+        mBinding.labIDTextView.setOnClickListener{
+
+            val protocol = SaminProtocol()
+            protocol.led_NormalState(0, 1)
+            activity?.serialService?.sendData(protocol.mProtocol)
+        }
         return mBinding.root
     }
 

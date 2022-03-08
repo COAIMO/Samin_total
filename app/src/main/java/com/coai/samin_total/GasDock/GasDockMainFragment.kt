@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
@@ -38,13 +39,15 @@ class GasDockMainFragment : Fragment() {
     private lateinit var recycleAdapter: GasStorage_RecycleAdapter
     private lateinit var onBackPressed: OnBackPressedCallback
     val TAG = "GasDockMainFragment"
-    private lateinit var sendThread:Thread
+    private lateinit var sendThread: Thread
     var sending = false
+    private val mainViewModel by activityViewModels<MainViewModel>()
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
-        onBackPressed = object : OnBackPressedCallback(true){
+        onBackPressed = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 activity!!.onFragmentChange(MainViewModel.MAINFRAGMENT)
             }
@@ -71,7 +74,6 @@ class GasDockMainFragment : Fragment() {
         super.onResume()
 
     }
-
 
 
     override fun onCreateView(
@@ -104,16 +106,16 @@ class GasDockMainFragment : Fragment() {
 //
 //        }
 
-        mBinding.titleTv.setOnClickListener{
+        mBinding.titleTv.setOnClickListener {
             sending = true
             sendThread = Thread {
-                while (sending){
+                while (sending) {
                     val protocol = SaminProtocol()
 //                    for (i in 0..7){
-                        protocol.feedBack(MainViewModel.GasDockStorage, 1.toByte())
-                        activity?.serialService?.sendData(protocol.mProtocol)
-                        Log.d("태그", "SendData: ${protocol.mProtocol}")
-                        Thread.sleep(200)
+                    protocol.feedBack(MainViewModel.GasDockStorage, 1.toByte())
+                    activity?.serialService?.sendData(protocol.mProtocol)
+                    Log.d("태그", "SendData: ${protocol.mProtocol}")
+                    Thread.sleep(1000)
 //                    }
 
                 }
@@ -122,14 +124,43 @@ class GasDockMainFragment : Fragment() {
             sendThread.start()
         }
 
+
         mBinding.btnSetting.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.GASSTORAGESETTINGFRAGMENT)
         }
 
+        mBinding.gasStorageRecyclerView.apply {
+            gasStorageViewData.apply {
+                add(
+                    SetGasdockViewData(
+                        0,
+                        "O2",
+                        Color.parseColor("#6599CD"),
+                        200f,
+                        2000f,
+                        gasIndex = 0,
+                        pressure = 0f,
+                    )
+                )
+            }
+        }
+
+        mainViewModel.GasStorageData.observe(viewLifecycleOwner,{
+            recycleAdapter.setGasdockViewData.set(0, SetGasdockViewData(0,
+                "O2",
+                Color.parseColor("#6599CD"),
+                200f,
+                2000f,
+                gasIndex = 0,
+                pressure = it)
+            )
+            recycleAdapter.notifyDataSetChanged()
+
+        })
+
 
         return mBinding.root
     }
-
 
 
     companion object {

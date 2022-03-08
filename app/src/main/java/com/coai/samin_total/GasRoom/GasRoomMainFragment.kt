@@ -11,8 +11,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.GasDock.SetGasdockViewData
+import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.RecyclerDecoration_Height
@@ -37,6 +39,9 @@ class GasRoomMainFragment : Fragment() {
     private lateinit var recycleAdapter: GasRoom_RecycleAdapter
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
+    private val mainViewModel by activityViewModels<MainViewModel>()
+    private lateinit var sendThread: Thread
+    var sending = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,23 +77,52 @@ class GasRoomMainFragment : Fragment() {
         initRecycler()
 
         mBinding.titleTv.setOnClickListener {
-            mBinding.gasRoomRecyclerView.apply {
-                gasRoomViewData.apply {
-                    add(
-                        SetGasRoomViewData(
-                            gasName = "asdfa",
-                            gasColor = Color.parseColor("#DDDDDD"),
-                            gasIndex = 0,
-                            gasUnit = 0,
-                            pressure = 10f,
-                            pressureMax = 150f
-                        )
-                    )
+            sending = true
+            sendThread = Thread {
+                while (sending) {
+                    val protocol = SaminProtocol()
+//                    for (i in 0..7){
+                    protocol.feedBack(MainViewModel.GasRoom, 1.toByte())
+                    activity?.serialService?.sendData(protocol.mProtocol)
+                    Log.d("태그", "SendData: ${protocol.mProtocol}")
+                    Thread.sleep(200)
+//                    }
+
                 }
-                recycleAdapter.submitList(gasRoomViewData)
-                recycleAdapter.notifyDataSetChanged()
+
             }
+            sendThread.start()
         }
+
+        mBinding.gasRoomRecyclerView.apply {
+            gasRoomViewData.apply {
+                add(
+                    SetGasRoomViewData(
+                        gasName = "asdfa",
+                        gasColor = Color.parseColor("#DDDDDD"),
+                        gasIndex = 0,
+                        gasUnit = 0,
+                        pressure = 10f,
+                        pressureMax = 150f
+                    )
+                )
+            }
+            recycleAdapter.submitList(gasRoomViewData)
+            recycleAdapter.notifyDataSetChanged()
+        }
+
+        mainViewModel.GasRoomData.observe(viewLifecycleOwner, {
+            recycleAdapter.setGasRoomViewData.set(0, SetGasRoomViewData(
+                gasName = "asdfa",
+                gasColor = Color.parseColor("#DDDDDD"),
+                gasIndex = 0,
+                gasUnit = 0,
+                pressure = it,
+                pressureMax = 150f
+            ))
+
+            recycleAdapter.notifyDataSetChanged()
+        })
 
         return mBinding.root
     }

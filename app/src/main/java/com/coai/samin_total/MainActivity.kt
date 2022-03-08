@@ -22,10 +22,12 @@ import com.coai.samin_total.Oxygen.OxygenMainFragment
 import com.coai.samin_total.Oxygen.OxygenViewModel
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Service.SerialService
+import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerMainFragment
 import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.databinding.ActivityMainBinding
 import com.coai.uikit.GlobalUiTimer
+import java.text.DecimalFormat
 
 class MainActivity : AppCompatActivity() {
 
@@ -77,8 +79,9 @@ class MainActivity : AppCompatActivity() {
         bindService(usbSerialServiceIntent, serialServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
-        var serialService: SerialService? = null
-//    var usbSerialService: UsbSerialService? = null
+    var serialService: SerialService? = null
+
+    //    var usbSerialService: UsbSerialService? = null
     var isSerialSevice = false
 
     @ExperimentalUnsignedTypes
@@ -96,7 +99,7 @@ class MainActivity : AppCompatActivity() {
 
         override fun onServiceDisconnected(name: ComponentName?) {
             isSerialSevice = false
-            Toast.makeText(this@MainActivity, "서비스 연결 해제", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this@MainActivity, "서비스 연결 해제", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -108,8 +111,16 @@ class MainActivity : AppCompatActivity() {
             receiveParser.parse(msg.obj as ByteArray)
             when (receiveParser.modelName) {
                 "GasDock" -> {
-                    Log.d("태그", "GasDock // id:${receiveParser.mProtocol.get(3)} model:${receiveParser.mProtocol.get(2)}")
-                    mainViewModel.model_ID_Data.value?.put("GasDock", receiveParser.mProtocol.get(3))
+                    Log.d(
+                        "태그",
+                        "GasDock // id:${receiveParser.mProtocol.get(3)} model:${
+                            receiveParser.mProtocol.get(2)
+                        }"
+                    )
+                    mainViewModel.model_ID_Data.value?.put(
+                        "GasDock",
+                        receiveParser.mProtocol.get(3)
+                    )
 
                     val pin1_data = littleEndianConversion(
                         receiveParser.mProtocol.slice(7..8).toByteArray()
@@ -123,19 +134,69 @@ class MainActivity : AppCompatActivity() {
                     val pin4_data = littleEndianConversion(
                         receiveParser.mProtocol.slice(13..14).toByteArray()
                     ).toFloat()
-                    Log.d("태그", "pin1_data : ${pin1_data} " +
-                            "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
+                    Log.d(
+                        "태그", "pin1_data : ${pin1_data} " +
+                                "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
                     )
 
+                    val rewardvalue: Float = 1f
+                    var sensor_Data_1 = 0f
+                    if (pin2_data < 204.8f) {
+                        mainViewModel.GasStorageData.value = 0f
+                    } else {
+                        sensor_Data_1 =
+                            rewardvalue * ((pin2_data - 204.8f) * (2320.6f / (1024f - 204.8f)))
+                        mainViewModel.GasStorageData.value = sensor_Data_1
+                    }
+                    Log.d("태그", "sensor_Data_1:${sensor_Data_1} ")
 
                 }
                 "GasRoom" -> {
-                    Log.d("태그", "GasRoom // id:${receiveParser.mProtocol.get(3)} model:${receiveParser.mProtocol.get(2)}")
+                    Log.d(
+                        "태그",
+                        "GasRoom // id:${receiveParser.mProtocol.get(3)} model:${
+                            receiveParser.mProtocol.get(2)
+                        }"
+                    )
+                    //WIKAI 16BAR
+
+                    val pin1_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(7..8).toByteArray()
+                    ).toFloat()
+                    val pin2_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(9..10).toByteArray()
+                    ).toFloat()
+                    val pin3_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(11..12).toByteArray()
+                    ).toFloat()
+                    val pin4_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(13..14).toByteArray()
+                    ).toFloat()
+
+                    val rewardvalue: Float = 1f
+                    var sensor_Data_1 = 0f
+                    if (pin2_data < 204.8f) {
+                        mainViewModel.GasRoomData.value = 0f
+                    } else {
+                        sensor_Data_1 =
+                            rewardvalue * ((pin2_data - 204.8f) * (232.06f / (1024f - 204.8f)))
+                        mainViewModel.GasRoomData.value = sensor_Data_1
+                    }
+
+                    Log.d("태그", "sensor_Data_1:${sensor_Data_1} ")
 
                 }
                 "WasteLiquor" -> {
-                    Log.d("태그", "WasteLiquor // id:${receiveParser.mProtocol.get(3)} model:${receiveParser.mProtocol.get(2)}")
-                    mainViewModel.model_ID_Data.value?.put("WasteLiquor",receiveParser.mProtocol.get(3))
+                    Log.d(
+                        "태그",
+                        "WasteLiquor // id:${receiveParser.mProtocol.get(3)} model:${
+                            receiveParser.mProtocol.get(2)
+                        }"
+                    )
+                    mainViewModel.model_ID_Data.value?.put(
+                        "WasteLiquor",
+                        receiveParser.mProtocol.get(3)
+                    )
 
                     val pin1_data = littleEndianConversion(
                         receiveParser.mProtocol.slice(7..8).toByteArray()
@@ -154,9 +215,6 @@ class MainActivity : AppCompatActivity() {
 
                 }
                 "Oxygen" -> {
-//                    val sensor_data = receiveParser.mProtocol.slice(7..8)
-//                    val demical_value = sensor_data.get(0).toFloat() / 100
-//                    val integer_value = sensor_data.get(1).toInt()
 
                     try {
                         oxygenViewModel.OxygenSensorID.value =
@@ -170,17 +228,9 @@ class MainActivity : AppCompatActivity() {
 
                         val oxygen = tempval.toInt() / 100
 
-
-                        val sensor_Id = receiveParser.mProtocol.get(3)
-                        val demical_value = receiveParser.mProtocol.get(7).toFloat() / 100
-                        val integer_value = receiveParser.mProtocol.get(8).toInt()
-
                         oxygenViewModel.OxygenValue.value = oxygen
                         //todo  에러 데이터 포함시킬것
-                        Log.d(
-                            "태그",
-                            "integer_value:$integer_value demical_value:$demical_value  sensor_Id:$sensor_Id"
-                        )
+
                     } catch (ex: Exception) {
 
                     }
@@ -188,10 +238,43 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 "Steamer" -> {
+                    Log.d(
+                        "태그",
+                        "Steamer // id:${receiveParser.mProtocol.get(3)} model:${
+                            receiveParser.mProtocol.get(2)
+                        }"
+                    )
 
-                    //
+                    val pin1_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(7..8).toByteArray()
+                    )
+                    val pin2_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(9..10).toByteArray()
+                    )
+                    val pin3_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(11..12).toByteArray()
+                    )
+                    val pin4_data = littleEndianConversion(
+                        receiveParser.mProtocol.slice(13..14).toByteArray()
+                    )
+
+                    mainViewModel.TempValue.value = pin1_data / 33
+                    Log.d(
+                        "태그", "pin1_data : ${pin1_data} " +
+                                "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
+                    )
+
+                    mainViewModel.WaterGauge.value = pin3_data < 1000
+
+                    mainViewModel.SteamerData.value =
+                        SetSteamerViewData(pin3_data < 1000, isTemp = pin1_data / 33)
+
+                    Log.d(
+                        "태그", "TempValue : ${mainViewModel.TempValue.value}" +
+                                "WaterGauge : ${mainViewModel.WaterGauge.value}"
+                    )
                 }
-                "Temp_Hum" ->{
+                "Temp_Hum" -> {
 
                 }
             }
@@ -309,7 +392,4 @@ class MainActivity : AppCompatActivity() {
         return result
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-    }
 }
