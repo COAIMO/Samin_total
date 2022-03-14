@@ -211,7 +211,7 @@ class MainActivity : AppCompatActivity() {
                         receiveParser.mProtocol.slice(13..14).toByteArray()
                     )
 
-                    mainViewModel.LevelValue.value = pin1_data
+                    mainViewModel.LevelValue.value = pin3_data
 
                 }
                 "Oxygen" -> {

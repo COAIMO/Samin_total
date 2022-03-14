@@ -143,7 +143,7 @@ class WasteLiquorMainFragment : Fragment() {
             wasteLiquorViewData.apply {
                 add(
                     SetWasteLiquorViewData(
-                        isAlert = false
+                        isAlert = true
                     )
                 )
             }
@@ -152,11 +152,6 @@ class WasteLiquorMainFragment : Fragment() {
 
 
         return mBinding.root
-    }
-
-    override fun onDestroy() {
-        sending = false
-        super.onDestroy()
     }
 
     private fun initRecycler() {

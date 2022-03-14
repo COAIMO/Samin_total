@@ -151,6 +151,11 @@ class SteamerMainFragment : Fragment() {
 
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        sending = false
+    }
+
     companion object {
         /**
          * Use this factory method to create a new instance of

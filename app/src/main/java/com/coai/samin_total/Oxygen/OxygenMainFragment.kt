@@ -47,7 +47,8 @@ class OxygenMainFragment : Fragment() {
     private val oxygenViewData = mutableListOf<SetOxygenViewData>()
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
-
+    private lateinit var sendThread: Thread
+    var sending = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -151,8 +152,9 @@ class OxygenMainFragment : Fragment() {
 //        viewmodel.OxygenViewData.observe(viewLifecycleOwner, dataObserver)
 
         mBinding.titleTv.setOnClickListener {
-            Thread {
-                while (true) {
+            sending = true
+            sendThread = Thread {
+                while (sending) {
                     val protocol = SaminProtocol()
                     protocol.feedBack(MainViewModel.Oxygen, 1)
 //                    Log.d("로그", "${protocol.mProtocol}")
@@ -160,7 +162,8 @@ class OxygenMainFragment : Fragment() {
                     Thread.sleep(200)
                 }
 
-            }.start()
+            }
+            sendThread.start()
         }
 
 //        mBinding.titleTv.setOnClickListener {
@@ -236,6 +239,11 @@ class OxygenMainFragment : Fragment() {
             adapter = recycleAdapter
         }
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        sending = false
     }
 
     companion object {

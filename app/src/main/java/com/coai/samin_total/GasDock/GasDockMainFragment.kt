@@ -162,6 +162,10 @@ class GasDockMainFragment : Fragment() {
         return mBinding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        sending = false
+    }
 
     companion object {
         /**

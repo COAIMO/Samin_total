@@ -90,12 +90,12 @@ class MainFragment : Fragment() {
 //        })
 
         val count = 0
-        mBinding.labIDTextView.setOnClickListener{
-
-            val protocol = SaminProtocol()
-            protocol.led_NormalState(0, 1)
-            activity?.serialService?.sendData(protocol.mProtocol)
-        }
+//        mBinding.labIDTextView.setOnClickListener{
+//
+//            val protocol = SaminProtocol()
+//            protocol.led_NormalState(0, 1)
+//            activity?.serialService?.sendData(protocol.mProtocol)
+//        }
         return mBinding.root
     }
 

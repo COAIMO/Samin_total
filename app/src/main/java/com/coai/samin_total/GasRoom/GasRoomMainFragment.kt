@@ -98,7 +98,7 @@ class GasRoomMainFragment : Fragment() {
             gasRoomViewData.apply {
                 add(
                     SetGasRoomViewData(
-                        gasName = "asdfa",
+                        gasName = "O2",
                         gasColor = Color.parseColor("#DDDDDD"),
                         gasIndex = 0,
                         gasUnit = 0,
@@ -113,7 +113,7 @@ class GasRoomMainFragment : Fragment() {
 
         mainViewModel.GasRoomData.observe(viewLifecycleOwner, {
             recycleAdapter.setGasRoomViewData.set(0, SetGasRoomViewData(
-                gasName = "asdfa",
+                gasName = "O2",
                 gasColor = Color.parseColor("#DDDDDD"),
                 gasIndex = 0,
                 gasUnit = 0,
@@ -150,6 +150,11 @@ class GasRoomMainFragment : Fragment() {
             adapter = recycleAdapter
         }
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        sending = false
     }
 
     companion object {
