@@ -5,8 +5,10 @@ import com.coai.samin_total.Service.HexDump
 import kotlin.experimental.inv
 
 class SaminProtocol {
-    var mProtocol: ByteArray = ByteArray(20)
-
+//    var mProtocol: ByteArray = ByteArray(20)
+    lateinit var mProtocol: ByteArray
+    var modelName: String? = null
+    var packetName: String? = null
     /**
      * model (저장고, 룸, 폐액통...)
      * id 대상 ID
@@ -15,11 +17,13 @@ class SaminProtocol {
     fun buildProtocol(model: Byte, id: Byte, mode: Byte, data: Byte?) {
         val length: Byte
         if (data == null) {
-            length = 0x02.toByte()
+            length = 2
+            mProtocol = ByteArray(length + 5)
             mProtocol[4] = length
         } else {
             //Length
             length = 0x03.toByte()
+            mProtocol = ByteArray(length + 5)
             mProtocol[4] = length
             mProtocol[7] = data
         }
@@ -94,8 +98,6 @@ class SaminProtocol {
         buildProtocol(model, id, 0xA3.toByte(), 0x00)
     }
 
-    var modelName: String? = null
-
     @ExperimentalUnsignedTypes
     fun parse(data: ByteArray): Boolean {
         var ret = false
@@ -103,19 +105,20 @@ class SaminProtocol {
             mProtocol = ByteArray(data.size)
             Log.d("로그", "parse : ${HexDump.dumpHexString(mProtocol)}")
 
-            data.copyInto(mProtocol!!, endIndex = mProtocol!!.size)
+            data.copyInto(mProtocol, endIndex = mProtocol.size)
 
             if (mProtocol[4] + 4 + 1 > data.size)
                 return ret
 
+            packetName = SaminProtocolMode.codesMap[mProtocol[6]].toString()
             val chksum = checkSum()
             //이후 아래 2줄삭제
 //            modelName = SaminModel.codesMap[mProtocol!![2].toUByte()].toString()
 //            ret = true
-//
+
             if (mProtocol[5] == chksum) {
                 try {
-                    modelName = SaminModel.codesMap[mProtocol!![2].toUByte()].toString()
+                    modelName = SaminModel.codesMap[mProtocol[2].toUByte()].toString()
                     ret = true
                 } catch (e: Exception) {
                     ret = false

@@ -204,7 +204,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //            }.start()
 //
             usbIoManager = SerialInputOutputManager(usbSerialPort, this)
-            usbIoManager!!.readTimeout = 200
+            usbIoManager!!.readTimeout = 100
 //            usbIoManager!!.writeTimeout = 200
 //            usbIoManager!!.readBufferSize = 1000
             usbIoManager!!.start()

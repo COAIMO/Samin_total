@@ -103,179 +103,238 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    var gasdock_ids_list = mutableListOf<Byte>()
+    var gasroom_ids_list = mutableListOf<Byte>()
+    var wasteLiquor_ids_list = mutableListOf<Byte>()
+    var oxygen_ids_list = mutableListOf<Byte>()
+    var steamer_ids_list = mutableListOf<Byte>()
+
+    val modelMap = HashMap<String, ByteArray>()
+
     @ExperimentalUnsignedTypes
     val datahandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             Log.d(mainTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
             val receiveParser = SaminProtocol()
             receiveParser.parse(msg.obj as ByteArray)
-            when (receiveParser.modelName) {
-                "GasDock" -> {
-                    Log.d(
-                        "태그",
-                        "GasDock // id:${receiveParser.mProtocol.get(3)} model:${
-                            receiveParser.mProtocol.get(2)
-                        }"
-                    )
-                    mainViewModel.model_ID_Data.value?.put(
-                        "GasDock",
-                        receiveParser.mProtocol.get(3)
-                    )
-
-                    val pin1_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(7..8).toByteArray()
-                    ).toFloat()
-                    val pin2_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(9..10).toByteArray()
-                    ).toFloat()
-                    val pin3_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(11..12).toByteArray()
-                    ).toFloat()
-                    val pin4_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(13..14).toByteArray()
-                    ).toFloat()
-                    Log.d(
-                        "태그", "pin1_data : ${pin1_data} " +
-                                "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
-                    )
-
-                    val rewardvalue: Float = 1f
-                    var sensor_Data_1 = 0f
-                    if (pin2_data < 204.8f) {
-                        mainViewModel.GasStorageData.value = 0f
-                    } else {
-                        sensor_Data_1 =
-                            rewardvalue * ((pin2_data - 204.8f) * (2320.6f / (1024f - 204.8f)))
-                        mainViewModel.GasStorageData.value = sensor_Data_1
+            if (receiveParser.packetName == "CheckProductPing") {
+                val model = receiveParser.modelName
+                val ids = receiveParser.mProtocol.get(3)
+                Log.d(
+                    "체크1",
+                    "model: ${model} // id:${ids}"
+                )
+                when (model) {
+                    "GasDock" -> {
+                        val id = receiveParser.mProtocol.get(3)
+                        gasdock_ids_list.add(id)
+                        val ids = gasdock_ids_list.distinct().toByteArray()
+                        modelMap[model] = ids
                     }
-                    Log.d("태그", "sensor_Data_1:${sensor_Data_1} ")
-
-                }
-                "GasRoom" -> {
-                    Log.d(
-                        "태그",
-                        "GasRoom // id:${receiveParser.mProtocol.get(3)} model:${
-                            receiveParser.mProtocol.get(2)
-                        }"
-                    )
-                    //WIKAI 16BAR
-
-                    val pin1_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(7..8).toByteArray()
-                    ).toFloat()
-                    val pin2_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(9..10).toByteArray()
-                    ).toFloat()
-                    val pin3_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(11..12).toByteArray()
-                    ).toFloat()
-                    val pin4_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(13..14).toByteArray()
-                    ).toFloat()
-
-                    val rewardvalue: Float = 1f
-                    var sensor_Data_1 = 0f
-                    if (pin2_data < 204.8f) {
-                        mainViewModel.GasRoomData.value = 0f
-                    } else {
-                        sensor_Data_1 =
-                            rewardvalue * ((pin2_data - 204.8f) * (232.06f / (1024f - 204.8f)))
-                        mainViewModel.GasRoomData.value = sensor_Data_1
+                    "GasRoom" -> {
+                        val id = receiveParser.mProtocol.get(3)
+                        gasroom_ids_list.add(id)
+                        val ids = gasroom_ids_list.distinct().toByteArray()
+                        modelMap[model] = ids
                     }
+                    "WasteLiquor" -> {
+                        val id = receiveParser.mProtocol.get(3)
+                        wasteLiquor_ids_list.add(id)
+                        val ids = wasteLiquor_ids_list.distinct().toByteArray()
+                        modelMap[model] = ids
+                    }
+                    "Oxygen" -> {
+                        val id = receiveParser.mProtocol.get(3)
+                        oxygen_ids_list.add(id)
+                        val ids = oxygen_ids_list.distinct().toByteArray()
+                        modelMap[model] = ids
+                    }
+                    "Steamer" -> {
+                        val id = receiveParser.mProtocol.get(3)
+                        steamer_ids_list.add(id)
+                        val ids = steamer_ids_list.distinct().toByteArray()
+                        modelMap[model] = ids
+                    }
+                    "Temp_Hum" -> {
 
-                    Log.d("태그", "sensor_Data_1:${sensor_Data_1} ")
-
+                    }
                 }
-                "WasteLiquor" -> {
+                for ((key, value) in modelMap) {
                     Log.d(
-                        "태그",
-                        "WasteLiquor // id:${receiveParser.mProtocol.get(3)} model:${
-                            receiveParser.mProtocol.get(2)
-                        }"
+                        "체크",
+                        "modelMap(key): ${key} // modelMap(value):${HexDump.dumpHexString(modelMap[key])} "
                     )
-                    mainViewModel.model_ID_Data.value?.put(
-                        "WasteLiquor",
-                        receiveParser.mProtocol.get(3)
-                    )
-
-                    val pin1_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(7..8).toByteArray()
-                    )
-                    val pin2_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(9..10).toByteArray()
-                    )
-                    val pin3_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(11..12).toByteArray()
-                    )
-                    val pin4_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(13..14).toByteArray()
-                    )
-
-                    mainViewModel.LevelValue.value = pin3_data
 
                 }
-                "Oxygen" -> {
-
-                    try {
-                        oxygenViewModel.OxygenSensorID.value =
-                            receiveParser.mProtocol.get(3).toInt()
-                        oxygenViewModel.OxygenSensorIDs.value?.add(
-                            receiveParser.mProtocol.get(3).toInt()
+            } else if (receiveParser.packetName == "RequestFeedBackPing") {
+                when (receiveParser.modelName) {
+                    "GasDock" -> {
+                        Log.d(
+                            "태그",
+                            "GasDock // id:${receiveParser.mProtocol.get(3)} model:${
+                                receiveParser.mProtocol.get(2)
+                            }"
                         )
-                        val tempval = littleEndianConversion(
+                        mainViewModel.model_ID_Data.value?.put(
+                            "GasDock",
+                            receiveParser.mProtocol.get(3)
+                        )
+
+                        val pin1_data = littleEndianConversion(
                             receiveParser.mProtocol.slice(7..8).toByteArray()
-                        ).toUShort()
+                        ).toFloat()
+                        val pin2_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(9..10).toByteArray()
+                        ).toFloat()
+                        val pin3_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(11..12).toByteArray()
+                        ).toFloat()
+                        val pin4_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(13..14).toByteArray()
+                        ).toFloat()
+                        Log.d(
+                            "태그", "pin1_data : ${pin1_data} " +
+                                    "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
+                        )
 
-                        val oxygen = tempval.toInt() / 100
+                        val rewardvalue: Float = 1f
+                        var sensor_Data_1 = 0f
+                        if (pin2_data < 204.8f) {
+                            mainViewModel.GasStorageData.value = 0f
+                        } else {
+                            sensor_Data_1 =
+                                rewardvalue * ((pin2_data - 204.8f) * (2320.6f / (1024f - 204.8f)))
+                            mainViewModel.GasStorageData.value = sensor_Data_1
+                        }
+                        Log.d("태그", "sensor_Data_1:${sensor_Data_1} ")
 
-                        oxygenViewModel.OxygenValue.value = oxygen
-                        //todo  에러 데이터 포함시킬것
+                    }
+                    "GasRoom" -> {
+                        Log.d(
+                            "태그",
+                            "GasRoom // id:${receiveParser.mProtocol.get(3)} model:${
+                                receiveParser.mProtocol.get(2)
+                            }"
+                        )
+                        //WIKAI 16BAR
 
-                    } catch (ex: Exception) {
+                        val pin1_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(7..8).toByteArray()
+                        ).toFloat()
+                        val pin2_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(9..10).toByteArray()
+                        ).toFloat()
+                        val pin3_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(11..12).toByteArray()
+                        ).toFloat()
+                        val pin4_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(13..14).toByteArray()
+                        ).toFloat()
+
+                        val rewardvalue: Float = 1f
+                        var sensor_Data_1 = 0f
+                        if (pin2_data < 204.8f) {
+                            mainViewModel.GasRoomData.value = 0f
+                        } else {
+                            sensor_Data_1 =
+                                rewardvalue * ((pin2_data - 204.8f) * (232.06f / (1024f - 204.8f)))
+                            mainViewModel.GasRoomData.value = sensor_Data_1
+                        }
+
+                        Log.d("태그", "sensor_Data_1:${sensor_Data_1} ")
+
+                    }
+                    "WasteLiquor" -> {
+                        Log.d(
+                            "태그",
+                            "WasteLiquor // id:${receiveParser.mProtocol.get(3)} model:${
+                                receiveParser.mProtocol.get(2)
+                            }"
+                        )
+                        mainViewModel.model_ID_Data.value?.put(
+                            "WasteLiquor",
+                            receiveParser.mProtocol.get(3)
+                        )
+
+                        val pin1_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(7..8).toByteArray()
+                        )
+                        val pin2_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(9..10).toByteArray()
+                        )
+                        val pin3_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(11..12).toByteArray()
+                        )
+                        val pin4_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(13..14).toByteArray()
+                        )
+
+                        mainViewModel.LevelValue.value = pin3_data
+
+                    }
+                    "Oxygen" -> {
+
+                        try {
+                            oxygenViewModel.OxygenSensorID.value =
+                                receiveParser.mProtocol.get(3).toInt()
+                            oxygenViewModel.OxygenSensorIDs.value?.add(
+                                receiveParser.mProtocol.get(3).toInt()
+                            )
+                            val tempval = littleEndianConversion(
+                                receiveParser.mProtocol.slice(7..8).toByteArray()
+                            ).toUShort()
+
+                            val oxygen = tempval.toInt() / 100
+
+                            oxygenViewModel.OxygenValue.value = oxygen
+                            //todo  에러 데이터 포함시킬것
+
+                        } catch (ex: Exception) {
+
+                        }
 
                     }
 
-                }
+                    "Steamer" -> {
+                        Log.d(
+                            "태그",
+                            "Steamer // id:${receiveParser.mProtocol.get(3)} model:${
+                                receiveParser.mProtocol.get(2)
+                            }"
+                        )
 
-                "Steamer" -> {
-                    Log.d(
-                        "태그",
-                        "Steamer // id:${receiveParser.mProtocol.get(3)} model:${
-                            receiveParser.mProtocol.get(2)
-                        }"
-                    )
+                        val pin1_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(7..8).toByteArray()
+                        )
+                        val pin2_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(9..10).toByteArray()
+                        )
+                        val pin3_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(11..12).toByteArray()
+                        )
+                        val pin4_data = littleEndianConversion(
+                            receiveParser.mProtocol.slice(13..14).toByteArray()
+                        )
 
-                    val pin1_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(7..8).toByteArray()
-                    )
-                    val pin2_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(9..10).toByteArray()
-                    )
-                    val pin3_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(11..12).toByteArray()
-                    )
-                    val pin4_data = littleEndianConversion(
-                        receiveParser.mProtocol.slice(13..14).toByteArray()
-                    )
+                        mainViewModel.TempValue.value = pin1_data / 33
+                        Log.d(
+                            "태그", "pin1_data : ${pin1_data} " +
+                                    "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
+                        )
 
-                    mainViewModel.TempValue.value = pin1_data / 33
-                    Log.d(
-                        "태그", "pin1_data : ${pin1_data} " +
-                                "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
-                    )
+                        mainViewModel.WaterGauge.value = pin3_data < 1000
 
-                    mainViewModel.WaterGauge.value = pin3_data < 1000
+                        mainViewModel.SteamerData.value =
+                            SetSteamerViewData(pin3_data < 1000, isTemp = pin1_data / 33)
 
-                    mainViewModel.SteamerData.value =
-                        SetSteamerViewData(pin3_data < 1000, isTemp = pin1_data / 33)
+                        Log.d(
+                            "태그", "TempValue : ${mainViewModel.TempValue.value}" +
+                                    "WaterGauge : ${mainViewModel.WaterGauge.value}"
+                        )
+                    }
+                    "Temp_Hum" -> {
 
-                    Log.d(
-                        "태그", "TempValue : ${mainViewModel.TempValue.value}" +
-                                "WaterGauge : ${mainViewModel.WaterGauge.value}"
-                    )
-                }
-                "Temp_Hum" -> {
-
+                    }
                 }
             }
 

@@ -11,7 +11,7 @@ import com.coai.samin_total.Service.SerialService
 import com.coai.samin_total.databinding.ActivityLoadingBinding
 
 val loadingTAG = "로딩 태그"
-val mainTAG = "메인 태그"
+val mainTAG = "태그"
 val serviceTAG = "서비스 태그"
 
 class LoadingActivity : AppCompatActivity() {
