@@ -1,5 +1,6 @@
 package com.coai.samin_total
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 
 class AqSetting_RecycleAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var setAqInfo = mutableListOf<SetAqInfo>()
+
+    private var oldPosition = -1
+    private var selectedPosition = -1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return aqSettingViewHodler(
@@ -31,9 +35,24 @@ class AqSetting_RecycleAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() 
          (holder as aqSettingViewHodler).bind(setAqInfo[position])
         holder.setIsRecyclable(false)
 
+        //색변경
+        if (selectedPosition == position){
+            holder.itemView.setBackgroundColor(Color.parseColor("#ff9800"))
+        }else{
+            holder.itemView.setBackgroundColor(Color.parseColor("#ffffff"))
+        }
+
+
+
+
         // (1) 리스트 내 항목 클릭 시 onClick() 호출
         holder.itemView.setOnClickListener {
             itemClickListener.onClick(it, position)
+            oldPosition = selectedPosition
+            selectedPosition = position
+
+            notifyItemChanged(oldPosition)
+            notifyItemChanged(selectedPosition)
         }
     }
     // (2) 리스너 인터페이스
@@ -46,6 +65,7 @@ class AqSetting_RecycleAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() 
     }
     // (4) setItemClickListener로 설정한 함수 실행
     private lateinit var itemClickListener: OnItemClickListener
+
 
     inner class aqSettingViewHodler(view: View) : RecyclerView.ViewHolder(view) {
         private val boardInfoView =

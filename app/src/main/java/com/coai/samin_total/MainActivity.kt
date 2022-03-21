@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
     var oxygen_ids_list = mutableListOf<Byte>()
     var steamer_ids_list = mutableListOf<Byte>()
 
-    val modelMap = HashMap<String, ByteArray>()
+//    val modelMap = HashMap<String, ByteArray>()
 
     @ExperimentalUnsignedTypes
     val datahandler = object : Handler(Looper.getMainLooper()) {
@@ -129,40 +129,40 @@ class MainActivity : AppCompatActivity() {
                         val id = receiveParser.mProtocol.get(3)
                         gasdock_ids_list.add(id)
                         val ids = gasdock_ids_list.distinct().toByteArray()
-                        modelMap[model] = ids
+                        mainViewModel.modelMap[model] = ids
                     }
                     "GasRoom" -> {
                         val id = receiveParser.mProtocol.get(3)
                         gasroom_ids_list.add(id)
                         val ids = gasroom_ids_list.distinct().toByteArray()
-                        modelMap[model] = ids
+                        mainViewModel.modelMap[model] = ids
                     }
                     "WasteLiquor" -> {
                         val id = receiveParser.mProtocol.get(3)
                         wasteLiquor_ids_list.add(id)
                         val ids = wasteLiquor_ids_list.distinct().toByteArray()
-                        modelMap[model] = ids
+                        mainViewModel.modelMap[model] = ids
                     }
                     "Oxygen" -> {
                         val id = receiveParser.mProtocol.get(3)
                         oxygen_ids_list.add(id)
                         val ids = oxygen_ids_list.distinct().toByteArray()
-                        modelMap[model] = ids
+                        mainViewModel.modelMap[model] = ids
                     }
                     "Steamer" -> {
                         val id = receiveParser.mProtocol.get(3)
                         steamer_ids_list.add(id)
                         val ids = steamer_ids_list.distinct().toByteArray()
-                        modelMap[model] = ids
+                        mainViewModel.modelMap[model] = ids
                     }
                     "Temp_Hum" -> {
 
                     }
                 }
-                for ((key, value) in modelMap) {
+                for ((key, value) in mainViewModel.modelMap) {
                     Log.d(
                         "체크",
-                        "modelMap(key): ${key} // modelMap(value):${HexDump.dumpHexString(modelMap[key])} "
+                        "modelMap(key): ${key} // modelMap(value):${HexDump.dumpHexString(mainViewModel.modelMap[key])} "
                     )
 
                 }

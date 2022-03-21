@@ -73,6 +73,8 @@ class MainViewModel : ViewModel() {
     val GasRoomData: MutableLiveData<Float>
         get() = _GasRoomData
 
+    val modelMap = HashMap<String, ByteArray>()
+
     init {
 //        Log.d(TAG, "MainViewModel - 생성자 호출")
 //        Log.d(TAG, "MainViewModel _currentValue : $_currentValue")

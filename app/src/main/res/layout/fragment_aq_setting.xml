@@ -41,23 +41,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />
-<!--            child view margin top 10dp 씩 줄것-->
+        <!--            child view margin top 10dp 씩 줄것-->
 
 
     </ScrollView>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/boardsetting_container"
+    <LinearLayout
+        android:id="@+id/setting_view"
         android:layout_width="500dp"
         android:layout_height="480dp"
         android:layout_marginTop="120dp"
         android:layout_marginEnd="50dp"
+        android:paddingTop="5dp"
         android:background="@drawable/container_border"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical">
 
+        <LinearLayout
+            android:id="@+id/boardsetting_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/boardsetting_tv"
@@ -65,8 +74,8 @@
         android:layout_height="0dp"
         android:text="AQ보드 설정"
         android:textSize="30sp"
-        app:layout_constraintBottom_toTopOf="@id/boardsetting_container"
-        app:layout_constraintStart_toStartOf="@id/boardsetting_container" />
+        app:layout_constraintBottom_toTopOf="@id/setting_view"
+        app:layout_constraintStart_toStartOf="@id/setting_view" />
 
 
     <androidx.appcompat.widget.AppCompatButton
@@ -74,8 +83,8 @@
         style="@style/saveButton"
         android:layout_marginBottom="20dp"
         android:text="저장"
-        app:layout_constraintBottom_toTopOf="@id/boardsetting_container"
-        app:layout_constraintEnd_toEndOf="@id/boardsetting_container"
+        app:layout_constraintBottom_toTopOf="@id/setting_view"
+        app:layout_constraintEnd_toEndOf="@id/setting_view"
         app:layout_constraintHorizontal_chainStyle="packed" />
 
 

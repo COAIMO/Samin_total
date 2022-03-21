@@ -35,4 +35,5 @@
     <string name="text_aq_setting">AQ Setting</string>
     <string name="text_connection">연결</string>
     <string name="title_id">ID</string>
+    <string name="text_sensor_usable">센서사용여부</string>
 </resources>
