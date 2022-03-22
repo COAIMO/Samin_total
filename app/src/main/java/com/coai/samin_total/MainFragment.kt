@@ -60,29 +60,8 @@ class MainFragment : Fragment() {
         setButtonClickEvent()
 
         mBinding.btnSound.setOnClickListener {
-            Thread {
-                for (model in 0..15) {
-                    for (id in 0..15) {
-                        val protocol = SaminProtocol()
-                        protocol.checkModel(model.toByte(), id.toByte())
-                        Log.d("로그", "${{ HexDump.dumpHexString(protocol.mProtocol)}}")
-                        activity?.serialService?.sendData(protocol.mProtocol)
-                        Thread.sleep(100)
-                    }
-                }
-            }.start()
+            activity?.callFeedback()
 
-//            Thread{
-//                while (true){
-//
-//                val protocol = SaminProtocol()
-//                protocol.feedBack(3, 0)
-//                Log.d("로그", "${protocol.mProtocol}")
-//                activity?.serialService?.sendData(protocol.mProtocol)
-//                    Thread.sleep(1000)
-//                }
-//
-//            }.start()
         }
 
 //        mainViewModel.model_ID_Data.observe(viewLifecycleOwner, Observer {

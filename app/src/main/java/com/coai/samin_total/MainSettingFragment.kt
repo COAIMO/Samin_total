@@ -27,6 +27,8 @@ class MainSettingFragment : Fragment() {
     lateinit var mBinding: FragmentMainSettingBinding
     var activity:MainActivity? = null
     private lateinit var onBackPressed: OnBackPressedCallback
+    private lateinit var passwordDialogFragment: PasswordDialogFragment
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -58,11 +60,10 @@ class MainSettingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentMainSettingBinding.inflate(inflater, container, false)
-        // Inflate the layout for this fragment
         mBinding.btnAdmin.setOnClickListener {
-            val passwordDialogFragment = PasswordDialogFragment()
+//            val passwordDialogFragment = PasswordDialogFragment()
+            passwordDialogFragment = PasswordDialogFragment()
             getActivity()?.let { it1 -> passwordDialogFragment.show(it1.supportFragmentManager,"tag") }
-//            activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
         }
         mBinding.btnAlertLog.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.ALERTLOGFRGAMENT)

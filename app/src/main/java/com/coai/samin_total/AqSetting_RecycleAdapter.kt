@@ -33,7 +33,7 @@ class AqSetting_RecycleAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
          (holder as aqSettingViewHodler).bind(setAqInfo[position])
-        holder.setIsRecyclable(false)
+        holder.setIsRecyclable(true)
 
         //색변경
         if (selectedPosition == position){

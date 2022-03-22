@@ -81,85 +81,72 @@ class GasDockMainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentGasDockMainBinding.inflate(inflater, container, false)
-        // Inflate the layout for this fragment
         initRecycler()
+        initView()
 //        mBinding.titleTv.setOnClickListener {
-//            mBinding.gasStorageRecyclerView.apply {
-//                gasStorageViewData.apply {
-//                    add(
-//                        SetGasdockViewData(
-//                            2,
-//                            "Ar",
-//                            Color.parseColor("#6599CD"),
-//                            200f,
-//                            2000f,
-//                            gasIndex = 0,
-//                            pressure = 250f,
+//            sending = true
+//            sendThread = Thread {
+//                while (sending) {
+//                    val protocol = SaminProtocol()
+////                    for (i in 0..7){
+//                    protocol.feedBack(MainViewModel.GasDockStorage, 1.toByte())
+//                    activity?.serialService?.sendData(protocol.mProtocol)
+//                    Log.d("태그", "SendData: ${protocol.mProtocol}")
+//                    Thread.sleep(1000)
+////                    }
 //
-//                            )
-//                    )
 //                }
-//                recycleAdapter.submitList(gasStorageViewData)
-//                recycleAdapter.notifyDataSetChanged()
+//
 //            }
-//
-//
+//            sendThread.start()
 //        }
-
-        mBinding.titleTv.setOnClickListener {
-            sending = true
-            sendThread = Thread {
-                while (sending) {
-                    val protocol = SaminProtocol()
-//                    for (i in 0..7){
-                    protocol.feedBack(MainViewModel.GasDockStorage, 1.toByte())
-                    activity?.serialService?.sendData(protocol.mProtocol)
-                    Log.d("태그", "SendData: ${protocol.mProtocol}")
-                    Thread.sleep(1000)
-//                    }
-
-                }
-
-            }
-            sendThread.start()
-        }
-
-
-        mBinding.btnSetting.setOnClickListener {
-            activity?.onFragmentChange(MainViewModel.GASSTORAGESETTINGFRAGMENT)
-        }
-
-        mBinding.gasStorageRecyclerView.apply {
-            gasStorageViewData.apply {
-                add(
-                    SetGasdockViewData(
-                        0,
-                        "O2",
-                        Color.parseColor("#6599CD"),
-                        200f,
-                        2000f,
-                        gasIndex = 0,
-                        pressure = 0f,
-                    )
-                )
-            }
-        }
-
-        mainViewModel.GasStorageData.observe(viewLifecycleOwner,{
-            recycleAdapter.setGasdockViewData.set(0, SetGasdockViewData(0,
-                "O2",
-                Color.parseColor("#6599CD"),
-                200f,
-                2000f,
-                gasIndex = 0,
-                pressure = it)
-            )
-            recycleAdapter.notifyDataSetChanged()
-
-        })
+//
+//
+//        mBinding.btnSetting.setOnClickListener {
+//            activity?.onFragmentChange(MainViewModel.GASSTORAGESETTINGFRAGMENT)
+//        }
+//
+//        mBinding.gasStorageRecyclerView.apply {
+//            gasStorageViewData.apply {
+//                add(
+//                    SetGasdockViewData(
+//                        0,
+//                        "O2",
+//                        Color.parseColor("#6599CD"),
+//                        200f,
+//                        2000f,
+//                        gasIndex = 0,
+//                        pressure = 0f,
+//                    )
+//                )
+//            }
+//        }
+//
+//        mainViewModel.GasStorageData.observe(viewLifecycleOwner,{
+//            recycleAdapter.setGasdockViewData.set(0, SetGasdockViewData(0,
+//                "O2",
+//                Color.parseColor("#6599CD"),
+//                200f,
+//                2000f,
+//                gasIndex = 0,
+//                pressure = it)
+//            )
+//            recycleAdapter.notifyDataSetChanged()
+//
+//        })
 
 
         return mBinding.root
+    }
+
+    private fun initView(){
+        mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner, {
+            for (i in it){
+                gasStorageViewData.add(i)
+            }
+            recycleAdapter.submitList(gasStorageViewData)
+            recycleAdapter.notifyDataSetChanged()
+        })
     }
 
     override fun onDestroyView() {

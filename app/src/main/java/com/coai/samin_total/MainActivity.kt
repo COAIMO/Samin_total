@@ -162,7 +162,11 @@ class MainActivity : AppCompatActivity() {
                 for ((key, value) in mainViewModel.modelMap) {
                     Log.d(
                         "체크",
-                        "modelMap(key): ${key} // modelMap(value):${HexDump.dumpHexString(mainViewModel.modelMap[key])} "
+                        "modelMap(key): ${key} // modelMap(value):${
+                            HexDump.dumpHexString(
+                                mainViewModel.modelMap[key]
+                            )
+                        } "
                     )
 
                 }
@@ -289,6 +293,14 @@ class MainActivity : AppCompatActivity() {
                             oxygenViewModel.OxygenValue.value = oxygen
                             //todo  에러 데이터 포함시킬것
 
+                            for (i in mainViewModel.OxygenDataLiveList.value!!) {
+                                Log.d("cpcp", "id:${i.id} //minvalue:${i.setMinValue}// setvalue:${i.setValue}")
+                                if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+                                    i.setValue = oxygen
+                                }
+
+
+                            }
                         } catch (ex: Exception) {
 
                         }
@@ -451,4 +463,53 @@ class MainActivity : AppCompatActivity() {
         return result
     }
 
+    private lateinit var callbackThread: Thread
+
+    fun callFeedback() {
+        callbackThread = Thread {
+            while (true) {
+                try {
+                    for ((model, ids) in mainViewModel.modelMap) {
+                        for (index in ids.indices) {
+                            val id = ids.get(index)
+                            when (model) {
+                                "GasDock" -> {
+                                    val protocol = SaminProtocol()
+                                    protocol.feedBack(MainViewModel.GasDockStorage, id)
+                                    serialService?.sendData(protocol.mProtocol)
+                                    Thread.sleep(50)
+                                }
+                                "GasRoom" -> {
+                                    val protocol = SaminProtocol()
+                                    protocol.feedBack(MainViewModel.GasRoom, id)
+                                    serialService?.sendData(protocol.mProtocol)
+                                    Thread.sleep(50)
+                                }
+                                "WasteLiquor" -> {
+                                    val protocol = SaminProtocol()
+                                    protocol.feedBack(MainViewModel.WasteLiquor, id)
+                                    serialService?.sendData(protocol.mProtocol)
+                                    Thread.sleep(50)
+                                }
+                                "Oxygen" -> {
+                                    val protocol = SaminProtocol()
+                                    protocol.feedBack(MainViewModel.Oxygen, id)
+                                    serialService?.sendData(protocol.mProtocol)
+                                    Thread.sleep(50)
+                                }
+                                "Steamer" -> {
+                                    val protocol = SaminProtocol()
+                                    protocol.feedBack(MainViewModel.Steamer, id)
+                                    serialService?.sendData(protocol.mProtocol)
+                                    Thread.sleep(50)
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                }
+            }
+        }
+        callbackThread.start()
+    }
 }

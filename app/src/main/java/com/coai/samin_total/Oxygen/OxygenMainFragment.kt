@@ -41,7 +41,8 @@ class OxygenMainFragment : Fragment() {
     private lateinit var mBinding: FragmentOxygenMainBinding
 
     //    private lateinit var viewmodel: OxygenViewModel
-    private val viewmodel by activityViewModels<OxygenViewModel>()
+//    private val viewmodel by activityViewModels<OxygenViewModel>()
+    private val viewmodel by activityViewModels<MainViewModel>()
 
     private lateinit var recycleAdapter: Oxygen_RecycleAdapter
     private val oxygenViewData = mutableListOf<SetOxygenViewData>()
@@ -86,56 +87,18 @@ class OxygenMainFragment : Fragment() {
     ): View? {
         mBinding = FragmentOxygenMainBinding.inflate(inflater, container, false)
         initRecycler()
-
-//        viewmodel = ViewModelProvider(this).get(OxygenViewModel::class.java)
-
-        Log.d("태그", "11OxygenSensorID:${viewmodel.OxygenSensorID.value}")
-        Log.d("태그", "11OxygenSensorIDs:${viewmodel.OxygenSensorID.value}")
-
-        viewmodel.OxygenSensorID.observe(viewLifecycleOwner, Observer {
-            Log.d("태그", "OxygenSensorID:${viewmodel.OxygenSensorID}")
-            Log.d("태그", "OxygenSensorID:$it")
-
-        })
-
-        viewmodel.OxygenSensorIDs.observe(viewLifecycleOwner, Observer {
-            Log.d("태그", "OxygenSensorIDs:${viewmodel.OxygenSensorIDs}")
-            Log.d("태그", "OxygenSensorIDs:$it")
-
-        })
-
-        viewmodel.OxygenValue.observe(viewLifecycleOwner, Observer {
-            Log.d("태그", "OxygenValue:${viewmodel.OxygenValue}")
-            Log.d("태그", "OxygenValue:$it")
-            Log.d("태그", "child:${recycleAdapter.getItemId(0)}")
-
-            recycleAdapter.setOxygenViewData.set(0, SetOxygenViewData(0, false, it))
-            recycleAdapter.notifyDataSetChanged()
-
-//            mBinding.oxygenRecyclerView.apply {
-//                oxygenViewData.apply {
-//                    add(
-//                        SetOxygenViewData(
-//                            isAlert = false,
-//                            setValue = it,
-//                            setMinValue = 18
-//                        )
-//                    )
-//                }
-//                recycleAdapter.submitList(oxygenViewData)
-//                recycleAdapter.notifyDataSetChanged()
-//            }
-        })
-
-        mBinding.oxygenRecyclerView.apply {
-            oxygenViewData.apply {
-                add(
-                    SetOxygenViewData(
-                        isAlert = false,
-                        setValue = 0,
-                        setMinValue = 18
-                    )
-                )
+        initView()
+//        viewmodel.OxygenValue.observe(viewLifecycleOwner, Observer {
+//            Log.d("태그", "OxygenValue:${viewmodel.OxygenValue}")
+//            Log.d("태그", "OxygenValue:$it")
+//            Log.d("태그", "child:${recycleAdapter.getItemId(0)}")
+//
+//            recycleAdapter.setOxygenViewData.set(0, SetOxygenViewData(0, false, it))
+//            recycleAdapter.notifyDataSetChanged()
+//        })
+//
+//        mBinding.oxygenRecyclerView.apply {
+//            oxygenViewData.apply {
 //                add(
 //                    SetOxygenViewData(
 //                        isAlert = false,
@@ -143,77 +106,25 @@ class OxygenMainFragment : Fragment() {
 //                        setMinValue = 18
 //                    )
 //                )
-            }
-            recycleAdapter.submitList(oxygenViewData)
-            recycleAdapter.notifyDataSetChanged()
-
-
-        }
-//        viewmodel.OxygenViewData.observe(viewLifecycleOwner, dataObserver)
-
-        mBinding.titleTv.setOnClickListener {
-            sending = true
-            sendThread = Thread {
-                while (sending) {
-                    val protocol = SaminProtocol()
-                    protocol.feedBack(MainViewModel.Oxygen, 1)
-//                    Log.d("로그", "${protocol.mProtocol}")
-                    activity?.serialService?.sendData(protocol.mProtocol)
-                    Thread.sleep(200)
-                }
-
-            }
-            sendThread.start()
-        }
-
-//        mBinding.titleTv.setOnClickListener {
-//            mBinding.oxygenRecyclerView.apply {
-//                oxygenViewData.apply {
-//                    add(
-//                        SetOxygenViewData(
-//                            isAlert = false,
-//                            setValue = 21,
-//                            setMinValue = 18
-//                        )
-//                    )
-//                    add(
-//                        SetOxygenViewData(
-//                            isAlert = true,
-//                            setValue = 21,
-//                            setMinValue = 18
-//                        )
-//                    )
-//                }
-//                recycleAdapter.submitList(oxygenViewData)
-//                recycleAdapter.notifyDataSetChanged()
 //            }
+//            recycleAdapter.submitList(oxygenViewData)
+//            recycleAdapter.notifyDataSetChanged()
 //        }
-
-
+//
 //        mBinding.titleTv.setOnClickListener {
-//            val protocol = SaminProtocol()
-//            protocol.feedBack(3, 0)
-//            Log.d("로그", "${protocol.mProtocol}")
-//            Log.d("로그", "send" + HexDump.dumpHexString(protocol.mProtocol))
-//
-//            activity?.serialService?.sendData(protocol.mProtocol)
-//
-//            mBinding.oxygenRecyclerView.apply {
-//                oxygenViewData.apply {
-//                    add(
-//                        SetOxygenViewData(
-//                            isAlert = false,
-//                            setValue = 21f,
-//                            setMinValue = 18
-//                        )
-//                    )
+//            sending = true
+//            sendThread = Thread {
+//                while (sending) {
+//                    val protocol = SaminProtocol()
+//                    protocol.feedBack(MainViewModel.Oxygen, 1)
+////                    Log.d("로그", "${protocol.mProtocol}")
+//                    activity?.serialService?.sendData(protocol.mProtocol)
+//                    Thread.sleep(200)
 //                }
-//                recycleAdapter.submitList(oxygenViewData)
-//                recycleAdapter.notifyDataSetChanged()
-//            }
 //
+//            }
+//            sendThread.start()
 //        }
-
         return mBinding.root
     }
 
@@ -238,6 +149,18 @@ class OxygenMainFragment : Fragment() {
 //            recycleAdapter.submitList(singleDockViewData)
             adapter = recycleAdapter
         }
+
+    }
+
+    private fun initView() {
+        viewmodel.OxygenDataLiveList.observe(viewLifecycleOwner, {
+            for (i in it) {
+                oxygenViewData.add(i)
+            }
+            recycleAdapter.submitList(oxygenViewData)
+            recycleAdapter.notifyDataSetChanged()
+        }
+        )
 
     }
 

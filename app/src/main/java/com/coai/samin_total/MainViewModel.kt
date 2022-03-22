@@ -3,6 +3,9 @@ package com.coai.samin_total
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.coai.samin_total.GasDock.SetGasdockViewData
+import com.coai.samin_total.Logic.MutableListLiveData
+import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.WasteLiquor.WasteLiquor_RecycleAdapter
 
@@ -45,6 +48,11 @@ class MainViewModel : ViewModel() {
     private val _GasStorageData = MutableLiveData<Float>()
     private val _GasRoomData = MutableLiveData<Float>()
 
+    private val _OxygenDataLiveList = MutableLiveData<MutableList<SetOxygenViewData>>()
+    val OxygenDataList = mutableListOf<SetOxygenViewData>()
+
+    val GasStorageDataLiveList = MutableListLiveData<SetGasdockViewData>()
+
 
     // 변경되지 않는 데이터를 가져올때 이름을 _ 언더스코어 없이 설정
     // 공개적으로 가져오는 변수는 private 이 아닌 퍼블릭으로 외부에서도 접근가능하도록 설정
@@ -74,6 +82,19 @@ class MainViewModel : ViewModel() {
         get() = _GasRoomData
 
     val modelMap = HashMap<String, ByteArray>()
+
+    val OxygenDataLiveList : MutableLiveData<MutableList<SetOxygenViewData>>
+        get() = _OxygenDataLiveList
+
+    fun add(data: SetOxygenViewData){
+        OxygenDataList.add(data)
+        OxygenDataLiveList.value = OxygenDataList
+    }
+
+    fun remove(data: SetOxygenViewData){
+        OxygenDataList.remove(data)
+        OxygenDataLiveList.value = OxygenDataList
+    }
 
     init {
 //        Log.d(TAG, "MainViewModel - 생성자 호출")

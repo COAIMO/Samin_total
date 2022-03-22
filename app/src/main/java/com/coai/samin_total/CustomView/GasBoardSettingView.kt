@@ -35,6 +35,8 @@ class GasBoardSettingView constructor(context: Context, attrs: AttributeSet? = n
         "N2O",
         "O2"
     )
+    var selected_SensorType =""
+    var selected_GasType =""
 
     private fun setSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
@@ -50,8 +52,7 @@ class GasBoardSettingView constructor(context: Context, attrs: AttributeSet? = n
                 position: Int,
                 id: Long
             ) {
-                Toast.makeText(context, "$position  // $view", Toast.LENGTH_SHORT)
-                    .show()
+                selected_SensorType = sensorType[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -75,8 +76,7 @@ class GasBoardSettingView constructor(context: Context, attrs: AttributeSet? = n
                 position: Int,
                 id: Long
             ) {
-                Toast.makeText(context, "$position  // $view", Toast.LENGTH_SHORT)
-                    .show()
+                selected_GasType = gasType[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {

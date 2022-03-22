@@ -58,13 +58,13 @@
         app:layout_constraintTop_toTopOf="parent"
         android:orientation="vertical">
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/boardsetting_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-        </LinearLayout>
+        </FrameLayout>
 
     </LinearLayout>
 
