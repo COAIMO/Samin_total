@@ -43,8 +43,6 @@ class AqSetting_RecycleAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() 
         }
 
 
-
-
         // (1) 리스트 내 항목 클릭 시 onClick() 호출
         holder.itemView.setOnClickListener {
             itemClickListener.onClick(it, position)
@@ -72,10 +70,12 @@ class AqSetting_RecycleAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() 
             view.findViewById<ConstraintLayout>(R.id.board_view)
         private val modelNum = view.findViewById<TextView>(R.id.input_modelnum_tv)
         private val idNum = view.findViewById<TextView>(R.id.input_idnum_tv)
+        private val sensorNum = view.findViewById<TextView>(R.id.input_sensorNum_tv)
 
         fun bind(setAqInfo: SetAqInfo) {
             modelNum.text = setAqInfo.model.toString()
             idNum.text = setAqInfo.id.toString()
+            sensorNum.text = setAqInfo.sensor.toString()
         }
     }
 }

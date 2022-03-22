@@ -4,29 +4,65 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AqSettingFragment">
+    tools:context=".LayoutFragment">
 
     <TextView
-        android:id="@+id/boardmenu_tv"
+        android:id="@+id/sensorlist_tv"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:text="AQ보드 내역"
+        android:text="센서 내역"
         android:textSize="30sp"
-        app:layout_constraintBottom_toTopOf="@id/aqlist_view"
-        app:layout_constraintStart_toStartOf="@id/aqlist_view" />
+        app:layout_constraintBottom_toTopOf="@id/btn_radioGroup"
+        app:layout_constraintStart_toStartOf="@id/btn_radioGroup" />
+
+    <RadioGroup
+        android:id="@+id/btn_radioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/scrollView"
+        app:layout_constraintStart_toStartOf="@id/scrollView">
+
+        <RadioButton
+            android:id="@+id/btn_gasStorage_sensor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_gas_storage"
+            android:textSize="15sp" />
+
+        <RadioButton
+            android:id="@+id/btn_gasRoom_sensor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_gas_room"
+            android:textSize="15sp" />
+
+        <RadioButton
+            android:id="@+id/btn_wasteLiuor_sensor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_waste_liquor"
+            android:textSize="15sp" />
+
+        <RadioButton
+            android:id="@+id/btn_oxygen_sensor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_oxygen"
+            android:textSize="15sp" />
+
+        <RadioButton
+            android:id="@+id/btn_steamer_sensor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_steamer"
+            android:textSize="15sp" />
+    </RadioGroup>
 
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/search_btn"
-        style="@style/cancelButton"
-        android:layout_marginBottom="20dp"
-        android:text="조회"
-        app:layout_constraintBottom_toTopOf="@id/aqlist_view"
-        app:layout_constraintEnd_toEndOf="@id/aqlist_view"
-        app:layout_constraintHorizontal_chainStyle="packed" />
 
-    <LinearLayout
-        android:id="@+id/aqlist_view"
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="500dp"
         android:layout_height="480dp"
         android:layout_marginStart="50dp"
@@ -36,22 +72,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ScrollView
-            android:id="@+id/scrollView"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/sensorRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:orientation="vertical">
+            android:orientation="vertical" />
+        <!--            child view margin top 10dp 씩 줄것-->
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/boardRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-            <!--            child view margin top 10dp 씩 줄것-->
-        </ScrollView>
 
-    </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/setting_view"
@@ -69,7 +99,9 @@
             android:id="@+id/boardsetting_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" />
+            android:orientation="vertical">
+
+        </FrameLayout>
 
     </LinearLayout>
 
@@ -101,4 +133,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

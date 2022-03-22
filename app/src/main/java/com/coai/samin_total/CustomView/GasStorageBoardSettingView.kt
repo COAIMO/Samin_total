@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.*
 import com.coai.samin_total.R
 
-class GasBoardSettingView constructor(context: Context, attrs: AttributeSet? = null) :
+class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeSet? = null) :
     LinearLayout(context, attrs) {
     var mSensorUsable_Sw:Switch
     var mSensorType_Sp: Spinner

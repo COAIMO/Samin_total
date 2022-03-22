@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var steamerMainFragment: SteamerMainFragment
     lateinit var oxygenMainFragment: OxygenMainFragment
     lateinit var gasStorageSettingFragment: GasStorageSettingFragment
+    lateinit var layoutFragment: LayoutFragment
     private lateinit var oxygenViewModel: OxygenViewModel
     private lateinit var mainViewModel: MainViewModel
 
@@ -211,6 +212,24 @@ class MainActivity : AppCompatActivity() {
                             mainViewModel.GasStorageData.value = sensor_Data_1
                         }
                         Log.d("태그", "sensor_Data_1:${sensor_Data_1} ")
+                        for (i in mainViewModel.GasStorageDataLiveList.value!!) {
+                            if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+                                when (i.port) {
+                                    1 -> {
+                                        i.pressure = pin1_data
+                                    }
+                                    2 -> {
+                                        i.pressure = pin2_data
+                                    }
+                                    3 -> {
+                                        i.pressure = pin3_data
+                                    }
+                                    4 -> {
+                                        i.pressure = pin4_data
+                                    }
+                                }
+                            }
+                        }
 
                     }
                     "GasRoom" -> {
@@ -294,7 +313,10 @@ class MainActivity : AppCompatActivity() {
                             //todo  에러 데이터 포함시킬것
 
                             for (i in mainViewModel.OxygenDataLiveList.value!!) {
-                                Log.d("cpcp", "id:${i.id} //minvalue:${i.setMinValue}// setvalue:${i.setValue}")
+                                Log.d(
+                                    "cpcp",
+                                    "id:${i.id} //minvalue:${i.setMinValue}// setvalue:${i.setValue}"
+                                )
                                 if (i.id == receiveParser.mProtocol.get(3).toInt()) {
                                     i.setValue = oxygen
                                 }
@@ -387,6 +409,7 @@ class MainActivity : AppCompatActivity() {
         steamerMainFragment = SteamerMainFragment()
         oxygenMainFragment = OxygenMainFragment()
         gasStorageSettingFragment = GasStorageSettingFragment()
+        layoutFragment = LayoutFragment()
     }
 
     fun onFragmentChange(index: Int) {
@@ -427,6 +450,8 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.HostFragment_container, steamerMainFragment).commit()
             MainViewModel.GASSTORAGESETTINGFRAGMENT -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, gasStorageSettingFragment).commit()
+            MainViewModel.LAYOUTFRAGMENT -> supportFragmentManager.beginTransaction()
+                .replace(R.id.HostFragment_container, layoutFragment).commit()
             else -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, mainFragment).commit()
         }

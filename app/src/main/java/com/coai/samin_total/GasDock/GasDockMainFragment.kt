@@ -36,6 +36,8 @@ class GasDockMainFragment : Fragment() {
     lateinit private var mBinding: FragmentGasDockMainBinding
     private var activity: MainActivity? = null
     private val gasStorageViewData = mutableListOf<SetGasdockViewData>()
+    private val viewData = mutableListOf<SetGasdockViewData>()
+
     private lateinit var recycleAdapter: GasStorage_RecycleAdapter
     private lateinit var onBackPressed: OnBackPressedCallback
     val TAG = "GasDockMainFragment"
@@ -83,6 +85,7 @@ class GasDockMainFragment : Fragment() {
         mBinding = FragmentGasDockMainBinding.inflate(inflater, container, false)
         initRecycler()
         initView()
+
 //        mBinding.titleTv.setOnClickListener {
 //            sending = true
 //            sendThread = Thread {
@@ -102,10 +105,10 @@ class GasDockMainFragment : Fragment() {
 //        }
 //
 //
-//        mBinding.btnSetting.setOnClickListener {
-//            activity?.onFragmentChange(MainViewModel.GASSTORAGESETTINGFRAGMENT)
-//        }
-//
+        mBinding.btnSetting.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.GASSTORAGESETTINGFRAGMENT)
+        }
+
 //        mBinding.gasStorageRecyclerView.apply {
 //            gasStorageViewData.apply {
 //                add(
@@ -139,19 +142,25 @@ class GasDockMainFragment : Fragment() {
         return mBinding.root
     }
 
-    private fun initView(){
-        mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner, {
-            for (i in it){
-                gasStorageViewData.add(i)
-            }
-            recycleAdapter.submitList(gasStorageViewData)
-            recycleAdapter.notifyDataSetChanged()
-        })
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         sending = false
+    }
+
+    private fun initView() {
+        mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner, {
+            for (i in it) {
+                gasStorageViewData.add(i)
+                for (count in 0..3) {
+                    viewData.add(i)
+                }
+
+            }
+            recycleAdapter.submitList(viewData)
+            recycleAdapter.notifyDataSetChanged()
+        }
+        )
+
     }
 
     companion object {

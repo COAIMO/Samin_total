@@ -61,4 +61,27 @@
         app:layout_constraintTop_toTopOf="@id/title_id"
         app:layout_constraintBottom_toBottomOf="@id/title_id"/>
 
+    <TextView
+        android:id="@+id/title_sensorNum"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:text="Sensor   :"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/input_idnum_tv"
+        app:layout_constraintTop_toTopOf="@id/input_idnum_tv"
+        app:layout_constraintBottom_toBottomOf="@id/input_idnum_tv"/>
+
+    <TextView
+        android:id="@+id/input_sensorNum_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/title_sensorNum"
+        app:layout_constraintTop_toTopOf="@id/title_sensorNum"
+        app:layout_constraintBottom_toBottomOf="@id/title_sensorNum"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

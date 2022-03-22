@@ -8,20 +8,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.core.view.allViews
 import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.*
 import com.coai.samin_total.GasDock.SetGasdockViewData
-import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Oxygen.SetOxygenViewData
-import com.coai.samin_total.Service.HexDump
-import com.coai.samin_total.Steamer.SetSteamerViewData
-import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentAqSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -140,11 +134,11 @@ class AqSettingFragment : Fragment() {
                         }
                         for (model in 0..5) {
                             for (id in 0..7) {
-//                                for (count in 0..4){
-                                val protocol = SaminProtocol()
-                                protocol.checkModel(model.toByte(), id.toByte())
-                                activity?.serialService?.sendData(protocol.mProtocol)
-                                Thread.sleep(100)
+//                                for (count in 0..4) {
+                                    val protocol = SaminProtocol()
+                                    protocol.checkModel(model.toByte(), id.toByte())
+                                    activity?.serialService?.sendData(protocol.mProtocol)
+                                    Thread.sleep(100)
 //                                }
                             }
                         }
@@ -250,14 +244,18 @@ class AqSettingFragment : Fragment() {
                 for ((aqInfo, view) in aqInfo_ViewMap) {
                     when (aqInfo.model) {
                         "GasDock" -> {
-                            view as GasBoardSettingView
+                            view as GasStorageBoardSettingView
                             val sensorType = view.selected_SensorType
                             val gasName = view.selected_GasType
                             val minCapa: Float = view.mCapaAlert_Et.text.toString().toFloat()
                             val maxCapa: Float = view.mMaxCapa_Et.text.toString().toFloat()
                             val gasIndex: Int? = null
+                            val id = aqInfo.id
+                            val port = aqInfo.sensor
                             viewmodel.GasStorageDataLiveList.add(
                                 SetGasdockViewData(
+                                    id = id,
+                                    port = port,
                                     0,
                                     gasName = gasName,
                                     gasColor = Color.parseColor("#6599CD"),
@@ -269,7 +267,7 @@ class AqSettingFragment : Fragment() {
 
                         }
                         "GasRoom" -> {
-                            view as GasBoardSettingView
+                            view as GasStorageBoardSettingView
                             //가스 컬러
                             val sensorType = view.selected_SensorType
                             val gasName = view.selected_GasType
@@ -306,10 +304,50 @@ class AqSettingFragment : Fragment() {
     }
 
     private fun setAqInfoView() {
-        for ((key, value) in viewmodel.modelMap) {
+        //기존 데이터 삭제
+        for (i in aqInfoData) {
+            aqInfo_ViewMap.remove(i)
+        }
+        aqSettingViewList.removeAll(aqSettingViewList)
+
+        activity?.runOnUiThread {
+//            mBinding.boardRecyclerView.apply {
+//                aqInfoData
+//            }
+            recycleAdapter.submitList(aqInfoData)
+            recycleAdapter.notifyDataSetChanged()
+        }
+
+
+
+        for ((key, ids) in viewmodel.modelMap) {
             //indices 배열을 인덱스 범위
-            for (i in value.indices) {
-                aqInfoData.add(SetAqInfo(key, value.get(i).toInt()))
+            for (i in ids.indices) {
+                when (key) {
+                    "GasDock" -> {
+                        for (count in 1..4) {
+                            aqInfoData.add(SetAqInfo(key, ids.get(i).toInt(), count))
+                        }
+                    }
+                    "GasRoom" -> {
+                        for (count in 1..4) {
+                            aqInfoData.add(SetAqInfo(key, ids.get(i).toInt(), count))
+                        }
+                    }
+                    "WasteLiquor" -> {
+                        for (count in 1..4) {
+                            aqInfoData.add(SetAqInfo(key, ids.get(i).toInt(), count))
+                        }
+                    }
+                    "Oxygen" -> {
+                        aqInfoData.add(SetAqInfo(key, ids.get(i).toInt(), 1))
+                    }
+                    "Steamer" -> {
+                        for (count in 1..2) {
+                            aqInfoData.add(SetAqInfo(key, ids.get(i).toInt(), count))
+                        }
+                    }
+                }
             }
         }
 
@@ -322,22 +360,16 @@ class AqSettingFragment : Fragment() {
             recycleAdapter.notifyDataSetChanged()
         }
 
-        //기존 데이터 삭제
-        for (i in aqInfoData) {
-            aqInfo_ViewMap.remove(i)
-        }
-        aqSettingViewList.removeAll(aqSettingViewList)
-
 
         for (i in aqInfoData) {
             when (i.model) {
                 "GasDock" -> {
-                    val view = GasBoardSettingView(requireActivity())
+                    val view = GasStorageBoardSettingView(requireActivity())
                     aqSettingViewList.add(view)
                     aqInfo_ViewMap.put(i, view)
                 }
                 "GasRoom" -> {
-                    val view = GasBoardSettingView(requireActivity())
+                    val view = GasStorageBoardSettingView(requireActivity())
                     aqSettingViewList.add(view)
                     aqInfo_ViewMap.put(i, view)
                 }
