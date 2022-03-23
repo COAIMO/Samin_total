@@ -1,5 +1,6 @@
 package com.coai.samin_total.Steamer
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -75,54 +76,46 @@ class SteamerMainFragment : Fragment() {
     ): View? {
         mBinding = FragmentSteamerMainBinding.inflate(inflater, container, false)
         initRecycler()
-        mBinding.titleTv.setOnClickListener {
-            mBinding.steamerRecyclerView.apply {
-                sending = true
-                sendThread = Thread {
-                    while (sending) {
-                        val protocol = SaminProtocol()
-//                    for (i in 0..7){
-                        protocol.feedBack(MainViewModel.Steamer, 1.toByte())
-                        activity?.serialService?.sendData(protocol.mProtocol)
-                        Log.d("태그", "SendData: ${protocol.mProtocol}")
-                        Thread.sleep(200)
+        initView()
+        updateView()
+//        mBinding.titleTv.setOnClickListener {
+//            mBinding.steamerRecyclerView.apply {
+//                sending = true
+//                sendThread = Thread {
+//                    while (sending) {
+//                        val protocol = SaminProtocol()
+////                    for (i in 0..7){
+//                        protocol.feedBack(MainViewModel.Steamer, 1.toByte())
+//                        activity?.serialService?.sendData(protocol.mProtocol)
+//                        Log.d("태그", "SendData: ${protocol.mProtocol}")
+//                        Thread.sleep(200)
+////                    }
+//
 //                    }
+//
+//                }
+//                sendThread.start()
+//            }
+//        }
+//
+//        mBinding.steamerRecyclerView.apply {
+//            steamerViewData.apply {
+//                add(
+//                    SetSteamerViewData(
+//                        false,
+//                        0,
+//                        0
+//                    )
+//                )
+//            }
+//            recycleAdapter.submitList(steamerViewData)
+//        }
 
-                    }
 
-                }
-                sendThread.start()
-            }
-        }
-
-        mBinding.steamerRecyclerView.apply {
-            steamerViewData.apply {
-                add(
-                    SetSteamerViewData(
-                        false,
-                        0,
-                        0
-                    )
-                )
-            }
-            recycleAdapter.submitList(steamerViewData)
-        }
-
-//        mainViewModel.TempValue.observe(viewLifecycleOwner, {
-//            recycleAdapter.setSteamerViewData.set(0, SetSteamerViewData(isTemp = it))
+//        mainViewModel.SteamerData.observe(viewLifecycleOwner,{
+//            recycleAdapter.setSteamerViewData.set(0, it)
 //            recycleAdapter.notifyDataSetChanged()
-//
 //        })
-//
-//        mainViewModel.WaterGauge.observe(viewLifecycleOwner, {
-//            recycleAdapter.setSteamerViewData.set(0, SetSteamerViewData(isAlertLow = it))
-//            recycleAdapter.notifyDataSetChanged()
-//
-//        })
-        mainViewModel.SteamerData.observe(viewLifecycleOwner,{
-            recycleAdapter.setSteamerViewData.set(0, it)
-            recycleAdapter.notifyDataSetChanged()
-        })
 
         return mBinding.root
     }
@@ -149,6 +142,27 @@ class SteamerMainFragment : Fragment() {
             adapter = recycleAdapter
         }
 
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun initView() {
+        for (i in mainViewModel.SteamerDataLiveList.value!!){
+            steamerViewData.add(i)
+        }
+        recycleAdapter.submitList(steamerViewData)
+        recycleAdapter.notifyDataSetChanged()
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateView(){
+        mainViewModel.SteamerDataLiveList.observe(viewLifecycleOwner, {
+            for ((index, data) in it.withIndex()){
+                steamerViewData.set(index, data)
+            }
+            recycleAdapter.submitList(steamerViewData)
+            recycleAdapter.notifyDataSetChanged()
+        })
     }
 
     override fun onDestroyView() {

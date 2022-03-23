@@ -6,7 +6,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import com.coai.samin_total.Logic.AdminLock
+import com.coai.samin_total.databinding.FragmentPasswordBinding
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -23,6 +26,7 @@ class PasswordFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     var activity:MainActivity? = null
+    private lateinit var mBinding: FragmentPasswordBinding
     private lateinit var onBackPressed: OnBackPressedCallback
 
     override fun onAttach(context: Context) {
@@ -53,8 +57,29 @@ class PasswordFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_password, container, false)
+        mBinding = FragmentPasswordBinding.inflate(inflater, container, false)
+        textClear()
+
+        mBinding.cancelBtn.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
+        }
+
+        mBinding.saveBtn.setOnClickListener {
+            val adminLock = context?.let { it1 -> AdminLock(it1) }
+            if (mBinding.etNewPassword.text.toString() == mBinding.etNewPasswordConfirm.text.toString()) {
+                adminLock?.setPassLock(mBinding.etNewPasswordConfirm.text.toString())
+                textClear()
+                Toast.makeText(context, "비밀번호가 변경되었습니다.", Toast.LENGTH_SHORT).show()
+            }else{
+                Toast.makeText(context, "비밀번호가 틀립니다.", Toast.LENGTH_SHORT).show()
+                textClear()
+            }
+        }
+        return mBinding.root
+    }
+    private fun textClear(){
+        mBinding.etNewPassword.text?.clear()
+        mBinding.etNewPasswordConfirm.text?.clear()
     }
 
     companion object {

@@ -1,6 +1,8 @@
 package com.coai.samin_total.Steamer
 
 data class SetSteamerViewData(
+    val id:Int,
+    val port:Int,
     // 수위 알람
     var isAlertLow:Boolean = false,
     // min 온도 설정

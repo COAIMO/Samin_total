@@ -1,5 +1,7 @@
 package com.coai.samin_total
 
+import android.app.Activity
+import android.app.PendingIntent.getActivity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -8,9 +10,9 @@ import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
+import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProvider
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.ScanDialogFragment
@@ -19,7 +21,6 @@ import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Oxygen.OxygenMainFragment
-import com.coai.samin_total.Oxygen.OxygenViewModel
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Service.SerialService
 import com.coai.samin_total.Steamer.SetSteamerViewData
@@ -27,7 +28,6 @@ import com.coai.samin_total.Steamer.SteamerMainFragment
 import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.databinding.ActivityMainBinding
 import com.coai.uikit.GlobalUiTimer
-import java.text.DecimalFormat
 
 class MainActivity : AppCompatActivity() {
 
@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var oxygenMainFragment: OxygenMainFragment
     lateinit var gasStorageSettingFragment: GasStorageSettingFragment
     lateinit var layoutFragment: LayoutFragment
-    private lateinit var oxygenViewModel: OxygenViewModel
     private lateinit var mainViewModel: MainViewModel
 
 
@@ -57,7 +56,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
-        oxygenViewModel = ViewModelProvider(this).get(OxygenViewModel::class.java)
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         setFragment()
@@ -174,16 +172,6 @@ class MainActivity : AppCompatActivity() {
             } else if (receiveParser.packetName == "RequestFeedBackPing") {
                 when (receiveParser.modelName) {
                     "GasDock" -> {
-                        Log.d(
-                            "태그",
-                            "GasDock // id:${receiveParser.mProtocol.get(3)} model:${
-                                receiveParser.mProtocol.get(2)
-                            }"
-                        )
-                        mainViewModel.model_ID_Data.value?.put(
-                            "GasDock",
-                            receiveParser.mProtocol.get(3)
-                        )
 
                         val pin1_data = littleEndianConversion(
                             receiveParser.mProtocol.slice(7..8).toByteArray()
@@ -217,17 +205,31 @@ class MainActivity : AppCompatActivity() {
                                 when (i.port) {
                                     1 -> {
                                         i.pressure = pin1_data
+                                        Log.d(
+                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
+                                        )
                                     }
                                     2 -> {
                                         i.pressure = pin2_data
+                                        Log.d(
+                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
+                                        )
                                     }
                                     3 -> {
                                         i.pressure = pin3_data
+                                        Log.d(
+                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
+                                        )
                                     }
                                     4 -> {
                                         i.pressure = pin4_data
+                                        Log.d(
+                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
+                                        )
                                     }
                                 }
+                                mainViewModel.GasStorageDataLiveList.notifyChange()
+
                             }
                         }
 
@@ -265,7 +267,38 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         Log.d("태그", "sensor_Data_1:${sensor_Data_1} ")
+                        for (i in mainViewModel.GasRoomDataLiveList.value!!) {
+                            if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+                                when (i.port) {
+                                    1 -> {
+                                        i.pressure = pin1_data
+                                        Log.d(
+                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
+                                        )
+                                    }
+                                    2 -> {
+                                        i.pressure = pin2_data
+                                        Log.d(
+                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
+                                        )
+                                    }
+                                    3 -> {
+                                        i.pressure = pin3_data
+                                        Log.d(
+                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
+                                        )
+                                    }
+                                    4 -> {
+                                        i.pressure = pin4_data
+                                        Log.d(
+                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
+                                        )
+                                    }
+                                }
+                                mainViewModel.GasRoomDataLiveList.notifyChange()
 
+                            }
+                        }
                     }
                     "WasteLiquor" -> {
                         Log.d(
@@ -292,36 +325,61 @@ class MainActivity : AppCompatActivity() {
                             receiveParser.mProtocol.slice(13..14).toByteArray()
                         )
 
-                        mainViewModel.LevelValue.value = pin3_data
+                        for (i in mainViewModel.WasteLiquorDataLiveList.value!!) {
+                            if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+                                when (i.port) {
+                                    1 -> {
+                                         i.isAlert = if(pin1_data == 0) true else false
+
+                                    }
+                                    2 -> {
+                                        i.isAlert = if(pin2_data == 0) true else false
+
+                                    }
+                                    3 -> {
+                                        i.isAlert = if(pin3_data == 0) true else false
+
+                                    }
+                                    4 -> {
+                                        i.isAlert = if(pin4_data == 0) true else false
+
+                                    }
+                                }
+                                mainViewModel.WasteLiquorDataLiveList.notifyChange()
+
+                            }
+                        }
+
 
                     }
                     "Oxygen" -> {
-
                         try {
-                            oxygenViewModel.OxygenSensorID.value =
-                                receiveParser.mProtocol.get(3).toInt()
-                            oxygenViewModel.OxygenSensorIDs.value?.add(
-                                receiveParser.mProtocol.get(3).toInt()
-                            )
+
                             val tempval = littleEndianConversion(
                                 receiveParser.mProtocol.slice(7..8).toByteArray()
                             ).toUShort()
-
+                            Log.d("산소", "protocol : ${HexDump.dumpHexString(receiveParser.mProtocol)}")
                             val oxygen = tempval.toInt() / 100
 
-                            oxygenViewModel.OxygenValue.value = oxygen
                             //todo  에러 데이터 포함시킬것
 
+//                            for (i in mainViewModel.OxygenDataLiveList.value!!) {
+//                                Log.d(
+//                                    "cpcp",
+//                                    "id:${i.id} //minvalue:${i.setMinValue}// setvalue:${i.setValue}"
+//                                )
+//                                if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+//                                    i.setValue = oxygen
+//                                }
+//
+//
+//                            }
+
                             for (i in mainViewModel.OxygenDataLiveList.value!!) {
-                                Log.d(
-                                    "cpcp",
-                                    "id:${i.id} //minvalue:${i.setMinValue}// setvalue:${i.setValue}"
-                                )
                                 if (i.id == receiveParser.mProtocol.get(3).toInt()) {
                                     i.setValue = oxygen
+                                    mainViewModel.OxygenDataLiveList.notifyChange()
                                 }
-
-
                             }
                         } catch (ex: Exception) {
 
@@ -350,21 +408,40 @@ class MainActivity : AppCompatActivity() {
                             receiveParser.mProtocol.slice(13..14).toByteArray()
                         )
 
-                        mainViewModel.TempValue.value = pin1_data / 33
-                        Log.d(
-                            "태그", "pin1_data : ${pin1_data} " +
-                                    "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
-                        )
+//                        mainViewModel.TempValue.value = pin1_data / 33
+//                        Log.d(
+//                            "태그", "pin1_data : ${pin1_data} " +
+//                                    "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
+//                        )
+//
+//                        mainViewModel.WaterGauge.value = pin3_data < 1000
+//
+//                        mainViewModel.SteamerData.value =
+//                            SetSteamerViewData(pin3_data < 1000, isTemp = pin1_data / 33)
+//
+//                        Log.d(
+//                            "태그", "TempValue : ${mainViewModel.TempValue.value}" +
+//                                    "WaterGauge : ${mainViewModel.WaterGauge.value}"
+//                        )
 
-                        mainViewModel.WaterGauge.value = pin3_data < 1000
+                        for (i in mainViewModel.SteamerDataLiveList.value!!) {
+                            if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+                                when (i.port) {
+                                    1 -> {
+                                        i.isTemp = pin1_data/33
+                                        i.isAlertLow = if(pin3_data < 1000) true else false
 
-                        mainViewModel.SteamerData.value =
-                            SetSteamerViewData(pin3_data < 1000, isTemp = pin1_data / 33)
+                                    }
+                                    2 -> {
+                                        i.isTemp = pin2_data/33
+                                        i.isAlertLow = if(pin4_data < 1000) true else false
+                                    }
 
-                        Log.d(
-                            "태그", "TempValue : ${mainViewModel.TempValue.value}" +
-                                    "WaterGauge : ${mainViewModel.WaterGauge.value}"
-                        )
+                                }
+                                mainViewModel.SteamerDataLiveList.notifyChange()
+
+                            }
+                        }
                     }
                     "Temp_Hum" -> {
 
@@ -520,7 +597,7 @@ class MainActivity : AppCompatActivity() {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.Oxygen, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(50)
+                                    Thread.sleep(200)
                                 }
                                 "Steamer" -> {
                                     val protocol = SaminProtocol()
@@ -536,5 +613,23 @@ class MainActivity : AppCompatActivity() {
             }
         }
         callbackThread.start()
+    }
+
+
+    fun hideKeyboard(){
+//        var imm = activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+//        var view = activity.currentFocus
+//        if (view == null) view = View(activity)
+//        imm.hideSoftInputFromWindow(view.windowToken, 0)
+
+//        if (getActivity() != null && getActivity().getCurrentFocus() != null) {
+//            // 프래그먼트기 때문에 getActivity() 사용
+//            val inputManager =
+//                getActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+//            inputManager.hideSoftInputFromWindow(
+//                getActivity().getCurrentFocus().getWindowToken(),
+//                InputMethodManager.HIDE_NOT_ALWAYS
+//            )
+//        }
     }
 }

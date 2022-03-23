@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import com.coai.samin_total.databinding.FragmentControlBinding
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -22,9 +23,8 @@ class ControlFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-
-
     var activity:MainActivity? = null
+    private lateinit var mBinding: FragmentControlBinding
     private lateinit var onBackPressed: OnBackPressedCallback
 
     override fun onAttach(context: Context) {
@@ -55,8 +55,12 @@ class ControlFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_control, container, false)
+        mBinding = FragmentControlBinding.inflate(inflater, container, false)
+
+        mBinding.cancelBtn.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
+        }
+        return mBinding.root
     }
 
     companion object {

@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.coai.samin_total.GasDock.SetGasdockViewData
+import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.MutableListLiveData
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
+import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.WasteLiquor.WasteLiquor_RecycleAdapter
 
 class MainViewModel : ViewModel() {
@@ -49,10 +51,13 @@ class MainViewModel : ViewModel() {
     private val _GasStorageData = MutableLiveData<Float>()
     private val _GasRoomData = MutableLiveData<Float>()
 
-    private val _OxygenDataLiveList = MutableLiveData<MutableList<SetOxygenViewData>>()
-    val OxygenDataList = mutableListOf<SetOxygenViewData>()
 
     val GasStorageDataLiveList = MutableListLiveData<SetGasdockViewData>()
+    val GasRoomDataLiveList = MutableListLiveData<SetGasRoomViewData>()
+    val WasteLiquorDataLiveList = MutableListLiveData<SetWasteLiquorViewData>()
+    val OxygenDataLiveList = MutableListLiveData<SetOxygenViewData>()
+    val SteamerDataLiveList = MutableListLiveData<SetSteamerViewData>()
+
 
 
     // 변경되지 않는 데이터를 가져올때 이름을 _ 언더스코어 없이 설정
@@ -84,18 +89,7 @@ class MainViewModel : ViewModel() {
 
     val modelMap = HashMap<String, ByteArray>()
 
-    val OxygenDataLiveList : MutableLiveData<MutableList<SetOxygenViewData>>
-        get() = _OxygenDataLiveList
 
-    fun add(data: SetOxygenViewData){
-        OxygenDataList.add(data)
-        OxygenDataLiveList.value = OxygenDataList
-    }
-
-    fun remove(data: SetOxygenViewData){
-        OxygenDataList.remove(data)
-        OxygenDataLiveList.value = OxygenDataList
-    }
 
     init {
 //        Log.d(TAG, "MainViewModel - 생성자 호출")

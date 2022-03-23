@@ -75,7 +75,7 @@ class AqSetting_RecycleAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() 
         fun bind(setAqInfo: SetAqInfo) {
             modelNum.text = setAqInfo.model.toString()
             idNum.text = setAqInfo.id.toString()
-            sensorNum.text = setAqInfo.sensor.toString()
+            sensorNum.text = setAqInfo.port.toString()
         }
     }
 }

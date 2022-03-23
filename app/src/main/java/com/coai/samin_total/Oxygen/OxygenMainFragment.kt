@@ -1,5 +1,6 @@
 package com.coai.samin_total.Oxygen
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -88,6 +89,7 @@ class OxygenMainFragment : Fragment() {
         mBinding = FragmentOxygenMainBinding.inflate(inflater, container, false)
         initRecycler()
         initView()
+        updateView()
 //        viewmodel.OxygenValue.observe(viewLifecycleOwner, Observer {
 //            Log.d("태그", "OxygenValue:${viewmodel.OxygenValue}")
 //            Log.d("태그", "OxygenValue:$it")
@@ -152,18 +154,28 @@ class OxygenMainFragment : Fragment() {
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
+//        for (i in viewmodel.OxygenDataLiveList.value?.sortedWith(compareBy({it.id}))!!){
+//            oxygenViewData.add(i)
+//        }
+        for (i in viewmodel.OxygenDataLiveList.value!!){
+            oxygenViewData.add(i)
+        }
+        recycleAdapter.submitList(oxygenViewData)
+        recycleAdapter.notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateView(){
         viewmodel.OxygenDataLiveList.observe(viewLifecycleOwner, {
-            for (i in it) {
-                oxygenViewData.add(i)
+            for ((index, data) in it.withIndex()){
+                oxygenViewData.set(index, data)
             }
             recycleAdapter.submitList(oxygenViewData)
             recycleAdapter.notifyDataSetChanged()
-        }
-        )
-
+        })
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         sending = false

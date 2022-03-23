@@ -2,7 +2,6 @@ package com.coai.samin_total.WasteLiquor
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -13,13 +12,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
-import com.coai.samin_total.GasRoom.GasRoom_RecycleAdapter
-import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
-import com.coai.samin_total.Oxygen.OxygenViewModel
-import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
 import com.coai.samin_total.databinding.FragmentWasteLiquorMainBinding
 
@@ -84,72 +79,8 @@ class WasteLiquorMainFragment : Fragment() {
     ): View? {
         mBinding = FragmentWasteLiquorMainBinding.inflate(inflater, container, false)
         initRecycler()
-
-//        mBinding.titleTv.setOnClickListener {
-//            mBinding.wasteLiquorRecyclerView.apply {
-//                wasteLiquorViewData.apply {
-//                    add(
-//                        SetWasteLiquorViewData(
-//                            liquidName = "폐액",
-//                            isAlert = true
-//                        )
-//                    )
-//
-//                    add(
-//                        SetWasteLiquorViewData(
-//                            liquidName = "폐액",
-//                            isAlert = false
-//                        )
-//                    )
-//                }
-//                recycleAdapter.submitList(wasteLiquorViewData)
-//                recycleAdapter.notifyDataSetChanged()
-//            }
-//        }
-
-        mainViewModel.LevelValue.observe(viewLifecycleOwner, Observer {
-            Log.d("태그", "LevelValue:${mainViewModel.model_ID_Data}")
-            Log.d("태그", "LevelValue:$it")
-            if (it == 0) {
-                recycleAdapter.setWasteLiquorViewData.set(0, SetWasteLiquorViewData("폐액", true))
-            } else {
-                recycleAdapter.setWasteLiquorViewData.set(0, SetWasteLiquorViewData("폐액", false))
-
-            }
-            recycleAdapter.notifyDataSetChanged()
-
-        })
-
-        mBinding.titleTv.setOnClickListener {
-            sending = true
-            sendThread = Thread {
-                while (sending) {
-                    val protocol = SaminProtocol()
-//                    for (i in 0..7){
-                    protocol.feedBack(MainViewModel.WasteLiquor, 1.toByte())
-                    activity?.serialService?.sendData(protocol.mProtocol)
-                    Log.d("태그", "SendData: ${protocol.mProtocol}")
-                    Thread.sleep(200)
-//                    }
-
-                }
-
-            }
-            sendThread.start()
-        }
-
-
-        mBinding.wasteLiquorRecyclerView.apply {
-            wasteLiquorViewData.apply {
-                add(
-                    SetWasteLiquorViewData(
-                        isAlert = true
-                    )
-                )
-            }
-            recycleAdapter.submitList(wasteLiquorViewData)
-        }
-
+        initView()
+        updateView()
 
         return mBinding.root
     }
@@ -167,6 +98,27 @@ class WasteLiquorMainFragment : Fragment() {
             adapter = recycleAdapter
         }
 
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun initView() {
+        for (i in mainViewModel.WasteLiquorDataLiveList.value!!){
+            wasteLiquorViewData.add(i)
+        }
+        recycleAdapter.submitList(wasteLiquorViewData)
+        recycleAdapter.notifyDataSetChanged()
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateView(){
+        mainViewModel.WasteLiquorDataLiveList.observe(viewLifecycleOwner, {
+            for ((index, data) in it.withIndex()){
+                 wasteLiquorViewData.set(index, data)
+            }
+            recycleAdapter.submitList(wasteLiquorViewData)
+            recycleAdapter.notifyDataSetChanged()
+        })
     }
 
     companion object {

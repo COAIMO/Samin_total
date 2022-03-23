@@ -64,6 +64,17 @@ class MainFragment : Fragment() {
 
         }
 
+        mBinding.labIDTextView.setOnClickListener {
+            Thread {
+                for (id in 0..7) {
+                    val protocol = SaminProtocol()
+                    protocol.feedBack(MainViewModel.Oxygen, id.toByte())
+                    activity?.serialService?.sendData(protocol.mProtocol)
+                    Thread.sleep(100)
+                }
+            }.start()
+        }
+
 //        mainViewModel.model_ID_Data.observe(viewLifecycleOwner, Observer {
 //            Log.d("태그", "model_ID_Data: $it")
 //        })
@@ -156,6 +167,7 @@ class MainFragment : Fragment() {
             }
             mBinding.btnScan -> {
                 activity?.onFragmentChange(MainViewModel.SCANDIALOGFRAGMENT)
+
             }
         }
     }

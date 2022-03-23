@@ -1,5 +1,6 @@
 package com.coai.samin_total.GasDock
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -85,7 +86,7 @@ class GasDockMainFragment : Fragment() {
         mBinding = FragmentGasDockMainBinding.inflate(inflater, container, false)
         initRecycler()
         initView()
-
+        updateView()
 //        mBinding.titleTv.setOnClickListener {
 //            sending = true
 //            sendThread = Thread {
@@ -138,7 +139,6 @@ class GasDockMainFragment : Fragment() {
 //
 //        })
 
-
         return mBinding.root
     }
 
@@ -147,22 +147,26 @@ class GasDockMainFragment : Fragment() {
         sending = false
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner, {
-            for (i in it) {
-                gasStorageViewData.add(i)
-                for (count in 0..3) {
-                    viewData.add(i)
-                }
-
-            }
-            recycleAdapter.submitList(viewData)
-            recycleAdapter.notifyDataSetChanged()
+        for (i in mainViewModel.GasStorageDataLiveList.value!!){
+            gasStorageViewData.add(i)
         }
-        )
+        recycleAdapter.submitList(gasStorageViewData)
+        recycleAdapter.notifyDataSetChanged()
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateView(){
+        mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner, {
+            for ((index, data) in it.withIndex()){
+                gasStorageViewData.set(index, data)
+            }
+            recycleAdapter.submitList(gasStorageViewData)
+            recycleAdapter.notifyDataSetChanged()
+        })
+    }
     companion object {
         /**
          * Use this factory method to create a new instance of

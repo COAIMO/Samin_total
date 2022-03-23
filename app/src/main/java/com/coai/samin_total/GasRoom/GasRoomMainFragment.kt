@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.GasDock.SetGasdockViewData
 import com.coai.samin_total.MainActivity
@@ -37,6 +38,7 @@ class GasRoomMainFragment : Fragment() {
     private lateinit var recycleAdapter: GasRoom_RecycleAdapter
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
+    private val mainViewModel by activityViewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,25 +72,26 @@ class GasRoomMainFragment : Fragment() {
     ): View? {
         mBinding = FragmentGasRoomMainBinding.inflate(inflater, container, false)
         initRecycler()
-
-        mBinding.titleTv.setOnClickListener {
-            mBinding.gasRoomRecyclerView.apply {
-                gasRoomViewData.apply {
-                    add(
-                        SetGasRoomViewData(
-                            gasName = "asdfa",
-                            gasColor = Color.parseColor("#DDDDDD"),
-                            gasIndex = 0,
-                            gasUnit = 0,
-                            pressure = 10f,
-                            pressureMax = 150f
-                        )
-                    )
-                }
-                recycleAdapter.submitList(gasRoomViewData)
-                recycleAdapter.notifyDataSetChanged()
-            }
-        }
+        initView()
+        updateView()
+//        mBinding.titleTv.setOnClickListener {
+//            mBinding.gasRoomRecyclerView.apply {
+//                gasRoomViewData.apply {
+//                    add(
+//                        SetGasRoomViewData(
+//                            gasName = "asdfa",
+//                            gasColor = Color.parseColor("#DDDDDD"),
+//                            gasIndex = 0,
+//                            gasUnit = 0,
+//                            pressure = 10f,
+//                            pressureMax = 150f
+//                        )
+//                    )
+//                }
+//                recycleAdapter.submitList(gasRoomViewData)
+//                recycleAdapter.notifyDataSetChanged()
+//            }
+//        }
 
         return mBinding.root
     }
@@ -98,24 +101,33 @@ class GasRoomMainFragment : Fragment() {
         mBinding.gasRoomRecyclerView.apply {
             layoutManager =
                 GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-
             //아이템 높이 간격 조절
             val decoration_height = RecyclerDecoration_Height(25)
             addItemDecoration(decoration_height)
-
-            //페이지 넘기는 효과
-//            val snapHelper = PagerSnapHelper()
-//            snapHelper.attachToRecyclerView(this)
-
-            //Indicator 추가
-//            addItemDecoration(LinePagerIndicatorDecoration())
-
-
             recycleAdapter = GasRoom_RecycleAdapter()
-//            recycleAdapter.submitList(singleDockViewData)
             adapter = recycleAdapter
         }
 
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun initView() {
+        for (i in mainViewModel.GasRoomDataLiveList.value!!){
+            gasRoomViewData.add(i)
+        }
+        recycleAdapter.submitList(gasRoomViewData)
+        recycleAdapter.notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateView(){
+        mainViewModel.GasRoomDataLiveList.observe(viewLifecycleOwner, {
+            for ((index, data) in it.withIndex()){
+                gasRoomViewData.set(index, data)
+            }
+            recycleAdapter.submitList(gasRoomViewData)
+            recycleAdapter.notifyDataSetChanged()
+        })
     }
 
     companion object {
