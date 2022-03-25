@@ -17,6 +17,7 @@ import com.coai.samin_total.CustomView.*
 import com.coai.samin_total.GasDock.SetGasdockViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.SaminProtocol
+import com.coai.samin_total.Logic.ThreadSynchronied
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
@@ -41,7 +42,9 @@ class AqSettingFragment : Fragment() {
     val aqSettingViewList = mutableListOf<View>()
     val aqInfo_ViewMap = HashMap<SetAqInfo, View>()
     private lateinit var sendThread: Thread
-
+    private lateinit var progressThread: Thread
+    private val progressSync = ThreadSynchronied()
+    private val sendSync = ThreadSynchronied()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -105,23 +108,29 @@ class AqSettingFragment : Fragment() {
         recycleAdapter.notifyDataSetChanged()
 
         mBinding.boardsettingContainer.removeAllViews()
-        // TODO: 2022-03-23 aq셋팅 view 이전데이터 불러오기 안됨..
-//        for (i in aqSettingViewList) {
-//            Log.d(
-//                "세팅",
-//                "aqSettingViewList : ${i}} "
-//            )
-//            i.visibility = View.INVISIBLE
-//            mBinding.boardsettingContainer.addView(i)
-//
-//
-//        }
+//         TODO: 2022-03-23 aq셋팅 view 이전데이터 불러오기 안됨..
+
     }
 
     private fun onClick(view: View) {
         when (view) {
             mBinding.searchBtn -> {
-//                disableEnableControls(false, mBinding.aqSettingView)
+                progressThread = Thread {
+                    activity?.runOnUiThread {
+                        mBinding.aqSettingView.setBackgroundColor(Color.parseColor("#919191"))
+                        disableEnableControls(false, mBinding.aqSettingView)
+                        showProgrss(true)
+                    }
+                    sendSync.waitOne()
+                    activity?.runOnUiThread {
+                        mBinding.aqSettingView.setBackgroundColor(Color.parseColor("#FFFFFF"))
+                        disableEnableControls(true, mBinding.aqSettingView)
+                        showProgrss(false)
+                    }
+
+                }
+                progressThread.start()
+
                 sendThread = Thread {
                     try {
                         activity?.runOnUiThread {
@@ -131,17 +140,20 @@ class AqSettingFragment : Fragment() {
                         }
                         for (model in 0..5) {
                             for (id in 0..7) {
-                                for (count in 0..1) {
+                                for (count in 0..2) {
                                     val protocol = SaminProtocol()
                                     protocol.checkModel(model.toByte(), id.toByte())
                                     activity?.serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(50)
+                                    Thread.sleep(25)
                                 }
                             }
                         }
                         setAqInfoView()
+                        sendSync.set()
                     } catch (e: Exception) {
+                        Log.d("세팅", "e: $e")
                     }
+                    sendSync.set()
                 }
                 sendThread.start()
             }
@@ -244,6 +256,7 @@ class AqSettingFragment : Fragment() {
 
                 }
                 activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
+                activity?.callFeedback()
             }
         }
 
@@ -296,12 +309,14 @@ class AqSettingFragment : Fragment() {
                 }
             }
         }
+        Log.d(
+            "세팅",
+            "aqInfoData Size: ${aqInfoData.size}  // aqInfoData :${aqInfoData}"
+        )
 
+        //여기 막음
 
         activity?.runOnUiThread {
-//            mBinding.boardRecyclerView.apply {
-//                aqInfoData
-//            }
             recycleAdapter.submitList(aqInfoData)
             recycleAdapter.notifyDataSetChanged()
         }
@@ -324,25 +339,18 @@ class AqSettingFragment : Fragment() {
                     aqInfo_ViewMap.put(i, view)
                 }
                 "WasteLiquor" -> {
-                    val view = WasteLiquorBoardSettingView(requireContext())
+                    val view = WasteLiquorBoardSettingView(requireActivity())
                     aqSettingViewList.add(view)
                     aqInfo_ViewMap.put(i, view)
 
                 }
                 "Oxygen" -> {
                     val view = OxygenBoardSettingView(requireActivity())
-//                        val view = getActivity()?.let { OxygenBoardSettingView(it) }
-
-//                    listSetOxygenViewData.add(
-//                        SetOxygenViewData(
-//                            setMinValue = view.mOxygen_minValue_et.text.toString().toInt()
-//                        )
-//                    )
                     aqSettingViewList.add(view)
                     aqInfo_ViewMap.put(i, view)
                 }
                 "Steamer" -> {
-                    val view = SteamerBoardSettingView(requireContext())
+                    val view = SteamerBoardSettingView(requireActivity())
                     aqSettingViewList.add(view)
                     aqInfo_ViewMap.put(i, view)
                 }
@@ -362,12 +370,6 @@ class AqSettingFragment : Fragment() {
             mBinding.boardsettingContainer.addView(i)
 
         }
-//        activity?.runOnUiThread {
-//            showProgrss(false)
-//            disableEnableControls(true, mBinding.aqSettingView)
-//
-//        }
-
     }
 
     private fun initRecycler() {

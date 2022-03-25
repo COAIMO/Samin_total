@@ -51,7 +51,7 @@ class GasRoomMainFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
-        onBackPressed = object : OnBackPressedCallback(true){
+        onBackPressed = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 activity!!.onFragmentChange(MainViewModel.MAINFRAGMENT)
             }
@@ -112,17 +112,19 @@ class GasRoomMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        for (i in mainViewModel.GasRoomDataLiveList.value!!){
-            gasRoomViewData.add(i)
+        if (gasRoomViewData.isEmpty()) {
+            for (i in mainViewModel.GasRoomDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))) {
+                gasRoomViewData.add(i)
+            }
+            recycleAdapter.submitList(gasRoomViewData)
+            recycleAdapter.notifyDataSetChanged()
         }
-        recycleAdapter.submitList(gasRoomViewData)
-        recycleAdapter.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun updateView(){
+    private fun updateView() {
         mainViewModel.GasRoomDataLiveList.observe(viewLifecycleOwner, {
-            for ((index, data) in it.withIndex()){
+            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()) {
                 gasRoomViewData.set(index, data)
             }
             recycleAdapter.submitList(gasRoomViewData)

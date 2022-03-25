@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:orientation="vertical">
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/sw_use_sensor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,7 +15,7 @@
         android:switchPadding="100dp"
         android:text="@string/text_sensor_usable"
         android:textSize="15sp"
-        tools:ignore="UseSwitchCompatOrMaterialXml" />
+        android:checked="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -53,9 +53,9 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="text"
-        android:textSize="20sp"
-        android:maxLines="1"
         android:maxLength="5"
-        android:text="폐액"/>
+        android:maxLines="1"
+        android:text="폐액"
+        android:textSize="20sp" />
 
 </LinearLayout>

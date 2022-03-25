@@ -70,6 +70,9 @@ class AdminFragment : Fragment() {
         mBinding.btnPassword.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.PASSWORDFRAGMENT)
         }
+        mBinding.btnConnect.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.CONNECTTESTFRAGEMNT)
+        }
 
         return mBinding.root
     }

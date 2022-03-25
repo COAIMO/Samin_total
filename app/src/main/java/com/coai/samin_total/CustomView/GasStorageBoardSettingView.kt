@@ -5,11 +5,12 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
+import androidx.appcompat.widget.SwitchCompat
 import com.coai.samin_total.R
 
 class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeSet? = null) :
     LinearLayout(context, attrs) {
-    var mSensorUsable_Sw:Switch
+    var mSensorUsable_Sw: SwitchCompat
     var mSensorType_Sp: Spinner
     var mGasType_Sp: Spinner
     var mCapaAlert_Et: EditText
@@ -35,8 +36,8 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
         "N2O",
         "O2"
     )
-    var selected_SensorType =""
-    var selected_GasType =""
+    var selected_SensorType = ""
+    var selected_GasType = ""
 
     private fun setSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
@@ -45,7 +46,7 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
             sensorType
         )
         mSensorType_Sp.adapter = arrayAdapter
-        mSensorType_Sp.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        mSensorType_Sp.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -62,14 +63,14 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
         }
     }
 
-    private fun setGasTypeSpinner(){
+    private fun setGasTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
             context,
             R.layout.support_simple_spinner_dropdown_item,
             gasType
         )
         mGasType_Sp.adapter = arrayAdapter
-        mGasType_Sp.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        mGasType_Sp.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -86,6 +87,13 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
         }
     }
 
+    private fun setIsSensor() {
+        var ret:Boolean
+        mSensorUsable_Sw.setOnClickListener {
+            ret = mSensorUsable_Sw.isChecked
+        }
+    }
+
     init {
         LayoutInflater.from(context).inflate(R.layout.gas_board_setting_view, this, true)
         mSensorUsable_Sw = findViewById(R.id.sw_use_sensor)
@@ -98,6 +106,6 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
 
         setSensorTypeSpinner()
         setGasTypeSpinner()
-
+        setIsSensor()
     }
 }

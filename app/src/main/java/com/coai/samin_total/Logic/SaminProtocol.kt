@@ -88,14 +88,14 @@ class SaminProtocol {
      * Tab.송신 - LED Normal State
      */
     fun led_NormalState(model: Byte, id: Byte) {
-        buildProtocol(model, id, 0xA3.toByte(), 0x1F)
+        buildProtocol(model, id, 0xA3.toByte(), 0x00)
     }
 
     /**
      * Tab.송신 - LED Alert State
      */
     fun led_AlertState(model: Byte, id: Byte) {
-        buildProtocol(model, id, 0xA3.toByte(), 0x00)
+        buildProtocol(model, id, 0xA3.toByte(), 0x1F)
     }
 
     @ExperimentalUnsignedTypes

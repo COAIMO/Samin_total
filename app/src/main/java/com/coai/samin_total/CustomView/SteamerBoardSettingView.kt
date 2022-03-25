@@ -5,11 +5,12 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
+import androidx.appcompat.widget.SwitchCompat
 import com.coai.samin_total.R
 
 class SteamerBoardSettingView constructor(context: Context, attrs: AttributeSet? = null) :
     LinearLayout(context, attrs){
-    var mSensorUsable_Sw:Switch
+    var mSensorUsable_Sw: SwitchCompat
     var mLevelSensorType_Sp: Spinner
     var mTempSensorType_Sp: Spinner
     var mTemp_minValue_et: EditText
@@ -19,6 +20,8 @@ class SteamerBoardSettingView constructor(context: Context, attrs: AttributeSet?
     val tempsensorType = arrayListOf<String>(
         "SST2109"
     )
+    var selected_levelsensorType = ""
+    var selected_tempsensorType =""
 
     private fun setLevelSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
@@ -34,8 +37,7 @@ class SteamerBoardSettingView constructor(context: Context, attrs: AttributeSet?
                 position: Int,
                 id: Long
             ) {
-                Toast.makeText(context, "$position  // $view", Toast.LENGTH_SHORT)
-                    .show()
+                selected_levelsensorType = levelsensorType[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -59,8 +61,7 @@ class SteamerBoardSettingView constructor(context: Context, attrs: AttributeSet?
                 position: Int,
                 id: Long
             ) {
-                Toast.makeText(context, "$position  // $view", Toast.LENGTH_SHORT)
-                    .show()
+                selected_tempsensorType = tempsensorType[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -70,6 +71,12 @@ class SteamerBoardSettingView constructor(context: Context, attrs: AttributeSet?
         }
     }
 
+    private fun setIsSensor() {
+        var ret:Boolean
+        mSensorUsable_Sw.setOnClickListener {
+            ret = mSensorUsable_Sw.isChecked
+        }
+    }
     init {
         LayoutInflater.from(context).inflate(R.layout.steamer_board_setting_view, this, true)
         mSensorUsable_Sw = findViewById(R.id.sw_use_sensor)
@@ -79,5 +86,6 @@ class SteamerBoardSettingView constructor(context: Context, attrs: AttributeSet?
 
         setLevelSensorTypeSpinner()
         setTempSensorTypeSpinner()
+        setIsSensor()
     }
 }

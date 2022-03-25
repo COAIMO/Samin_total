@@ -149,18 +149,26 @@ class GasDockMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        for (i in mainViewModel.GasStorageDataLiveList.value!!){
-            gasStorageViewData.add(i)
-        }
-        recycleAdapter.submitList(gasStorageViewData)
-        recycleAdapter.notifyDataSetChanged()
+        if (gasStorageViewData.isEmpty()){
 
+            for (i in mainViewModel.GasStorageDataLiveList.value!!
+
+            ) {
+                Log.d("테스트","Data: $i")
+
+                gasStorageViewData.add(i)
+            }
+            recycleAdapter.submitList(gasStorageViewData)
+            recycleAdapter.notifyDataSetChanged()
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView(){
         mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner, {
-            for ((index, data) in it.withIndex()){
+            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()){
+                Log.d("테스트","인텍스: $index" + "데이더 : $data")
+
                 gasStorageViewData.set(index, data)
             }
             recycleAdapter.submitList(gasStorageViewData)

@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var oxygenMainFragment: OxygenMainFragment
     lateinit var gasStorageSettingFragment: GasStorageSettingFragment
     lateinit var layoutFragment: LayoutFragment
+    lateinit var connectTestFragment: ConnectTestFragment
     private lateinit var mainViewModel: MainViewModel
 
 
@@ -206,25 +207,29 @@ class MainActivity : AppCompatActivity() {
                                     1 -> {
                                         i.pressure = pin1_data
                                         Log.d(
-                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
+                                            "체크",
+                                            " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
                                         )
                                     }
                                     2 -> {
                                         i.pressure = pin2_data
                                         Log.d(
-                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
+                                            "체크",
+                                            " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
                                         )
                                     }
                                     3 -> {
                                         i.pressure = pin3_data
                                         Log.d(
-                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
+                                            "체크",
+                                            " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
                                         )
                                     }
                                     4 -> {
                                         i.pressure = pin4_data
                                         Log.d(
-                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
+                                            "체크",
+                                            " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
                                         )
                                     }
                                 }
@@ -273,25 +278,29 @@ class MainActivity : AppCompatActivity() {
                                     1 -> {
                                         i.pressure = pin1_data
                                         Log.d(
-                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
+                                            "체크",
+                                            " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
                                         )
                                     }
                                     2 -> {
                                         i.pressure = pin2_data
                                         Log.d(
-                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
+                                            "체크",
+                                            " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
                                         )
                                     }
                                     3 -> {
                                         i.pressure = pin3_data
                                         Log.d(
-                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
+                                            "체크",
+                                            " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
                                         )
                                     }
                                     4 -> {
                                         i.pressure = pin4_data
                                         Log.d(
-                                            "체크", " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
+                                            "체크",
+                                            " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
                                         )
                                     }
                                 }
@@ -329,19 +338,19 @@ class MainActivity : AppCompatActivity() {
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
                                 when (i.port) {
                                     1 -> {
-                                         i.isAlert = if(pin1_data == 0) true else false
+                                        i.isAlert = if (pin1_data == 0) true else false
 
                                     }
                                     2 -> {
-                                        i.isAlert = if(pin2_data == 0) true else false
+                                        i.isAlert = if (pin2_data == 0) true else false
 
                                     }
                                     3 -> {
-                                        i.isAlert = if(pin3_data == 0) true else false
+                                        i.isAlert = if (pin3_data == 0) true else false
 
                                     }
                                     4 -> {
-                                        i.isAlert = if(pin4_data == 0) true else false
+                                        i.isAlert = if (pin4_data == 0) true else false
 
                                     }
                                 }
@@ -358,7 +367,10 @@ class MainActivity : AppCompatActivity() {
                             val tempval = littleEndianConversion(
                                 receiveParser.mProtocol.slice(7..8).toByteArray()
                             ).toUShort()
-                            Log.d("산소", "protocol : ${HexDump.dumpHexString(receiveParser.mProtocol)}")
+                            Log.d(
+                                "산소",
+                                "protocol : ${HexDump.dumpHexString(receiveParser.mProtocol)}"
+                            )
                             val oxygen = tempval.toInt() / 100
 
                             //todo  에러 데이터 포함시킬것
@@ -428,13 +440,13 @@ class MainActivity : AppCompatActivity() {
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
                                 when (i.port) {
                                     1 -> {
-                                        i.isTemp = pin1_data/33
-                                        i.isAlertLow = if(pin3_data < 1000) true else false
+                                        i.isTemp = pin1_data / 33
+                                        i.isAlertLow = if (pin3_data < 1000) true else false
 
                                     }
                                     2 -> {
-                                        i.isTemp = pin2_data/33
-                                        i.isAlertLow = if(pin4_data < 1000) true else false
+                                        i.isTemp = pin2_data / 33
+                                        i.isAlertLow = if (pin4_data < 1000) true else false
                                     }
 
                                 }
@@ -487,6 +499,7 @@ class MainActivity : AppCompatActivity() {
         oxygenMainFragment = OxygenMainFragment()
         gasStorageSettingFragment = GasStorageSettingFragment()
         layoutFragment = LayoutFragment()
+        connectTestFragment = ConnectTestFragment()
     }
 
     fun onFragmentChange(index: Int) {
@@ -529,6 +542,8 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.HostFragment_container, gasStorageSettingFragment).commit()
             MainViewModel.LAYOUTFRAGMENT -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, layoutFragment).commit()
+            MainViewModel.CONNECTTESTFRAGEMNT -> supportFragmentManager.beginTransaction()
+                .replace(R.id.HostFragment_container, connectTestFragment).commit()
             else -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, mainFragment).commit()
         }
@@ -579,31 +594,32 @@ class MainActivity : AppCompatActivity() {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.GasDockStorage, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(50)
+                                    Thread.sleep(20)
                                 }
                                 "GasRoom" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.GasRoom, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(50)
+                                    Thread.sleep(20)
                                 }
                                 "WasteLiquor" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.WasteLiquor, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(50)
+                                    Thread.sleep(20)
                                 }
                                 "Oxygen" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.Oxygen, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(200)
+                                    Thread.sleep(20)
+                                    //정상 17ms 비정상 35ms
                                 }
                                 "Steamer" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.Steamer, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(50)
+                                    Thread.sleep(20)
                                 }
                             }
                         }
@@ -612,11 +628,68 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+//        callbackThread = Thread {
+//            while (true) {
+//                try {
+//                    for ((model, ids) in mainViewModel.modelMap) {
+//
+//                        if (model == "Oxygen"){
+//                            for (index in ids.indices){
+//                                val id = ids.get(index)
+//                                val protocol = SaminProtocol()
+//                                protocol.feedBack(MainViewModel.Oxygen, id)
+//                                serialService?.sendData(protocol.mProtocol)
+//                                Thread.sleep(200)
+//                            }
+//
+//                        }else{
+//                            for (index in ids.indices){
+//                                val id = ids.get(index)
+//                                when(model){
+//                                    "GasDock" -> {
+//                                        val protocol = SaminProtocol()
+//                                        protocol.feedBack(MainViewModel.GasDockStorage, id)
+//                                        serialService?.sendData(protocol.mProtocol)
+//                                        Thread.sleep(50)
+//                                    }
+//                                    "GasRoom" -> {
+//                                        val protocol = SaminProtocol()
+//                                        protocol.feedBack(MainViewModel.GasRoom, id)
+//                                        serialService?.sendData(protocol.mProtocol)
+//                                        Thread.sleep(50)
+//                                    }
+//                                    "WasteLiquor" -> {
+//                                        val protocol = SaminProtocol()
+//                                        protocol.feedBack(MainViewModel.WasteLiquor, id)
+//                                        serialService?.sendData(protocol.mProtocol)
+//                                        Thread.sleep(50)
+//                                    }
+//                                    "Oxygen" -> {
+//                                        val protocol = SaminProtocol()
+//                                        protocol.feedBack(MainViewModel.Oxygen, id)
+//                                        serialService?.sendData(protocol.mProtocol)
+//                                        Thread.sleep(200)
+//                                    }
+//                                    "Steamer" -> {
+//                                        val protocol = SaminProtocol()
+//                                        protocol.feedBack(MainViewModel.Steamer, id)
+//                                        serialService?.sendData(protocol.mProtocol)
+//                                        Thread.sleep(50)
+//                                    }
+//                                }
+//                            }
+//
+//                        }
+//                    }
+//                } catch (e: Exception) {
+//                }
+//            }
+//        }
         callbackThread.start()
     }
 
 
-    fun hideKeyboard(){
+    fun hideKeyboard() {
 //        var imm = activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
 //        var view = activity.currentFocus
 //        if (view == null) view = View(activity)

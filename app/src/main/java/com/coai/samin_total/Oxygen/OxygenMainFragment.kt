@@ -159,17 +159,20 @@ class OxygenMainFragment : Fragment() {
 //        for (i in viewmodel.OxygenDataLiveList.value?.sortedWith(compareBy({it.id}))!!){
 //            oxygenViewData.add(i)
 //        }
-        for (i in viewmodel.OxygenDataLiveList.value!!){
-            oxygenViewData.add(i)
+
+        if (oxygenViewData.isEmpty()){
+            for (i in viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({it.id}))) {
+                oxygenViewData.add(i)
+            }
+            recycleAdapter.submitList(oxygenViewData)
+            recycleAdapter.notifyDataSetChanged()
         }
-        recycleAdapter.submitList(oxygenViewData)
-        recycleAdapter.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView(){
         viewmodel.OxygenDataLiveList.observe(viewLifecycleOwner, {
-            for ((index, data) in it.withIndex()){
+            for ((index, data) in it.sortedWith(compareBy({it.id})).withIndex()){
                 oxygenViewData.set(index, data)
             }
             recycleAdapter.submitList(oxygenViewData)

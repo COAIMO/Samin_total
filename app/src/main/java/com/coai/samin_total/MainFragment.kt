@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentMainBinding
+import com.coai.uikit.samin.status.TopStatusView
 import kotlinx.coroutines.delay
 import kotlin.concurrent.thread
 import kotlin.math.log
@@ -60,7 +61,7 @@ class MainFragment : Fragment() {
         setButtonClickEvent()
 
         mBinding.btnSound.setOnClickListener {
-            activity?.callFeedback()
+//            activity?.callFeedback()
 
         }
 
@@ -70,7 +71,7 @@ class MainFragment : Fragment() {
                     val protocol = SaminProtocol()
                     protocol.feedBack(MainViewModel.Oxygen, id.toByte())
                     activity?.serialService?.sendData(protocol.mProtocol)
-                    Thread.sleep(100)
+                    Thread.sleep(50)
                 }
             }.start()
         }
@@ -163,12 +164,17 @@ class MainFragment : Fragment() {
                 activity?.onFragmentChange(MainViewModel.ALERTDIALOGFRAGMENT)
             }
             mBinding.btnSound -> {
-
+                animate(mBinding.gasDockMainStatus)
             }
             mBinding.btnScan -> {
                 activity?.onFragmentChange(MainViewModel.SCANDIALOGFRAGMENT)
 
             }
         }
+    }
+
+    fun animate(view: View){
+        val v : TopStatusView = view as TopStatusView
+        v.setAlert(v.isAlert())
     }
 }

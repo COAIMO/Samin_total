@@ -146,18 +146,19 @@ class SteamerMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        for (i in mainViewModel.SteamerDataLiveList.value!!){
-            steamerViewData.add(i)
+        if (steamerViewData.isEmpty()){
+            for (i in mainViewModel.SteamerDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))) {
+                steamerViewData.add(i)
+            }
+            recycleAdapter.submitList(steamerViewData)
+            recycleAdapter.notifyDataSetChanged()
         }
-        recycleAdapter.submitList(steamerViewData)
-        recycleAdapter.notifyDataSetChanged()
-
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView(){
         mainViewModel.SteamerDataLiveList.observe(viewLifecycleOwner, {
-            for ((index, data) in it.withIndex()){
+            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()){
                 steamerViewData.set(index, data)
             }
             recycleAdapter.submitList(steamerViewData)

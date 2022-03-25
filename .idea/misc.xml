@@ -51,6 +51,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_alert_log.xml" value="0.22" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_aq_setting.xml" value="0.33" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_blank.xml" value="0.405859375" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_connect_test.xml" value="0.34375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_control.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_dock_main.xml" value="0.241796875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_room_main.xml" value="0.25" />
@@ -81,15 +82,24 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/steamer_board_setting_view.xml" value="0.28717948717948716" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/steamer_view.xml" value="0.105" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/waste_liquor_view.xml" value="0.1075" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/wasteliquor_board_setting_view.xml" value="0.247265625" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/wasteliquor_board_setting_view.xml" value="0.67" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.31640625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.3697916666666667" />
+        <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/avd_topstatus_gasdock.xml" value="0.265625" />
+        <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/avd_topstatus_oxyzen.xml" value="0.265625" />
         <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/ic_gasroom_pressure.xml" value="0.253515625" />
+        <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/ic_menu_alarm.xml" value="0.265625" />
+        <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/ic_menu_control.xml" value="0.265625" />
+        <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/ic_menu_manager.xml" value="0.265625" />
+        <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/ic_menu_password.xml" value="0.265625" />
+        <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/ic_menu_setting.xml" value="0.265625" />
+        <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/ic_menu_version.xml" value="0.265625" />
         <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/layout/gasroomview.xml" value="0.1" />
         <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/layout/gasstroageview.xml" value="0.16125" />
         <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/layout/menuiconview.xml" value="0.263125" />
         <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/layout/oxyzenview.xml" value="0.408984375" />
         <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/layout/versionview.xml" value="0.313671875" />
+        <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/layout/wastebottleview.xml" value="0.253515625" />
       </map>
     </option>
   </component>

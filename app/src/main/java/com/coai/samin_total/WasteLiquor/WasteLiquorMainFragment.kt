@@ -102,19 +102,20 @@ class WasteLiquorMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        for (i in mainViewModel.WasteLiquorDataLiveList.value!!){
-            wasteLiquorViewData.add(i)
+        if (wasteLiquorViewData.isEmpty()) {
+            for (i in mainViewModel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))) {
+                wasteLiquorViewData.add(i)
+            }
+            recycleAdapter.submitList(wasteLiquorViewData)
+            recycleAdapter.notifyDataSetChanged()
         }
-        recycleAdapter.submitList(wasteLiquorViewData)
-        recycleAdapter.notifyDataSetChanged()
-
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun updateView(){
+    private fun updateView() {
         mainViewModel.WasteLiquorDataLiveList.observe(viewLifecycleOwner, {
-            for ((index, data) in it.withIndex()){
-                 wasteLiquorViewData.set(index, data)
+            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()) {
+                wasteLiquorViewData.set(index, data)
             }
             recycleAdapter.submitList(wasteLiquorViewData)
             recycleAdapter.notifyDataSetChanged()

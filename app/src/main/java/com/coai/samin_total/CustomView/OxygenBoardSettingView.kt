@@ -5,16 +5,18 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
+import androidx.appcompat.widget.SwitchCompat
 import com.coai.samin_total.R
 
 class OxygenBoardSettingView constructor(context: Context, attrs: AttributeSet? = null) :
     LinearLayout(context, attrs) {
-    var mSensorUsable_Sw:Switch
+    var mSensorUsable_Sw: SwitchCompat
     var mSensorType_Sp: Spinner
     var mOxygen_minValue_et: EditText
     val sensorType = arrayListOf<String>(
         "LOX-02",
     )
+    var selected_SensorType =""
 
     private fun setSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
@@ -30,8 +32,7 @@ class OxygenBoardSettingView constructor(context: Context, attrs: AttributeSet? 
                 position: Int,
                 id: Long
             ) {
-                Toast.makeText(context, "$position  // $view", Toast.LENGTH_SHORT)
-                    .show()
+                selected_SensorType = sensorType[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -40,7 +41,12 @@ class OxygenBoardSettingView constructor(context: Context, attrs: AttributeSet? 
             }
         }
     }
-
+    private fun setIsSensor() {
+        var ret:Boolean
+        mSensorUsable_Sw.setOnClickListener {
+            ret = mSensorUsable_Sw.isChecked
+        }
+    }
     init {
         LayoutInflater.from(context).inflate(R.layout.oxygen_board_setting_view, this, true)
         mSensorUsable_Sw = findViewById(R.id.sw_use_sensor)
@@ -48,5 +54,6 @@ class OxygenBoardSettingView constructor(context: Context, attrs: AttributeSet? 
         mOxygen_minValue_et = findViewById(R.id.et_oxygen_Minalert)
 
         setSensorTypeSpinner()
+        setIsSensor()
     }
 }

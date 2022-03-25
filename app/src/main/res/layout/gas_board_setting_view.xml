@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/sw_use_sensor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -14,8 +14,8 @@
         android:layout_marginTop="10dp"
         android:switchPadding="100dp"
         android:text="@string/text_sensor_usable"
-        android:textSize="15sp"
-        tools:ignore="UseSwitchCompatOrMaterialXml" />
+        android:checked="true"
+        android:textSize="15sp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -82,8 +82,8 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="number"
-        android:textSize="20sp"
-        android:text="0"/>
+        android:text="0"
+        android:textSize="20sp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -117,11 +117,11 @@
             android:layout_height="50dp"
             android:layout_gravity="center"
             android:inputType="number"
+            android:text="2000"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="@id/tv_max_cap."
             app:layout_constraintStart_toStartOf="@id/tv_max_cap."
-            app:layout_constraintTop_toBottomOf="@id/tv_max_cap."
-            android:text="2000"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_max_cap." />
 
         <EditText
             android:id="@+id/et_reward_value"
@@ -129,11 +129,11 @@
             android:layout_height="50dp"
             android:layout_gravity="center"
             android:inputType="number"
+            android:text="1"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/tv_max_cap."
-            app:layout_constraintTop_toBottomOf="@id/tv_max_cap."
-            android:text="1"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_max_cap." />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
@@ -151,9 +151,9 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="number"
+        android:text="0"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/tv_max_cap."
-        app:layout_constraintTop_toBottomOf="@id/tv_max_cap."
-        android:text="0"/>
+        app:layout_constraintTop_toBottomOf="@id/tv_max_cap." />
 </LinearLayout>

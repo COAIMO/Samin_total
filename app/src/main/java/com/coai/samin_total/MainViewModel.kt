@@ -30,6 +30,8 @@ class MainViewModel : ViewModel() {
         const val STEAMERMAINFRAGMENT = 14
         const val GASSTORAGESETTINGFRAGMENT = 15
         const val LAYOUTFRAGMENT = 16
+        const val CONNECTTESTFRAGEMNT = 17
+
         const val GasDockStorage = 1.toByte()
         const val GasRoom = 2.toByte()
         const val WasteLiquor = 3.toByte()
