@@ -325,18 +325,18 @@ class AqSettingFragment : Fragment() {
         for (i in aqInfoData) {
             when (i.model) {
                 "GasDock" -> {
-                    val view = GasStorageBoardSettingView(
-                        requireActivity()
-                    )
-                    aqSettingViewList.add(view)
-                    aqInfo_ViewMap.put(i, view)
+//                    val view = GasStorageBoardSettingView(
+//                        requireActivity()
+//                    )
+//                    aqSettingViewList.add(view)
+//                    aqInfo_ViewMap.put(i, view)
                 }
                 "GasRoom" -> {
-                    val view = GasStorageBoardSettingView(
-                        requireActivity()
-                    )
-                    aqSettingViewList.add(view)
-                    aqInfo_ViewMap.put(i, view)
+//                    val view = GasStorageBoardSettingView(
+//                        requireActivity()
+//                    )
+//                    aqSettingViewList.add(view)
+//                    aqInfo_ViewMap.put(i, view)
                 }
                 "WasteLiquor" -> {
                     val view = WasteLiquorBoardSettingView(requireActivity())

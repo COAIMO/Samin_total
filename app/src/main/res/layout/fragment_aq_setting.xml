@@ -120,9 +120,9 @@
 
 
     <ImageView
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="60dp"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="50dp"
         android:src="@drawable/labsislogo_ic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

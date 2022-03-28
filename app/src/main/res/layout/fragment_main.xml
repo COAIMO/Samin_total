@@ -11,135 +11,159 @@
         android:id="@+id/lab_ID_TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="93dp"
         android:fontFamily="@font/nanumbarungothicbold"
         android:text="@string/title_place"
-        android:textSize="30sp"
+        android:textColor="#000000"
+        android:textSize="21.5pt"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="120dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="285dp"
+        android:layout_marginEnd="60dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lab_ID_TextView">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/gasDock_MainStatus_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="invisible">
 
-            <com.coai.uikit.samin.status.TopStatusPathView
+            <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/gasDock_MainStatus"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
+                android:layout_width="190dp"
+                android:layout_height="190dp"
                 android:tag="0"
                 android:visibility="visible"
+                app:isAlert="false"
                 app:status_type="GasDock" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:text="@string/title_gas_storage"
+                android:textColor="#000000"
                 android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/gasRoom_MainStatus_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:orientation="vertical">
+            android:layout_marginStart="50dp"
+            android:orientation="vertical"
+            android:visibility="invisible">
 
-            <com.coai.uikit.samin.status.TopStatusPathView
+            <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/gasRoom_MainStatus"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
+                android:layout_width="190dp"
+                android:layout_height="190dp"
                 android:tag="0"
                 android:visibility="visible"
+                app:isAlert="false"
                 app:status_type="GasRoom" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:text="@string/title_gas_room"
+                android:textColor="#000000"
                 android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/wasteLiquor_MainStatus_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:orientation="vertical">
+            android:layout_marginStart="50dp"
+            android:orientation="vertical"
+            android:visibility="invisible">
 
-            <com.coai.uikit.samin.status.TopStatusPathView
+            <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/wasteLiquor_MainStatus"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
+                android:layout_width="190dp"
+                android:layout_height="190dp"
                 android:tag="0"
                 android:visibility="visible"
+                app:isAlert="false"
                 app:status_type="WasteLiquor" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:text="@string/title_waste_liquor"
+                android:textColor="#000000"
                 android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/oxygen_MainStatus_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:orientation="vertical">
+            android:layout_marginStart="50dp"
+            android:orientation="vertical"
+            android:visibility="invisible">
 
-            <com.coai.uikit.samin.status.TopStatusPathView
+            <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/oxygen_MainStatus"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
+                android:layout_width="190dp"
+                android:layout_height="190dp"
                 android:tag="0"
                 android:visibility="visible"
+                app:isAlert="false"
                 app:status_type="Oxygen" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:text="@string/title_oxygen"
+                android:textColor="#000000"
                 android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/steamer_MainStatus_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:orientation="vertical">
+            android:layout_marginStart="50dp"
+            android:orientation="vertical"
+            android:visibility="invisible">
 
-            <com.coai.uikit.samin.status.TopStatusPathView
+            <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/steamer_MainStatus"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
+                android:layout_width="193dp"
+                android:layout_height="193dp"
                 android:tag="0"
                 android:visibility="visible"
+                app:isAlert="false"
                 app:status_type="Steamer" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:text="@string/title_steamer"
+                android:textColor="#000000"
                 android:textSize="20sp" />
         </LinearLayout>
     </LinearLayout>
@@ -148,46 +172,45 @@
         android:id="@+id/settingBar_Layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="157dp"
         android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/labsislogo">
+        app:layout_constraintStart_toStartOf="parent">
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btn_setting"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginHorizontal="15dp"
             android:background="@drawable/button_setting" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btn_alert"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginHorizontal="15dp"
+            android:layout_marginStart="30dp"
             android:background="@drawable/button_nonalert" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btn_sound"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginHorizontal="15dp"
+            android:layout_marginStart="30dp"
             android:background="@drawable/sound_ic" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btn_scan"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginHorizontal="15dp"
+            android:layout_marginStart="30dp"
             android:background="@drawable/button_scan" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/labsislogo"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="60dp"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="50dp"
         android:src="@drawable/labsislogo_ic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

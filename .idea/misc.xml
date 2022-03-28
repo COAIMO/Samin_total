@@ -27,6 +27,9 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/pressed_nonalert_ic.xml" value="0.41796875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/pressed_scan_ic.xml" value="0.41796875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/pressed_setting_ic.xml" value="0.2484375" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/samin_launcher_ic1_background.xml" value="0.24625" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/samin_launcher_ic_1_background.xml" value="0.24625" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/samin_launcher_ic_background.xml" value="0.41796875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/scan_ic.xml" value="0.41796875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/sensor_ic.xml" value="0.194140625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/setting_ic.xml" value="0.27734375" />
@@ -46,26 +49,28 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/activity_setting.xml" value="0.26484375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/activity_version.xml" value="0.147265625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/board_info.xml" value="0.405859375" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_admin.xml" value="0.405859375" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_alert_dialog.xml" value="0.405859375" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_admin.xml" value="0.25" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_alert_dialog.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_alert_log.xml" value="0.22" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_aq_setting.xml" value="0.33" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_aq_setting.xml" value="0.2" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_blank.xml" value="0.405859375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_connect_test.xml" value="0.34375" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_control.xml" value="0.25" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_control.xml" value="0.33" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_dock_main.xml" value="0.241796875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_room_main.xml" value="0.25" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_storage_setting.xml" value="0.405859375" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_main.xml" value="0.22" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_main_setting.xml" value="0.405859375" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_storage_setting.xml" value="0.25" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_layout.xml" value="0.244921875" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_main.xml" value="0.25" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_main_setting.xml" value="0.22" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_oxygen_main.xml" value="0.24140625" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_password.xml" value="0.405859375" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_password_dialog.xml" value="0.33" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_password.xml" value="0.25" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_password_dialog.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_scan_dialog.xml" value="0.405859375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_steamer_main.xml" value="0.24140625" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_version.xml" value="0.405859375" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_version.xml" value="0.22" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_waste_liquor_main.xml" value="0.24140625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_board_setting_view.xml" value="0.247265625" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_room_board_setting_view.xml" value="0.405859375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_room_view.xml" value="0.184375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_setting_view.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_autochanger_view.xml" value="0.199375" />
@@ -85,6 +90,12 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/wasteliquor_board_setting_view.xml" value="0.67" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.31640625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.3697916666666667" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/mipmap-anydpi-v26/samin_launcher_ic.xml" value="0.15390625" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/mipmap-anydpi-v26/samin_launcher_ic1.xml" value="0.15390625" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/mipmap-anydpi-v26/samin_launcher_ic1_round.xml" value="0.15390625" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/mipmap-anydpi-v26/samin_launcher_ic_1.xml" value="0.15390625" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/mipmap-anydpi-v26/samin_launcher_ic_1_round.xml" value="0.15390625" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/mipmap-anydpi-v26/samin_launcher_ic_round.xml" value="0.15390625" />
         <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/avd_topstatus_gasdock.xml" value="0.265625" />
         <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/avd_topstatus_oxyzen.xml" value="0.265625" />
         <entry key="..\:/Users/nuri0/SmartLABPROTOTYPE/UIKit/src/main/res/drawable/ic_gasroom_pressure.xml" value="0.253515625" />

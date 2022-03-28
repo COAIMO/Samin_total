@@ -8,8 +8,8 @@
 
     <com.coai.uikit.samin.VersionView
         android:id="@+id/view_version"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="505dp"
+        android:layout_height="505dp"
         app:app_version="1.0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -17,9 +17,9 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="60dp"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="50dp"
         android:src="@drawable/labsislogo_ic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -21,6 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
+            android:textColor="#000000"
             android:text="AQ Board 모델"
             android:textSize="15sp" />
 
@@ -42,6 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
+            android:textColor="#000000"
             android:text="AQ Board ID"
             android:textSize="15sp" />
 
@@ -109,6 +111,13 @@
     </LinearLayout>
 
 
-
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="50dp"
+        android:src="@drawable/labsislogo_ic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,33 +9,11 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="300dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-<!--        <LinearLayout-->
-<!--            android:id="@+id/btn_layout"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical">-->
-
-<!--            <ImageView-->
-<!--                android:layout_width="100dp"-->
-<!--                android:layout_height="100dp"-->
-<!--                android:layout_marginHorizontal="50dp"-->
-<!--                android:src="@drawable/layout_ic" />-->
-
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_gravity="center"-->
-<!--                android:layout_marginTop="30dp"-->
-<!--                android:text="@string/text_layout"-->
-<!--                android:textSize="30sp"-->
-<!--                android:textStyle="bold" />-->
-<!--        </LinearLayout>-->
 
         <LinearLayout
             android:id="@+id/btn_connect"
@@ -44,8 +22,8 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="105dp"
+                android:layout_height="105dp"
                 android:layout_marginHorizontal="50dp"
                 android:src="@drawable/connectivity_ic" />
 
@@ -55,31 +33,31 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
                 android:text="연결시험"
-                android:textSize="30sp"
-                android:textStyle="bold" />
+                android:textColor="#000000"
+                android:textSize="16pt" />
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/btn_aqsetting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+        <!--        <LinearLayout-->
+        <!--            android:id="@+id/btn_aqsetting"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:orientation="vertical">-->
 
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginHorizontal="50dp"
-                android:src="@drawable/setting_ic" />
+        <!--            <ImageView-->
+        <!--                android:layout_width="100dp"-->
+        <!--                android:layout_height="100dp"-->
+        <!--                android:layout_marginHorizontal="50dp"-->
+        <!--                android:src="@drawable/setting_ic" />-->
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="30dp"
-                android:text="@string/title_products_setting"
-                android:textSize="30sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+        <!--            <TextView-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_gravity="center"-->
+        <!--                android:layout_marginTop="30dp"-->
+        <!--                android:text="@string/title_products_setting"-->
+        <!--                android:textSize="30sp"-->
+        <!--                android:textStyle="bold" />-->
+        <!--        </LinearLayout>-->
 
 
         <LinearLayout
@@ -89,8 +67,8 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="105dp"
+                android:layout_height="105dp"
                 android:layout_marginHorizontal="50dp"
                 android:src="@drawable/control_ic" />
 
@@ -99,9 +77,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
+                android:textColor="#000000"
                 android:text="@string/title_control"
-                android:textSize="30sp"
-                android:textStyle="bold" />
+                android:textSize="16pt" />
         </LinearLayout>
 
         <LinearLayout
@@ -111,8 +89,8 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="105dp"
+                android:layout_height="105dp"
                 android:layout_marginHorizontal="50dp"
                 android:src="@drawable/version_ic" />
 
@@ -122,8 +100,8 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
                 android:text="@string/title_version"
-                android:textSize="30sp"
-                android:textStyle="bold" />
+                android:textColor="#000000"
+                android:textSize="16pt" />
         </LinearLayout>
 
         <LinearLayout
@@ -133,8 +111,8 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="105dp"
+                android:layout_height="105dp"
                 android:layout_marginHorizontal="50dp"
                 android:src="@drawable/password_ic" />
 
@@ -144,19 +122,20 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="30dp"
                 android:text="@string/title_password"
-                android:textSize="30sp"
-                android:textStyle="bold" />
+                android:textSize="16pt"
+                android:textColor="#000000" />
         </LinearLayout>
 
     </LinearLayout>
 
 
     <ImageView
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="60dp"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="50dp"
         android:src="@drawable/labsislogo_ic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

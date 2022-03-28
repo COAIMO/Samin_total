@@ -61,7 +61,6 @@ class MainSettingFragment : Fragment() {
     ): View? {
         mBinding = FragmentMainSettingBinding.inflate(inflater, container, false)
         mBinding.btnAdmin.setOnClickListener {
-//            val passwordDialogFragment = PasswordDialogFragment()
             passwordDialogFragment = PasswordDialogFragment()
             getActivity()?.let { it1 -> passwordDialogFragment.show(it1.supportFragmentManager,"tag") }
         }

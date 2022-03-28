@@ -1,15 +1,19 @@
 package com.coai.samin_total
 
+import android.app.ProgressDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.coai.samin_total.Logic.SaminProtocol
+import com.coai.samin_total.Logic.ThreadSynchronied
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentMainBinding
 import com.coai.uikit.samin.status.TopStatusView
@@ -33,7 +37,10 @@ class MainFragment : Fragment() {
     private var param2: String? = null
     lateinit var mBinding: FragmentMainBinding
     var activity: MainActivity? = null
-    private val mainViewModel: MainViewModel by activityViewModels()
+    private val viewmodel: MainViewModel by activityViewModels()
+    lateinit var progress_Dialog: ProgressDialog
+    lateinit var sendThread: Thread
+    private val threadSync = ThreadSynchronied()
 
     override fun onAttach(context: Context) {
         activity = getActivity() as MainActivity
@@ -59,10 +66,10 @@ class MainFragment : Fragment() {
     ): View? {
         mBinding = FragmentMainBinding.inflate(inflater, container, false)
         setButtonClickEvent()
+        initView()
 
         mBinding.btnSound.setOnClickListener {
-//            activity?.callFeedback()
-
+            mBinding.gasDockMainStatus.setAlert(true)
         }
 
         mBinding.labIDTextView.setOnClickListener {
@@ -167,14 +174,120 @@ class MainFragment : Fragment() {
                 animate(mBinding.gasDockMainStatus)
             }
             mBinding.btnScan -> {
-                activity?.onFragmentChange(MainViewModel.SCANDIALOGFRAGMENT)
-
+//                activity?.onFragmentChange(MainViewModel.SCANDIALOGFRAGMENT)
+                scanModel()
             }
         }
     }
 
-    fun animate(view: View){
-        val v : TopStatusView = view as TopStatusView
+    fun animate(view: View) {
+        val v: TopStatusView = view as TopStatusView
         v.setAlert(v.isAlert())
+    }
+
+    private fun scanModel() {
+        viewmodel.removeModelMap()
+
+        getProgressShow()
+        sendThread = Thread {
+            try {
+                for (model in 0..5) {
+                    for (id in 0..7) {
+                        for (count in 0..2) {
+                            val protocol = SaminProtocol()
+                            protocol.checkModel(model.toByte(), id.toByte())
+                            activity?.serialService?.sendData(protocol.mProtocol)
+                            Thread.sleep(25)
+                        }
+                    }
+                }
+                Thread.sleep(400)
+            }catch (e: Exception){}
+
+            activity?.runOnUiThread {
+                initView()
+            }
+            getProgressHidden()
+//            activity?.callFeedback()
+        }
+        sendThread.start()
+
+    }
+
+    private fun initView() {
+        mBinding.gasDockMainStatusLayout.isVisible = false
+        mBinding.gasRoomMainStatusLayout.isVisible = false
+        mBinding.wasteLiquorMainStatusLayout.isVisible = false
+        mBinding.oxygenMainStatusLayout.isVisible = false
+        mBinding.steamerMainStatusLayout.isVisible = false
+        for ((key, ids) in viewmodel.modelMap) {
+            when (key) {
+                "GasDock" -> {
+                    mBinding.gasDockMainStatusLayout.isVisible = true
+                }
+                "GasRoom" -> {
+                    mBinding.gasRoomMainStatusLayout.isVisible = true
+                }
+                "WasteLiquor" -> {
+                    mBinding.wasteLiquorMainStatusLayout.isVisible = true
+                }
+                "Oxygen" -> {
+                    mBinding.oxygenMainStatusLayout.isVisible = true
+                }
+                "Steamer" -> {
+                    mBinding.steamerMainStatusLayout.isVisible = true
+                }
+            }
+        }
+    }
+
+    private fun getProgressShow() {
+        try {
+            val str_tittle = "Please Wait ..."
+            val str_message = "잠시만 기다려주세요 ...\n진행 중입니다 ..."
+            val str_buttonOK = "종료"
+            val str_buttonNO = "취소"
+
+            progress_Dialog = ProgressDialog(context)
+            progress_Dialog.setTitle(str_tittle) //팝업창 타이틀 지정
+            progress_Dialog.setIcon(R.mipmap.ic_launcher) //팝업창 아이콘 지정
+            progress_Dialog.setMessage(str_message) //팝업창 내용 지정
+            progress_Dialog.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
+            progress_Dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER) //프로그레스 원형 표시 설정
+            progress_Dialog.setButton(
+                DialogInterface.BUTTON_POSITIVE,
+                str_buttonOK,
+                DialogInterface.OnClickListener { dialog, which ->
+                    try {
+                        sendThread.interrupt()
+                        viewmodel.removeModelMap()
+                        getProgressHidden()
+                    }catch (e:Exception){
+                        Log.d("interrupt", "$e")
+                    }
+                })
+//            progress_Dialog.setButton(
+//                DialogInterface.BUTTON_NEGATIVE,
+//                str_buttonNO,
+//                DialogInterface.OnClickListener { dialog, which ->
+//                    getProgressHidden()
+//                })
+            try {
+                progress_Dialog.show()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun getProgressHidden() {
+        try {
+            progress_Dialog.dismiss()
+            progress_Dialog.cancel()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

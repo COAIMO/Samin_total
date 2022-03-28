@@ -12,10 +12,37 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
+        android:checked="true"
         android:switchPadding="100dp"
         android:text="@string/text_sensor_usable"
-        android:checked="true"
         android:textSize="15sp" />
+
+    <RadioGroup
+        android:layout_marginStart="10dp"
+        android:id="@+id/rg_viewType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/btn_single"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Single"/>
+        <RadioButton
+            android:id="@+id/btn_dual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Dual"/>
+        <RadioButton
+            android:id="@+id/btn_autoChanger"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="AutoChanger"/>
+
+    </RadioGroup>
 
     <TextView
         android:layout_width="wrap_content"

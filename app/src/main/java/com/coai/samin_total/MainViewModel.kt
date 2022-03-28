@@ -92,6 +92,14 @@ class MainViewModel : ViewModel() {
     val modelMap = HashMap<String, ByteArray>()
 
 
+    fun removeModelMap(){
+        modelMap.remove("GasDock")
+        modelMap.remove("GasRoom")
+        modelMap.remove("WasteLiquor")
+        modelMap.remove("Oxygen")
+        modelMap.remove("Steamer")
+
+    }
 
     init {
 //        Log.d(TAG, "MainViewModel - 생성자 호출")

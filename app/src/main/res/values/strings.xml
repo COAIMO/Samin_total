@@ -37,4 +37,5 @@
     <string name="title_id">ID</string>
     <string name="text_sensor_usable">센서사용여부</string>
     <string name="text_layout">화면배치</string>
+    <string name="text_PasswordChange">변경</string>
 </resources>

@@ -6,68 +6,95 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".GasDock.GasStorageSettingFragment">
 
+    <TextView
+        android:id="@+id/boardmenu_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="Gas센서 내역"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@id/aqlist_view"
+        app:layout_constraintStart_toStartOf="@id/aqlist_view" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/aqlist_view"
+        android:layout_width="550dp"
+        android:layout_height="520dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="150dp"
+        android:background="@drawable/container_border"
+        android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:id="@+id/btn_alertLog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
             android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginHorizontal="50dp"
-                android:background="@drawable/aq_setting" />
-
-            <TextView
-                android:layout_width="wrap_content"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/boardRecyclerView"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="30dp"
-                android:text="@string/text_aq_setting"
-                android:textSize="30sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/btn_admin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginHorizontal="50dp"
-                android:src="@drawable/pairing" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="30dp"
-                android:text="@string/text_connection"
-                android:textSize="30sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:orientation="vertical" />
+            <!--            child view margin top 10dp 씩 줄것-->
+        </androidx.core.widget.NestedScrollView>
 
     </LinearLayout>
 
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/setting_view"
+        android:layout_width="550dp"
+        android:layout_height="520dp"
+        android:layout_marginTop="150dp"
+        android:layout_marginEnd="50dp"
+        android:background="@drawable/container_border"
+        android:orientation="vertical"
+        android:paddingTop="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:id="@+id/boardsetting_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+
+    </androidx.core.widget.NestedScrollView>
+
+    <TextView
+        android:id="@+id/boardsetting_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="센서 설정"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@id/setting_view"
+        app:layout_constraintStart_toStartOf="@id/setting_view" />
+
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/save_btn"
+        style="@style/saveButton"
+        android:layout_marginBottom="20dp"
+        android:text="저장"
+        app:layout_constraintBottom_toTopOf="@id/setting_view"
+        app:layout_constraintEnd_toEndOf="@id/setting_view"
+        app:layout_constraintHorizontal_chainStyle="packed" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:background="@drawable/backbutton_ic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="33dp"
+        android:layout_marginEnd="33dp"/>
 
     <ImageView
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="60dp"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="50dp"
         android:src="@drawable/labsislogo_ic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
