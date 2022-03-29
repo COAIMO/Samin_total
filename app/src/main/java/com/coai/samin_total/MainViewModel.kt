@@ -110,7 +110,25 @@ class MainViewModel : ViewModel() {
         modelMap.remove("Oxygen")
         modelMap.remove("Steamer")
     }
-
+    val sensorType = arrayListOf<String>(
+        "Sensts 142PSI",
+        "Sensts 2000PSI",
+        "WIKAI 10BAR",
+        "WIKAI 160BAR",
+        "WIKAI 16BAR",
+        "Variable Sensor"
+    )
+    val gasType = arrayListOf<String>(
+        "Air",
+        "C2H2",
+        "CH4",
+        "CO2",
+        "H2",
+        "He",
+        "N2",
+        "N2O",
+        "O2"
+    )
     init {
 //        Log.d(TAG, "MainViewModel - 생성자 호출")
 //        Log.d(TAG, "MainViewModel _currentValue : $_currentValue")

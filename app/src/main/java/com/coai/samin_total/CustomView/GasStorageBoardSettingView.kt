@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
+import androidx.fragment.app.activityViewModels
+import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 
 class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeSet? = null) :
@@ -21,7 +23,7 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
     var btn_single:RadioButton
     var btn_dual:RadioButton
     var btn_autoChanger:RadioButton
-    private lateinit var bind : View
+
     val sensorType = arrayListOf<String>(
         "Sensts 142PSI",
         "Sensts 2000PSI",
@@ -45,7 +47,7 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
     var selected_GasType = ""
     var selected_ViewType:Int = 0
 
-    private fun setSensorTypeSpinner() {
+    private fun initSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
             context,
             R.layout.support_simple_spinner_dropdown_item,
@@ -69,7 +71,7 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
         }
     }
 
-    private fun setGasTypeSpinner() {
+    private fun initGasTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
             context,
             R.layout.support_simple_spinner_dropdown_item,
@@ -93,7 +95,7 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
         }
     }
 
-    private fun setIsSensor() {
+    private fun initIsSensor() {
         var ret:Boolean
         mSensorUsable_Sw.setOnClickListener {
             ret = mSensorUsable_Sw.isChecked
@@ -101,7 +103,7 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
     }
 
 
-    private fun setRadioGroup(){
+    private fun initRadioGroup(){
         mViewType_Rg.setOnCheckedChangeListener { group, checkedId ->
             when(checkedId){
                 R.id.btn_single ->{
@@ -129,11 +131,13 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
                 btn_autoChanger.isChecked = true
             }
         }
-
     }
 
+
+
+
     init {
-        bind = LayoutInflater.from(context).inflate(R.layout.gas_storage_board_setting_view, this, true)
+        LayoutInflater.from(context).inflate(R.layout.gas_storage_board_setting_view, this, true)
         mSensorUsable_Sw = findViewById(R.id.sw_use_sensor)
         mSensorType_Sp = findViewById<Spinner>(R.id.sp_sensor_type)
         mGasType_Sp = findViewById(R.id.sp_gas_type)
@@ -145,10 +149,10 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
         btn_single = findViewById<RadioButton>(R.id.btn_single)
         btn_dual = findViewById<RadioButton>(R.id.btn_dual)
         btn_autoChanger = findViewById<RadioButton>(R.id.btn_autoChanger)
-        setSensorTypeSpinner()
-        setGasTypeSpinner()
-        setIsSensor()
-        setRadioGroup()
+        initSensorTypeSpinner()
+        initGasTypeSpinner()
+        initIsSensor()
+        initRadioGroup()
     }
 
 

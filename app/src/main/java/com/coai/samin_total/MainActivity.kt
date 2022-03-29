@@ -693,20 +693,5 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun hideKeyboard() {
-//        var imm = activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-//        var view = activity.currentFocus
-//        if (view == null) view = View(activity)
-//        imm.hideSoftInputFromWindow(view.windowToken, 0)
 
-//        if (getActivity() != null && getActivity().getCurrentFocus() != null) {
-//            // 프래그먼트기 때문에 getActivity() 사용
-//            val inputManager =
-//                getActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-//            inputManager.hideSoftInputFromWindow(
-//                getActivity().getCurrentFocus().getWindowToken(),
-//                InputMethodManager.HIDE_NOT_ALWAYS
-//            )
-//        }
-    }
 }

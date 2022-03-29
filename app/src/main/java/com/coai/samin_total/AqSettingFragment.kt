@@ -173,9 +173,11 @@ class AqSettingFragment : Fragment() {
                             val port = aqInfo.port
                             viewmodel.GasStorageDataLiveList.add(
                                 SetGasStorageViewData(
+                                    model = aqInfo.model,
                                     id = id,
                                     port = port,
-                                    0,
+                                    usable = true,
+                                    ViewType = 0,
                                     gasName = gasName,
                                     gasColor = Color.parseColor("#6599CD"),
                                     pressure_Min = minCapa,

@@ -87,8 +87,8 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
         private val gasDcokView = view.findViewById<GasStorageView>(R.id.gas_storage_single_view)
 
         fun bind(setGasStorageViewData: SetGasStorageViewData) {
-            gasDcokView.setGasName(setGasStorageViewData.gasName)
-            gasDcokView.setGasColor(setGasStorageViewData.gasColor)
+            gasDcokView.setGasName(setGasStorageViewData.gasName!!)
+            gasDcokView.setGasColor(setGasStorageViewData.gasColor!!)
             setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
             setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
             setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
@@ -103,8 +103,8 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
         private val gasDcokView = view.findViewById<GasStorageView>(R.id.gas_storage_dual_view)
 
         fun bind(setGasStorageViewData: SetGasStorageViewData) {
-            gasDcokView.setGasName(setGasStorageViewData.gasName)
-            gasDcokView.setGasColor(setGasStorageViewData.gasColor)
+            gasDcokView.setGasName(setGasStorageViewData.gasName!!)
+            gasDcokView.setGasColor(setGasStorageViewData.gasColor!!)
             setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
             setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
             setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
@@ -120,8 +120,8 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             view.findViewById<GasStorageView>(R.id.gas_storage_autochanger_view)
 
         fun bind(setGasStorageViewData: SetGasStorageViewData) {
-            gasDcokView.setGasName(setGasStorageViewData.gasName)
-            gasDcokView.setGasColor(setGasStorageViewData.gasColor)
+            gasDcokView.setGasName(setGasStorageViewData.gasName!!)
+            gasDcokView.setGasColor(setGasStorageViewData.gasColor!!)
             setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
             setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
             setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
