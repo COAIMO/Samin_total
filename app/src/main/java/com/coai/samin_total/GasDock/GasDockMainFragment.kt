@@ -2,7 +2,6 @@ package com.coai.samin_total.GasDock
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -12,13 +11,8 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.PagerSnapHelper
 import com.coai.samin_total.*
-import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.databinding.FragmentGasDockMainBinding
-import com.coai.uikit.GlobalUiTimer
-import kotlinx.coroutines.channels.consumesAll
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -36,8 +30,8 @@ class GasDockMainFragment : Fragment() {
     private var param2: String? = null
     lateinit private var mBinding: FragmentGasDockMainBinding
     private var activity: MainActivity? = null
-    private val gasStorageViewData = mutableListOf<SetGasdockViewData>()
-    private val viewData = mutableListOf<SetGasdockViewData>()
+    private val gasStorageViewData = mutableListOf<SetGasStorageViewData>()
+    private val viewData = mutableListOf<SetGasStorageViewData>()
 
     private lateinit var recycleAdapter: GasStorage_RecycleAdapter
     private lateinit var onBackPressed: OnBackPressedCallback

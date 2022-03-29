@@ -1,11 +1,8 @@
 package com.coai.samin_total.GasRoom
 
 import android.annotation.SuppressLint
-import android.content.ClipData
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +10,6 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import com.coai.samin_total.GasDock.SetGasdockViewData
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.RecyclerDecoration_Height

@@ -6,14 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.coai.samin_total.R
-import com.coai.uikit.samin.status.GasRoomView
 import com.coai.uikit.samin.status.GasStorageView
 
 class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
     private val TAG = "로그"
-    var setGasdockViewData = mutableListOf<SetGasdockViewData>()
+    var setGasdockViewData = mutableListOf<SetGasStorageViewData>()
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -54,7 +53,7 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    fun submitList(viewData: MutableList<SetGasdockViewData>) {
+    fun submitList(viewData: MutableList<SetGasStorageViewData>) {
         this.setGasdockViewData = viewData
     }
 
@@ -87,32 +86,32 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
     inner class gasDockSingleViewHodler(view: View) : RecyclerView.ViewHolder(view) {
         private val gasDcokView = view.findViewById<GasStorageView>(R.id.gas_storage_single_view)
 
-        fun bind(setGasdockViewData: SetGasdockViewData) {
-            gasDcokView.setGasName(setGasdockViewData.gasName)
-            gasDcokView.setGasColor(setGasdockViewData.gasColor)
-            setGasdockViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
-            setGasdockViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
-            setGasdockViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
-            setGasdockViewData.isAlert?.let { gasDcokView.setAlert(it) }
-            setGasdockViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
-            setGasdockViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
-            setGasdockViewData.pressure?.let { gasDcokView.setPressure(it) }
+        fun bind(setGasStorageViewData: SetGasStorageViewData) {
+            gasDcokView.setGasName(setGasStorageViewData.gasName)
+            gasDcokView.setGasColor(setGasStorageViewData.gasColor)
+            setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
+            setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
+            setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
+            setGasStorageViewData.isAlert?.let { gasDcokView.setAlert(it) }
+            setGasStorageViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
+            setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
+            setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
         }
     }
 
     inner class gasDockDualViewHodler(view: View) : RecyclerView.ViewHolder(view) {
         private val gasDcokView = view.findViewById<GasStorageView>(R.id.gas_storage_dual_view)
 
-        fun bind(setGasdockViewData: SetGasdockViewData) {
-            gasDcokView.setGasName(setGasdockViewData.gasName)
-            gasDcokView.setGasColor(setGasdockViewData.gasColor)
-            setGasdockViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
-            setGasdockViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
-            setGasdockViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
-            setGasdockViewData.isAlert?.let { gasDcokView.setAlert(it) }
-            setGasdockViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
-            setGasdockViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
-            setGasdockViewData.pressure?.let { gasDcokView.setPressure(it) }
+        fun bind(setGasStorageViewData: SetGasStorageViewData) {
+            gasDcokView.setGasName(setGasStorageViewData.gasName)
+            gasDcokView.setGasColor(setGasStorageViewData.gasColor)
+            setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
+            setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
+            setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
+            setGasStorageViewData.isAlert?.let { gasDcokView.setAlert(it) }
+            setGasStorageViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
+            setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
+            setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
         }
     }
 
@@ -120,16 +119,16 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
         private val gasDcokView =
             view.findViewById<GasStorageView>(R.id.gas_storage_autochanger_view)
 
-        fun bind(setGasdockViewData: SetGasdockViewData) {
-            gasDcokView.setGasName(setGasdockViewData.gasName)
-            gasDcokView.setGasColor(setGasdockViewData.gasColor)
-            setGasdockViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
-            setGasdockViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
-            setGasdockViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
-            setGasdockViewData.isAlert?.let { gasDcokView.setAlert(it) }
-            setGasdockViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
-            setGasdockViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
-            setGasdockViewData.pressure?.let { gasDcokView.setPressure(it) }
+        fun bind(setGasStorageViewData: SetGasStorageViewData) {
+            gasDcokView.setGasName(setGasStorageViewData.gasName)
+            gasDcokView.setGasColor(setGasStorageViewData.gasColor)
+            setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
+            setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
+            setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
+            setGasStorageViewData.isAlert?.let { gasDcokView.setAlert(it) }
+            setGasStorageViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
+            setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
+            setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
         }
     }
 }

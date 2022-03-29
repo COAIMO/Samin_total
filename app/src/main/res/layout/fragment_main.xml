@@ -25,20 +25,22 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="60dp"
+        android:layout_marginStart="35dp"
         android:layout_marginTop="285dp"
-        android:layout_marginEnd="60dp"
+        android:layout_marginEnd="35dp"
         android:orientation="horizontal"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/gasDock_MainStatus_layout"
+            android:layout_marginHorizontal="25dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="invisible">
+            android:visibility="gone">
 
             <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/gasDock_MainStatus"
@@ -63,9 +65,9 @@
             android:id="@+id/gasRoom_MainStatus_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
+            android:layout_marginHorizontal="25dp"
             android:orientation="vertical"
-            android:visibility="invisible">
+            android:visibility="gone">
 
             <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/gasRoom_MainStatus"
@@ -90,9 +92,9 @@
             android:id="@+id/wasteLiquor_MainStatus_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
+            android:layout_marginHorizontal="25dp"
             android:orientation="vertical"
-            android:visibility="invisible">
+            android:visibility="gone">
 
             <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/wasteLiquor_MainStatus"
@@ -117,9 +119,9 @@
             android:id="@+id/oxygen_MainStatus_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
+            android:layout_marginHorizontal="25dp"
             android:orientation="vertical"
-            android:visibility="invisible">
+            android:visibility="gone">
 
             <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/oxygen_MainStatus"
@@ -144,9 +146,9 @@
             android:id="@+id/steamer_MainStatus_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
+            android:layout_marginHorizontal="25dp"
             android:orientation="vertical"
-            android:visibility="invisible">
+            android:visibility="gone">
 
             <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/steamer_MainStatus"

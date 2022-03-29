@@ -186,9 +186,9 @@ class MainFragment : Fragment() {
     }
 
     private fun scanModel() {
+        getProgressShow()
         viewmodel.removeModelMap()
 
-        getProgressShow()
         sendThread = Thread {
             try {
                 for (model in 0..5) {
@@ -215,27 +215,27 @@ class MainFragment : Fragment() {
     }
 
     private fun initView() {
-        mBinding.gasDockMainStatusLayout.isVisible = false
-        mBinding.gasRoomMainStatusLayout.isVisible = false
-        mBinding.wasteLiquorMainStatusLayout.isVisible = false
-        mBinding.oxygenMainStatusLayout.isVisible = false
-        mBinding.steamerMainStatusLayout.isVisible = false
+        mBinding.gasDockMainStatusLayout.visibility = View.GONE
+        mBinding.gasRoomMainStatusLayout.visibility = View.GONE
+        mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
+        mBinding.oxygenMainStatusLayout.visibility = View.GONE
+        mBinding.steamerMainStatusLayout.visibility = View.GONE
         for ((key, ids) in viewmodel.modelMap) {
             when (key) {
                 "GasDock" -> {
-                    mBinding.gasDockMainStatusLayout.isVisible = true
+                    mBinding.gasDockMainStatusLayout.visibility = View.VISIBLE
                 }
                 "GasRoom" -> {
-                    mBinding.gasRoomMainStatusLayout.isVisible = true
+                    mBinding.gasRoomMainStatusLayout.visibility = View.VISIBLE
                 }
                 "WasteLiquor" -> {
-                    mBinding.wasteLiquorMainStatusLayout.isVisible = true
+                    mBinding.wasteLiquorMainStatusLayout.visibility = View.VISIBLE
                 }
                 "Oxygen" -> {
-                    mBinding.oxygenMainStatusLayout.isVisible = true
+                    mBinding.oxygenMainStatusLayout.visibility = View.VISIBLE
                 }
                 "Steamer" -> {
-                    mBinding.steamerMainStatusLayout.isVisible = true
+                    mBinding.steamerMainStatusLayout.visibility = View.VISIBLE
                 }
             }
         }

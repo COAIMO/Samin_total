@@ -43,7 +43,7 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
     )
     var selected_SensorType = ""
     var selected_GasType = ""
-    var selected_ViewType:Int? = null
+    var selected_ViewType:Int = 0
 
     private fun setSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(

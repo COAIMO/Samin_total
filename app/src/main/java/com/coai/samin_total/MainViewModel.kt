@@ -1,15 +1,14 @@
 package com.coai.samin_total
 
-import android.util.Log
+import android.graphics.Color
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.coai.samin_total.GasDock.SetGasdockViewData
+import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.MutableListLiveData
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
-import com.coai.samin_total.WasteLiquor.WasteLiquor_RecycleAdapter
 
 class MainViewModel : ViewModel() {
     companion object {
@@ -54,7 +53,7 @@ class MainViewModel : ViewModel() {
     private val _GasRoomData = MutableLiveData<Float>()
 
 
-    val GasStorageDataLiveList = MutableListLiveData<SetGasdockViewData>()
+    val GasStorageDataLiveList = MutableListLiveData<SetGasStorageViewData>()
     val GasRoomDataLiveList = MutableListLiveData<SetGasRoomViewData>()
     val WasteLiquorDataLiveList = MutableListLiveData<SetWasteLiquorViewData>()
     val OxygenDataLiveList = MutableListLiveData<SetOxygenViewData>()
@@ -91,6 +90,18 @@ class MainViewModel : ViewModel() {
 
     val modelMap = HashMap<String, ByteArray>()
 
+    val gasColorMap = hashMapOf<String, Int>(
+        "Air" to Color.parseColor("#6599CD"),
+        "Ar" to Color.parseColor("#333333"),
+        "C2H2" to Color.parseColor("#FECD08"),
+        "CH4" to Color.parseColor("#905501"),
+        "CO2" to Color.parseColor("#2D67B2"),
+        "H2" to Color.parseColor("#F2663A"),
+        "He" to Color.parseColor("#9A679A"),
+        "N2" to Color.parseColor("#42C8F4"),
+        "O2" to Color.parseColor("#316734")
+    )
+
 
     fun removeModelMap(){
         modelMap.remove("GasDock")
@@ -98,7 +109,6 @@ class MainViewModel : ViewModel() {
         modelMap.remove("WasteLiquor")
         modelMap.remove("Oxygen")
         modelMap.remove("Steamer")
-
     }
 
     init {

@@ -14,7 +14,7 @@ import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.*
-import com.coai.samin_total.GasDock.SetGasdockViewData
+import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.ThreadSynchronied
@@ -172,7 +172,7 @@ class AqSettingFragment : Fragment() {
                             val id = aqInfo.id
                             val port = aqInfo.port
                             viewmodel.GasStorageDataLiveList.add(
-                                SetGasdockViewData(
+                                SetGasStorageViewData(
                                     id = id,
                                     port = port,
                                     0,

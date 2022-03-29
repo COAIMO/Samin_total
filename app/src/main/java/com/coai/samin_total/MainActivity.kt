@@ -201,8 +201,12 @@ class MainActivity : AppCompatActivity() {
                             mainViewModel.GasStorageData.value = sensor_Data_1
                         }
                         Log.d("태그", "sensor_Data_1:${sensor_Data_1} ")
+
+
                         for (i in mainViewModel.GasStorageDataLiveList.value!!) {
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+//                                if(i.ViewType == )
+
                                 when (i.port) {
                                     1 -> {
                                         i.pressure = pin1_data
