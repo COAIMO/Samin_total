@@ -35,7 +35,7 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class GasStorageSettingFragment : Fragment() {
-    // TODO: 2022-03-29 키보드 입력시 화면이 가려서 스크롤 가능하게 구현, 저장하여 데이터 뷰로 넘기는 부분만하면됨 
+    // TODO: 2022-03-29 키보드 입력시 화면이 가려서 스크롤 가능하게 구현, 저장하여 데이터 뷰로 넘기는 부분만하면됨
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var mBinding: FragmentGasStorageSettingBinding
@@ -651,61 +651,41 @@ class GasStorageSettingFragment : Fragment() {
 //        activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
 //        activity?.callFeedback()
 
-        for (i in setGasSensorInfo) {
-            if (i.ViewType == 1 || i.ViewType == 2) {
+//        for (i in setGasSensorInfo) {
+//            if (i.ViewType == 1 || i.ViewType == 2) {
+//                if (i.port == 2 || i.port == 4) {
+//                    setGasSensorInfo.removeIf {
+//                        it.port == 2 || it.port == 4
+//                    }
+//                } else {
+//                    viewmodel.GasStorageDataLiveList.add(i)
+//                }
+//
+//            } else {
+//                viewmodel.GasStorageDataLiveList.add(i)
+//            }
+//        }
 
+        val iter = setGasSensorInfo.iterator()
+        while (iter.hasNext()) {
+            iter.forEach {
+                if (it.ViewType == 1 || it.ViewType == 2) {
+                    if (it.port == 2 || it.port == 4) {
+//                        Log.d("테스트", "it 2,4: $it")
+                        iter.remove()
+                    } else {
+//                        Log.d("테스트", "iter 1,3: $it")
+                        viewmodel.GasStorageDataLiveList.add(it)
+                    }
+                } else {
+                    viewmodel.GasStorageDataLiveList.add(it)
+                }
             }
+        }
+        for (i in viewmodel.GasStorageDataLiveList.value!!) {
+            Log.d("테스트", "viewmodel: $i")
         }
         //위에꺼
-        for ((aqInfo, view) in aqInfo_ViewMap) {
-            (view as GasStorageBoardSettingView)
-            val sensorType = view.selected_SensorType
-            val gasName = view.selected_GasType
-            val minCapa: Float = view.mCapaAlert_Et.text.toString().toFloat()
-            val maxCapa: Float = view.mMaxCapa_Et.text.toString().toFloat()
-            val gasIndex: Int? = null
-            val id = aqInfo.id
-            val port = aqInfo.port
-            val viewType = view.selected_ViewType
-
-            if (viewType == 1 || viewType == 2) {
-                if (aqInfo.port == 2 || aqInfo.port == 4) {
-                    aqInfo_ViewMap.remove(aqInfo)
-
-                } else {
-                    viewmodel.GasStorageDataLiveList.add(
-                        SetGasStorageViewData(
-                            model = aqInfo.model,
-                            id = id,
-                            port = port,
-                            ViewType = viewType,
-                            gasName = gasName,
-                            gasColor = viewmodel.gasColorMap[gasName]!!,
-                            pressure_Min = minCapa,
-                            pressure_Max = maxCapa,
-                            gasIndex = gasIndex
-                        )
-                    )
-
-                }
-            } else {
-                viewmodel.GasStorageDataLiveList.add(
-                    SetGasStorageViewData(
-                        model = aqInfo.model,
-                        id = id,
-                        port = port,
-                        ViewType = viewType,
-                        gasName = gasName,
-                        gasColor = viewmodel.gasColorMap[gasName]!!,
-                        pressure_Min = minCapa,
-                        pressure_Max = maxCapa,
-                        gasIndex = gasIndex
-                    )
-                )
-
-            }
-
-        }
         activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
         activity?.callFeedback()
     }
@@ -733,7 +713,7 @@ class GasStorageSettingFragment : Fragment() {
 
                         selectedSensor.gasName = viewmodel.gasType[position]
                         selectedSensor.gasColor =
-                            viewmodel.gasColorMap[mBinding.gasStorageBoardSettingView.selected_GasType]
+                            viewmodel.gasColorMap[selectedSensor.gasName]
 
                         if (selectedSensor.port == 1) {
                             for (i in setGasSensorInfo) {
@@ -764,7 +744,7 @@ class GasStorageSettingFragment : Fragment() {
                     } else {
                         selectedSensor.gasName = viewmodel.gasType[position]
                         selectedSensor.gasColor =
-                            viewmodel.gasColorMap[mBinding.gasStorageBoardSettingView.selected_GasType]
+                            viewmodel.gasColorMap[selectedSensor.gasName]
                     }
                 }
 
@@ -827,7 +807,7 @@ class GasStorageSettingFragment : Fragment() {
                         }
 
                         change()
-                        
+
                     } else {
                         selectedSensor.sensorType = viewmodel.sensorType[position]
                     }

@@ -26,7 +26,7 @@ data class SetGasStorageViewData(
     var ViewType: Int = 0,
     var sensorType: String = "Sensts 142PSI",
     var gasName: String = "Air",
-    var gasColor: Int? = null,
+    var gasColor: Int? = Color.parseColor("#6599CD"),
     var pressure_Min: Float? = 0f,
     var pressure_Max: Float? = 2000f,
     var gasIndex: Int? = null,

@@ -99,6 +99,7 @@ class MainViewModel : ViewModel() {
         "H2" to Color.parseColor("#F2663A"),
         "He" to Color.parseColor("#9A679A"),
         "N2" to Color.parseColor("#42C8F4"),
+        "N2O" to Color.parseColor("#42C8F4"),
         "O2" to Color.parseColor("#316734")
     )
 
@@ -120,6 +121,7 @@ class MainViewModel : ViewModel() {
     )
     val gasType = arrayListOf<String>(
         "Air",
+        "Ar",
         "C2H2",
         "CH4",
         "CO2",

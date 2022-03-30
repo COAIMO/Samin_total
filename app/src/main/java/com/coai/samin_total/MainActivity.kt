@@ -204,39 +204,83 @@ class MainActivity : AppCompatActivity() {
 
 
                         for (i in mainViewModel.GasStorageDataLiveList.value!!) {
+                            //받은 데이터 아이디와 데이터리스트의 아디가 동일한 경우
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
-//                                if(i.ViewType == )
+                                // 데이터 리스트의 데이터의 뷰타입이 듀얼 또는 오토체인처일 경우
+                                if(i.ViewType == 1 || i.ViewType == 2){
+                                    //2,4port 삭제되서 날라옴
+                                        if(i.port == 1){
+                                            i.pressureLeft = pin1_data
+                                            i.pressureRight = pin2_data
+                                        }else {
+                                            i.pressureLeft = pin3_data
+                                            i.pressureRight = pin4_data
+                                        }
 
-                                when (i.port) {
-                                    1 -> {
-                                        i.pressure = pin1_data
-                                        Log.d(
-                                            "체크",
-                                            " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
-                                        )
+                                }else{
+                                    when (i.port) {
+                                        1 -> {
+                                            i.pressure = pin1_data
+                                            Log.d(
+                                                "체크",
+                                                " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
+                                            )
+                                        }
+                                        2 -> {
+                                            i.pressure = pin2_data
+                                            Log.d(
+                                                "체크",
+                                                " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
+                                            )
+                                        }
+                                        3 -> {
+                                            i.pressure = pin3_data
+                                            Log.d(
+                                                "체크",
+                                                " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
+                                            )
+                                        }
+                                        4 -> {
+                                            i.pressure = pin4_data
+                                            Log.d(
+                                                "체크",
+                                                " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
+                                            )
+                                        }
                                     }
-                                    2 -> {
-                                        i.pressure = pin2_data
-                                        Log.d(
-                                            "체크",
-                                            " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
-                                        )
-                                    }
-                                    3 -> {
-                                        i.pressure = pin3_data
-                                        Log.d(
-                                            "체크",
-                                            " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
-                                        )
-                                    }
-                                    4 -> {
-                                        i.pressure = pin4_data
-                                        Log.d(
-                                            "체크",
-                                            " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
-                                        )
-                                    }
+
                                 }
+
+//                                when (i.port) {
+//                                    1 -> {
+//                                        i.pressure = pin1_data
+//                                        Log.d(
+//                                            "체크",
+//                                            " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
+//                                        )
+//                                    }
+//                                    2 -> {
+//                                        i.pressure = pin2_data
+//                                        Log.d(
+//                                            "체크",
+//                                            " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
+//                                        )
+//                                    }
+//                                    3 -> {
+//                                        i.pressure = pin3_data
+//                                        Log.d(
+//                                            "체크",
+//                                            " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
+//                                        )
+//                                    }
+//                                    4 -> {
+//                                        i.pressure = pin4_data
+//                                        Log.d(
+//                                            "체크",
+//                                            " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
+//                                        )
+//                                    }
+//                                }
                                 mainViewModel.GasStorageDataLiveList.notifyChange()
 
                             }
@@ -598,32 +642,32 @@ class MainActivity : AppCompatActivity() {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.GasDockStorage, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(20)
+                                    Thread.sleep(35)
                                 }
                                 "GasRoom" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.GasRoom, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(20)
+                                    Thread.sleep(35)
                                 }
                                 "WasteLiquor" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.WasteLiquor, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(20)
+                                    Thread.sleep(35)
                                 }
                                 "Oxygen" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.Oxygen, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(20)
+                                    Thread.sleep(35)
                                     //정상 17ms 비정상 35ms
                                 }
                                 "Steamer" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.Steamer, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(20)
+                                    Thread.sleep(35)
                                 }
                             }
                         }
