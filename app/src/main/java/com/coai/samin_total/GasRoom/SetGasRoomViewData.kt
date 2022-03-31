@@ -16,5 +16,6 @@ data class SetGasRoomViewData(
     var gasIndex: Int = 0,
     var isAlert: Boolean = false,
     var zeroPoint: Float = 0f,
-    var rewardValue: Float = 1f
+    var rewardValue: Float = 1f,
+    var unit:Int = 0
 )

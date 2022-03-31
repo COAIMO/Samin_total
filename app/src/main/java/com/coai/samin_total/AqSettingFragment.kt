@@ -217,14 +217,14 @@ class AqSettingFragment : Fragment() {
                             val id = aqInfo.id
                             val port = aqInfo.port
                             val liquidName: String = view.mWasteName_Et.text.toString()
-                            viewmodel.WasteLiquorDataLiveList.add(
-                                SetWasteLiquorViewData(
-                                    id = id,
-                                    port = port,
-                                    liquidName = liquidName,
-                                    isAlert = false
-                                )
-                            )
+//                            viewmodel.WasteLiquorDataLiveList.add(
+//                                SetWasteLiquorViewData(
+//                                    id = id,
+//                                    port = port,
+//                                    liquidName = liquidName,
+//                                    isAlert = false
+//                                )
+//                            )
                         }
                         "Oxygen" -> {
                             view as OxygenBoardSettingView

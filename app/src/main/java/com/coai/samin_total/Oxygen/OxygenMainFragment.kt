@@ -40,17 +40,14 @@ class OxygenMainFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var mBinding: FragmentOxygenMainBinding
-
-    //    private lateinit var viewmodel: OxygenViewModel
-//    private val viewmodel by activityViewModels<OxygenViewModel>()
     private val viewmodel by activityViewModels<MainViewModel>()
-
     private lateinit var recycleAdapter: Oxygen_RecycleAdapter
     private val oxygenViewData = mutableListOf<SetOxygenViewData>()
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
     private lateinit var sendThread: Thread
     var sending = false
+    var btn_Count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +89,36 @@ class OxygenMainFragment : Fragment() {
         updateView()
         mBinding.btnSetting.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.OXYGENSETTINGFRAGMENT)
+        }
+        mBinding.btnZoomInout.setOnClickListener {
+            if (btn_Count % 2 == 0) {
+                btn_Count++
+                mBinding.oxygenRecyclerView.apply {
+                    layoutManager =
+                        GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+
+                    //아이템 높이 간격 조절
+                    val decoration_height = RecyclerDecoration_Height(25)
+                    addItemDecoration(decoration_height)
+
+                    recycleAdapter.submitList(oxygenViewData)
+                    adapter = recycleAdapter
+                }
+            } else {
+                btn_Count++
+                mBinding.oxygenRecyclerView.apply {
+                    layoutManager =
+                        GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+
+                    //아이템 높이 간격 조절
+                    val decoration_height = RecyclerDecoration_Height(25)
+                    addItemDecoration(decoration_height)
+
+                    recycleAdapter.submitList(oxygenViewData)
+                    adapter = recycleAdapter
+                }
+
+            }
         }
         return mBinding.root
     }

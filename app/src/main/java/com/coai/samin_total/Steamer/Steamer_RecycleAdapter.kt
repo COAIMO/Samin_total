@@ -39,7 +39,7 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             steamerView.setAlertLow(setSteamerViewData.isAlertLow)
             steamerView.setTempMin(setSteamerViewData.isTempMin)
             steamerView.setTemp(setSteamerViewData.isTemp)
-
+            steamerView.setTempUnit(setSteamerViewData.unit)
         }
     }
 

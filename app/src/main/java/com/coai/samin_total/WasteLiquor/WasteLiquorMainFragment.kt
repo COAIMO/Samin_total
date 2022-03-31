@@ -37,9 +37,10 @@ class WasteLiquorMainFragment : Fragment() {
     private val wasteLiquorViewData = mutableListOf<SetWasteLiquorViewData>()
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
-    private val mainViewModel by activityViewModels<MainViewModel>()
+    private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var sendThread: Thread
     var sending = false
+    var btn_Count = 0
 
 
     override fun onDestroyView() {
@@ -82,6 +83,41 @@ class WasteLiquorMainFragment : Fragment() {
         initView()
         updateView()
 
+        mBinding.btnSetting.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.WASTELIQUORSETTINGFRAGMENT)
+        }
+
+        mBinding.btnZoomInout.setOnClickListener {
+            if (btn_Count % 2 == 0) {
+                btn_Count++
+                mBinding.wasteLiquorRecyclerView.apply {
+                    layoutManager =
+                        GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+
+                    //아이템 높이 간격 조절
+                    val decoration_height = RecyclerDecoration_Height(25)
+                    addItemDecoration(decoration_height)
+
+//                    recycleAdapter.submitList(wasteLiquorViewData)
+                    adapter = recycleAdapter
+                }
+            } else {
+                btn_Count++
+                mBinding.wasteLiquorRecyclerView.apply {
+                    layoutManager =
+                        GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+
+                    //아이템 높이 간격 조절
+                    val decoration_height = RecyclerDecoration_Height(25)
+                    addItemDecoration(decoration_height)
+
+//                    recycleAdapter.submitList(wasteLiquorViewData)
+                    adapter = recycleAdapter
+                }
+
+            }
+        }
+
         return mBinding.root
     }
 
@@ -102,22 +138,16 @@ class WasteLiquorMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        if (wasteLiquorViewData.isEmpty()) {
-            for (i in mainViewModel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))) {
-                wasteLiquorViewData.add(i)
-            }
-            recycleAdapter.submitList(wasteLiquorViewData)
-            recycleAdapter.notifyDataSetChanged()
-        }
+        val mm = viewmodel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
+        recycleAdapter.submitList(mm)
+        recycleAdapter.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView() {
-        mainViewModel.WasteLiquorDataLiveList.observe(viewLifecycleOwner, {
-            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()) {
-                wasteLiquorViewData.set(index, data)
-            }
-            recycleAdapter.submitList(wasteLiquorViewData)
+        viewmodel.WasteLiquorDataLiveList.observe(viewLifecycleOwner, {
+            val mm = it.sortedWith(compareBy({it.id},{it.port}))
+            recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
         })
     }

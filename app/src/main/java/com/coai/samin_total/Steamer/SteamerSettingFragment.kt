@@ -137,7 +137,6 @@ class SteamerSettingFragment : Fragment() {
 
     private fun initView() {
         setSteamerInfo.removeAll(setSteamerInfo)
-        viewmodel.SteamerDataLiveList.clear(true)
         for ((key, ids) in viewmodel.modelMap) {
             //indices 배열을 인덱스 범위
             if (key == "Steamer") {
@@ -165,6 +164,7 @@ class SteamerSettingFragment : Fragment() {
     }
 
     private fun setSaveData() {
+        viewmodel.SteamerDataLiveList.clear(true)
         val iter = setSteamerInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {

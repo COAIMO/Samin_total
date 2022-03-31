@@ -3,6 +3,7 @@ package com.coai.samin_total.GasRoom
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -34,6 +35,7 @@ class GasRoomMainFragment : Fragment() {
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
     private val viewmodel by activityViewModels<MainViewModel>()
+    var btn_Count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,24 +74,50 @@ class GasRoomMainFragment : Fragment() {
         mBinding.btnSetting.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.GASROOMSETTINGFRAGMENT)
         }
-//        mBinding.titleTv.setOnClickListener {
-//            mBinding.gasRoomRecyclerView.apply {
-//                gasRoomViewData.apply {
-//                    add(
-//                        SetGasRoomViewData(
-//                            gasName = "asdfa",
-//                            gasColor = Color.parseColor("#DDDDDD"),
-//                            gasIndex = 0,
-//                            gasUnit = 0,
-//                            pressure = 10f,
-//                            pressureMax = 150f
-//                        )
-//                    )
-//                }
-//                recycleAdapter.submitList(gasRoomViewData)
-//                recycleAdapter.notifyDataSetChanged()
-//            }
-//        }
+
+        mBinding.btnZoomInout.setOnClickListener {
+            if (btn_Count % 2 == 0) {
+                btn_Count++
+                mBinding.gasRoomRecyclerView.apply {
+                    layoutManager =
+                        GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+
+                    //아이템 높이 간격 조절
+                    val decoration_height = RecyclerDecoration_Height(25)
+                    addItemDecoration(decoration_height)
+
+                    recycleAdapter.submitList(gasRoomViewData)
+                    adapter = recycleAdapter
+                }
+            } else {
+                btn_Count++
+                mBinding.gasRoomRecyclerView.apply {
+                    layoutManager =
+                        GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+
+                    //아이템 높이 간격 조절
+                    val decoration_height = RecyclerDecoration_Height(25)
+                    addItemDecoration(decoration_height)
+
+                    recycleAdapter.submitList(gasRoomViewData)
+                    adapter = recycleAdapter
+                }
+
+            }
+        }
+        mBinding.btnUnit.setOnClickListener {
+            for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy(
+                { it.id },
+                { it.port })).withIndex()) {
+                Log.d("테스트", "인텍스: $index" + "데이더 : $data")
+                data.unit++
+                viewmodel.GasRoomDataLiveList.value!!.set(index, data)
+                if(data.unit == 3) data.unit = 0
+            }
+            recycleAdapter.submitList(viewmodel.GasRoomDataLiveList.value!!)
+            recycleAdapter.notifyDataSetChanged()
+        }
+
 
         return mBinding.root
     }

@@ -130,13 +130,18 @@ class WasteWaterSettingFragment : Fragment() {
 
     private fun initView() {
         setWasteLiquorInfo.removeAll(setWasteLiquorInfo)
-        viewmodel.WasteLiquorDataLiveList.clear(true)
         for ((key, ids) in viewmodel.modelMap) {
             //indices 배열을 인덱스 범위
             if (key == "Steamer") {
                 for (id in ids.indices) {
                     for (port in 1..4) {
-                        setWasteLiquorInfo.add(SetWasteLiquorViewData(key, ids.get(id).toInt(), port))
+                        setWasteLiquorInfo.add(
+                            SetWasteLiquorViewData(
+                                key,
+                                ids.get(id).toInt(),
+                                port
+                            )
+                        )
                     }
                 }
             }
@@ -158,12 +163,13 @@ class WasteWaterSettingFragment : Fragment() {
     }
 
     private fun setSaveData() {
+        viewmodel.WasteLiquorDataLiveList.clear(true)
         val iter = setWasteLiquorInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {
-                if (it.usable){
+                if (it.usable) {
                     viewmodel.WasteLiquorDataLiveList.add(it)
-                }else iter.remove()
+                } else iter.remove()
             }
         }
         if (!activity?.isSending!!) {

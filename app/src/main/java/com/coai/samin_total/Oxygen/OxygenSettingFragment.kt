@@ -114,7 +114,6 @@ class OxygenSettingFragment : Fragment() {
 
     private fun initView() {
         setOxygenInfo.removeAll(setOxygenInfo)
-        viewmodel.OxygenDataLiveList.clear(true)
         for ((key, ids) in viewmodel.modelMap) {
             //indices 배열을 인덱스 범위
             if (key == "Oxygen") {
@@ -177,6 +176,7 @@ class OxygenSettingFragment : Fragment() {
     }
 
     private fun setSaveData() {
+        viewmodel.OxygenDataLiveList.clear(true)
         val iter = setOxygenInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {

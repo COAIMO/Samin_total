@@ -1,6 +1,7 @@
 package com.coai.samin_total.GasDock
 
 import android.graphics.Color
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

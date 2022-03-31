@@ -12,7 +12,7 @@ import com.coai.uikit.samin.status.WastebottleView
 
 class WasteLiquor_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var setWasteLiquorViewData = mutableListOf<SetWasteLiquorViewData>()
+    var setWasteLiquorViewData = listOf<SetWasteLiquorViewData>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return WasteLiquorViewHodler(
@@ -27,7 +27,7 @@ class WasteLiquor_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
 
-    fun submitList(viewData: MutableList<SetWasteLiquorViewData>) {
+    fun submitList(viewData: List<SetWasteLiquorViewData>) {
         this.setWasteLiquorViewData = viewData
     }
 

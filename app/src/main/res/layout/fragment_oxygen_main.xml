@@ -61,18 +61,20 @@
             android:src="@drawable/setting_ic" />
 
         <ImageView
+            android:id="@+id/btn_alert"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginEnd="30dp"
             android:src="@drawable/nonalert_ic" />
 
         <ImageView
+            android:id="@+id/btn_zoom_inout"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:src="@drawable/screen_increase_ic" />
     </LinearLayout>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
@@ -89,5 +91,5 @@
             android:layout_marginHorizontal="10dp" >
 
         </androidx.recyclerview.widget.RecyclerView>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

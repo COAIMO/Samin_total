@@ -59,7 +59,6 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         Log.d(TAG, "RecyclerViewAdapter - onBindViewHolder() called / position : $position")
-//        holder.viewBind(this.datas[position])
 
         when (setGasdockViewData[position].ViewType) {
             0 -> {
@@ -96,6 +95,7 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             setGasStorageViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
             setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
             setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
+            gasDcokView.setGasUnit(setGasStorageViewData.unit)
         }
     }
 
@@ -114,6 +114,7 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
 //            setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
             setGasStorageViewData.pressureLeft?.let { gasDcokView.setPressureLeft(it) }
             setGasStorageViewData.pressureRight?.let { gasDcokView.setPressureRight(it) }
+            gasDcokView.setGasUnit(setGasStorageViewData.unit)
         }
     }
 
@@ -133,6 +134,7 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
 //            setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
             setGasStorageViewData.pressureLeft?.let { gasDcokView.setPressureLeft(it) }
             setGasStorageViewData.pressureRight?.let { gasDcokView.setPressureRight(it) }
+            gasDcokView.setGasUnit(setGasStorageViewData.unit)
         }
     }
 }

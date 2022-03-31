@@ -153,7 +153,6 @@ class GasRoomSettingFragment : Fragment() {
 
     private fun initView() {
         setGasSensorInfo.removeAll(setGasSensorInfo)
-        viewmodel.GasRoomDataLiveList.clear(true)
         for ((key, ids) in viewmodel.modelMap) {
             //indices 배열을 인덱스 범위
             if (key == "GasRoom") {
@@ -254,6 +253,7 @@ class GasRoomSettingFragment : Fragment() {
     }
 
     private fun setSaveData() {
+        viewmodel.GasRoomDataLiveList.clear(true)
         val iter = setGasSensorInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {

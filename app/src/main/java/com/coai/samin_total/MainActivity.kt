@@ -29,6 +29,7 @@ import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerMainFragment
 import com.coai.samin_total.Steamer.SteamerSettingFragment
 import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
+import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
 import com.coai.samin_total.databinding.ActivityMainBinding
 import com.coai.uikit.GlobalUiTimer
 
@@ -56,6 +57,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var gasRoomSettingFragment: GasRoomSettingFragment
     lateinit var oxygenSettingFragment: OxygenSettingFragment
     lateinit var steamerSettingFragment: SteamerSettingFragment
+    lateinit var wasteLiquorSettingFragment: WasteWaterSettingFragment
     private lateinit var mainViewModel: MainViewModel
 
 
@@ -209,10 +211,30 @@ class MainActivity : AppCompatActivity() {
                                 sensor_3 = calcPSI2000(pin3_data, i.rewardValue, i.zeroPoint)
                                 sensor_4 = calcPSI2000(pin4_data, i.rewardValue, i.zeroPoint)
                             } else {
-                                sensor_1 = calcSensor(pin1_data, i.pressure_Max!!,i.rewardValue, i.zeroPoint)
-                                sensor_2 = calcSensor(pin2_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
-                                sensor_3 = calcSensor(pin3_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
-                                sensor_4 = calcSensor(pin4_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
+                                sensor_1 = calcSensor(
+                                    pin1_data,
+                                    i.pressure_Max!!,
+                                    i.rewardValue,
+                                    i.zeroPoint
+                                )
+                                sensor_2 = calcSensor(
+                                    pin2_data,
+                                    i.pressure_Max!!,
+                                    i.rewardValue,
+                                    i.zeroPoint
+                                )
+                                sensor_3 = calcSensor(
+                                    pin3_data,
+                                    i.pressure_Max!!,
+                                    i.rewardValue,
+                                    i.zeroPoint
+                                )
+                                sensor_4 = calcSensor(
+                                    pin4_data,
+                                    i.pressure_Max!!,
+                                    i.rewardValue,
+                                    i.zeroPoint
+                                )
                             }
 
                             //받은 데이터 아이디와 데이터리스트의 아디가 동일한 경우
@@ -280,10 +302,30 @@ class MainActivity : AppCompatActivity() {
                                 sensor_3 = calcPSI2000(pin3_data, i.rewardValue, i.zeroPoint)
                                 sensor_4 = calcPSI2000(pin4_data, i.rewardValue, i.zeroPoint)
                             } else {
-                                sensor_1 = calcSensor(pin1_data, i.pressure_Max!!,i.rewardValue, i.zeroPoint)
-                                sensor_2 = calcSensor(pin2_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
-                                sensor_3 = calcSensor(pin3_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
-                                sensor_4 = calcSensor(pin4_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
+                                sensor_1 = calcSensor(
+                                    pin1_data,
+                                    i.pressure_Max!!,
+                                    i.rewardValue,
+                                    i.zeroPoint
+                                )
+                                sensor_2 = calcSensor(
+                                    pin2_data,
+                                    i.pressure_Max!!,
+                                    i.rewardValue,
+                                    i.zeroPoint
+                                )
+                                sensor_3 = calcSensor(
+                                    pin3_data,
+                                    i.pressure_Max!!,
+                                    i.rewardValue,
+                                    i.zeroPoint
+                                )
+                                sensor_4 = calcSensor(
+                                    pin4_data,
+                                    i.pressure_Max!!,
+                                    i.rewardValue,
+                                    i.zeroPoint
+                                )
                             }
 
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
@@ -491,6 +533,7 @@ class MainActivity : AppCompatActivity() {
         gasRoomSettingFragment = GasRoomSettingFragment()
         oxygenSettingFragment = OxygenSettingFragment()
         steamerSettingFragment = SteamerSettingFragment()
+        wasteLiquorSettingFragment = WasteWaterSettingFragment()
     }
 
     fun onFragmentChange(index: Int) {
@@ -541,6 +584,8 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.HostFragment_container, oxygenSettingFragment).commit()
             MainViewModel.STEAMERSETTINGFRAGMENT -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, steamerSettingFragment).commit()
+            MainViewModel.WASTELIQUORSETTINGFRAGMENT -> supportFragmentManager.beginTransaction()
+                .replace(R.id.HostFragment_container, wasteLiquorSettingFragment).commit()
             else -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, mainFragment).commit()
         }

@@ -37,6 +37,7 @@ data class SetGasStorageViewData(
     var pressureLeft: Float? = null,
     var pressureRight: Float? = null,
     var zeroPoint: Float = 0f,
-    var rewardValue: Float = 1f
+    var rewardValue: Float = 1f,
+    var unit:Int = 0
 
 )

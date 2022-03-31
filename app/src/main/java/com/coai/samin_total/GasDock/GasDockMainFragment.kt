@@ -39,6 +39,7 @@ class GasDockMainFragment : Fragment() {
     private lateinit var sendThread: Thread
     var sending = false
     private val mainViewModel by activityViewModels<MainViewModel>()
+    var btn_Count = 0
 
 
     override fun onAttach(context: Context) {
@@ -69,9 +70,7 @@ class GasDockMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -84,6 +83,48 @@ class GasDockMainFragment : Fragment() {
 
         mBinding.btnSetting.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.GASSTORAGESETTINGFRAGMENT)
+        }
+        mBinding.btnZoomInout.setOnClickListener {
+            if (btn_Count % 2 == 0) {
+                btn_Count++
+                mBinding.gasStorageRecyclerView.apply {
+                    layoutManager =
+                        GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+
+                    //아이템 높이 간격 조절
+                    val decoration_height = RecyclerDecoration_Height(25)
+                    addItemDecoration(decoration_height)
+
+                    recycleAdapter.submitList(gasStorageViewData)
+                    adapter = recycleAdapter
+                }
+            } else {
+                btn_Count++
+                mBinding.gasStorageRecyclerView.apply {
+                    layoutManager =
+                        GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+
+                    //아이템 높이 간격 조절
+                    val decoration_height = RecyclerDecoration_Height(25)
+                    addItemDecoration(decoration_height)
+
+                    recycleAdapter.submitList(gasStorageViewData)
+                    adapter = recycleAdapter
+                }
+
+            }
+        }
+        mBinding.btnUnit.setOnClickListener {
+            for ((index, data) in mainViewModel.GasStorageDataLiveList.value!!.sortedWith(compareBy(
+                { it.id },
+                { it.port })).withIndex()) {
+                Log.d("테스트", "인텍스: $index" + "데이더 : $data")
+                data.unit++
+                mainViewModel.GasStorageDataLiveList.value!!.set(index, data)
+                if(data.unit == 3) data.unit = 0
+            }
+            recycleAdapter.submitList(mainViewModel.GasStorageDataLiveList.value!!)
+            recycleAdapter.notifyDataSetChanged()
         }
 
 //        mBinding.gasStorageRecyclerView.apply {
@@ -138,13 +179,14 @@ class GasDockMainFragment : Fragment() {
 //            recycleAdapter.notifyDataSetChanged()
 //        }
 
-        val mm = mainViewModel.GasStorageDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
+        val mm = mainViewModel.GasStorageDataLiveList.value!!.sortedWith(compareBy({ it.id },
+            { it.port }))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun updateView(){
+    private fun updateView() {
         mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner, {
 //            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()){
 //                Log.d("테스트","인텍스: $index" + "데이더 : $data")
@@ -154,11 +196,12 @@ class GasDockMainFragment : Fragment() {
 //            recycleAdapter.submitList(gasStorageViewData)
 //            recycleAdapter.notifyDataSetChanged()
 
-            val mm = it.sortedWith(compareBy({it.id},{it.port}))
+            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
             recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
         })
     }
+
     companion object {
         /**
          * Use this factory method to create a new instance of
@@ -185,6 +228,7 @@ class GasDockMainFragment : Fragment() {
             layoutManager =
                 GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
 
+            this.setHasFixedSize(true)
             //아이템 높이 간격 조절
             val decoration_height = RecyclerDecoration_Height(25)
             addItemDecoration(decoration_height)

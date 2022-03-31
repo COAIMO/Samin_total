@@ -43,6 +43,7 @@ class SteamerMainFragment : Fragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var sendThread: Thread
     var sending = false
+    var btn_Count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +71,7 @@ class SteamerMainFragment : Fragment() {
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -82,6 +84,49 @@ class SteamerMainFragment : Fragment() {
         mBinding.btnSetting.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.STEAMERSETTINGFRAGMENT)
         }
+        mBinding.btnZoomInout.setOnClickListener {
+            if (btn_Count % 2 == 0) {
+                btn_Count++
+                mBinding.steamerRecyclerView.apply {
+                    layoutManager =
+                        GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+
+                    //아이템 높이 간격 조절
+                    val decoration_height = RecyclerDecoration_Height(25)
+                    addItemDecoration(decoration_height)
+
+                    recycleAdapter.submitList(steamerViewData)
+                    adapter = recycleAdapter
+                }
+            } else {
+                btn_Count++
+                mBinding.steamerRecyclerView.apply {
+                    layoutManager =
+                        GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+
+                    //아이템 높이 간격 조절
+                    val decoration_height = RecyclerDecoration_Height(25)
+                    addItemDecoration(decoration_height)
+
+                    recycleAdapter.submitList(steamerViewData)
+                    adapter = recycleAdapter
+                }
+
+            }
+        }
+        mBinding.btnUnit.setOnClickListener {
+            for ((index, data) in viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy(
+                { it.id },
+                { it.port })).withIndex()) {
+                data.unit++
+                viewmodel.SteamerDataLiveList.value!!.set(index, data)
+                Log.d("테스트", "인텍스: $index" + "데이더 : $data")
+                if(data.unit == 1) data.unit = 0
+            }
+            recycleAdapter.submitList(viewmodel.SteamerDataLiveList.value!!)
+            recycleAdapter.notifyDataSetChanged()
+        }
+
 
         return mBinding.root
     }
