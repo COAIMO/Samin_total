@@ -40,7 +40,7 @@ class SteamerMainFragment : Fragment() {
     private val steamerViewData = mutableListOf<SetSteamerViewData>()
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
-    private val mainViewModel by activityViewModels<MainViewModel>()
+    private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var sendThread: Thread
     var sending = false
 
@@ -78,44 +78,10 @@ class SteamerMainFragment : Fragment() {
         initRecycler()
         initView()
         updateView()
-//        mBinding.titleTv.setOnClickListener {
-//            mBinding.steamerRecyclerView.apply {
-//                sending = true
-//                sendThread = Thread {
-//                    while (sending) {
-//                        val protocol = SaminProtocol()
-////                    for (i in 0..7){
-//                        protocol.feedBack(MainViewModel.Steamer, 1.toByte())
-//                        activity?.serialService?.sendData(protocol.mProtocol)
-//                        Log.d("태그", "SendData: ${protocol.mProtocol}")
-//                        Thread.sleep(200)
-////                    }
-//
-//                    }
-//
-//                }
-//                sendThread.start()
-//            }
-//        }
-//
-//        mBinding.steamerRecyclerView.apply {
-//            steamerViewData.apply {
-//                add(
-//                    SetSteamerViewData(
-//                        false,
-//                        0,
-//                        0
-//                    )
-//                )
-//            }
-//            recycleAdapter.submitList(steamerViewData)
-//        }
 
-
-//        mainViewModel.SteamerData.observe(viewLifecycleOwner,{
-//            recycleAdapter.setSteamerViewData.set(0, it)
-//            recycleAdapter.notifyDataSetChanged()
-//        })
+        mBinding.btnSetting.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.STEAMERSETTINGFRAGMENT)
+        }
 
         return mBinding.root
     }
@@ -130,14 +96,6 @@ class SteamerMainFragment : Fragment() {
             val decoration_height = RecyclerDecoration_Height(85)
             addItemDecoration(decoration_height)
 
-            //페이지 넘기는 효과
-//            val snapHelper = PagerSnapHelper()
-//            snapHelper.attachToRecyclerView(this)
-
-            //Indicator 추가
-//            addItemDecoration(LinePagerIndicatorDecoration())
-
-
             recycleAdapter = Steamer_RecycleAdapter()
             adapter = recycleAdapter
         }
@@ -146,22 +104,16 @@ class SteamerMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        if (steamerViewData.isEmpty()){
-            for (i in mainViewModel.SteamerDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))) {
-                steamerViewData.add(i)
-            }
-            recycleAdapter.submitList(steamerViewData)
-            recycleAdapter.notifyDataSetChanged()
-        }
+        val mm = viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
+        recycleAdapter.submitList(mm)
+        recycleAdapter.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView(){
-        mainViewModel.SteamerDataLiveList.observe(viewLifecycleOwner, {
-            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()){
-                steamerViewData.set(index, data)
-            }
-            recycleAdapter.submitList(steamerViewData)
+        viewmodel.SteamerDataLiveList.observe(viewLifecycleOwner, {
+            val mm = it.sortedWith(compareBy({it.id},{it.port}))
+            recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
         })
     }

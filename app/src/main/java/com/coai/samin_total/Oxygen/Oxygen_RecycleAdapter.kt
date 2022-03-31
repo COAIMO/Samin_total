@@ -12,7 +12,7 @@ import com.coai.uikit.samin.status.OxyzenView
 
 class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var setOxygenViewData = mutableListOf<SetOxygenViewData>()
+    var setOxygenViewData = listOf<SetOxygenViewData>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return oxygenViewHodler(
@@ -28,7 +28,7 @@ class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
     }
 
 
-    fun submitList(viewData: MutableList<SetOxygenViewData>) {
+    fun submitList(viewData: List<SetOxygenViewData>) {
         this.setOxygenViewData = viewData
     }
 

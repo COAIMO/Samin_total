@@ -17,28 +17,31 @@
         android:textSize="15sp" />
 
     <RadioGroup
-        android:layout_marginStart="10dp"
         android:id="@+id/rg_viewType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
         android:orientation="horizontal">
+
         <RadioButton
             android:id="@+id/btn_single"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Single"/>
+            android:text="Single" />
+
         <RadioButton
             android:id="@+id/btn_dual"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:text="Dual"/>
+            android:text="Dual" />
+
         <RadioButton
             android:id="@+id/btn_autoChanger"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:text="AutoChanger"/>
+            android:text="AutoChanger" />
 
     </RadioGroup>
 
@@ -84,13 +87,13 @@
         app:layout_constraintStart_toEndOf="@id/tv_max_cap."
         app:layout_constraintTop_toBottomOf="@id/tv_max_cap." />
 
-<!--    <TextView-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginStart="10dp"-->
-<!--        android:layout_marginTop="10dp"-->
-<!--        android:text="기타가스 입력"-->
-<!--        android:textSize="25sp" />-->
+    <!--    <TextView-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginStart="10dp"-->
+    <!--        android:layout_marginTop="10dp"-->
+    <!--        android:text="기타가스 입력"-->
+    <!--        android:textSize="25sp" />-->
 
     <TextView
         android:layout_width="wrap_content"
@@ -106,6 +109,7 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
+        android:imeOptions="actionDone"
         android:inputType="number"
         android:text="0"
         android:textSize="20sp" />
@@ -141,6 +145,7 @@
             android:layout_width="200dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
+            android:imeOptions="actionDone"
             android:inputType="number"
             android:text="2000"
             android:textSize="20sp"
@@ -153,6 +158,7 @@
             android:layout_width="200dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
+            android:imeOptions="actionDone"
             android:inputType="number"
             android:text="1"
             android:textSize="20sp"
@@ -175,6 +181,7 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
+        android:imeOptions="actionDone"
         android:inputType="number"
         android:text="0"
         android:textSize="20sp"

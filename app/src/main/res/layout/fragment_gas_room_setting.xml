@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/gas_storage_setting_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GasDock.GasStorageSettingFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".GasRoom.GasRoomSettingFragment">
+
 
     <TextView
         android:id="@+id/boardmenu_tv"
@@ -56,8 +56,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.coai.samin_total.CustomView.GasStorageBoardSettingView
-            android:id="@+id/gasStorageBoardSettingView"
+        <com.coai.samin_total.CustomView.GasRoomBoardSettingView
+            android:id="@+id/gasRoomBoardSettingView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

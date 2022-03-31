@@ -12,7 +12,7 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
     private val TAG = "로그"
-    var setGasdockViewData = mutableListOf<SetGasStorageViewData>()
+    var setGasdockViewData = listOf<SetGasStorageViewData>()
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -53,7 +53,7 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    fun submitList(viewData: MutableList<SetGasStorageViewData>) {
+    fun submitList(viewData: List<SetGasStorageViewData>) {
         this.setGasdockViewData = viewData
     }
 
@@ -87,12 +87,6 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
         private val gasDcokView = view.findViewById<GasStorageView>(R.id.gas_storage_single_view)
 
         fun bind(setGasStorageViewData: SetGasStorageViewData) {
-            // TODO: 2022-03-30 gone 으로해도 데이터가 있어서 자리는 차지함 수정필요
-            if (setGasStorageViewData.usable) {
-                gasDcokView.visibility = View.VISIBLE
-            } else {
-                gasDcokView.visibility = View.GONE
-            }
             gasDcokView.setGasName(setGasStorageViewData.gasName!!)
             gasDcokView.setGasColor(setGasStorageViewData.gasColor!!)
             setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }

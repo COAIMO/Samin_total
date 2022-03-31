@@ -19,12 +19,15 @@ import com.coai.samin_total.Dialog.ScanDialogFragment
 import com.coai.samin_total.GasDock.GasDockMainFragment
 import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
+import com.coai.samin_total.GasRoom.GasRoomSettingFragment
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Oxygen.OxygenMainFragment
+import com.coai.samin_total.Oxygen.OxygenSettingFragment
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Service.SerialService
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerMainFragment
+import com.coai.samin_total.Steamer.SteamerSettingFragment
 import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.databinding.ActivityMainBinding
 import com.coai.uikit.GlobalUiTimer
@@ -50,6 +53,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var gasStorageSettingFragment: GasStorageSettingFragment
     lateinit var layoutFragment: LayoutFragment
     lateinit var connectTestFragment: ConnectTestFragment
+    lateinit var gasRoomSettingFragment: GasRoomSettingFragment
+    lateinit var oxygenSettingFragment: OxygenSettingFragment
+    lateinit var steamerSettingFragment: SteamerSettingFragment
     private lateinit var mainViewModel: MainViewModel
 
 
@@ -173,7 +179,6 @@ class MainActivity : AppCompatActivity() {
             } else if (receiveParser.packetName == "RequestFeedBackPing") {
                 when (receiveParser.modelName) {
                     "GasDock" -> {
-
                         val pin1_data = littleEndianConversion(
                             receiveParser.mProtocol.slice(7..8).toByteArray()
                         ).toFloat()
@@ -186,116 +191,66 @@ class MainActivity : AppCompatActivity() {
                         val pin4_data = littleEndianConversion(
                             receiveParser.mProtocol.slice(13..14).toByteArray()
                         ).toFloat()
-                        Log.d(
-                            "태그", "pin1_data : ${pin1_data} " +
-                                    "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
-                        )
-
-                        val rewardvalue: Float = 1f
-                        var sensor_Data_1 = 0f
-                        if (pin2_data < 204.8f) {
-                            mainViewModel.GasStorageData.value = 0f
-                        } else {
-                            sensor_Data_1 =
-                                rewardvalue * ((pin2_data - 204.8f) * (2320.6f / (1024f - 204.8f)))
-                            mainViewModel.GasStorageData.value = sensor_Data_1
-                        }
-                        Log.d("태그", "sensor_Data_1:${sensor_Data_1} ")
-
+                        var sensor_1: Float
+                        var sensor_2: Float
+                        var sensor_3: Float
+                        var sensor_4: Float
 
                         for (i in mainViewModel.GasStorageDataLiveList.value!!) {
+                            if (i.sensorType == "Sensts 142PSI") {
+                                sensor_1 = calcPSI142(pin1_data, i.rewardValue, i.zeroPoint)
+                                sensor_2 = calcPSI142(pin2_data, i.rewardValue, i.zeroPoint)
+                                sensor_3 = calcPSI142(pin3_data, i.rewardValue, i.zeroPoint)
+                                sensor_4 = calcPSI142(pin4_data, i.rewardValue, i.zeroPoint)
+
+                            } else if (i.sensorType == "Sensts 2000PSI") {
+                                sensor_1 = calcPSI2000(pin1_data, i.rewardValue, i.zeroPoint)
+                                sensor_2 = calcPSI2000(pin2_data, i.rewardValue, i.zeroPoint)
+                                sensor_3 = calcPSI2000(pin3_data, i.rewardValue, i.zeroPoint)
+                                sensor_4 = calcPSI2000(pin4_data, i.rewardValue, i.zeroPoint)
+                            } else {
+                                sensor_1 = calcSensor(pin1_data, i.pressure_Max!!,i.rewardValue, i.zeroPoint)
+                                sensor_2 = calcSensor(pin2_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
+                                sensor_3 = calcSensor(pin3_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
+                                sensor_4 = calcSensor(pin4_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
+                            }
+
                             //받은 데이터 아이디와 데이터리스트의 아디가 동일한 경우
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
                                 // 데이터 리스트의 데이터의 뷰타입이 듀얼 또는 오토체인처일 경우
-                                if(i.ViewType == 1 || i.ViewType == 2){
+                                if (i.ViewType == 1 || i.ViewType == 2) {
                                     //2,4port 삭제되서 날라옴
-                                        if(i.port == 1){
-                                            i.pressureLeft = pin1_data
-                                            i.pressureRight = pin2_data
-                                        }else {
-                                            i.pressureLeft = pin3_data
-                                            i.pressureRight = pin4_data
-                                        }
+                                    if (i.port == 1) {
+                                        i.pressureLeft = sensor_1
+                                        i.pressureRight = sensor_2
+                                    } else {
+                                        i.pressureLeft = sensor_3
+                                        i.pressureRight = sensor_4
+                                    }
 
-                                }else{
+                                } else {
                                     when (i.port) {
                                         1 -> {
-                                            i.pressure = pin1_data
-                                            Log.d(
-                                                "체크",
-                                                " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
-                                            )
+                                            i.pressure = sensor_1
                                         }
                                         2 -> {
-                                            i.pressure = pin2_data
-                                            Log.d(
-                                                "체크",
-                                                " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
-                                            )
+                                            i.pressure = sensor_2
                                         }
                                         3 -> {
-                                            i.pressure = pin3_data
-                                            Log.d(
-                                                "체크",
-                                                " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
-                                            )
+                                            i.pressure = sensor_3
                                         }
                                         4 -> {
-                                            i.pressure = pin4_data
-                                            Log.d(
-                                                "체크",
-                                                " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
-                                            )
+                                            i.pressure = sensor_4
                                         }
                                     }
 
                                 }
-
-//                                when (i.port) {
-//                                    1 -> {
-//                                        i.pressure = pin1_data
-//                                        Log.d(
-//                                            "체크",
-//                                            " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
-//                                        )
-//                                    }
-//                                    2 -> {
-//                                        i.pressure = pin2_data
-//                                        Log.d(
-//                                            "체크",
-//                                            " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
-//                                        )
-//                                    }
-//                                    3 -> {
-//                                        i.pressure = pin3_data
-//                                        Log.d(
-//                                            "체크",
-//                                            " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
-//                                        )
-//                                    }
-//                                    4 -> {
-//                                        i.pressure = pin4_data
-//                                        Log.d(
-//                                            "체크",
-//                                            " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
-//                                        )
-//                                    }
-//                                }
                                 mainViewModel.GasStorageDataLiveList.notifyChange()
-
                             }
                         }
 
                     }
                     "GasRoom" -> {
-                        Log.d(
-                            "태그",
-                            "GasRoom // id:${receiveParser.mProtocol.get(3)} model:${
-                                receiveParser.mProtocol.get(2)
-                            }"
-                        )
-                        //WIKAI 16BAR
-
                         val pin1_data = littleEndianConversion(
                             receiveParser.mProtocol.slice(7..8).toByteArray()
                         ).toFloat()
@@ -308,52 +263,37 @@ class MainActivity : AppCompatActivity() {
                         val pin4_data = littleEndianConversion(
                             receiveParser.mProtocol.slice(13..14).toByteArray()
                         ).toFloat()
-
-                        val rewardvalue: Float = 1f
-                        var sensor_Data_1 = 0f
-                        if (pin2_data < 204.8f) {
-                            mainViewModel.GasRoomData.value = 0f
-                        } else {
-                            sensor_Data_1 =
-                                rewardvalue * ((pin2_data - 204.8f) * (232.06f / (1024f - 204.8f)))
-                            mainViewModel.GasRoomData.value = sensor_Data_1
-                        }
-
-                        Log.d("태그", "sensor_Data_1:${sensor_Data_1} ")
+                        var sensor_1: Float
+                        var sensor_2: Float
+                        var sensor_3: Float
+                        var sensor_4: Float
                         for (i in mainViewModel.GasRoomDataLiveList.value!!) {
+                            if (i.sensorType == "Sensts 142PSI") {
+                                sensor_1 = calcPSI142(pin1_data, i.rewardValue, i.zeroPoint)
+                                sensor_2 = calcPSI142(pin2_data, i.rewardValue, i.zeroPoint)
+                                sensor_3 = calcPSI142(pin3_data, i.rewardValue, i.zeroPoint)
+                                sensor_4 = calcPSI142(pin4_data, i.rewardValue, i.zeroPoint)
+
+                            } else if (i.sensorType == "Sensts 2000PSI") {
+                                sensor_1 = calcPSI2000(pin1_data, i.rewardValue, i.zeroPoint)
+                                sensor_2 = calcPSI2000(pin2_data, i.rewardValue, i.zeroPoint)
+                                sensor_3 = calcPSI2000(pin3_data, i.rewardValue, i.zeroPoint)
+                                sensor_4 = calcPSI2000(pin4_data, i.rewardValue, i.zeroPoint)
+                            } else {
+                                sensor_1 = calcSensor(pin1_data, i.pressure_Max!!,i.rewardValue, i.zeroPoint)
+                                sensor_2 = calcSensor(pin2_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
+                                sensor_3 = calcSensor(pin3_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
+                                sensor_4 = calcSensor(pin4_data, i.pressure_Max!!, i.rewardValue, i.zeroPoint)
+                            }
+
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
                                 when (i.port) {
-                                    1 -> {
-                                        i.pressure = pin1_data
-                                        Log.d(
-                                            "체크",
-                                            " id : ${i.id} // sensor : ${i.pressure} //sensor1 : ${i.pressure} "
-                                        )
-                                    }
-                                    2 -> {
-                                        i.pressure = pin2_data
-                                        Log.d(
-                                            "체크",
-                                            " id : ${i.id} // sensor : ${i.pressure} //sensor2 : ${i.pressure} "
-                                        )
-                                    }
-                                    3 -> {
-                                        i.pressure = pin3_data
-                                        Log.d(
-                                            "체크",
-                                            " id : ${i.id} // sensor : ${i.pressure} //sensor3 : ${i.pressure} "
-                                        )
-                                    }
-                                    4 -> {
-                                        i.pressure = pin4_data
-                                        Log.d(
-                                            "체크",
-                                            " id : ${i.id} // sensor : ${i.pressure} //sensor4 : ${i.pressure} "
-                                        )
-                                    }
+                                    1 -> i.pressure = sensor_1
+                                    2 -> i.pressure = sensor_2
+                                    3 -> i.pressure = sensor_3
+                                    4 -> i.pressure = sensor_4
                                 }
                                 mainViewModel.GasRoomDataLiveList.notifyChange()
-
                             }
                         }
                     }
@@ -548,6 +488,9 @@ class MainActivity : AppCompatActivity() {
         gasStorageSettingFragment = GasStorageSettingFragment()
         layoutFragment = LayoutFragment()
         connectTestFragment = ConnectTestFragment()
+        gasRoomSettingFragment = GasRoomSettingFragment()
+        oxygenSettingFragment = OxygenSettingFragment()
+        steamerSettingFragment = SteamerSettingFragment()
     }
 
     fun onFragmentChange(index: Int) {
@@ -592,6 +535,12 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.HostFragment_container, layoutFragment).commit()
             MainViewModel.CONNECTTESTFRAGEMNT -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, connectTestFragment).commit()
+            MainViewModel.GASROOMSETTINGFRAGMENT -> supportFragmentManager.beginTransaction()
+                .replace(R.id.HostFragment_container, gasRoomSettingFragment).commit()
+            MainViewModel.OXYGENSETTINGFRAGMENT -> supportFragmentManager.beginTransaction()
+                .replace(R.id.HostFragment_container, oxygenSettingFragment).commit()
+            MainViewModel.STEAMERSETTINGFRAGMENT -> supportFragmentManager.beginTransaction()
+                .replace(R.id.HostFragment_container, steamerSettingFragment).commit()
             else -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, mainFragment).commit()
         }
@@ -629,10 +578,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var callbackThread: Thread
-
+    var isSending = false
     fun callFeedback() {
         callbackThread = Thread {
-            while (true) {
+            while (isSending) {
                 try {
                     for ((model, ids) in mainViewModel.modelMap) {
                         for (index in ids.indices) {
@@ -642,32 +591,32 @@ class MainActivity : AppCompatActivity() {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.GasDockStorage, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(35)
+                                    Thread.sleep(25)
                                 }
                                 "GasRoom" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.GasRoom, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(35)
+                                    Thread.sleep(25)
                                 }
                                 "WasteLiquor" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.WasteLiquor, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(35)
+                                    Thread.sleep(25)
                                 }
                                 "Oxygen" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.Oxygen, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(35)
+                                    Thread.sleep(25)
                                     //정상 17ms 비정상 35ms
                                 }
                                 "Steamer" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.Steamer, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(35)
+                                    Thread.sleep(25)
                                 }
                             }
                         }
@@ -736,6 +685,24 @@ class MainActivity : AppCompatActivity() {
         callbackThread.start()
     }
 
+    private fun calcSensor(
+        analog: Float,
+        maxvalue: Float,
+        rewardvalue: Float,
+        zeroPoint: Float
+    ): Float {
+        if (analog < 204.8f) {
+            return 0f
+        } else {
+            return (rewardvalue * ((analog - 204.8f) * (maxvalue / (1024f - 204.8f))) + zeroPoint)
+        }
+    }
 
+    private fun calcPSI142(analog: Float, rewardvalue: Float, zeroPoint: Float): Float {
+        return (rewardvalue * (analog * 0.1734 - 17.842)).toFloat() + zeroPoint
+    }
 
+    private fun calcPSI2000(analog: Float, rewardvalue: Float, zeroPoint: Float): Float {
+        return (rewardvalue * (analog * 2.4414 - 249.66)).toFloat() + zeroPoint
+    }
 }

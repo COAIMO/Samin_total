@@ -13,7 +13,7 @@ class GasRoomBoardSettingView constructor(context: Context, attrs: AttributeSet?
     var mSensorUsable_Sw: SwitchCompat
     var mSensorType_Sp: Spinner
     var mGasType_Sp: Spinner
-    var mCapaAlert_Et: EditText
+//    var mCapaAlert_Et: EditText
     var mMaxCapa_Et: EditText
     var mRewardValue_Et: EditText
     var mZeroPoint_Et: EditText
@@ -99,7 +99,7 @@ class GasRoomBoardSettingView constructor(context: Context, attrs: AttributeSet?
         mSensorUsable_Sw = findViewById(R.id.sw_use_sensor)
         mSensorType_Sp = findViewById<Spinner>(R.id.sp_sensor_type)
         mGasType_Sp = findViewById(R.id.sp_gas_type)
-        mCapaAlert_Et = findViewById(R.id.et_capa_alert)
+//        mCapaAlert_Et = findViewById(R.id.et_capa_alert)
         mMaxCapa_Et = findViewById(R.id.et_max_capa)
         mRewardValue_Et = findViewById(R.id.et_reward_value)
         mZeroPoint_Et = findViewById(R.id.et_zero_point)

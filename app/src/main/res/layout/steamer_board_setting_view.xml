@@ -14,7 +14,6 @@
         android:layout_marginTop="10dp"
         android:switchPadding="100dp"
         android:text="@string/text_sensor_usable"
-        android:checked="true"
         android:textSize="15sp" />
 
     <TextView

@@ -197,12 +197,13 @@ class AqSettingFragment : Fragment() {
                             val port = aqInfo.port
                             viewmodel.GasRoomDataLiveList.add(
                                 SetGasRoomViewData(
+                                    model = "sdfadf",
                                     id = id,
                                     port = port,
                                     gasName = gasName,
                                     gasColor = Color.parseColor("#6599CD"),
                                     pressure = 0f,
-                                    pressureMax = pressureMax,
+                                    pressure_Max = pressureMax,
                                     gasUnit = 0,
                                     gasIndex = 0,
                                     isAlert = false
@@ -229,13 +230,13 @@ class AqSettingFragment : Fragment() {
                             view as OxygenBoardSettingView
                             val minValue = view.mOxygen_minValue_et.text.toString().toInt()
                             val id = aqInfo.id
-                            viewmodel.OxygenDataLiveList.add(
-                                SetOxygenViewData(
-                                    id = id,
-                                    setValue = 0,
-                                    setMinValue = minValue
-                                )
-                            )
+//                            viewmodel.OxygenDataLiveList.add(
+//                                SetOxygenViewData(
+//                                    id = id,
+//                                    setValue = 0,
+//                                    setMinValue = minValue
+//                                )
+//                            )
 
                         }
                         "Steamer" -> {
@@ -244,15 +245,15 @@ class AqSettingFragment : Fragment() {
                             val port = aqInfo.port
                             val isTempMin = view.mTemp_minValue_et.text.toString().toInt()
                             val isTemp = 0
-                            viewmodel.SteamerDataLiveList.add(
-                                SetSteamerViewData(
-                                    id = id,
-                                    port = port,
-                                    isAlertLow = false,
-                                    isTempMin = isTempMin,
-                                    isTemp = isTemp
-                                )
-                            )
+//                            viewmodel.SteamerDataLiveList.add(
+//                                SetSteamerViewData(
+//                                    id = id,
+//                                    port = port,
+//                                    isAlertLow = false,
+//                                    isTempMin = isTempMin,
+//                                    isTemp = isTemp
+//                                )
+//                            )
                         }
                     }
 

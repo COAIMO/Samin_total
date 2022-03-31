@@ -1,20 +1,15 @@
 package com.coai.samin_total.Steamer
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.coai.samin_total.Oxygen.Oxygen_RecycleAdapter
 import com.coai.samin_total.R
-import com.coai.uikit.samin.status.GasRoomView
-import com.coai.uikit.samin.status.GasStorageView
-import com.coai.uikit.samin.status.OxyzenView
 import com.coai.uikit.samin.status.SteamView
 
 class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var setSteamerViewData = mutableListOf<SetSteamerViewData>()
+    var setSteamerViewData = listOf<SetSteamerViewData>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return steamerViewHodler(
@@ -27,7 +22,7 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     }
 
 
-    fun submitList(viewData: MutableList<SetSteamerViewData>) {
+    fun submitList(viewData: List<SetSteamerViewData>) {
         this.setSteamerViewData = viewData
     }
 

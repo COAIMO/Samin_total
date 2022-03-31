@@ -26,7 +26,6 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class GasRoomMainFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var mBinding: FragmentGasRoomMainBinding
@@ -34,7 +33,7 @@ class GasRoomMainFragment : Fragment() {
     private lateinit var recycleAdapter: GasRoom_RecycleAdapter
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
-    private val mainViewModel by activityViewModels<MainViewModel>()
+    private val viewmodel by activityViewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +69,9 @@ class GasRoomMainFragment : Fragment() {
         initRecycler()
         initView()
         updateView()
+        mBinding.btnSetting.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.GASROOMSETTINGFRAGMENT)
+        }
 //        mBinding.titleTv.setOnClickListener {
 //            mBinding.gasRoomRecyclerView.apply {
 //                gasRoomViewData.apply {
@@ -108,22 +110,16 @@ class GasRoomMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        if (gasRoomViewData.isEmpty()) {
-            for (i in mainViewModel.GasRoomDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))) {
-                gasRoomViewData.add(i)
-            }
-            recycleAdapter.submitList(gasRoomViewData)
-            recycleAdapter.notifyDataSetChanged()
-        }
+        val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
+        recycleAdapter.submitList(mm)
+        recycleAdapter.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView() {
-        mainViewModel.GasRoomDataLiveList.observe(viewLifecycleOwner, {
-            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()) {
-                gasRoomViewData.set(index, data)
-            }
-            recycleAdapter.submitList(gasRoomViewData)
+        viewmodel.GasRoomDataLiveList.observe(viewLifecycleOwner, {
+            val mm = it.sortedWith(compareBy({it.id},{it.port}))
+            recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
         })
     }

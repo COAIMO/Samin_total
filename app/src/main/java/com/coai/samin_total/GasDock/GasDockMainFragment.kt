@@ -81,25 +81,7 @@ class GasDockMainFragment : Fragment() {
         initRecycler()
         initView()
         updateView()
-//        mBinding.titleTv.setOnClickListener {
-//            sending = true
-//            sendThread = Thread {
-//                while (sending) {
-//                    val protocol = SaminProtocol()
-////                    for (i in 0..7){
-//                    protocol.feedBack(MainViewModel.GasDockStorage, 1.toByte())
-//                    activity?.serialService?.sendData(protocol.mProtocol)
-//                    Log.d("태그", "SendData: ${protocol.mProtocol}")
-//                    Thread.sleep(1000)
-////                    }
-//
-//                }
-//
-//            }
-//            sendThread.start()
-//        }
-//
-//
+
         mBinding.btnSetting.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.GASSTORAGESETTINGFRAGMENT)
         }
@@ -143,29 +125,37 @@ class GasDockMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        if (gasStorageViewData.isEmpty()){
+//        if (gasStorageViewData.isEmpty()){
+//
+//            for (i in mainViewModel.GasStorageDataLiveList.value!!
+//
+//            ) {
+//                Log.d("테스트","Data: $i")
+//
+//                gasStorageViewData.add(i)
+//            }
+//            recycleAdapter.submitList(gasStorageViewData)
+//            recycleAdapter.notifyDataSetChanged()
+//        }
 
-            for (i in mainViewModel.GasStorageDataLiveList.value!!
-
-            ) {
-                Log.d("테스트","Data: $i")
-
-                gasStorageViewData.add(i)
-            }
-            recycleAdapter.submitList(gasStorageViewData)
-            recycleAdapter.notifyDataSetChanged()
-        }
+        val mm = mainViewModel.GasStorageDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
+        recycleAdapter.submitList(mm)
+        recycleAdapter.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView(){
         mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner, {
-            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()){
-                Log.d("테스트","인텍스: $index" + "데이더 : $data")
+//            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()){
+//                Log.d("테스트","인텍스: $index" + "데이더 : $data")
+//
+//                gasStorageViewData.set(index, data)
+//            }
+//            recycleAdapter.submitList(gasStorageViewData)
+//            recycleAdapter.notifyDataSetChanged()
 
-                gasStorageViewData.set(index, data)
-            }
-            recycleAdapter.submitList(gasStorageViewData)
+            val mm = it.sortedWith(compareBy({it.id},{it.port}))
+            recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
         })
     }

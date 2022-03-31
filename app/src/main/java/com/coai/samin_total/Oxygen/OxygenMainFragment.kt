@@ -90,43 +90,9 @@ class OxygenMainFragment : Fragment() {
         initRecycler()
         initView()
         updateView()
-//        viewmodel.OxygenValue.observe(viewLifecycleOwner, Observer {
-//            Log.d("태그", "OxygenValue:${viewmodel.OxygenValue}")
-//            Log.d("태그", "OxygenValue:$it")
-//            Log.d("태그", "child:${recycleAdapter.getItemId(0)}")
-//
-//            recycleAdapter.setOxygenViewData.set(0, SetOxygenViewData(0, false, it))
-//            recycleAdapter.notifyDataSetChanged()
-//        })
-//
-//        mBinding.oxygenRecyclerView.apply {
-//            oxygenViewData.apply {
-//                add(
-//                    SetOxygenViewData(
-//                        isAlert = false,
-//                        setValue = 0,
-//                        setMinValue = 18
-//                    )
-//                )
-//            }
-//            recycleAdapter.submitList(oxygenViewData)
-//            recycleAdapter.notifyDataSetChanged()
-//        }
-//
-//        mBinding.titleTv.setOnClickListener {
-//            sending = true
-//            sendThread = Thread {
-//                while (sending) {
-//                    val protocol = SaminProtocol()
-//                    protocol.feedBack(MainViewModel.Oxygen, 1)
-////                    Log.d("로그", "${protocol.mProtocol}")
-//                    activity?.serialService?.sendData(protocol.mProtocol)
-//                    Thread.sleep(200)
-//                }
-//
-//            }
-//            sendThread.start()
-//        }
+        mBinding.btnSetting.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.OXYGENSETTINGFRAGMENT)
+        }
         return mBinding.root
     }
 
@@ -139,16 +105,7 @@ class OxygenMainFragment : Fragment() {
             val decoration_height = RecyclerDecoration_Height(70)
             addItemDecoration(decoration_height)
 
-            //페이지 넘기는 효과
-//            val snapHelper = PagerSnapHelper()
-//            snapHelper.attachToRecyclerView(this)
-
-            //Indicator 추가
-//            addItemDecoration(LinePagerIndicatorDecoration())
-
-
             recycleAdapter = Oxygen_RecycleAdapter()
-//            recycleAdapter.submitList(singleDockViewData)
             adapter = recycleAdapter
         }
 
@@ -156,26 +113,16 @@ class OxygenMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-//        for (i in viewmodel.OxygenDataLiveList.value?.sortedWith(compareBy({it.id}))!!){
-//            oxygenViewData.add(i)
-//        }
-
-        if (oxygenViewData.isEmpty()){
-            for (i in viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({it.id}))) {
-                oxygenViewData.add(i)
-            }
-            recycleAdapter.submitList(oxygenViewData)
-            recycleAdapter.notifyDataSetChanged()
-        }
+        val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
+        recycleAdapter.submitList(mm)
+        recycleAdapter.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView(){
         viewmodel.OxygenDataLiveList.observe(viewLifecycleOwner, {
-            for ((index, data) in it.sortedWith(compareBy({it.id})).withIndex()){
-                oxygenViewData.set(index, data)
-            }
-            recycleAdapter.submitList(oxygenViewData)
+            val mm = it.sortedWith(compareBy({it.id},{it.port}))
+            recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
         })
     }

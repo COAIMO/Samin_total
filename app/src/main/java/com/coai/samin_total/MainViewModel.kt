@@ -8,6 +8,7 @@ import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.MutableListLiveData
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
+import com.coai.samin_total.Steamer.SteamerSettingFragment
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 
 class MainViewModel : ViewModel() {
@@ -30,6 +31,9 @@ class MainViewModel : ViewModel() {
         const val GASSTORAGESETTINGFRAGMENT = 15
         const val LAYOUTFRAGMENT = 16
         const val CONNECTTESTFRAGEMNT = 17
+        const val GASROOMSETTINGFRAGMENT = 18
+        const val OXYGENSETTINGFRAGMENT = 19
+        const val STEAMERSETTINGFRAGMENT = 20
 
         const val GasDockStorage = 1.toByte()
         const val GasRoom = 2.toByte()
@@ -93,25 +97,17 @@ class MainViewModel : ViewModel() {
     val gasColorMap = hashMapOf<String, Int>(
         "Air" to Color.parseColor("#6599CD"),
         "Ar" to Color.parseColor("#333333"),
-        "C2H2" to Color.parseColor("#FECD08"),
-        "CH4" to Color.parseColor("#905501"),
-        "CO2" to Color.parseColor("#2D67B2"),
-        "H2" to Color.parseColor("#F2663A"),
+        "C₂H₂" to Color.parseColor("#FECD08"),
+        "CH₄" to Color.parseColor("#905501"),
+        "CO₂" to Color.parseColor("#2D67B2"),
+        "H₂" to Color.parseColor("#F2663A"),
         "He" to Color.parseColor("#9A679A"),
-        "N2" to Color.parseColor("#42C8F4"),
-        "N2O" to Color.parseColor("#42C8F4"),
-        "O2" to Color.parseColor("#316734")
+        "N₂" to Color.parseColor("#42C8F4"),
+        "N₂O" to Color.parseColor("#42C8F4"),
+        "O₂" to Color.parseColor("#316734")
     )
 
-
-    fun removeModelMap(){
-        modelMap.remove("GasDock")
-        modelMap.remove("GasRoom")
-        modelMap.remove("WasteLiquor")
-        modelMap.remove("Oxygen")
-        modelMap.remove("Steamer")
-    }
-    val sensorType = arrayListOf<String>(
+    val gasSensorType = arrayListOf<String>(
         "Sensts 142PSI",
         "Sensts 2000PSI",
         "WIKAI 10BAR",
@@ -119,18 +115,63 @@ class MainViewModel : ViewModel() {
         "WIKAI 16BAR",
         "Variable Sensor"
     )
+    val oxygenSensorType = arrayListOf<String>(
+        "LOX-02"
+    )
+    val tempSensorType = arrayListOf<String>(
+        "SST2109"
+    )
+    val waterSensorType = arrayListOf<String>(
+        "BS1"
+    )
+    val levelSensorType = arrayListOf<String>(
+        "LEVEL-01"
+    )
+    val maxPressureMap = hashMapOf<String, Float>(
+        "Sensts 142PSI" to 142f,
+        "Sensts 2000PSI" to 2000f,
+        "WIKAI 10BAR" to 145.038f,
+        "WIKAI 160BAR" to 2320.6f,
+        "WIKAI 16BAR" to 232.06f,
+        "Variable Sensor" to 2000f
+    )
     val gasType = arrayListOf<String>(
         "Air",
         "Ar",
-        "C2H2",
-        "CH4",
-        "CO2",
-        "H2",
+        "C₂H₂",
+        "CH₄",
+        "CO₂",
+        "H₂",
         "He",
-        "N2",
-        "N2O",
-        "O2"
+        "N₂",
+        "N₂O",
+        "O₂"
     )
+    val gasNameMap = hashMapOf<String, String>(
+        "Air" to "Air",
+        "Ar" to "Ar",
+        "C2H2" to "C₂H₂",
+        "CH4" to "CH₄",
+        "CO2" to "CO₂",
+        "H2" to "H₂",
+        "He" to "He",
+        "N2" to "N₂",
+        "N2O" to "N₂O",
+        "O2" to "O₂"
+    )
+    val gaugeConstMap = hashMapOf<String, Double>(
+        "kPa" to 6.89476,
+        "bar" to 0.0689476141537538,
+        "kgf/cm2" to 0.070307,
+        "psi" to 1.toDouble()
+    )
+    fun removeModelMap(){
+        modelMap.remove("GasDock")
+        modelMap.remove("GasRoom")
+        modelMap.remove("WasteLiquor")
+        modelMap.remove("Oxygen")
+        modelMap.remove("Steamer")
+    }
     init {
 //        Log.d(TAG, "MainViewModel - 생성자 호출")
 //        Log.d(TAG, "MainViewModel _currentValue : $_currentValue")

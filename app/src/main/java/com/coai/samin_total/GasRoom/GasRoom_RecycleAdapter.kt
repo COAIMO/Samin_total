@@ -11,7 +11,7 @@ import com.coai.uikit.samin.status.GasStorageView
 
 class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var setGasRoomViewData = mutableListOf<SetGasRoomViewData>()
+    var setGasRoomViewData = listOf<SetGasRoomViewData>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return gasRoomViewHodler(
@@ -26,7 +26,7 @@ class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     }
 
 
-    fun submitList(viewData: MutableList<SetGasRoomViewData>) {
+    fun submitList(viewData: List<SetGasRoomViewData>) {
         this.setGasRoomViewData = viewData
     }
 
@@ -43,7 +43,7 @@ class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             gasRoomView.setGasName(setGasRoomViewData.gasName)
             gasRoomView.setGasColor(setGasRoomViewData.gasColor)
             gasRoomView.setPressure(setGasRoomViewData.pressure)
-            gasRoomView.setPressureMax(setGasRoomViewData.pressureMax)
+            gasRoomView.setPressureMax(setGasRoomViewData.pressure_Max)
             gasRoomView.setGasUnit(setGasRoomViewData.gasUnit)
             gasRoomView.setGasIndex(setGasRoomViewData.gasIndex)
             gasRoomView.setAlert(setGasRoomViewData.isAlert)
