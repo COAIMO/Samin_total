@@ -349,6 +349,7 @@ class GasStorageSettingFragment : Fragment() {
 
 
     private fun initView() {
+        setGasSensorInfo.removeAll(setGasSensorInfo)
         viewmodel.GasStorageDataLiveList.clear(true)
         for ((key, ids) in viewmodel.modelMap) {
             //indices 배열을 인덱스 범위

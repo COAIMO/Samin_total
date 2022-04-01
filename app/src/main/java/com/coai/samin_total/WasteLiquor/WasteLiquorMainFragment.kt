@@ -12,6 +12,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
+import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
@@ -41,7 +42,7 @@ class WasteLiquorMainFragment : Fragment() {
     private lateinit var sendThread: Thread
     var sending = false
     var btn_Count = 0
-
+    lateinit var alertdialogFragment:AlertDialogFragment
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -118,6 +119,13 @@ class WasteLiquorMainFragment : Fragment() {
             }
         }
 
+        mBinding.btnAlert.setOnClickListener {
+            alertdialogFragment = AlertDialogFragment()
+            val bundle =Bundle()
+            bundle.putString("model", "WasteLiquor")
+            alertdialogFragment.arguments = bundle
+            alertdialogFragment.show(childFragmentManager, "WasteLiquor")
+        }
         return mBinding.root
     }
 

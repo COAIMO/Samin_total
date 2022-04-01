@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
+import com.coai.samin_total.Logic.CurrentSensorInfo
 import com.coai.samin_total.Logic.MutableListLiveData
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
@@ -65,6 +66,7 @@ class MainViewModel : ViewModel() {
     val SteamerDataLiveList = MutableListLiveData<SetSteamerViewData>()
 
 
+    val latestSensorInfo = HashMap<List<Byte>, CurrentSensorInfo>()
 
     // 변경되지 않는 데이터를 가져올때 이름을 _ 언더스코어 없이 설정
     // 공개적으로 가져오는 변수는 private 이 아닌 퍼블릭으로 외부에서도 접근가능하도록 설정

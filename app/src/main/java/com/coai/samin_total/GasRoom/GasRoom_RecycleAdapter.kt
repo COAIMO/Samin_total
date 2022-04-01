@@ -44,7 +44,7 @@ class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             gasRoomView.setGasColor(setGasRoomViewData.gasColor)
             gasRoomView.setPressure(setGasRoomViewData.pressure)
             gasRoomView.setPressureMax(setGasRoomViewData.pressure_Max)
-            gasRoomView.setGasUnit(setGasRoomViewData.gasUnit)
+            gasRoomView.setGasUnit(setGasRoomViewData.unit)
             gasRoomView.setGasIndex(setGasRoomViewData.gasIndex)
             gasRoomView.setAlert(setGasRoomViewData.isAlert)
         }

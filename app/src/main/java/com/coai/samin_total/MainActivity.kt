@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProvider
 import com.coai.samin_total.Dialog.AlertDialogFragment
@@ -20,6 +21,7 @@ import com.coai.samin_total.GasDock.GasDockMainFragment
 import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
 import com.coai.samin_total.GasRoom.GasRoomSettingFragment
+import com.coai.samin_total.Logic.CurrentSensorInfo
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Oxygen.OxygenMainFragment
 import com.coai.samin_total.Oxygen.OxygenSettingFragment
@@ -121,17 +123,19 @@ class MainActivity : AppCompatActivity() {
 
     @ExperimentalUnsignedTypes
     val datahandler = object : Handler(Looper.getMainLooper()) {
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun handleMessage(msg: Message) {
             Log.d(mainTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
             val receiveParser = SaminProtocol()
             receiveParser.parse(msg.obj as ByteArray)
+
             if (receiveParser.packetName == "CheckProductPing") {
+//                val aqInfo = receiveParser.mProtocol.slice(2..3).plus(receiveParser.mProtocol.get(6)).toByteArray()
+//                val currentSensorInfo = CurrentSensorInfo(aqInfo)
+//                mainViewModel.latestSensorInfo.put(aqInfo, currentSensorInfo)
+
                 val model = receiveParser.modelName
                 val ids = receiveParser.mProtocol.get(3)
-                Log.d(
-                    "체크1",
-                    "model: ${model} // id:${ids}"
-                )
                 when (model) {
                     "GasDock" -> {
                         val id = receiveParser.mProtocol.get(3)
@@ -179,6 +183,12 @@ class MainActivity : AppCompatActivity() {
 
                 }
             } else if (receiveParser.packetName == "RequestFeedBackPing") {
+                val aqInfo = receiveParser.mProtocol.slice(2..3)
+                val sensorData = receiveParser.mProtocol.slice(7..14).toByteArray()
+                val currentSensorInfo = CurrentSensorInfo(aqInfo, sensorData)
+//                mainViewModel.latestSensorInfo.put(aqInfo, currentSensorInfo)
+                mainViewModel.latestSensorInfo[aqInfo] = currentSensorInfo
+
                 when (receiveParser.modelName) {
                     "GasDock" -> {
                         val pin1_data = littleEndianConversion(
@@ -472,11 +482,13 @@ class MainActivity : AppCompatActivity() {
                                     1 -> {
                                         i.isTemp = pin1_data / 33
                                         i.isAlertLow = if (pin3_data < 1000) true else false
+                                        i.unit
 
                                     }
                                     2 -> {
                                         i.isTemp = pin2_data / 33
                                         i.isAlertLow = if (pin4_data < 1000) true else false
+                                        i.unit
                                     }
 
                                 }
@@ -670,63 +682,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-//        callbackThread = Thread {
-//            while (true) {
-//                try {
-//                    for ((model, ids) in mainViewModel.modelMap) {
-//
-//                        if (model == "Oxygen"){
-//                            for (index in ids.indices){
-//                                val id = ids.get(index)
-//                                val protocol = SaminProtocol()
-//                                protocol.feedBack(MainViewModel.Oxygen, id)
-//                                serialService?.sendData(protocol.mProtocol)
-//                                Thread.sleep(200)
-//                            }
-//
-//                        }else{
-//                            for (index in ids.indices){
-//                                val id = ids.get(index)
-//                                when(model){
-//                                    "GasDock" -> {
-//                                        val protocol = SaminProtocol()
-//                                        protocol.feedBack(MainViewModel.GasDockStorage, id)
-//                                        serialService?.sendData(protocol.mProtocol)
-//                                        Thread.sleep(50)
-//                                    }
-//                                    "GasRoom" -> {
-//                                        val protocol = SaminProtocol()
-//                                        protocol.feedBack(MainViewModel.GasRoom, id)
-//                                        serialService?.sendData(protocol.mProtocol)
-//                                        Thread.sleep(50)
-//                                    }
-//                                    "WasteLiquor" -> {
-//                                        val protocol = SaminProtocol()
-//                                        protocol.feedBack(MainViewModel.WasteLiquor, id)
-//                                        serialService?.sendData(protocol.mProtocol)
-//                                        Thread.sleep(50)
-//                                    }
-//                                    "Oxygen" -> {
-//                                        val protocol = SaminProtocol()
-//                                        protocol.feedBack(MainViewModel.Oxygen, id)
-//                                        serialService?.sendData(protocol.mProtocol)
-//                                        Thread.sleep(200)
-//                                    }
-//                                    "Steamer" -> {
-//                                        val protocol = SaminProtocol()
-//                                        protocol.feedBack(MainViewModel.Steamer, id)
-//                                        serialService?.sendData(protocol.mProtocol)
-//                                        Thread.sleep(50)
-//                                    }
-//                                }
-//                            }
-//
-//                        }
-//                    }
-//                } catch (e: Exception) {
-//                }
-//            }
-//        }
         callbackThread.start()
     }
 
@@ -749,5 +704,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun calcPSI2000(analog: Float, rewardvalue: Float, zeroPoint: Float): Float {
         return (rewardvalue * (analog * 2.4414 - 249.66)).toFloat() + zeroPoint
+    }
+
+    private fun checkCommunication(){
+        mainViewModel.latestSensorInfo.forEach {
+            val currenttime = System.currentTimeMillis()
+            if (it.value.getLatestTime().toInt() + 5000 > currenttime){
+
+            }
+        }
     }
 }

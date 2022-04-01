@@ -12,6 +12,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.*
+import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.databinding.FragmentGasDockMainBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -31,8 +32,6 @@ class GasDockMainFragment : Fragment() {
     lateinit private var mBinding: FragmentGasDockMainBinding
     private var activity: MainActivity? = null
     private val gasStorageViewData = mutableListOf<SetGasStorageViewData>()
-    private val viewData = mutableListOf<SetGasStorageViewData>()
-
     private lateinit var recycleAdapter: GasStorage_RecycleAdapter
     private lateinit var onBackPressed: OnBackPressedCallback
     val TAG = "GasDockMainFragment"
@@ -40,6 +39,7 @@ class GasDockMainFragment : Fragment() {
     var sending = false
     private val mainViewModel by activityViewModels<MainViewModel>()
     var btn_Count = 0
+    lateinit var alertdialogFragment: AlertDialogFragment
 
 
     override fun onAttach(context: Context) {
@@ -115,16 +115,33 @@ class GasDockMainFragment : Fragment() {
             }
         }
         mBinding.btnUnit.setOnClickListener {
-            for ((index, data) in mainViewModel.GasStorageDataLiveList.value!!.sortedWith(compareBy(
-                { it.id },
-                { it.port })).withIndex()) {
-                Log.d("테스트", "인텍스: $index" + "데이더 : $data")
+            for ((index, data) in mainViewModel.GasStorageDataLiveList.value!!.sortedWith(
+                compareBy(
+                    { it.id },
+                    { it.port })
+            ).withIndex()) {
+                Log.d("gasdock 전", "인텍스: $index" + "데이더 : $data")
                 data.unit++
                 mainViewModel.GasStorageDataLiveList.value!!.set(index, data)
-                if(data.unit == 3) data.unit = 0
+                if (data.unit == 3) data.unit = 0
             }
             recycleAdapter.submitList(mainViewModel.GasStorageDataLiveList.value!!)
             recycleAdapter.notifyDataSetChanged()
+
+            for ((index, data) in mainViewModel.GasStorageDataLiveList.value!!.sortedWith(
+                compareBy(
+                    { it.id },
+                    { it.port })
+            ).withIndex()) {
+                Log.d("gasdock 후", "인텍스: $index" + "데이더 : $data")
+            }
+        }
+        mBinding.btnAlert.setOnClickListener {
+            alertdialogFragment = AlertDialogFragment()
+            val bundle =Bundle()
+            bundle.putString("model", "GasStorage")
+            alertdialogFragment.arguments = bundle
+            alertdialogFragment.show(childFragmentManager, "GasStorage")
         }
 
 //        mBinding.gasStorageRecyclerView.apply {
@@ -179,8 +196,10 @@ class GasDockMainFragment : Fragment() {
 //            recycleAdapter.notifyDataSetChanged()
 //        }
 
-        val mm = mainViewModel.GasStorageDataLiveList.value!!.sortedWith(compareBy({ it.id },
-            { it.port }))
+        val mm = mainViewModel.GasStorageDataLiveList.value!!.sortedWith(
+            compareBy({ it.id },
+                { it.port })
+        )
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()
     }

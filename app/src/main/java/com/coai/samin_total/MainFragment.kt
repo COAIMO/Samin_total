@@ -3,23 +3,21 @@ package com.coai.samin_total
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.media.SoundPool
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
+import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.ThreadSynchronied
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentMainBinding
 import com.coai.uikit.samin.status.TopStatusView
-import kotlinx.coroutines.delay
-import kotlin.concurrent.thread
-import kotlin.math.log
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -41,6 +39,9 @@ class MainFragment : Fragment() {
     lateinit var progress_Dialog: ProgressDialog
     lateinit var sendThread: Thread
     private val threadSync = ThreadSynchronied()
+    private lateinit var soundPool: SoundPool
+    lateinit var alertdialogFragment:AlertDialogFragment
+
 
     override fun onAttach(context: Context) {
         activity = getActivity() as MainActivity
@@ -69,7 +70,10 @@ class MainFragment : Fragment() {
         initView()
 
         mBinding.btnSound.setOnClickListener {
-            mBinding.gasDockMainStatus.setAlert(true)
+//            mBinding.gasDockMainStatus.setAlert(true)
+            val mediaPlayer: android.media.MediaPlayer? =
+                android.media.MediaPlayer.create(context, R.raw.tada)
+            mediaPlayer?.start()
         }
 
         mBinding.labIDTextView.setOnClickListener {
@@ -168,13 +172,16 @@ class MainFragment : Fragment() {
                 activity?.onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
             }
             mBinding.btnAlert -> {
-                activity?.onFragmentChange(MainViewModel.ALERTDIALOGFRAGMENT)
+                alertdialogFragment = AlertDialogFragment()
+                val bundle =Bundle()
+                bundle.putString("model", "Main")
+                alertdialogFragment.arguments = bundle
+                alertdialogFragment.show(requireActivity().supportFragmentManager, "GasRoom")
             }
             mBinding.btnSound -> {
                 animate(mBinding.gasDockMainStatus)
             }
             mBinding.btnScan -> {
-//                activity?.onFragmentChange(MainViewModel.SCANDIALOGFRAGMENT)
                 scanModel()
             }
         }
@@ -202,7 +209,8 @@ class MainFragment : Fragment() {
                     }
                 }
                 Thread.sleep(400)
-            }catch (e: Exception){}
+            } catch (e: Exception) {
+            }
 
             activity?.runOnUiThread {
                 initView()
@@ -262,7 +270,7 @@ class MainFragment : Fragment() {
                         sendThread.interrupt()
                         viewmodel.removeModelMap()
                         getProgressHidden()
-                    }catch (e:Exception){
+                    } catch (e: Exception) {
                         Log.d("interrupt", "$e")
                     }
                 })

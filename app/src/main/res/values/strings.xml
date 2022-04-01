@@ -16,6 +16,11 @@
     <string name="title_password">비밀번호</string>
     <string name="title_admin_confirm">관리자 확인</string>
     <string name="title_event_log">이벤트 발생 내역</string>
+    <string name="title_gasstorage_event_log">가스 저장고 이벤트 발생 내역</string>
+    <string name="title_gasroom_event_log">가스 룸 이벤트 발생 내역</string>
+    <string name="title_steamer_event_log">스팀기 이벤트 발생 내역</string>
+    <string name="title_oxygen_event_log">산소 이벤트 발생 내역</string>
+    <string name="title_wasteliquor_event_log">폐액 이벤트 발생 내역</string>
 
     <string name="text_use_mirror">RS485 미러링 여부</string>
     <string name="text_use_modbus">MODBUS RTU 연동</string>

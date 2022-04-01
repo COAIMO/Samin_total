@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.coai.samin_total.R
+import com.coai.samin_total.databinding.FragmentAlertDialogBinding
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -22,12 +23,15 @@ class AlertDialogFragment : DialogFragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    private var model: String? = null
+    private lateinit var mBinding: FragmentAlertDialogBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
+            model = it.getString("model")
         }
     }
 
@@ -35,9 +39,11 @@ class AlertDialogFragment : DialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_alert_dialog, container, false)
+        mBinding = FragmentAlertDialogBinding.inflate(inflater, container, false)
+        initVieiw()
+        return mBinding.root
     }
+
     override fun onResume() {
         val width: Int = resources.getDimensionPixelSize(R.dimen.DialogView_width)
         val height: Int = resources.getDimensionPixelSize(R.dimen.DialogView_height)
@@ -45,6 +51,18 @@ class AlertDialogFragment : DialogFragment() {
         dialog?.window?.setBackgroundDrawableResource(R.drawable.border_layout)
 
         super.onResume()
+    }
+
+    private fun initVieiw() {
+        when (model) {
+            "Main" -> mBinding.tvTitle.setText(R.string.title_event_log)
+            "GasStorage" -> mBinding.tvTitle.setText(R.string.title_gasstorage_event_log)
+            "GasRoom" -> mBinding.tvTitle.setText(R.string.title_gasroom_event_log)
+            "WasteLiquor" -> mBinding.tvTitle.setText(R.string.title_wasteliquor_event_log)
+            "Oxygen" -> mBinding.tvTitle.setText(R.string.title_oxygen_event_log)
+            "Steamer" -> mBinding.tvTitle.setText(R.string.title_steamer_event_log)
+        }
+
     }
 
     companion object {

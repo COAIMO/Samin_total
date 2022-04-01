@@ -11,6 +11,10 @@ dependencyResolutionManagement {
 rootProject.name = "Samin_total"
 include ':app'
 include ':UIKit'
-
+include ':libmodbus'
+include ':libsaminmodbus'
 
 project(':UIKit').projectDir = new File('../SmartLABPROTOTYPE/UIKit')
+project(':libmodbus').projectDir = new File('../saminmodbustest-master/libmodbus')
+project(':libsaminmodbus').projectDir = new File('../saminmodbustest-master/libsaminmodbus')
+

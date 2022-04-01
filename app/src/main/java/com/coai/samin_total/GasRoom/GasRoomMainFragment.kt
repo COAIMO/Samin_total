@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
+import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.RecyclerDecoration_Height
@@ -36,6 +37,7 @@ class GasRoomMainFragment : Fragment() {
     private var activity: MainActivity? = null
     private val viewmodel by activityViewModels<MainViewModel>()
     var btn_Count = 0
+    lateinit var alertdialogFragment:AlertDialogFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,15 +111,25 @@ class GasRoomMainFragment : Fragment() {
             for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy(
                 { it.id },
                 { it.port })).withIndex()) {
-                Log.d("테스트", "인텍스: $index" + "데이더 : $data")
+                Log.d("room 전", "인텍스: $index" + "데이더 : $data")
                 data.unit++
                 viewmodel.GasRoomDataLiveList.value!!.set(index, data)
                 if(data.unit == 3) data.unit = 0
             }
             recycleAdapter.submitList(viewmodel.GasRoomDataLiveList.value!!)
             recycleAdapter.notifyDataSetChanged()
-        }
+            for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({it.id}, {it.port})).withIndex()){
+                Log.d("room 후", "인텍스: $index" + "데이더 : $data")
 
+            }
+        }
+        mBinding.btnAlert.setOnClickListener {
+            alertdialogFragment = AlertDialogFragment()
+            val bundle =Bundle()
+            bundle.putString("model", "GasRoom")
+            alertdialogFragment.arguments = bundle
+            alertdialogFragment.show(childFragmentManager, "GasRoom")
+        }
 
         return mBinding.root
     }

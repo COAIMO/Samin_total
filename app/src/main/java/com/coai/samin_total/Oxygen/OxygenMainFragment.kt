@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.GasRoom.GasRoom_RecycleAdapter
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.SaminProtocol
@@ -48,6 +49,7 @@ class OxygenMainFragment : Fragment() {
     private lateinit var sendThread: Thread
     var sending = false
     var btn_Count = 0
+    lateinit var alertdialogFragment:AlertDialogFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,6 +121,14 @@ class OxygenMainFragment : Fragment() {
                 }
 
             }
+        }
+
+        mBinding.btnAlert.setOnClickListener {
+            alertdialogFragment = AlertDialogFragment()
+            val bundle =Bundle()
+            bundle.putString("model", "Oxygen")
+            alertdialogFragment.arguments = bundle
+            alertdialogFragment.show(childFragmentManager, "Oxygen")
         }
         return mBinding.root
     }
