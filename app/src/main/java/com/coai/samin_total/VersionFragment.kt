@@ -56,7 +56,11 @@ class VersionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentVersionBinding.inflate(inflater, container, false)
-        // Inflate the layout for this fragment
+
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
+        }
+
         return mBinding.root
     }
 

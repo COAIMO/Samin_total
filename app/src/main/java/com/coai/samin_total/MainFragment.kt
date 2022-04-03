@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminProtocol
@@ -198,21 +199,25 @@ class MainFragment : Fragment() {
 
         sendThread = Thread {
             try {
-                for (model in 0..5) {
+                for (model in 1..5) {
                     for (id in 0..7) {
-                        for (count in 0..2) {
+//                        for (count in 0..2) {
                             val protocol = SaminProtocol()
                             protocol.checkModel(model.toByte(), id.toByte())
                             activity?.serialService?.sendData(protocol.mProtocol)
-                            Thread.sleep(25)
-                        }
+                            Thread.sleep(40)
+//                        }
                     }
                 }
                 Thread.sleep(400)
+
             } catch (e: Exception) {
             }
 
             activity?.runOnUiThread {
+                if (viewmodel.modelMap.isEmpty()){
+                    Toast.makeText(requireContext(),"연결된 AQ보드가 없습니다.", Toast.LENGTH_SHORT).show()
+                }
                 initView()
             }
             getProgressHidden()

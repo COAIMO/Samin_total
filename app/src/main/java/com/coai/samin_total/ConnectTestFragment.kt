@@ -104,6 +104,9 @@ class ConnectTestFragment : Fragment() {
             protocol.led_NormalState(selected_Model.toInt().toByte(), selected_ID.toInt().toByte())
             activity?.serialService?.sendData(protocol.mProtocol)
         }
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
+        }
         return mBinding.root
     }
 

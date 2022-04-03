@@ -130,6 +130,10 @@ class OxygenMainFragment : Fragment() {
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "Oxygen")
         }
+
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
+        }
         return mBinding.root
     }
 

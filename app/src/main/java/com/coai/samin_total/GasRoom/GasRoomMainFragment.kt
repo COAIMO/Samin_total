@@ -131,6 +131,10 @@ class GasRoomMainFragment : Fragment() {
             alertdialogFragment.show(childFragmentManager, "GasRoom")
         }
 
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
+        }
+
         return mBinding.root
     }
 

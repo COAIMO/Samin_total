@@ -143,6 +143,9 @@ class GasDockMainFragment : Fragment() {
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "GasStorage")
         }
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
+        }
 
 //        mBinding.gasStorageRecyclerView.apply {
 //            gasStorageViewData.apply {

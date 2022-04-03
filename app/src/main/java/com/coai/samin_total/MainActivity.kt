@@ -130,12 +130,9 @@ class MainActivity : AppCompatActivity() {
             receiveParser.parse(msg.obj as ByteArray)
 
             if (receiveParser.packetName == "CheckProductPing") {
-//                val aqInfo = receiveParser.mProtocol.slice(2..3).plus(receiveParser.mProtocol.get(6)).toByteArray()
-//                val currentSensorInfo = CurrentSensorInfo(aqInfo)
-//                mainViewModel.latestSensorInfo.put(aqInfo, currentSensorInfo)
-
                 val model = receiveParser.modelName
-                val ids = receiveParser.mProtocol.get(3)
+                val input_id = receiveParser.mProtocol.get(3)
+                Log.d("CheckProductPing", "model:$model // id : $input_id")
                 when (model) {
                     "GasDock" -> {
                         val id = receiveParser.mProtocol.get(3)
@@ -170,17 +167,6 @@ class MainActivity : AppCompatActivity() {
                     "Temp_Hum" -> {
 
                     }
-                }
-                for ((key, value) in mainViewModel.modelMap) {
-                    Log.d(
-                        "체크",
-                        "modelMap(key): ${key} // modelMap(value):${
-                            HexDump.dumpHexString(
-                                mainViewModel.modelMap[key]
-                            )
-                        } "
-                    )
-
                 }
             } else if (receiveParser.packetName == "RequestFeedBackPing") {
                 val aqInfo = receiveParser.mProtocol.slice(2..3)
@@ -706,10 +692,10 @@ class MainActivity : AppCompatActivity() {
         return (rewardvalue * (analog * 2.4414 - 249.66)).toFloat() + zeroPoint
     }
 
-    private fun checkCommunication(){
+    private fun checkCommunication() {
         mainViewModel.latestSensorInfo.forEach {
             val currenttime = System.currentTimeMillis()
-            if (it.value.getLatestTime().toInt() + 5000 > currenttime){
+            if (it.value.getLatestTime().toInt() + 5000 > currenttime) {
 
             }
         }

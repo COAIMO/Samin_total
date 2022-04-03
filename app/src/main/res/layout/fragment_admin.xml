@@ -31,34 +31,33 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="22dp"
                 android:text="연결시험"
                 android:textColor="#000000"
                 android:textSize="16pt" />
         </LinearLayout>
 
-        <!--        <LinearLayout-->
-        <!--            android:id="@+id/btn_aqsetting"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:orientation="vertical">-->
+        <LinearLayout
+            android:id="@+id/btn_aqsetting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <!--            <ImageView-->
-        <!--                android:layout_width="100dp"-->
-        <!--                android:layout_height="100dp"-->
-        <!--                android:layout_marginHorizontal="50dp"-->
-        <!--                android:src="@drawable/setting_ic" />-->
+            <ImageView
+                android:layout_width="105dp"
+                android:layout_height="105dp"
+                android:layout_marginHorizontal="50dp"
+                android:src="@drawable/setting_ic" />
 
-        <!--            <TextView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:layout_gravity="center"-->
-        <!--                android:layout_marginTop="30dp"-->
-        <!--                android:text="@string/title_products_setting"-->
-        <!--                android:textSize="30sp"-->
-        <!--                android:textStyle="bold" />-->
-        <!--        </LinearLayout>-->
-
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="22dp"
+                android:text="@string/title_products_setting"
+                android:textColor="#000000"
+                android:textSize="16pt" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/btn_control"
@@ -76,9 +75,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="30dp"
-                android:textColor="#000000"
+                android:layout_marginTop="22dp"
                 android:text="@string/title_control"
+                android:textColor="#000000"
                 android:textSize="16pt" />
         </LinearLayout>
 
@@ -98,7 +97,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="22dp"
                 android:text="@string/title_version"
                 android:textColor="#000000"
                 android:textSize="16pt" />
@@ -120,10 +119,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="22dp"
                 android:text="@string/title_password"
-                android:textSize="16pt"
-                android:textColor="#000000" />
+                android:textColor="#000000"
+                android:textSize="16pt" />
         </LinearLayout>
 
     </LinearLayout>
@@ -137,5 +136,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="33dp"
+        android:layout_marginBottom="33dp"
+        android:background="@drawable/backbutton_ic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -156,7 +156,7 @@ class SteamerSettingFragment : Fragment() {
             mTemp_minValueWatcher
         )
         mBinding.btnBack.setOnClickListener {
-            activity?.onFragmentChange(MainViewModel.OXYGENMAINFRAGMENT)
+            activity?.onFragmentChange(MainViewModel.STEAMERMAINFRAGMENT)
         }
         mBinding.saveBtn.setOnClickListener {
             setSaveData()

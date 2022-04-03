@@ -60,6 +60,10 @@ class ControlFragment : Fragment() {
         mBinding.cancelBtn.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
         }
+
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
+        }
         return mBinding.root
     }
 

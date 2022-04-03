@@ -126,6 +126,10 @@ class WasteLiquorMainFragment : Fragment() {
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "WasteLiquor")
         }
+
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
+        }
         return mBinding.root
     }
 

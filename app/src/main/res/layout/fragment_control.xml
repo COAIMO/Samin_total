@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ControlFragment">
 
 
@@ -11,10 +11,10 @@
         android:id="@+id/grid_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
         android:columnCount="2"
         android:orientation="horizontal"
         android:rowCount="5"
-        app:layout_constraintBottom_toTopOf="@id/save_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -22,6 +22,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:gravity="center_vertical"
             android:text="@string/text_use_mirror"
             android:textColor="#000000"
@@ -30,12 +31,13 @@
         <androidx.appcompat.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginStart="100dp"
+            android:layout_gravity="center"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:layout_marginTop="50dp"
             android:gravity="center_vertical"
             android:text="@string/text_setting_pairing"
@@ -45,15 +47,15 @@
         <androidx.appcompat.widget.SwitchCompat
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:layout_marginStart="100dp"
-            android:layout_marginTop="50dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="45dp"
             android:gravity="center_vertical|center_horizontal"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:layout_marginTop="50dp"
             android:gravity="center_vertical"
             android:text="@string/text_use_modbus"
@@ -63,15 +65,15 @@
         <androidx.appcompat.widget.SwitchCompat
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:layout_marginStart="100dp"
-            android:layout_marginTop="50dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="45dp"
             android:gravity="center_vertical|center_horizontal"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:layout_marginTop="50dp"
             android:gravity="center_vertical"
             android:text="@string/text_modbus_baudrate"
@@ -79,10 +81,10 @@
             android:textSize="18pt" />
 
         <androidx.appcompat.widget.AppCompatSpinner
-            android:layout_width="250dp"
-            android:layout_height="match_parent"
+            android:layout_width="390dp"
+            android:layout_height="40dp"
             android:layout_gravity="start"
-            android:layout_marginStart="100dp"
+            android:layout_marginStart="50dp"
             android:layout_marginTop="50dp"
             android:background="@drawable/spinner_background"
             android:gravity="center"
@@ -91,6 +93,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:layout_marginTop="50dp"
             android:gravity="center_vertical"
             android:text="@string/text_modbus_id"
@@ -98,10 +101,10 @@
             android:textSize="18pt" />
 
         <androidx.appcompat.widget.AppCompatSpinner
-            android:layout_width="250dp"
-            android:layout_height="match_parent"
+            android:layout_width="390dp"
+            android:layout_height="40dp"
             android:layout_gravity="start"
-            android:layout_marginStart="100dp"
+            android:layout_marginStart="50dp"
             android:layout_marginTop="50dp"
             android:background="@drawable/spinner_background"
             android:gravity="center"
@@ -136,5 +139,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="33dp"
+        android:layout_marginBottom="33dp"
+        android:background="@drawable/backbutton_ic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

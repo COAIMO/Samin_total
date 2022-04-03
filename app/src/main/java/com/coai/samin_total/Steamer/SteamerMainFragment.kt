@@ -142,6 +142,10 @@ class SteamerMainFragment : Fragment() {
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "Steamer")
         }
+
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
+        }
         return mBinding.root
     }
 

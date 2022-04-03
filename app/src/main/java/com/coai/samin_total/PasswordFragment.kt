@@ -75,6 +75,10 @@ class PasswordFragment : Fragment() {
                 textClear()
             }
         }
+
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
+        }
         return mBinding.root
     }
     private fun textClear(){

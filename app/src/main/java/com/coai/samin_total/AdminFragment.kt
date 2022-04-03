@@ -73,6 +73,9 @@ class AdminFragment : Fragment() {
         mBinding.btnConnect.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.CONNECTTESTFRAGEMNT)
         }
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
+        }
 
         return mBinding.root
     }

@@ -68,6 +68,9 @@ class MainSettingFragment : Fragment() {
             activity?.onFragmentChange(MainViewModel.ALERTLOGFRGAMENT)
         }
 
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
+        }
 
         return mBinding.root
     }
