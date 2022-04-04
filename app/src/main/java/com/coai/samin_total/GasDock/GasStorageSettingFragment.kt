@@ -17,10 +17,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.*
-import com.coai.samin_total.CustomView.GasStorageBoardSettingView
 import com.coai.samin_total.CustomView.SpaceDecoration
 import com.coai.samin_total.databinding.FragmentGasStorageSettingBinding
-import java.util.concurrent.ConcurrentHashMap
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

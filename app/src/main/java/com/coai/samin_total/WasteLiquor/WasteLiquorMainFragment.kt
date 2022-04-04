@@ -10,14 +10,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.Dialog.AlertDialogFragment
-import com.coai.samin_total.Logic.SaminProtocol
+import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.RecyclerDecoration_Height
 import com.coai.samin_total.databinding.FragmentWasteLiquorMainBinding
+import kotlin.concurrent.thread
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,8 +42,8 @@ class WasteLiquorMainFragment : Fragment() {
     private lateinit var sendThread: Thread
     var sending = false
     var btn_Count = 0
-    lateinit var alertdialogFragment:AlertDialogFragment
-
+    lateinit var alertdialogFragment: AlertDialogFragment
+    lateinit var alertThread:Thread
     override fun onDestroyView() {
         super.onDestroyView()
         sending = false
@@ -120,8 +120,9 @@ class WasteLiquorMainFragment : Fragment() {
         }
 
         mBinding.btnAlert.setOnClickListener {
+//            udateAlert()
             alertdialogFragment = AlertDialogFragment()
-            val bundle =Bundle()
+            val bundle = Bundle()
             bundle.putString("model", "WasteLiquor")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "WasteLiquor")
@@ -130,6 +131,8 @@ class WasteLiquorMainFragment : Fragment() {
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
         }
+        udateAlert()
+
         return mBinding.root
     }
 
@@ -150,18 +153,65 @@ class WasteLiquorMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        val mm = viewmodel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
+        val mm =
+            viewmodel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView() {
-        viewmodel.WasteLiquorDataLiveList.observe(viewLifecycleOwner, {
-            val mm = it.sortedWith(compareBy({it.id},{it.port}))
+        viewmodel.WasteLiquorDataLiveList.observe(viewLifecycleOwner) { it ->
+            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
+//            for (i in mm){
+//                if (i.isAlert){
+//                    Log.d("WasteLiquor", "알람 on // $i")
+//                }else{
+//                    Log.d("Wuor", "알람 off // $i")
+//                }
+//            }
             recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
-        })
+        }
+    }
+    var ex = false
+
+    private fun udateAlert() {
+
+//        for ((key, value) in viewmodel.latestSensorInfo) {
+//            if (key.get(0) == 3.toByte()) {
+//                if (value.pin1_Alert) {
+//                    Log.d("WasteLiquor", "알람 on //")
+//                    viewmodel.alertInfo.add(
+//                        SetAlertData(value.getLatestTime(),
+//                        value.getAQ_Model().toInt(),
+//                        value.getAQ_Id().toInt(),
+//                        "수위 초과")
+//                    )
+//                    viewmodel.alertInfo.notifyChange()
+//                }else{
+//
+//                }
+//            }
+//        }
+
+
+//        viewmodel.lastStateInfo.observe(viewLifecycleOwner) {
+//            it.values.forEach {
+//                if (it.pin1_Alert) {
+//                    viewmodel.alertInfo.add(
+//                        SetAlertData(
+//                            it.getLatestTime(),
+//                            it.getAQ_Model().toInt(),
+//                            it.getAQ_Id().toInt(),
+//                            "수위 초과"
+//                        )
+//                    )
+//                }
+//            }
+//        }
+
+
     }
 
     companion object {

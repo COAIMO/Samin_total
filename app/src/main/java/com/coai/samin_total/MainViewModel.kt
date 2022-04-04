@@ -1,8 +1,10 @@
 package com.coai.samin_total
 
 import android.graphics.Color
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.CurrentSensorInfo
@@ -49,15 +51,6 @@ class MainViewModel : ViewModel() {
     //내부에서 설정하는 자료형은 뮤터블로
     //변경가능하도록 설정
     private val _model_ID_Data = MutableLiveData<HashMap<String, Byte>>()
-    private val _D_size = MutableLiveData<Int>()
-
-    private val _LevelValue = MutableLiveData<Int>()
-    private val _TempValue = MutableLiveData<Int>()
-    private val _WaterGauge = MutableLiveData<Boolean>()
-    private val _SteamerData = MutableLiveData<SetSteamerViewData>()
-    private val _GasStorageData = MutableLiveData<Float>()
-    private val _GasRoomData = MutableLiveData<Float>()
-
 
     val GasStorageDataLiveList = MutableListLiveData<SetGasStorageViewData>()
     val GasRoomDataLiveList = MutableListLiveData<SetGasRoomViewData>()
@@ -67,33 +60,17 @@ class MainViewModel : ViewModel() {
 
 
     val latestSensorInfo = HashMap<List<Byte>, CurrentSensorInfo>()
+    val exSensorInfo = HashMap<List<Byte>, CurrentSensorInfo>()
+
+//    val lastStateInfo = MutableLiveData<HashMap<List<Byte>, CurrentSensorInfo>>()
+
+    val alertInfo = MutableListLiveData<SetAlertData>()
 
     // 변경되지 않는 데이터를 가져올때 이름을 _ 언더스코어 없이 설정
     // 공개적으로 가져오는 변수는 private 이 아닌 퍼블릭으로 외부에서도 접근가능하도록 설정
     // 하지만 값을 직접 라이브데이터에 접근하지 않고 뷰모델을 통해 가져올수 있도록 설정
     val model_ID_Data: MutableLiveData<HashMap<String, Byte>>
         get() = _model_ID_Data
-
-    val D_size: MutableLiveData<Int>
-        get() = _D_size
-
-    val LevelValue: MutableLiveData<Int>
-        get() = _LevelValue
-
-    val TempValue: MutableLiveData<Int>
-        get() = _TempValue
-
-    val WaterGauge: MutableLiveData<Boolean>
-        get() = _WaterGauge
-
-    val SteamerData: MutableLiveData<SetSteamerViewData>
-        get() = _SteamerData
-
-    val GasStorageData: MutableLiveData<Float>
-        get() = _GasStorageData
-
-    val GasRoomData: MutableLiveData<Float>
-        get() = _GasRoomData
 
     val modelMap = HashMap<String, ByteArray>()
 

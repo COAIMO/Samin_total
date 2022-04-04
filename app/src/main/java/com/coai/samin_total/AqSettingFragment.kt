@@ -18,9 +18,6 @@ import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.ThreadSynchronied
-import com.coai.samin_total.Oxygen.SetOxygenViewData
-import com.coai.samin_total.Steamer.SetSteamerViewData
-import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentAqSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match

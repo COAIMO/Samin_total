@@ -1,5 +1,6 @@
 package com.coai.samin_total
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.PendingIntent.getActivity
 import android.content.ComponentName
@@ -17,6 +18,7 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProvider
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.ScanDialogFragment
+import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.GasDockMainFragment
 import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
@@ -34,6 +36,8 @@ import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
 import com.coai.samin_total.databinding.ActivityMainBinding
 import com.coai.uikit.GlobalUiTimer
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -123,6 +127,7 @@ class MainActivity : AppCompatActivity() {
 
     @ExperimentalUnsignedTypes
     val datahandler = object : Handler(Looper.getMainLooper()) {
+        @SuppressLint("SimpleDateFormat")
         @RequiresApi(Build.VERSION_CODES.O)
         override fun handleMessage(msg: Message) {
             Log.d(mainTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
@@ -175,7 +180,12 @@ class MainActivity : AppCompatActivity() {
 //                mainViewModel.latestSensorInfo.put(aqInfo, currentSensorInfo)
                 mainViewModel.latestSensorInfo[aqInfo] = currentSensorInfo
 
+//                mainViewModel.lastStateInfo.value?.put(aqInfo, currentSensorInfo)
+
+                val model = receiveParser.mProtocol.get(2)
+                val input_id = receiveParser.mProtocol.get(3)
                 when (receiveParser.modelName) {
+
                     "GasDock" -> {
                         val pin1_data = littleEndianConversion(
                             receiveParser.mProtocol.slice(7..8).toByteArray()
@@ -285,6 +295,7 @@ class MainActivity : AppCompatActivity() {
                         var sensor_2: Float
                         var sensor_3: Float
                         var sensor_4: Float
+
                         for (i in mainViewModel.GasRoomDataLiveList.value!!) {
                             if (i.sensorType == "Sensts 142PSI") {
                                 sensor_1 = calcPSI142(pin1_data, i.rewardValue, i.zeroPoint)
@@ -333,20 +344,11 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 mainViewModel.GasRoomDataLiveList.notifyChange()
                             }
+
+
                         }
                     }
                     "WasteLiquor" -> {
-                        Log.d(
-                            "태그",
-                            "WasteLiquor // id:${receiveParser.mProtocol.get(3)} model:${
-                                receiveParser.mProtocol.get(2)
-                            }"
-                        )
-                        mainViewModel.model_ID_Data.value?.put(
-                            "WasteLiquor",
-                            receiveParser.mProtocol.get(3)
-                        )
-
                         val pin1_data = littleEndianConversion(
                             receiveParser.mProtocol.slice(7..8).toByteArray()
                         )
@@ -364,8 +366,30 @@ class MainActivity : AppCompatActivity() {
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
                                 when (i.port) {
                                     1 -> {
-                                        i.isAlert = if (pin1_data == 0) true else false
-
+                                        if (pin1_data == 0) {
+                                            i.isAlert = true
+                                            if (!mainViewModel.exSensorInfo[aqInfo]!!.pin1_Alert) {
+                                                val info = mainViewModel.exSensorInfo[aqInfo]
+                                                mainViewModel.latestSensorInfo[aqInfo]!!.pin1_Alert =
+                                                    true
+                                                mainViewModel.alertInfo.add(
+                                                    SetAlertData(
+                                                        info!!.getLatestTime(),
+                                                        info.getAQ_Model().toInt(),
+                                                        info.getAQ_Id().toInt(),
+                                                        "수위 초과"
+                                                    )
+                                                )
+                                                mainViewModel.exSensorInfo[aqInfo]!!.pin1_Alert =
+                                                    true
+                                            }
+                                        } else {
+                                            mainViewModel.exSensorInfo[aqInfo] = currentSensorInfo
+                                            i.isAlert = false
+                                            mainViewModel.latestSensorInfo[aqInfo]?.pin1_Alert =
+                                                false
+                                            mainViewModel.exSensorInfo[aqInfo]?.pin1_Alert = false
+                                        }
                                     }
                                     2 -> {
                                         i.isAlert = if (pin2_data == 0) true else false

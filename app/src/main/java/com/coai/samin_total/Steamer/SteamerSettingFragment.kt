@@ -17,10 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
-import com.coai.samin_total.Oxygen.OxygenSetting_RecyclerAdapter
-import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.R
-import com.coai.samin_total.databinding.FragmentOxygenSettingBinding
 import com.coai.samin_total.databinding.FragmentSteamerSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match

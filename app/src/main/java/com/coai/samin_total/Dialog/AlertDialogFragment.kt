@@ -6,6 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.coai.samin_total.CustomView.SpaceDecoration
+import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.databinding.FragmentAlertDialogBinding
 
@@ -20,11 +24,13 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class AlertDialogFragment : DialogFragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private var model: String? = null
     private lateinit var mBinding: FragmentAlertDialogBinding
+    private lateinit var recycleAdapter: AlertDialog_RecyclerAdapter
+    private val viewmodel by activityViewModels<MainViewModel>()
+    private val alertData = mutableListOf<SetAlertData>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +46,45 @@ class AlertDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentAlertDialogBinding.inflate(inflater, container, false)
+        initRecycler()
         initVieiw()
+//
+//        mBinding.alertRecyclerView.apply {
+//            alertData.apply {
+////                add(
+////                    SetAlertData(
+////                        "dsfadf1",
+////                        "asdfasdfasdf", "asdfasdfasdfasd"
+////                    )
+////                )
+////                add(
+////                    SetAlertData(
+////                        "dsfadf1",
+////                        "asdfasdfasdf", "asdfasdfasdfasd"
+////                    )
+////                )
+////                add(
+////                    SetAlertData(
+////                        "dsfadf1",
+////                        "asdfasdfasdf", "asdfasdfasdfasd"
+////                    )
+////                )
+////                add(
+////                    SetAlertData(
+////                        "dsfadf1",
+////                        "asdfasdfasdf", "asdfasdfasdfasd"
+////                    )
+////                )
+////                add(
+////                    SetAlertData(
+////                        "dsfadf1",
+////                        "asdfasdfasdf", "asdfasdfasdfasd"
+////                    )
+////                )
+//            }
+//        }
+//        recycleAdapter.submitList(alertData)
+//        recycleAdapter.notifyDataSetChanged()
         return mBinding.root
     }
 
@@ -55,12 +99,39 @@ class AlertDialogFragment : DialogFragment() {
 
     private fun initVieiw() {
         when (model) {
-            "Main" -> mBinding.tvTitle.setText(R.string.title_event_log)
+            "Main" -> {
+                mBinding.tvTitle.setText(R.string.title_event_log)
+            }
             "GasStorage" -> mBinding.tvTitle.setText(R.string.title_gasstorage_event_log)
             "GasRoom" -> mBinding.tvTitle.setText(R.string.title_gasroom_event_log)
-            "WasteLiquor" -> mBinding.tvTitle.setText(R.string.title_wasteliquor_event_log)
+            "WasteLiquor" -> {
+                mBinding.tvTitle.setText(R.string.title_wasteliquor_event_log)
+                for (i in viewmodel.alertInfo.value!!){
+                    if (i.model == 3){
+                        alertData.add(i)
+                        recycleAdapter.submitList(alertData)
+                        recycleAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
             "Oxygen" -> mBinding.tvTitle.setText(R.string.title_oxygen_event_log)
             "Steamer" -> mBinding.tvTitle.setText(R.string.title_steamer_event_log)
+        }
+
+    }
+
+    private fun initRecycler() {
+        mBinding.alertRecyclerView.apply {
+            layoutManager =
+                LinearLayoutManager(context)
+
+            //아이템 높이 간격 조절
+            val decoration = SpaceDecoration(20, 20)
+            addItemDecoration(decoration)
+
+            recycleAdapter = AlertDialog_RecyclerAdapter()
+//            recycleAdapter.submitList(singleDockViewData)
+            adapter = recycleAdapter
         }
 
     }

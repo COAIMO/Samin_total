@@ -14,10 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
-import com.coai.samin_total.R
-import com.coai.samin_total.Steamer.SetSteamerViewData
-import com.coai.samin_total.Steamer.SteamerSetting_RecyclerAdapter
-import com.coai.samin_total.databinding.FragmentSteamerSettingBinding
 import com.coai.samin_total.databinding.FragmentWasteLiquorSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match

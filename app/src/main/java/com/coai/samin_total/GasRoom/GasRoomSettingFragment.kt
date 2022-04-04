@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -16,12 +15,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
-import com.coai.samin_total.GasDock.GasStorageSetting_RecycleAdapter
-import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
-import com.coai.samin_total.databinding.FragmentGasRoomMainBinding
 import com.coai.samin_total.databinding.FragmentGasRoomSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match

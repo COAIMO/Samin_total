@@ -15,8 +15,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
-import com.coai.samin_total.GasRoom.GasRoomSetting_RecycleAdapter
-import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
