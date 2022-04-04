@@ -7,119 +7,67 @@
     android:layout_height="match_parent"
     tools:context=".AqSettingFragment">
 
-    <LinearLayout
-        android:id="@+id/progress_layout"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/grid_layout"
+        android:layout_width="0dp"
+        android:layout_marginStart="320dp"
+        android:layout_marginEnd="320dp"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="254dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
         <TextView
+            android:id="@+id/tv_newPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Loading..."
-            android:textSize="15sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:gravity="center_vertical"
+            android:text="신규 연구실명"
+            android:textSize="18pt"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
-    <TextView
-        android:id="@+id/boardmenu_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:text="AQ보드 내역"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toTopOf="@id/aqlist_view"
-        app:layout_constraintStart_toStartOf="@id/aqlist_view" />
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/et_newName"
+            android:layout_width="391dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:inputType="text"
+            android:maxLength="20"
+            android:maxLines="1"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginStart="38dp"
+            app:layout_constraintStart_toEndOf="@id/tv_newPassword"
+            app:layout_constraintTop_toTopOf="parent"/>
 
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/search_btn"
-        style="@style/cancelButton"
-        android:layout_marginBottom="20dp"
-        android:text="조회"
-        app:layout_constraintBottom_toTopOf="@id/aqlist_view"
-        app:layout_constraintEnd_toEndOf="@id/aqlist_view"
-        app:layout_constraintHorizontal_chainStyle="packed" />
-
-    <LinearLayout
-        android:id="@+id/aqlist_view"
-        android:layout_width="500dp"
-        android:layout_height="480dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="120dp"
-        android:background="@drawable/container_border"
-        android:orientation="vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/scrollView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            android:orientation="vertical">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/boardRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-            <!--            child view margin top 10dp 씩 줄것-->
-        </androidx.core.widget.NestedScrollView>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/setting_view"
-        android:layout_width="500dp"
-        android:layout_height="480dp"
-        android:layout_marginTop="120dp"
-        android:layout_marginEnd="50dp"
-        android:background="@drawable/container_border"
-        android:orientation="vertical"
-        android:paddingTop="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <FrameLayout
-            android:id="@+id/boardsetting_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" />
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/boardsetting_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:text="AQ보드 설정"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toTopOf="@id/setting_view"
-        app:layout_constraintStart_toStartOf="@id/setting_view" />
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/save_btn"
         style="@style/saveButton"
-        android:layout_marginBottom="20dp"
-        android:text="저장"
-        app:layout_constraintBottom_toTopOf="@id/setting_view"
-        app:layout_constraintEnd_toEndOf="@id/setting_view"
-        app:layout_constraintHorizontal_chainStyle="packed" />
+        android:layout_marginBottom="138dp"
+        android:text="@string/text_PasswordChange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cancel_btn"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/cancel_btn"
+        style="@style/cancelButton"
+        android:layout_marginStart="85dp"
+        android:text="@string/text_cancel"
+        app:layout_constraintBottom_toBottomOf="@id/save_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/save_btn" />
 
     <ImageView
+        android:id="@+id/labsislogo"
         android:layout_width="80dp"
         android:layout_height="60dp"
         android:layout_marginBottom="50dp"
@@ -127,4 +75,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="33dp"
+        android:layout_marginBottom="33dp"
+        android:background="@drawable/backbutton_ic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

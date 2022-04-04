@@ -15,8 +15,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.Dialog.AlertDialogFragment
+import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasRoom.GasRoom_RecycleAdapter
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
+import com.coai.samin_total.Logic.PortInfo
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
@@ -49,7 +51,7 @@ class OxygenMainFragment : Fragment() {
     private lateinit var sendThread: Thread
     var sending = false
     var btn_Count = 0
-    lateinit var alertdialogFragment:AlertDialogFragment
+    lateinit var alertdialogFragment: AlertDialogFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,15 +127,17 @@ class OxygenMainFragment : Fragment() {
 
         mBinding.btnAlert.setOnClickListener {
             alertdialogFragment = AlertDialogFragment()
-            val bundle =Bundle()
+            val bundle = Bundle()
             bundle.putString("model", "Oxygen")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "Oxygen")
+            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
         }
 
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
         }
+        udateAlert()
         return mBinding.root
     }
 
@@ -154,24 +158,33 @@ class OxygenMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
+        val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun updateView(){
-        viewmodel.OxygenDataLiveList.observe(viewLifecycleOwner, {
-            val mm = it.sortedWith(compareBy({it.id},{it.port}))
+    private fun updateView() {
+        viewmodel.OxygenDataLiveList.observe(viewLifecycleOwner) {
+            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
             recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
-        })
+        }
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         sending = false
     }
 
+    private fun udateAlert() {
+        viewmodel.oxyenAlert.observe(viewLifecycleOwner) {
+            if (it) {
+                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }
+        }
+
+    }
     companion object {
         /**
          * Use this factory method to create a new instance of

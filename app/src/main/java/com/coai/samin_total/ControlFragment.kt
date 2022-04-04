@@ -6,6 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import com.coai.samin_total.databinding.FragmentControlBinding
 
@@ -26,6 +29,28 @@ class ControlFragment : Fragment() {
     var activity:MainActivity? = null
     private lateinit var mBinding: FragmentControlBinding
     private lateinit var onBackPressed: OnBackPressedCallback
+    val buadrate = arrayListOf<String>(
+        "9600",
+        "19200",
+        "57600",
+        "115200",
+        "230400",
+        "250000",
+        "500000",
+        "1000000",
+        )
+    val modbusID = arrayListOf<String>(
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7"
+    )
+    var selected_Id = 0
+    var selected_buadrate = 9600
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -56,6 +81,7 @@ class ControlFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentControlBinding.inflate(inflater, container, false)
+        setModbusIDSpinner()
 
         mBinding.cancelBtn.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
@@ -65,6 +91,53 @@ class ControlFragment : Fragment() {
             activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
         }
         return mBinding.root
+    }
+    private fun setModbusIDSpinner() {
+        val arrayAdapter = ArrayAdapter(
+            requireContext(),
+            R.layout.support_simple_spinner_dropdown_item,
+            modbusID
+        )
+        mBinding.spModbusId.adapter = arrayAdapter
+        mBinding.spModbusId.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                selected_Id = modbusID[position].toInt()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                Toast.makeText(context, "아이디를 선택해주세요.", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+    }
+
+    private fun setModbusBuadrateSpinner() {
+        val arrayAdapter = ArrayAdapter(
+            requireContext(),
+            R.layout.support_simple_spinner_dropdown_item,
+            buadrate
+        )
+        mBinding.spModbusId.adapter = arrayAdapter
+        mBinding.spModbusId.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                selected_buadrate = buadrate[position].toInt()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                Toast.makeText(context, "통신속도를 선택해주세요.", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
     }
 
     companion object {

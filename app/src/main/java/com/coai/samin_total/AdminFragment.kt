@@ -58,9 +58,9 @@ class AdminFragment : Fragment() {
     ): View? {
         mBinding = FragmentAdminBinding.inflate(inflater, container, false)
 
-//        mBinding.btnAqsetting.setOnClickListener {
-//            activity?.onFragmentChange(MainViewModel.AQSETTINGFRAGMENT)
-//        }
+        mBinding.btnAqsetting.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.AQSETTINGFRAGMENT)
+        }
         mBinding.btnControl.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.CONTROLFRAGMENT)
         }

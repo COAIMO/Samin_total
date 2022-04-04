@@ -416,10 +416,10 @@ class GasStorageSettingFragment : Fragment() {
             Log.d("테스트", "viewmodel: $i")
         }
         //위에꺼
-        if (!activity?.isSending!!) {
-            activity?.callFeedback()
-            activity?.isSending = true
-        }
+//        if (!activity?.isSending!!) {
+//            activity?.callFeedback()
+//            activity?.isSending = true
+//        }
         activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
     }
 

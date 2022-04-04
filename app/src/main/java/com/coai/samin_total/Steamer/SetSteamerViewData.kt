@@ -7,6 +7,7 @@ data class SetSteamerViewData(
     var usable: Boolean = true,
     // 수위 알람
     var isAlertLow: Boolean = false,
+    var isAlertTemp: Boolean =false,
     // min 온도 설정
     var isTempMin: Int = 0,
     //현재 온도

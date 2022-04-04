@@ -141,11 +141,14 @@ class SteamerMainFragment : Fragment() {
             bundle.putString("model", "Steamer")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "Steamer")
+            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
         }
 
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
         }
+
+        udateAlert()
         return mBinding.root
     }
 
@@ -174,16 +177,25 @@ class SteamerMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView(){
-        viewmodel.SteamerDataLiveList.observe(viewLifecycleOwner, {
-            val mm = it.sortedWith(compareBy({it.id},{it.port}))
+        viewmodel.SteamerDataLiveList.observe(viewLifecycleOwner) {
+            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
             recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
-        })
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         sending = false
+    }
+
+    private fun udateAlert() {
+        viewmodel.steamerAlert.observe(viewLifecycleOwner) {
+            if (it) {
+                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }
+        }
+
     }
 
     companion object {

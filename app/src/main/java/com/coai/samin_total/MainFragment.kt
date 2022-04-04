@@ -41,7 +41,7 @@ class MainFragment : Fragment() {
     lateinit var sendThread: Thread
     private val threadSync = ThreadSynchronied()
     private lateinit var soundPool: SoundPool
-    lateinit var alertdialogFragment:AlertDialogFragment
+    lateinit var alertdialogFragment: AlertDialogFragment
 
 
     override fun onAttach(context: Context) {
@@ -87,7 +87,7 @@ class MainFragment : Fragment() {
                 }
             }.start()
         }
-
+        udateAlert()
 //        mainViewModel.model_ID_Data.observe(viewLifecycleOwner, Observer {
 //            Log.d("태그", "model_ID_Data: $it")
 //        })
@@ -174,10 +174,12 @@ class MainFragment : Fragment() {
             }
             mBinding.btnAlert -> {
                 alertdialogFragment = AlertDialogFragment()
-                val bundle =Bundle()
+                val bundle = Bundle()
                 bundle.putString("model", "Main")
                 alertdialogFragment.arguments = bundle
-                alertdialogFragment.show(requireActivity().supportFragmentManager, "GasRoom")
+                alertdialogFragment.show(requireActivity().supportFragmentManager, "Main")
+                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
+
             }
             mBinding.btnSound -> {
                 animate(mBinding.gasDockMainStatus)
@@ -202,10 +204,10 @@ class MainFragment : Fragment() {
                 for (model in 1..5) {
                     for (id in 0..7) {
 //                        for (count in 0..2) {
-                            val protocol = SaminProtocol()
-                            protocol.checkModel(model.toByte(), id.toByte())
-                            activity?.serialService?.sendData(protocol.mProtocol)
-                            Thread.sleep(40)
+                        val protocol = SaminProtocol()
+                        protocol.checkModel(model.toByte(), id.toByte())
+                        activity?.serialService?.sendData(protocol.mProtocol)
+                        Thread.sleep(40)
 //                        }
                     }
                 }
@@ -215,19 +217,23 @@ class MainFragment : Fragment() {
             }
 
             activity?.runOnUiThread {
-                if (viewmodel.modelMap.isEmpty()){
-                    Toast.makeText(requireContext(),"연결된 AQ보드가 없습니다.", Toast.LENGTH_SHORT).show()
+                if (viewmodel.modelMap.isEmpty()) {
+                    Toast.makeText(requireContext(), "연결된 AQ보드가 없습니다.", Toast.LENGTH_SHORT).show()
                 }
                 initView()
             }
             getProgressHidden()
-//            activity?.callFeedback()
+            if (!activity?.isSending!!) {
+                activity?.callFeedback()
+                activity?.isSending = true
+            }
         }
         sendThread.start()
 
     }
 
     private fun initView() {
+        mBinding.labIDTextView.text = viewmodel.labName
         mBinding.gasDockMainStatusLayout.visibility = View.GONE
         mBinding.gasRoomMainStatusLayout.visibility = View.GONE
         mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
@@ -302,5 +308,28 @@ class MainFragment : Fragment() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun udateAlert() {
+        viewmodel.wasteAlert.observe(viewLifecycleOwner) {
+            if (it) {
+                mBinding.wasteLiquorMainStatus.setAlert(true)
+                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+
+            }
+        }
+        viewmodel.oxyenAlert.observe(viewLifecycleOwner){
+            if (it){
+                mBinding.oxygenMainStatus.setAlert(true)
+                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }
+        }
+        viewmodel.gasStorageAlert.observe(viewLifecycleOwner){
+            if (it){
+                mBinding.gasDockMainStatus.setAlert(true)
+                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }
+        }
+
     }
 }

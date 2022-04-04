@@ -186,12 +186,12 @@
             android:layout_height="40dp"
             android:background="@drawable/button_setting" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
+        <ImageView
             android:id="@+id/btn_alert"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="30dp"
-            android:background="@drawable/button_nonalert" />
+            android:src="@drawable/button_nonalert" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btn_sound"

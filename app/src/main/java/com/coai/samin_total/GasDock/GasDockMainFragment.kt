@@ -142,6 +142,7 @@ class GasDockMainFragment : Fragment() {
             bundle.putString("model", "GasStorage")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "GasStorage")
+            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
         }
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
@@ -175,7 +176,7 @@ class GasDockMainFragment : Fragment() {
 //            recycleAdapter.notifyDataSetChanged()
 //
 //        })
-
+        udateAlert()
         return mBinding.root
     }
 
@@ -209,7 +210,7 @@ class GasDockMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView() {
-        mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner, {
+        mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner) {
 //            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()){
 //                Log.d("테스트","인텍스: $index" + "데이더 : $data")
 //
@@ -221,7 +222,7 @@ class GasDockMainFragment : Fragment() {
             val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
             recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
-        })
+        }
     }
 
     companion object {
@@ -265,6 +266,15 @@ class GasDockMainFragment : Fragment() {
 
             recycleAdapter.submitList(gasStorageViewData)
             adapter = recycleAdapter
+        }
+
+    }
+
+    private fun udateAlert() {
+        mainViewModel.gasStorageAlert.observe(viewLifecycleOwner) {
+            if (it) {
+                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }
         }
 
     }

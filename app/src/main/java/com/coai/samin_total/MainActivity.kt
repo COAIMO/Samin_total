@@ -24,6 +24,7 @@ import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
 import com.coai.samin_total.GasRoom.GasRoomSettingFragment
 import com.coai.samin_total.Logic.CurrentSensorInfo
+import com.coai.samin_total.Logic.PortInfo
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Oxygen.OxygenMainFragment
 import com.coai.samin_total.Oxygen.OxygenSettingFragment
@@ -74,10 +75,16 @@ class MainActivity : AppCompatActivity() {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         setFragment()
+        for (a in 1..5) {
+            for (b in 0..7){
+                for (c in 1..4){
+                    val port = listOf<Int>(a, b, c)
+                    val portInfo = PortInfo(a.toByte(), b.toByte(), c)
+                    mainViewModel.mExPortInfo.put(port, portInfo)
+                }
+            }
 
-//        mainViewModel.model_ID_Data.observe(this, Observer {
-//            Log.d("태그", "model_ID_Data: $it")
-//        })
+        }
 
     }
 
@@ -130,6 +137,20 @@ class MainActivity : AppCompatActivity() {
         @SuppressLint("SimpleDateFormat")
         @RequiresApi(Build.VERSION_CODES.O)
         override fun handleMessage(msg: Message) {
+            if(msg.what == 2){
+                val dateformat: SimpleDateFormat = SimpleDateFormat("yyyy-mm-dd kk:mm:ss", Locale("ko", "KR"))
+                val date: Date = Date(System.currentTimeMillis())
+                val latest_time: String = dateformat.format(date)
+                mainViewModel.alertInfo.add(
+                    SetAlertData(
+                        latest_time,
+                        0,
+                        0,
+                        "시리얼 통신 연결이 끊겼습니다.",
+                        0
+                    )
+                )
+            }
             Log.d(mainTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
             val receiveParser = SaminProtocol()
             receiveParser.parse(msg.obj as ByteArray)
@@ -177,16 +198,12 @@ class MainActivity : AppCompatActivity() {
                 val aqInfo = receiveParser.mProtocol.slice(2..3)
                 val sensorData = receiveParser.mProtocol.slice(7..14).toByteArray()
                 val currentSensorInfo = CurrentSensorInfo(aqInfo, sensorData)
-//                mainViewModel.latestSensorInfo.put(aqInfo, currentSensorInfo)
                 mainViewModel.latestSensorInfo[aqInfo] = currentSensorInfo
 
-//                mainViewModel.lastStateInfo.value?.put(aqInfo, currentSensorInfo)
-
-                val model = receiveParser.mProtocol.get(2)
-                val input_id = receiveParser.mProtocol.get(3)
                 when (receiveParser.modelName) {
 
                     "GasDock" -> {
+
                         val pin1_data = littleEndianConversion(
                             receiveParser.mProtocol.slice(7..8).toByteArray()
                         ).toFloat()
@@ -245,30 +262,197 @@ class MainActivity : AppCompatActivity() {
 
                             //받은 데이터 아이디와 데이터리스트의 아디가 동일한 경우
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+                                val port = listOf<Int>(1, i.id, i.port)
+                                val portInfo = PortInfo(1.toByte(), i.id.toByte(), i.port)
                                 // 데이터 리스트의 데이터의 뷰타입이 듀얼 또는 오토체인처일 경우
                                 if (i.ViewType == 1 || i.ViewType == 2) {
                                     //2,4port 삭제되서 날라옴
                                     if (i.port == 1) {
                                         i.pressureLeft = sensor_1
                                         i.pressureRight = sensor_2
+                                        if(i.pressure_Min!! > i.pressureLeft!!){
+                                            i.isAlertLeft =true
+                                            if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
+                                                mainViewModel.alertInfo.add(
+                                                    SetAlertData(
+                                                        portInfo.latest_time,
+                                                        portInfo.model.toInt(),
+                                                        portInfo.id.toInt(),
+                                                        "가스 압력 하한 값",
+                                                        portInfo.port
+                                                    )
+                                                )
+                                                mainViewModel.gasStorageAlert.value = true
+                                                mainViewModel.mExPortInfo[port]?.alert_1 = true
+                                            }
+                                        }else if(i.pressure_Min!! > i.pressureRight!!){
+                                            i.isAlertRight =true
+                                            if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
+                                                mainViewModel.alertInfo.add(
+                                                    SetAlertData(
+                                                        portInfo.latest_time,
+                                                        portInfo.model.toInt(),
+                                                        portInfo.id.toInt(),
+                                                        "가스 압력 하한 값",
+                                                        portInfo.port
+                                                    )
+                                                )
+                                                mainViewModel.gasStorageAlert.value = true
+                                                mainViewModel.mExPortInfo[port]?.alert_1 = true
+                                            }
+                                        }
+                                        else{
+                                            mainViewModel.mExPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port]?.alert_1 = false
+                                            mainViewModel.mExPortInfo[port]?.alert_1 = false
+                                            mainViewModel.gasStorageAlert.value = false
+                                        }
                                     } else {
                                         i.pressureLeft = sensor_3
                                         i.pressureRight = sensor_4
+                                        if(i.pressure_Min!! > i.pressureLeft!!){
+                                            i.isAlertLeft =true
+                                            if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
+                                                mainViewModel.alertInfo.add(
+                                                    SetAlertData(
+                                                        portInfo.latest_time,
+                                                        portInfo.model.toInt(),
+                                                        portInfo.id.toInt(),
+                                                        "가스 압력 하한 값",
+                                                        portInfo.port
+                                                    )
+                                                )
+                                                mainViewModel.gasStorageAlert.value = true
+                                                mainViewModel.mExPortInfo[port]?.alert_1 = true
+                                            }
+                                        }else if(i.pressure_Min!! > i.pressureRight!!){
+                                            i.isAlertRight =true
+                                            if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
+                                                mainViewModel.alertInfo.add(
+                                                    SetAlertData(
+                                                        portInfo.latest_time,
+                                                        portInfo.model.toInt(),
+                                                        portInfo.id.toInt(),
+                                                        "가스 압력 하한 값",
+                                                        portInfo.port
+                                                    )
+                                                )
+                                                mainViewModel.gasStorageAlert.value = true
+                                                mainViewModel.mExPortInfo[port]?.alert_1 = true
+                                            }
+                                        }
+                                        else{
+                                            mainViewModel.mExPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port]?.alert_1 = false
+                                            mainViewModel.mExPortInfo[port]?.alert_1 = false
+                                            mainViewModel.gasStorageAlert.value = false
+                                        }
                                     }
 
                                 } else {
                                     when (i.port) {
                                         1 -> {
                                             i.pressure = sensor_1
+                                            if (i.pressure_Min!! > i.pressure!!) {
+                                                i.isAlert = true
+                                                if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
+                                                    mainViewModel.alertInfo.add(
+                                                        SetAlertData(
+                                                            portInfo.latest_time,
+                                                            portInfo.model.toInt(),
+                                                            portInfo.id.toInt(),
+                                                            "가스 압력 하한 값",
+                                                            portInfo.port
+                                                        )
+                                                    )
+                                                    mainViewModel.gasStorageAlert.value = true
+                                                    mainViewModel.mExPortInfo[port]?.alert_1 = true
+                                                }
+                                            } else {
+                                                mainViewModel.mExPortInfo[port] = portInfo
+                                                mainViewModel.mPortInfo[port] = portInfo
+                                                mainViewModel.mPortInfo[port]?.alert_1 = false
+                                                mainViewModel.mExPortInfo[port]?.alert_1 = false
+                                                mainViewModel.gasStorageAlert.value = false
+                                            }
+
                                         }
                                         2 -> {
                                             i.pressure = sensor_2
+                                            if (i.pressure_Min!! > i.pressure!!) {
+                                                i.isAlert = true
+                                                if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
+                                                    mainViewModel.alertInfo.add(
+                                                        SetAlertData(
+                                                            portInfo.latest_time,
+                                                            portInfo.model.toInt(),
+                                                            portInfo.id.toInt(),
+                                                            "가스 압력 하한 값",
+                                                            portInfo.port
+                                                        )
+                                                    )
+                                                    mainViewModel.gasStorageAlert.value = true
+                                                    mainViewModel.mExPortInfo[port]?.alert_1 = true
+                                                }
+                                            } else {
+                                                mainViewModel.mExPortInfo[port] = portInfo
+                                                mainViewModel.mPortInfo[port] = portInfo
+                                                mainViewModel.mPortInfo[port]?.alert_1 = false
+                                                mainViewModel.mExPortInfo[port]?.alert_1 = false
+                                                mainViewModel.gasStorageAlert.value = false
+                                            }
                                         }
                                         3 -> {
                                             i.pressure = sensor_3
+                                            if (i.pressure_Min!! > i.pressure!!) {
+                                                i.isAlert = true
+                                                if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
+                                                    mainViewModel.alertInfo.add(
+                                                        SetAlertData(
+                                                            portInfo.latest_time,
+                                                            portInfo.model.toInt(),
+                                                            portInfo.id.toInt(),
+                                                            "가스 압력 하한 값",
+                                                            portInfo.port
+                                                        )
+                                                    )
+                                                    mainViewModel.gasStorageAlert.value = true
+                                                    mainViewModel.mExPortInfo[port]?.alert_1 = true
+                                                }
+                                            } else {
+                                                mainViewModel.mExPortInfo[port] = portInfo
+                                                mainViewModel.mPortInfo[port] = portInfo
+                                                mainViewModel.mPortInfo[port]?.alert_1 = false
+                                                mainViewModel.mExPortInfo[port]?.alert_1 = false
+                                                mainViewModel.gasStorageAlert.value = false
+                                            }
                                         }
                                         4 -> {
                                             i.pressure = sensor_4
+                                            if (i.pressure_Min!! > i.pressure!!) {
+                                                i.isAlert = true
+                                                if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
+                                                    mainViewModel.alertInfo.add(
+                                                        SetAlertData(
+                                                            portInfo.latest_time,
+                                                            portInfo.model.toInt(),
+                                                            portInfo.id.toInt(),
+                                                            "가스 압력 하한 값",
+                                                            portInfo.port
+                                                        )
+                                                    )
+                                                    mainViewModel.gasStorageAlert.value = true
+                                                    mainViewModel.mExPortInfo[port]?.alert_1 = true
+                                                }
+                                            } else {
+                                                mainViewModel.mExPortInfo[port] = portInfo
+                                                mainViewModel.mPortInfo[port] = portInfo
+                                                mainViewModel.mPortInfo[port]?.alert_1 = false
+                                                mainViewModel.mExPortInfo[port]?.alert_1 = false
+                                                mainViewModel.gasStorageAlert.value = false
+                                            }
                                         }
                                     }
 
@@ -364,43 +548,145 @@ class MainActivity : AppCompatActivity() {
 
                         for (i in mainViewModel.WasteLiquorDataLiveList.value!!) {
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+                                val port = listOf<Int>(3, i.id, i.port)
                                 when (i.port) {
+                                    //exsensorinfo ->exprotinfo
+                                    //latestsensorinfo ->portinfo aqinfo를 port로
+
                                     1 -> {
                                         if (pin1_data == 0) {
                                             i.isAlert = true
-                                            if (!mainViewModel.exSensorInfo[aqInfo]!!.pin1_Alert) {
-                                                val info = mainViewModel.exSensorInfo[aqInfo]
-                                                mainViewModel.latestSensorInfo[aqInfo]!!.pin1_Alert =
-                                                    true
-                                                mainViewModel.alertInfo.add(
-                                                    SetAlertData(
-                                                        info!!.getLatestTime(),
-                                                        info.getAQ_Model().toInt(),
-                                                        info.getAQ_Id().toInt(),
-                                                        "수위 초과"
+                                            if (mainViewModel.exportInfo[port] != null
+                                            ) {
+                                                if (!mainViewModel.exportInfo[port]!!.pin1_Alert) {
+                                                    val info = mainViewModel.exportInfo[port]
+                                                    mainViewModel.portInfo[port]!!.pin1_Alert =
+                                                        true
+                                                    mainViewModel.alertInfo.add(
+                                                        SetAlertData(
+                                                            info!!.getLatestTime(),
+                                                            info.getAQ_Model().toInt(),
+                                                            info.getAQ_Id().toInt(),
+                                                            "수위 초과",
+                                                            1
+                                                        )
                                                     )
-                                                )
-                                                mainViewModel.exSensorInfo[aqInfo]!!.pin1_Alert =
-                                                    true
+                                                    mainViewModel.wasteAlert.value = true
+                                                    mainViewModel.exportInfo[port]!!.pin1_Alert =
+                                                        true
+                                                }
                                             }
                                         } else {
-                                            mainViewModel.exSensorInfo[aqInfo] = currentSensorInfo
                                             i.isAlert = false
-                                            mainViewModel.latestSensorInfo[aqInfo]?.pin1_Alert =
+                                            mainViewModel.exportInfo[port] = currentSensorInfo
+                                            mainViewModel.portInfo[port] = currentSensorInfo
+                                            mainViewModel.portInfo[port]?.pin1_Alert =
                                                 false
-                                            mainViewModel.exSensorInfo[aqInfo]?.pin1_Alert = false
+                                            mainViewModel.exportInfo[port]?.pin1_Alert = false
+                                            mainViewModel.wasteAlert.value = false
+
                                         }
                                     }
                                     2 -> {
-                                        i.isAlert = if (pin2_data == 0) true else false
+                                        if (pin2_data == 0) {
+                                            i.isAlert = true
+                                            if (mainViewModel.exportInfo[port] != null) {
+                                                if (!mainViewModel.exportInfo[port]!!.pin2_Alert) {
+                                                    val info = mainViewModel.exportInfo[port]
+                                                    mainViewModel.portInfo[port]!!.pin2_Alert =
+                                                        true
+                                                    mainViewModel.alertInfo.add(
+                                                        SetAlertData(
+                                                            info!!.getLatestTime(),
+                                                            info.getAQ_Model().toInt(),
+                                                            info.getAQ_Id().toInt(),
+                                                            "수위 초과",
+                                                            2
+                                                        )
+                                                    )
+                                                    mainViewModel.wasteAlert.value = true
+                                                    mainViewModel.exportInfo[port]!!.pin2_Alert =
+                                                        true
+                                                }
+                                            }
+                                        } else {
+                                            i.isAlert = false
+                                            mainViewModel.exportInfo[port] = currentSensorInfo
+                                            mainViewModel.portInfo[port] = currentSensorInfo
+                                            mainViewModel.portInfo[port]?.pin2_Alert =
+                                                false
+                                            mainViewModel.exportInfo[port]?.pin2_Alert = false
+                                            mainViewModel.wasteAlert.value = false
+
+                                        }
 
                                     }
                                     3 -> {
-                                        i.isAlert = if (pin3_data == 0) true else false
+                                        if (pin3_data == 0) {
+                                            i.isAlert = true
+                                            if (mainViewModel.exportInfo[port] != null) {
+                                                if (!mainViewModel.exportInfo[port]!!.pin3_Alert) {
+                                                    val info = mainViewModel.exportInfo[port]
+                                                    mainViewModel.portInfo[port]!!.pin3_Alert =
+                                                        true
+                                                    mainViewModel.alertInfo.add(
+                                                        SetAlertData(
+                                                            info!!.getLatestTime(),
+                                                            info.getAQ_Model().toInt(),
+                                                            info.getAQ_Id().toInt(),
+                                                            "수위 초과",
+                                                            3
+                                                        )
+                                                    )
+                                                    mainViewModel.wasteAlert.value = true
+                                                    mainViewModel.exportInfo[port]!!.pin3_Alert =
+                                                        true
+                                                }
+                                            }
+                                        } else {
+                                            i.isAlert = false
+                                            mainViewModel.exportInfo[port] = currentSensorInfo
+                                            mainViewModel.portInfo[port] = currentSensorInfo
+                                            mainViewModel.portInfo[port]?.pin3_Alert =
+                                                false
+                                            mainViewModel.exportInfo[port]?.pin3_Alert = false
+                                            mainViewModel.wasteAlert.value = false
+
+                                        }
 
                                     }
                                     4 -> {
-                                        i.isAlert = if (pin4_data == 0) true else false
+                                        if (pin4_data == 0) {
+                                            i.isAlert = true
+                                            if (mainViewModel.exportInfo[port] != null) {
+                                                if (!mainViewModel.exportInfo[port]!!.pin4_Alert) {
+                                                    val info = mainViewModel.exportInfo[port]
+                                                    mainViewModel.portInfo[port]!!.pin4_Alert =
+                                                        true
+                                                    mainViewModel.alertInfo.add(
+                                                        SetAlertData(
+                                                            info!!.getLatestTime(),
+                                                            info.getAQ_Model().toInt(),
+                                                            info.getAQ_Id().toInt(),
+                                                            "수위 초과",
+                                                            4
+                                                        )
+                                                    )
+                                                    mainViewModel.wasteAlert.value = true
+                                                    mainViewModel.exportInfo[port]!!.pin4_Alert =
+                                                        true
+                                                }
+                                            }
+                                        } else {
+                                            i.isAlert = false
+                                            mainViewModel.exportInfo[port] = currentSensorInfo
+                                            mainViewModel.portInfo[port] = currentSensorInfo
+                                            mainViewModel.portInfo[port]?.pin4_Alert =
+                                                false
+                                            mainViewModel.exportInfo[port]?.pin4_Alert = false
+                                            mainViewModel.wasteAlert.value = false
+
+                                        }
 
                                     }
                                 }
@@ -413,7 +699,6 @@ class MainActivity : AppCompatActivity() {
                     }
                     "Oxygen" -> {
                         try {
-
                             val tempval = littleEndianConversion(
                                 receiveParser.mProtocol.slice(7..8).toByteArray()
                             ).toUShort()
@@ -422,24 +707,34 @@ class MainActivity : AppCompatActivity() {
                                 "protocol : ${HexDump.dumpHexString(receiveParser.mProtocol)}"
                             )
                             val oxygen = tempval.toInt() / 100
-
-                            //todo  에러 데이터 포함시킬것
-
-//                            for (i in mainViewModel.OxygenDataLiveList.value!!) {
-//                                Log.d(
-//                                    "cpcp",
-//                                    "id:${i.id} //minvalue:${i.setMinValue}// setvalue:${i.setValue}"
-//                                )
-//                                if (i.id == receiveParser.mProtocol.get(3).toInt()) {
-//                                    i.setValue = oxygen
-//                                }
-//
-//
-//                            }
-
                             for (i in mainViewModel.OxygenDataLiveList.value!!) {
                                 if (i.id == receiveParser.mProtocol.get(3).toInt()) {
                                     i.setValue = oxygen
+                                    val port = listOf<Int>(4, i.id, i.port)
+                                    val portInfo = PortInfo(4.toByte(), i.id.toByte(), i.port)
+                                    if (i.setMinValue > oxygen) {
+                                        i.isAlert = true
+                                        if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
+                                            mainViewModel.alertInfo.add(
+                                                SetAlertData(
+                                                    portInfo.latest_time,
+                                                    portInfo.model.toInt(),
+                                                    portInfo.id.toInt(),
+                                                    "산소농도 하한 값",
+                                                    portInfo.port
+                                                )
+                                            )
+                                            mainViewModel.oxyenAlert.value = true
+                                            mainViewModel.mExPortInfo[port]?.alert_1 = true
+                                        }
+                                    } else {
+                                        mainViewModel.mExPortInfo[port] = portInfo
+                                        mainViewModel.mPortInfo[port] = portInfo
+                                        mainViewModel.mPortInfo[port]?.alert_1 = false
+                                        mainViewModel.mExPortInfo[port]?.alert_1 = false
+                                        mainViewModel.oxyenAlert.value = false
+                                    }
+
                                     mainViewModel.OxygenDataLiveList.notifyChange()
                                 }
                             }
@@ -448,7 +743,6 @@ class MainActivity : AppCompatActivity() {
                         }
 
                     }
-
                     "Steamer" -> {
                         Log.d(
                             "태그",
@@ -469,36 +763,110 @@ class MainActivity : AppCompatActivity() {
                         val pin4_data = littleEndianConversion(
                             receiveParser.mProtocol.slice(13..14).toByteArray()
                         )
-
-//                        mainViewModel.TempValue.value = pin1_data / 33
-//                        Log.d(
-//                            "태그", "pin1_data : ${pin1_data} " +
-//                                    "pin2_data:${pin2_data}" + "pin3_data:${pin3_data}" + "pin4_data:${pin4_data}"
-//                        )
-//
-//                        mainViewModel.WaterGauge.value = pin3_data < 1000
-//
-//                        mainViewModel.SteamerData.value =
-//                            SetSteamerViewData(pin3_data < 1000, isTemp = pin1_data / 33)
-//
-//                        Log.d(
-//                            "태그", "TempValue : ${mainViewModel.TempValue.value}" +
-//                                    "WaterGauge : ${mainViewModel.WaterGauge.value}"
-//                        )
-
                         for (i in mainViewModel.SteamerDataLiveList.value!!) {
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+                                val port = listOf<Int>(4, i.id, i.port)
+                                val portInfo = PortInfo(4.toByte(), i.id.toByte(), i.port)
                                 when (i.port) {
                                     1 -> {
                                         i.isTemp = pin1_data / 33
-                                        i.isAlertLow = if (pin3_data < 1000) true else false
                                         i.unit
+                                        if(pin3_data< 1000){
+                                            i.isAlertLow = true
+                                            if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
+                                                mainViewModel.alertInfo.add(
+                                                    SetAlertData(
+                                                        portInfo.latest_time,
+                                                        portInfo.model.toInt(),
+                                                        portInfo.id.toInt(),
+                                                        "수위 레벨 상한 값",
+                                                        portInfo.port
+                                                    )
+                                                )
+                                                mainViewModel.oxyenAlert.value = true
+                                                mainViewModel.mExPortInfo[port]?.alert_1 = true
+                                            }
+                                        }else {
+                                            mainViewModel.mExPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port]?.alert_1 = false
+                                            mainViewModel.mExPortInfo[port]?.alert_1 = false
+                                            mainViewModel.oxyenAlert.value = false
+                                        }
+
+                                        if(i.isTempMin > i.isTemp){
+                                            i.isAlertTemp = true
+                                            if (!mainViewModel.mExPortInfo[port]!!.alert_2) {
+                                                mainViewModel.alertInfo.add(
+                                                    SetAlertData(
+                                                        portInfo.latest_time,
+                                                        portInfo.model.toInt(),
+                                                        portInfo.id.toInt(),
+                                                        "온도 레벨 상한 값",
+                                                        portInfo.port
+                                                    )
+                                                )
+                                                mainViewModel.oxyenAlert.value = true
+                                                mainViewModel.mExPortInfo[port]?.alert_2 = true
+                                            }
+                                        }else {
+                                            mainViewModel.mExPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port]?.alert_2 = false
+                                            mainViewModel.mExPortInfo[port]?.alert_2 = false
+                                            mainViewModel.oxyenAlert.value = false
+                                        }
 
                                     }
                                     2 -> {
                                         i.isTemp = pin2_data / 33
-                                        i.isAlertLow = if (pin4_data < 1000) true else false
                                         i.unit
+
+                                        if(pin4_data< 1000){
+                                            i.isAlertLow = true
+                                            if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
+                                                mainViewModel.alertInfo.add(
+                                                    SetAlertData(
+                                                        portInfo.latest_time,
+                                                        portInfo.model.toInt(),
+                                                        portInfo.id.toInt(),
+                                                        "수위 레벨 상한 값",
+                                                        portInfo.port
+                                                    )
+                                                )
+                                                mainViewModel.oxyenAlert.value = true
+                                                mainViewModel.mExPortInfo[port]?.alert_1 = true
+                                            }
+                                        }else {
+                                            mainViewModel.mExPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port]?.alert_1 = false
+                                            mainViewModel.mExPortInfo[port]?.alert_1 = false
+                                            mainViewModel.oxyenAlert.value = false
+                                        }
+
+                                        if(i.isTempMin > i.isTemp){
+                                            i.isAlertTemp = true
+                                            if (!mainViewModel.mExPortInfo[port]!!.alert_2) {
+                                                mainViewModel.alertInfo.add(
+                                                    SetAlertData(
+                                                        portInfo.latest_time,
+                                                        portInfo.model.toInt(),
+                                                        portInfo.id.toInt(),
+                                                        "온도 레벨 상한 값",
+                                                        portInfo.port
+                                                    )
+                                                )
+                                                mainViewModel.oxyenAlert.value = true
+                                                mainViewModel.mExPortInfo[port]?.alert_2 = true
+                                            }
+                                        }else {
+                                            mainViewModel.mExPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port] = portInfo
+                                            mainViewModel.mPortInfo[port]?.alert_2 = false
+                                            mainViewModel.mExPortInfo[port]?.alert_2 = false
+                                            mainViewModel.oxyenAlert.value = false
+                                        }
                                     }
 
                                 }
@@ -693,6 +1061,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         callbackThread.start()
+
     }
 
     private fun calcSensor(
@@ -716,12 +1085,4 @@ class MainActivity : AppCompatActivity() {
         return (rewardvalue * (analog * 2.4414 - 249.66)).toFloat() + zeroPoint
     }
 
-    private fun checkCommunication() {
-        mainViewModel.latestSensorInfo.forEach {
-            val currenttime = System.currentTimeMillis()
-            if (it.value.getLatestTime().toInt() + 5000 > currenttime) {
-
-            }
-        }
-    }
 }

@@ -15,6 +15,7 @@ import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
+import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
 import com.coai.samin_total.databinding.FragmentWasteLiquorMainBinding
 import kotlin.concurrent.thread
@@ -43,7 +44,7 @@ class WasteLiquorMainFragment : Fragment() {
     var sending = false
     var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
-    lateinit var alertThread:Thread
+    lateinit var alertThread: Thread
     override fun onDestroyView() {
         super.onDestroyView()
         sending = false
@@ -126,6 +127,7 @@ class WasteLiquorMainFragment : Fragment() {
             bundle.putString("model", "WasteLiquor")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "WasteLiquor")
+            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
         }
 
         mBinding.btnBack.setOnClickListener {
@@ -163,54 +165,18 @@ class WasteLiquorMainFragment : Fragment() {
     private fun updateView() {
         viewmodel.WasteLiquorDataLiveList.observe(viewLifecycleOwner) { it ->
             val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
-//            for (i in mm){
-//                if (i.isAlert){
-//                    Log.d("WasteLiquor", "알람 on // $i")
-//                }else{
-//                    Log.d("Wuor", "알람 off // $i")
-//                }
-//            }
             recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
         }
     }
-    var ex = false
+
 
     private fun udateAlert() {
-
-//        for ((key, value) in viewmodel.latestSensorInfo) {
-//            if (key.get(0) == 3.toByte()) {
-//                if (value.pin1_Alert) {
-//                    Log.d("WasteLiquor", "알람 on //")
-//                    viewmodel.alertInfo.add(
-//                        SetAlertData(value.getLatestTime(),
-//                        value.getAQ_Model().toInt(),
-//                        value.getAQ_Id().toInt(),
-//                        "수위 초과")
-//                    )
-//                    viewmodel.alertInfo.notifyChange()
-//                }else{
-//
-//                }
-//            }
-//        }
-
-
-//        viewmodel.lastStateInfo.observe(viewLifecycleOwner) {
-//            it.values.forEach {
-//                if (it.pin1_Alert) {
-//                    viewmodel.alertInfo.add(
-//                        SetAlertData(
-//                            it.getLatestTime(),
-//                            it.getAQ_Model().toInt(),
-//                            it.getAQ_Id().toInt(),
-//                            "수위 초과"
-//                        )
-//                    )
-//                }
-//            }
-//        }
-
+        viewmodel.wasteAlert.observe(viewLifecycleOwner) {
+            if (it) {
+                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }
+        }
 
     }
 

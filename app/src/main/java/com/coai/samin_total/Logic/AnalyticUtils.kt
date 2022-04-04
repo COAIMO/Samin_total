@@ -2,7 +2,7 @@ package com.coai.samin_total.Logic
 
 class AnalyticUtils {
 
-    fun LinearRegression(
+     fun LinearRegression(
         xValus: Array<Double>,
         yValus: Array<Double>,
         inclusiveStart: Int,
@@ -32,6 +32,7 @@ class AnalyticUtils {
             sumxsq += Math.pow(x - avgX, 2.0)
         }
 //        slope = sumxy / sumxsq
+
 
     }
 }

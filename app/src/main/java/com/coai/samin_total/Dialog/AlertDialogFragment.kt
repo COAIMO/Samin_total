@@ -48,43 +48,7 @@ class AlertDialogFragment : DialogFragment() {
         mBinding = FragmentAlertDialogBinding.inflate(inflater, container, false)
         initRecycler()
         initVieiw()
-//
-//        mBinding.alertRecyclerView.apply {
-//            alertData.apply {
-////                add(
-////                    SetAlertData(
-////                        "dsfadf1",
-////                        "asdfasdfasdf", "asdfasdfasdfasd"
-////                    )
-////                )
-////                add(
-////                    SetAlertData(
-////                        "dsfadf1",
-////                        "asdfasdfasdf", "asdfasdfasdfasd"
-////                    )
-////                )
-////                add(
-////                    SetAlertData(
-////                        "dsfadf1",
-////                        "asdfasdfasdf", "asdfasdfasdfasd"
-////                    )
-////                )
-////                add(
-////                    SetAlertData(
-////                        "dsfadf1",
-////                        "asdfasdfasdf", "asdfasdfasdfasd"
-////                    )
-////                )
-////                add(
-////                    SetAlertData(
-////                        "dsfadf1",
-////                        "asdfasdfasdf", "asdfasdfasdfasd"
-////                    )
-////                )
-//            }
-//        }
-//        recycleAdapter.submitList(alertData)
-//        recycleAdapter.notifyDataSetChanged()
+
         return mBinding.root
     }
 
@@ -101,22 +65,58 @@ class AlertDialogFragment : DialogFragment() {
         when (model) {
             "Main" -> {
                 mBinding.tvTitle.setText(R.string.title_event_log)
+                for (i in viewmodel.alertInfo.value!!) {
+                    alertData.add(i)
+                    recycleAdapter.submitList(alertData)
+                }
             }
-            "GasStorage" -> mBinding.tvTitle.setText(R.string.title_gasstorage_event_log)
-            "GasRoom" -> mBinding.tvTitle.setText(R.string.title_gasroom_event_log)
-            "WasteLiquor" -> {
-                mBinding.tvTitle.setText(R.string.title_wasteliquor_event_log)
-                for (i in viewmodel.alertInfo.value!!){
-                    if (i.model == 3){
+            "GasStorage" -> {
+                mBinding.tvTitle.setText(R.string.title_gasstorage_event_log)
+                for (i in viewmodel.alertInfo.value!!) {
+                    if (i.model == 1) {
                         alertData.add(i)
                         recycleAdapter.submitList(alertData)
-                        recycleAdapter.notifyDataSetChanged()
                     }
                 }
             }
-            "Oxygen" -> mBinding.tvTitle.setText(R.string.title_oxygen_event_log)
-            "Steamer" -> mBinding.tvTitle.setText(R.string.title_steamer_event_log)
+            "GasRoom" -> {
+                mBinding.tvTitle.setText(R.string.title_gasroom_event_log)
+                for (i in viewmodel.alertInfo.value!!) {
+                    if (i.model == 2) {
+                        alertData.add(i)
+                        recycleAdapter.submitList(alertData)
+                    }
+                }
+            }
+            "WasteLiquor" -> {
+                mBinding.tvTitle.setText(R.string.title_wasteliquor_event_log)
+                for (i in viewmodel.alertInfo.value!!) {
+                    if (i.model == 3) {
+                        alertData.add(i)
+                        recycleAdapter.submitList(alertData)
+                    }
+                }
+            }
+            "Oxygen" -> {
+                mBinding.tvTitle.setText(R.string.title_oxygen_event_log)
+                for (i in viewmodel.alertInfo.value!!) {
+                    if (i.model == 4) {
+                        alertData.add(i)
+                        recycleAdapter.submitList(alertData)
+                    }
+                }
+            }
+            "Steamer" -> {
+                mBinding.tvTitle.setText(R.string.title_steamer_event_log)
+                for (i in viewmodel.alertInfo.value!!) {
+                    if (i.model == 5) {
+                        alertData.add(i)
+                        recycleAdapter.submitList(alertData)
+                    }
+                }
+            }
         }
+        recycleAdapter.notifyDataSetChanged()
 
     }
 

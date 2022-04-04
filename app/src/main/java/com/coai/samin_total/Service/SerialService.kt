@@ -83,6 +83,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                     usbSerialPort?.close()
                     serialPortConnected = false
                 }
+                mHandler.obtainMessage(
+                    2,
+                )
             }
         }
     }

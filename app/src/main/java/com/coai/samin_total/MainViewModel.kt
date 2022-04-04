@@ -9,6 +9,7 @@ import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.CurrentSensorInfo
 import com.coai.samin_total.Logic.MutableListLiveData
+import com.coai.samin_total.Logic.PortInfo
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerSettingFragment
@@ -62,10 +63,23 @@ class MainViewModel : ViewModel() {
     val latestSensorInfo = HashMap<List<Byte>, CurrentSensorInfo>()
     val exSensorInfo = HashMap<List<Byte>, CurrentSensorInfo>()
 
+    val portInfo = HashMap<List<Int>, CurrentSensorInfo>()
+    val exportInfo = HashMap<List<Int>, CurrentSensorInfo>()
+
+
+    val mPortInfo = HashMap<List<Int>, PortInfo>()
+    val mExPortInfo = HashMap<List<Int>, PortInfo>()
+
 //    val lastStateInfo = MutableLiveData<HashMap<List<Byte>, CurrentSensorInfo>>()
 
     val alertInfo = MutableListLiveData<SetAlertData>()
+    val wasteAlert:MutableLiveData<Boolean> = MutableLiveData()
+    val oxyenAlert:MutableLiveData<Boolean> = MutableLiveData()
+    val gasStorageAlert:MutableLiveData<Boolean> = MutableLiveData()
+    val steamerAlert:MutableLiveData<Boolean> = MutableLiveData()
+    val gasRoomAlert:MutableLiveData<Boolean> = MutableLiveData()
 
+    var labName:String = "Lab - 015"
     // 변경되지 않는 데이터를 가져올때 이름을 _ 언더스코어 없이 설정
     // 공개적으로 가져오는 변수는 private 이 아닌 퍼블릭으로 외부에서도 접근가능하도록 설정
     // 하지만 값을 직접 라이브데이터에 접근하지 않고 뷰모델을 통해 가져올수 있도록 설정

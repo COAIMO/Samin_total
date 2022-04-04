@@ -168,10 +168,10 @@ class WasteWaterSettingFragment : Fragment() {
                 } else iter.remove()
             }
         }
-        if (!activity?.isSending!!) {
-            activity?.callFeedback()
-            activity?.isSending = true
-        }
+//        if (!activity?.isSending!!) {
+//            activity?.callFeedback()
+//            activity?.isSending = true
+//        }
         activity?.onFragmentChange(MainViewModel.WASTELIQUORMAINFRAGMENT)
     }
 
