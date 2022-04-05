@@ -7,6 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.coai.samin_total.CustomView.SpaceDecoration
+import com.coai.samin_total.Dialog.AlertDialog_RecyclerAdapter
+import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.R
 import com.coai.samin_total.databinding.FragmentAlertLogBinding
 
@@ -27,6 +32,10 @@ class AlertLogFragment : Fragment() {
     var activity:MainActivity? = null
     private lateinit var onBackPressed: OnBackPressedCallback
     lateinit var mBinding:FragmentAlertLogBinding
+    private lateinit var recycleAdapter: AlertLog_RecyclerAdapter
+    private val viewmodel by activityViewModels<MainViewModel>()
+    private val alertData = mutableListOf<SetAlertData>()
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
@@ -57,6 +66,8 @@ class AlertLogFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentAlertLogBinding.inflate(inflater, container, false)
+        initRecycler()
+        initVieiw()
 
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
@@ -65,6 +76,29 @@ class AlertLogFragment : Fragment() {
         return mBinding.root
     }
 
+    private fun initRecycler() {
+        mBinding.alertLogRecyclerView.apply {
+            layoutManager =
+                LinearLayoutManager(context)
+
+            //아이템 높이 간격 조절
+            val decoration = SpaceDecoration(20, 20)
+            addItemDecoration(decoration)
+
+            recycleAdapter = AlertLog_RecyclerAdapter()
+//            recycleAdapter.submitList(singleDockViewData)
+            adapter = recycleAdapter
+        }
+
+    }
+    private fun initVieiw() {
+        for (i in viewmodel.alertInfo.value!!) {
+            alertData.add(i)
+            recycleAdapter.submitList(alertData)
+        }
+        recycleAdapter.notifyDataSetChanged()
+
+    }
     companion object {
         /**
          * Use this factory method to create a new instance of

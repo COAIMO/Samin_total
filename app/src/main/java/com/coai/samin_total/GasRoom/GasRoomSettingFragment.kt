@@ -40,7 +40,7 @@ class GasRoomSettingFragment : Fragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var recycleAdapter: GasRoomSetting_RecycleAdapter
     private val setGasSensorInfo = mutableListOf<SetGasRoomViewData>()
-    var selectedSensor = SetGasRoomViewData("adsfsd",0, 0)
+    var selectedSensor = SetGasRoomViewData("adsfsd", 0, 0)
 
     private val mMaxCapatextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -87,6 +87,23 @@ class GasRoomSettingFragment : Fragment() {
         }
 
     }
+
+    private val mSlopeValuetextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s != null && !s.toString().equals("")) {
+                selectedSensor.slopeValue = s.toString().toFloat()
+            }
+
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -142,6 +159,7 @@ class GasRoomSettingFragment : Fragment() {
                 mBinding.gasRoomBoardSettingView.mMaxCapa_Et.setText(selectedSensor.pressure_Max.toString())
                 mBinding.gasRoomBoardSettingView.mRewardValue_Et.setText(selectedSensor.rewardValue.toString())
                 mBinding.gasRoomBoardSettingView.mZeroPoint_Et.setText(selectedSensor.zeroPoint.toString())
+                mBinding.gasRoomBoardSettingView.mSlopeValue_Et.setText(selectedSensor.slopeValue.toString())
             }
         })
         return mBinding.root
@@ -170,6 +188,9 @@ class GasRoomSettingFragment : Fragment() {
         )
         mBinding.gasRoomBoardSettingView.mRewardValue_Et.addTextChangedListener(
             mRewardValuetextWatcher
+        )
+        mBinding.gasRoomBoardSettingView.mSlopeValue_Et.addTextChangedListener(
+            mSlopeValuetextWatcher
         )
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.GASROOMMAINFRAGMENT)
@@ -214,6 +235,7 @@ class GasRoomSettingFragment : Fragment() {
                     selectedSensor.gasColor =
                         viewmodel.gasColorMap[selectedSensor.gasName]!!
                 }
+
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     Toast.makeText(context, "센서 타입을 선택해주세요.", Toast.LENGTH_SHORT)
                         .show()
@@ -241,6 +263,7 @@ class GasRoomSettingFragment : Fragment() {
                     selectedSensor.pressure_Max =
                         viewmodel.maxPressureMap[selectedSensor.sensorType]!!
                 }
+
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     Toast.makeText(context, "센서 타입을 선택해주세요.", Toast.LENGTH_SHORT)
                         .show()
@@ -253,9 +276,9 @@ class GasRoomSettingFragment : Fragment() {
         val iter = setGasSensorInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {
-                if (it.usable){
+                if (it.usable) {
                     viewmodel.GasRoomDataLiveList.add(it)
-                }else iter.remove()
+                } else iter.remove()
             }
         }
 //        if (!activity?.isSending!!) {

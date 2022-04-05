@@ -81,7 +81,7 @@
     </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
         android:scrollbars="vertical"
@@ -94,7 +94,7 @@
             android:id="@+id/steamer_RecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp" />
+            android:orientation="vertical"/>
     </androidx.core.widget.NestedScrollView>
 
     <androidx.appcompat.widget.AppCompatImageButton

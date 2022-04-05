@@ -17,6 +17,7 @@ class GasRoomBoardSettingView constructor(context: Context, attrs: AttributeSet?
     var mMaxCapa_Et: EditText
     var mRewardValue_Et: EditText
     var mZeroPoint_Et: EditText
+    var mSlopeValue_Et: EditText
     val sensorType = arrayListOf<String>(
         "WIKAI 16BAR",
         "Sensts 142PSI",
@@ -103,6 +104,7 @@ class GasRoomBoardSettingView constructor(context: Context, attrs: AttributeSet?
         mMaxCapa_Et = findViewById(R.id.et_max_capa)
         mRewardValue_Et = findViewById(R.id.et_reward_value)
         mZeroPoint_Et = findViewById(R.id.et_zero_point)
+        mSlopeValue_Et = findViewById(R.id.et_slope_value)
 
         setSensorTypeSpinner()
         setGasTypeSpinner()

@@ -94,8 +94,8 @@ class SteamerMainFragment : Fragment() {
                         GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
 
                     //아이템 높이 간격 조절
-                    val decoration_height = RecyclerDecoration_Height(25)
-                    addItemDecoration(decoration_height)
+//                    val decoration_height = RecyclerDecoration_Height(25)
+//                    addItemDecoration(decoration_height)
 
                     recycleAdapter.submitList(steamerViewData)
                     adapter = recycleAdapter
@@ -107,8 +107,8 @@ class SteamerMainFragment : Fragment() {
                         GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
 
                     //아이템 높이 간격 조절
-                    val decoration_height = RecyclerDecoration_Height(25)
-                    addItemDecoration(decoration_height)
+//                    val decoration_height = RecyclerDecoration_Height(25)
+//                    addItemDecoration(decoration_height)
 
                     recycleAdapter.submitList(steamerViewData)
                     adapter = recycleAdapter
@@ -157,7 +157,7 @@ class SteamerMainFragment : Fragment() {
         mBinding.steamerRecyclerView.apply {
             layoutManager =
                 GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-            this.setHasFixedSize(true)
+
             //아이템 높이 간격 조절
             val decoration_height = RecyclerDecoration_Height(85)
             addItemDecoration(decoration_height)

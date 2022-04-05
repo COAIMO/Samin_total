@@ -23,6 +23,8 @@ import com.coai.samin_total.GasDock.GasDockMainFragment
 import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
 import com.coai.samin_total.GasRoom.GasRoomSettingFragment
+import com.coai.samin_total.GasRoom.TimePSI
+import com.coai.samin_total.Logic.AnalyticUtils
 import com.coai.samin_total.Logic.CurrentSensorInfo
 import com.coai.samin_total.Logic.PortInfo
 import com.coai.samin_total.Logic.SaminProtocol
@@ -67,6 +69,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var wasteLiquorSettingFragment: WasteWaterSettingFragment
     private lateinit var mainViewModel: MainViewModel
 
+    val templist = mutableListOf<TimePSI>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,8 +79,8 @@ class MainActivity : AppCompatActivity() {
 
         setFragment()
         for (a in 1..5) {
-            for (b in 0..7){
-                for (c in 1..4){
+            for (b in 0..7) {
+                for (c in 1..4) {
                     val port = listOf<Int>(a, b, c)
                     val portInfo = PortInfo(a.toByte(), b.toByte(), c)
                     mainViewModel.mExPortInfo.put(port, portInfo)
@@ -137,8 +140,9 @@ class MainActivity : AppCompatActivity() {
         @SuppressLint("SimpleDateFormat")
         @RequiresApi(Build.VERSION_CODES.O)
         override fun handleMessage(msg: Message) {
-            if(msg.what == 2){
-                val dateformat: SimpleDateFormat = SimpleDateFormat("yyyy-mm-dd kk:mm:ss", Locale("ko", "KR"))
+            if (msg.what == 2) {
+                val dateformat: SimpleDateFormat =
+                    SimpleDateFormat("yyyy-mm-dd kk:mm:ss", Locale("ko", "KR"))
                 val date: Date = Date(System.currentTimeMillis())
                 val latest_time: String = dateformat.format(date)
                 mainViewModel.alertInfo.add(
@@ -270,8 +274,10 @@ class MainActivity : AppCompatActivity() {
                                     if (i.port == 1) {
                                         i.pressureLeft = sensor_1
                                         i.pressureRight = sensor_2
-                                        if(i.pressure_Min!! > i.pressureLeft!!){
-                                            i.isAlertLeft =true
+                                        if (i.pressure_Min!! > i.pressureLeft!!) {
+                                            i.isAlertLeft = true
+                                            mainViewModel.gasStorageAlert.value = true
+
                                             if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
                                                 mainViewModel.alertInfo.add(
                                                     SetAlertData(
@@ -282,11 +288,12 @@ class MainActivity : AppCompatActivity() {
                                                         portInfo.port
                                                     )
                                                 )
-                                                mainViewModel.gasStorageAlert.value = true
+//                                                mainViewModel.gasStorageAlert.value = true
                                                 mainViewModel.mExPortInfo[port]?.alert_1 = true
                                             }
-                                        }else if(i.pressure_Min!! > i.pressureRight!!){
-                                            i.isAlertRight =true
+                                        } else if (i.pressure_Min!! > i.pressureRight!!) {
+                                            i.isAlertRight = true
+                                            mainViewModel.gasStorageAlert.value = true
                                             if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
                                                 mainViewModel.alertInfo.add(
                                                     SetAlertData(
@@ -297,11 +304,10 @@ class MainActivity : AppCompatActivity() {
                                                         portInfo.port
                                                     )
                                                 )
-                                                mainViewModel.gasStorageAlert.value = true
+//                                                mainViewModel.gasStorageAlert.value = true
                                                 mainViewModel.mExPortInfo[port]?.alert_1 = true
                                             }
-                                        }
-                                        else{
+                                        } else {
                                             mainViewModel.mExPortInfo[port] = portInfo
                                             mainViewModel.mPortInfo[port] = portInfo
                                             mainViewModel.mPortInfo[port]?.alert_1 = false
@@ -311,8 +317,9 @@ class MainActivity : AppCompatActivity() {
                                     } else {
                                         i.pressureLeft = sensor_3
                                         i.pressureRight = sensor_4
-                                        if(i.pressure_Min!! > i.pressureLeft!!){
-                                            i.isAlertLeft =true
+                                        if (i.pressure_Min!! > i.pressureLeft!!) {
+                                            i.isAlertLeft = true
+                                            mainViewModel.gasStorageAlert.value = true
                                             if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
                                                 mainViewModel.alertInfo.add(
                                                     SetAlertData(
@@ -323,11 +330,12 @@ class MainActivity : AppCompatActivity() {
                                                         portInfo.port
                                                     )
                                                 )
-                                                mainViewModel.gasStorageAlert.value = true
+//                                                mainViewModel.gasStorageAlert.value = true
                                                 mainViewModel.mExPortInfo[port]?.alert_1 = true
                                             }
-                                        }else if(i.pressure_Min!! > i.pressureRight!!){
-                                            i.isAlertRight =true
+                                        } else if (i.pressure_Min!! > i.pressureRight!!) {
+                                            i.isAlertRight = true
+                                            mainViewModel.gasStorageAlert.value = true
                                             if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
                                                 mainViewModel.alertInfo.add(
                                                     SetAlertData(
@@ -338,11 +346,10 @@ class MainActivity : AppCompatActivity() {
                                                         portInfo.port
                                                     )
                                                 )
-                                                mainViewModel.gasStorageAlert.value = true
+//                                                mainViewModel.gasStorageAlert.value = true
                                                 mainViewModel.mExPortInfo[port]?.alert_1 = true
                                             }
-                                        }
-                                        else{
+                                        } else {
                                             mainViewModel.mExPortInfo[port] = portInfo
                                             mainViewModel.mPortInfo[port] = portInfo
                                             mainViewModel.mPortInfo[port]?.alert_1 = false
@@ -357,6 +364,7 @@ class MainActivity : AppCompatActivity() {
                                             i.pressure = sensor_1
                                             if (i.pressure_Min!! > i.pressure!!) {
                                                 i.isAlert = true
+                                                mainViewModel.gasStorageAlert.value = true
                                                 if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
                                                     mainViewModel.alertInfo.add(
                                                         SetAlertData(
@@ -367,7 +375,7 @@ class MainActivity : AppCompatActivity() {
                                                             portInfo.port
                                                         )
                                                     )
-                                                    mainViewModel.gasStorageAlert.value = true
+//                                                    mainViewModel.gasStorageAlert.value = true
                                                     mainViewModel.mExPortInfo[port]?.alert_1 = true
                                                 }
                                             } else {
@@ -383,6 +391,7 @@ class MainActivity : AppCompatActivity() {
                                             i.pressure = sensor_2
                                             if (i.pressure_Min!! > i.pressure!!) {
                                                 i.isAlert = true
+                                                mainViewModel.gasStorageAlert.value = true
                                                 if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
                                                     mainViewModel.alertInfo.add(
                                                         SetAlertData(
@@ -393,7 +402,7 @@ class MainActivity : AppCompatActivity() {
                                                             portInfo.port
                                                         )
                                                     )
-                                                    mainViewModel.gasStorageAlert.value = true
+//                                                    mainViewModel.gasStorageAlert.value = true
                                                     mainViewModel.mExPortInfo[port]?.alert_1 = true
                                                 }
                                             } else {
@@ -407,6 +416,8 @@ class MainActivity : AppCompatActivity() {
                                         3 -> {
                                             i.pressure = sensor_3
                                             if (i.pressure_Min!! > i.pressure!!) {
+                                                mainViewModel.gasStorageAlert.value = true
+
                                                 i.isAlert = true
                                                 if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
                                                     mainViewModel.alertInfo.add(
@@ -418,7 +429,7 @@ class MainActivity : AppCompatActivity() {
                                                             portInfo.port
                                                         )
                                                     )
-                                                    mainViewModel.gasStorageAlert.value = true
+//                                                    mainViewModel.gasStorageAlert.value = true
                                                     mainViewModel.mExPortInfo[port]?.alert_1 = true
                                                 }
                                             } else {
@@ -431,6 +442,7 @@ class MainActivity : AppCompatActivity() {
                                         }
                                         4 -> {
                                             i.pressure = sensor_4
+                                            mainViewModel.gasStorageAlert.value = true
                                             if (i.pressure_Min!! > i.pressure!!) {
                                                 i.isAlert = true
                                                 if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
@@ -443,7 +455,7 @@ class MainActivity : AppCompatActivity() {
                                                             portInfo.port
                                                         )
                                                     )
-                                                    mainViewModel.gasStorageAlert.value = true
+//                                                    mainViewModel.gasStorageAlert.value = true
                                                     mainViewModel.mExPortInfo[port]?.alert_1 = true
                                                 }
                                             } else {
@@ -463,6 +475,7 @@ class MainActivity : AppCompatActivity() {
 
                     }
                     "GasRoom" -> {
+                        val model = receiveParser.mProtocol.get(2).toInt()
                         val pin1_data = littleEndianConversion(
                             receiveParser.mProtocol.slice(7..8).toByteArray()
                         ).toFloat()
@@ -521,10 +534,54 @@ class MainActivity : AppCompatActivity() {
 
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
                                 when (i.port) {
-                                    1 -> i.pressure = sensor_1
-                                    2 -> i.pressure = sensor_2
-                                    3 -> i.pressure = sensor_3
-                                    4 -> i.pressure = sensor_4
+                                    1 -> {
+                                        i.pressure = sensor_1
+                                        val ticks = System.currentTimeMillis()
+                                        val item = TimePSI(ticks, i.pressure, model, i.id, i.port)
+                                        val basetime = ticks - System.currentTimeMillis()*1000*2
+                                        templist.add(item)
+                                        val tempremove = templist.filter {
+                                             it.Ticks < basetime
+                                        }
+                                        templist.removeAll(tempremove)
+
+//                                        val lastTicks = arrayListOf<Double>()
+//                                        for(x in tempremove){
+//                                           val items =  (x.Ticks/ System.currentTimeMillis()/100).toDouble()
+//                                            lastTicks.add(items)
+//                                        }
+                                        val lstTicks = templist.map {
+                                            (it.Ticks / System.currentTimeMillis()/100).toDouble()
+                                        }
+                                        val lstPsi = templist.map {
+                                            (it.Psi).toDouble()
+                                        }
+
+//                                        if(templist.count() > 1){
+//                                            AnalyticUtils.LinearRegression(
+//                                                lstTicks.toTypedArray(),
+//                                                lstPsi.toTypedArray(),
+//                                                0,
+//                                                lstPsi.size
+//                                            )
+//
+//                                        }
+
+
+
+                                    }
+                                    2 -> {
+                                        i.pressure = sensor_2
+
+                                    }
+                                    3 -> {
+                                        i.pressure = sensor_3
+
+                                    }
+                                    4 -> {
+                                        i.pressure = sensor_4
+
+                                    }
                                 }
                                 mainViewModel.GasRoomDataLiveList.notifyChange()
                             }
@@ -556,6 +613,7 @@ class MainActivity : AppCompatActivity() {
                                     1 -> {
                                         if (pin1_data == 0) {
                                             i.isAlert = true
+                                            mainViewModel.wasteAlert.value = true
                                             if (mainViewModel.exportInfo[port] != null
                                             ) {
                                                 if (!mainViewModel.exportInfo[port]!!.pin1_Alert) {
@@ -571,7 +629,7 @@ class MainActivity : AppCompatActivity() {
                                                             1
                                                         )
                                                     )
-                                                    mainViewModel.wasteAlert.value = true
+//                                                    mainViewModel.wasteAlert.value = true
                                                     mainViewModel.exportInfo[port]!!.pin1_Alert =
                                                         true
                                                 }
@@ -590,6 +648,7 @@ class MainActivity : AppCompatActivity() {
                                     2 -> {
                                         if (pin2_data == 0) {
                                             i.isAlert = true
+                                            mainViewModel.wasteAlert.value = true
                                             if (mainViewModel.exportInfo[port] != null) {
                                                 if (!mainViewModel.exportInfo[port]!!.pin2_Alert) {
                                                     val info = mainViewModel.exportInfo[port]
@@ -604,7 +663,7 @@ class MainActivity : AppCompatActivity() {
                                                             2
                                                         )
                                                     )
-                                                    mainViewModel.wasteAlert.value = true
+//                                                    mainViewModel.wasteAlert.value = true
                                                     mainViewModel.exportInfo[port]!!.pin2_Alert =
                                                         true
                                                 }
@@ -624,6 +683,7 @@ class MainActivity : AppCompatActivity() {
                                     3 -> {
                                         if (pin3_data == 0) {
                                             i.isAlert = true
+                                            mainViewModel.wasteAlert.value = true
                                             if (mainViewModel.exportInfo[port] != null) {
                                                 if (!mainViewModel.exportInfo[port]!!.pin3_Alert) {
                                                     val info = mainViewModel.exportInfo[port]
@@ -638,7 +698,7 @@ class MainActivity : AppCompatActivity() {
                                                             3
                                                         )
                                                     )
-                                                    mainViewModel.wasteAlert.value = true
+//                                                    mainViewModel.wasteAlert.value = true
                                                     mainViewModel.exportInfo[port]!!.pin3_Alert =
                                                         true
                                                 }
@@ -658,6 +718,7 @@ class MainActivity : AppCompatActivity() {
                                     4 -> {
                                         if (pin4_data == 0) {
                                             i.isAlert = true
+                                            mainViewModel.wasteAlert.value = true
                                             if (mainViewModel.exportInfo[port] != null) {
                                                 if (!mainViewModel.exportInfo[port]!!.pin4_Alert) {
                                                     val info = mainViewModel.exportInfo[port]
@@ -672,7 +733,7 @@ class MainActivity : AppCompatActivity() {
                                                             4
                                                         )
                                                     )
-                                                    mainViewModel.wasteAlert.value = true
+//                                                    mainViewModel.wasteAlert.value = true
                                                     mainViewModel.exportInfo[port]!!.pin4_Alert =
                                                         true
                                                 }
@@ -714,6 +775,7 @@ class MainActivity : AppCompatActivity() {
                                     val portInfo = PortInfo(4.toByte(), i.id.toByte(), i.port)
                                     if (i.setMinValue > oxygen) {
                                         i.isAlert = true
+                                        mainViewModel.oxyenAlert.value = true
                                         if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
                                             mainViewModel.alertInfo.add(
                                                 SetAlertData(
@@ -724,7 +786,7 @@ class MainActivity : AppCompatActivity() {
                                                     portInfo.port
                                                 )
                                             )
-                                            mainViewModel.oxyenAlert.value = true
+//                                            mainViewModel.oxyenAlert.value = true
                                             mainViewModel.mExPortInfo[port]?.alert_1 = true
                                         }
                                     } else {
@@ -765,36 +827,40 @@ class MainActivity : AppCompatActivity() {
                         )
                         for (i in mainViewModel.SteamerDataLiveList.value!!) {
                             if (i.id == receiveParser.mProtocol.get(3).toInt()) {
-                                val port = listOf<Int>(4, i.id, i.port)
-                                val portInfo = PortInfo(4.toByte(), i.id.toByte(), i.port)
+                                val port = listOf<Int>(5, i.id, i.port)
+                                val portInfo = PortInfo(5.toByte(), i.id.toByte(), i.port)
                                 when (i.port) {
                                     1 -> {
                                         i.isTemp = pin1_data / 33
                                         i.unit
-                                        if(pin3_data< 1000){
+                                        if (pin3_data > 1000) {
                                             i.isAlertLow = true
+                                            mainViewModel.steamerAlert.value = true
+
                                             if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
                                                 mainViewModel.alertInfo.add(
                                                     SetAlertData(
                                                         portInfo.latest_time,
                                                         portInfo.model.toInt(),
                                                         portInfo.id.toInt(),
-                                                        "수위 레벨 상한 값",
+                                                        "수위 레벨 하한 값",
                                                         portInfo.port
                                                     )
                                                 )
-                                                mainViewModel.oxyenAlert.value = true
+//                                                mainViewModel.steamerAlert.value = true
                                                 mainViewModel.mExPortInfo[port]?.alert_1 = true
                                             }
-                                        }else {
-                                            mainViewModel.mExPortInfo[port] = portInfo
-                                            mainViewModel.mPortInfo[port] = portInfo
+                                        } else {
+                                            i.isAlertLow = false
+//                                            mainViewModel.mExPortInfo[port] = portInfo
+//                                            mainViewModel.mPortInfo[port] = portInfo
                                             mainViewModel.mPortInfo[port]?.alert_1 = false
                                             mainViewModel.mExPortInfo[port]?.alert_1 = false
-                                            mainViewModel.oxyenAlert.value = false
+                                            mainViewModel.steamerAlert.value = false
                                         }
 
-                                        if(i.isTempMin > i.isTemp){
+                                        if (i.isTempMin > i.isTemp) {
+                                            mainViewModel.steamerAlert.value = true
                                             i.isAlertTemp = true
                                             if (!mainViewModel.mExPortInfo[port]!!.alert_2) {
                                                 mainViewModel.alertInfo.add(
@@ -802,19 +868,20 @@ class MainActivity : AppCompatActivity() {
                                                         portInfo.latest_time,
                                                         portInfo.model.toInt(),
                                                         portInfo.id.toInt(),
-                                                        "온도 레벨 상한 값",
+                                                        "온도 레벨 하한 값",
                                                         portInfo.port
                                                     )
                                                 )
-                                                mainViewModel.oxyenAlert.value = true
+//                                                mainViewModel.steamerAlert.value = true
                                                 mainViewModel.mExPortInfo[port]?.alert_2 = true
                                             }
-                                        }else {
-                                            mainViewModel.mExPortInfo[port] = portInfo
-                                            mainViewModel.mPortInfo[port] = portInfo
+                                        } else {
+                                            i.isAlertTemp = false
+//                                            mainViewModel.mExPortInfo[port] = portInfo
+//                                            mainViewModel.mPortInfo[port] = portInfo
                                             mainViewModel.mPortInfo[port]?.alert_2 = false
                                             mainViewModel.mExPortInfo[port]?.alert_2 = false
-                                            mainViewModel.oxyenAlert.value = false
+                                            mainViewModel.steamerAlert.value = false
                                         }
 
                                     }
@@ -822,31 +889,34 @@ class MainActivity : AppCompatActivity() {
                                         i.isTemp = pin2_data / 33
                                         i.unit
 
-                                        if(pin4_data< 1000){
+                                        if (pin4_data > 1000) {
                                             i.isAlertLow = true
+                                            mainViewModel.steamerAlert.value = true
                                             if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
                                                 mainViewModel.alertInfo.add(
                                                     SetAlertData(
                                                         portInfo.latest_time,
                                                         portInfo.model.toInt(),
                                                         portInfo.id.toInt(),
-                                                        "수위 레벨 상한 값",
+                                                        "수위 레벨 하한 값",
                                                         portInfo.port
                                                     )
                                                 )
-                                                mainViewModel.oxyenAlert.value = true
+//                                                mainViewModel.steamerAlert.value = true
                                                 mainViewModel.mExPortInfo[port]?.alert_1 = true
                                             }
-                                        }else {
-                                            mainViewModel.mExPortInfo[port] = portInfo
-                                            mainViewModel.mPortInfo[port] = portInfo
+                                        } else {
+                                            i.isAlertLow = false
+//                                            mainViewModel.mExPortInfo[port] = portInfo
+//                                            mainViewModel.mPortInfo[port] = portInfo
                                             mainViewModel.mPortInfo[port]?.alert_1 = false
                                             mainViewModel.mExPortInfo[port]?.alert_1 = false
-                                            mainViewModel.oxyenAlert.value = false
+                                            mainViewModel.steamerAlert.value = false
                                         }
 
-                                        if(i.isTempMin > i.isTemp){
+                                        if (i.isTempMin > i.isTemp) {
                                             i.isAlertTemp = true
+                                            mainViewModel.steamerAlert.value = true
                                             if (!mainViewModel.mExPortInfo[port]!!.alert_2) {
                                                 mainViewModel.alertInfo.add(
                                                     SetAlertData(
@@ -857,12 +927,13 @@ class MainActivity : AppCompatActivity() {
                                                         portInfo.port
                                                     )
                                                 )
-                                                mainViewModel.oxyenAlert.value = true
+//                                                mainViewModel.steamerAlert.value = true
                                                 mainViewModel.mExPortInfo[port]?.alert_2 = true
                                             }
-                                        }else {
-                                            mainViewModel.mExPortInfo[port] = portInfo
-                                            mainViewModel.mPortInfo[port] = portInfo
+                                        } else {
+                                            i.isAlertTemp = false
+//                                            mainViewModel.mExPortInfo[port] = portInfo
+//                                            mainViewModel.mPortInfo[port] = portInfo
                                             mainViewModel.mPortInfo[port]?.alert_2 = false
                                             mainViewModel.mExPortInfo[port]?.alert_2 = false
                                             mainViewModel.oxyenAlert.value = false

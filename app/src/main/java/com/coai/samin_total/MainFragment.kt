@@ -203,12 +203,12 @@ class MainFragment : Fragment() {
             try {
                 for (model in 1..5) {
                     for (id in 0..7) {
-//                        for (count in 0..2) {
+                        for (count in 0..2) {
                         val protocol = SaminProtocol()
                         protocol.checkModel(model.toByte(), id.toByte())
                         activity?.serialService?.sendData(protocol.mProtocol)
                         Thread.sleep(40)
-//                        }
+                        }
                     }
                 }
                 Thread.sleep(400)
@@ -269,7 +269,7 @@ class MainFragment : Fragment() {
 
             progress_Dialog = ProgressDialog(context)
             progress_Dialog.setTitle(str_tittle) //팝업창 타이틀 지정
-            progress_Dialog.setIcon(R.mipmap.ic_launcher) //팝업창 아이콘 지정
+            progress_Dialog.setIcon(R.mipmap.samin_launcher_ic) //팝업창 아이콘 지정
             progress_Dialog.setMessage(str_message) //팝업창 내용 지정
             progress_Dialog.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
             progress_Dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER) //프로그레스 원형 표시 설정
@@ -315,6 +315,8 @@ class MainFragment : Fragment() {
             if (it) {
                 mBinding.wasteLiquorMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }else{
+//                mBinding.wasteLiquorMainStatus.setAlert(false)
 
             }
         }
@@ -322,12 +324,35 @@ class MainFragment : Fragment() {
             if (it){
                 mBinding.oxygenMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }else{
+//                mBinding.oxygenMainStatus.setAlert(false)
+
             }
         }
         viewmodel.gasStorageAlert.observe(viewLifecycleOwner){
             if (it){
                 mBinding.gasDockMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }else{
+//                mBinding.gasDockMainStatus.setAlert(false)
+            }
+        }
+        viewmodel.steamerAlert.observe(viewLifecycleOwner){
+            if (it){
+                mBinding.steamerMainStatus.setAlert(true)
+                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }else{
+//                mBinding.steamerMainStatus.setAlert(false)
+
+            }
+        }
+        viewmodel.gasRoomAlert.observe(viewLifecycleOwner){
+            if (it){
+                mBinding.gasRoomMainStatus.setAlert(true)
+                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }else{
+//                mBinding.gasRoomMainStatus.setAlert(false)
+
             }
         }
 

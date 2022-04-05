@@ -139,6 +139,28 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
+        android:text="기울기조절"
+        android:textSize="15sp" />
+
+    <EditText
+        android:id="@+id/et_slope_value"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="10dp"
+        android:inputType="numberDecimal"
+        android:maxLength="4"
+        android:text="1"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_max_cap."
+        app:layout_constraintTop_toBottomOf="@id/tv_max_cap." />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
         android:text="영점조절"
         android:textSize="15sp" />
 

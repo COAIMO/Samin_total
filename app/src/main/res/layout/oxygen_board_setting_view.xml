@@ -42,7 +42,25 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="알람 산소농도 설정"
+        android:text="상한 알람 산소농도 설정"
+        android:textSize="15sp" />
+
+    <EditText
+        android:id="@+id/et_oxygen_Maxalert"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="10dp"
+        android:inputType="number"
+        android:text="23"
+        android:textSize="20sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="하한 알람 산소농도 설정"
         android:textSize="15sp" />
 
     <EditText
@@ -52,7 +70,7 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="number"
-        android:text="18"
+        android:text="20"
         android:textSize="20sp" />
 
 </LinearLayout>

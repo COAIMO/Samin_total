@@ -50,12 +50,22 @@ class OxygenSettingFragment : Fragment() {
             if (s != null && !s.toString().equals("")) {
                 selectedSensor.setMinValue = s.toString().toInt()
             }
-
         }
-
         override fun afterTextChanged(s: Editable?) {
         }
+    }
 
+    private val mOxygen_maxValueWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s != null && !s.toString().equals("")) {
+                selectedSensor.setMaxValue = s.toString().toInt()
+            }
+        }
+        override fun afterTextChanged(s: Editable?) {
+        }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,6 +114,7 @@ class OxygenSettingFragment : Fragment() {
                     )
                 )
                 mBinding.oxygenBoardSettingView.mOxygen_minValue_et.setText(selectedSensor.setMinValue.toString())
+                mBinding.oxygenBoardSettingView.mOxygen_maxValue_et.setText(selectedSensor.setMaxValue.toString())
             }
         })
 
@@ -126,6 +137,7 @@ class OxygenSettingFragment : Fragment() {
             selectedSensor.usable = mBinding.oxygenBoardSettingView.mSensorUsable_Sw.isChecked
         }
         mBinding.oxygenBoardSettingView.mOxygen_minValue_et.addTextChangedListener(mOxygen_minValueWatcher)
+        mBinding.oxygenBoardSettingView.mOxygen_maxValue_et.addTextChangedListener(mOxygen_maxValueWatcher)
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.OXYGENMAINFRAGMENT)
         }

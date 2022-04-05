@@ -8,5 +8,6 @@ data class SetOxygenViewData(
     var usable: Boolean = true,
     var isAlert: Boolean = false,
     var setValue: Int = 0,
-    var setMinValue: Int = 18
+    var setMinValue: Int = 20,
+    var setMaxValue: Int = 23,
 )

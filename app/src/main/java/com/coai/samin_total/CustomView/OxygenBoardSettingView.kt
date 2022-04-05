@@ -13,6 +13,7 @@ class OxygenBoardSettingView constructor(context: Context, attrs: AttributeSet? 
     var mSensorUsable_Sw: SwitchCompat
     var mSensorType_Sp: Spinner
     var mOxygen_minValue_et: EditText
+    var mOxygen_maxValue_et: EditText
     val sensorType = arrayListOf<String>(
         "LOX-02",
     )
@@ -52,7 +53,7 @@ class OxygenBoardSettingView constructor(context: Context, attrs: AttributeSet? 
         mSensorUsable_Sw = findViewById(R.id.sw_use_sensor)
         mSensorType_Sp = findViewById(R.id.sp_sensor_type)
         mOxygen_minValue_et = findViewById(R.id.et_oxygen_Minalert)
-
+        mOxygen_maxValue_et = findViewById(R.id.et_oxygen_Maxalert)
         setSensorTypeSpinner()
         setIsSensor()
     }
