@@ -14,7 +14,7 @@ class AnalyticUtils {
             var sumOfy: Double = 0.0
             val count: Double = (exclusiveEnd - inclusiveStart).toDouble()
 
-            for (ctr: Int in inclusiveStart..exclusiveEnd) {
+            for (ctr: Int in inclusiveStart until exclusiveEnd) {
                 sumOfx += xValus[ctr]
                 sumOfy += yValus[ctr]
             }
@@ -24,7 +24,7 @@ class AnalyticUtils {
 
             var sumxy: Double = 0.0
             var sumxsq: Double = 0.0
-            for (ctr: Int in inclusiveStart..exclusiveEnd) {
+            for (ctr: Int in inclusiveStart until exclusiveEnd) {
                 val x = xValus[ctr]
                 val y = yValus[ctr]
                 sumxy += (x - avgX) * (y - avgY)

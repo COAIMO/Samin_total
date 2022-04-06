@@ -1,6 +1,7 @@
 package com.coai.samin_total.GasDock
 
 import android.graphics.Color
+import com.coai.samin_total.MainViewModel
 import java.sql.Struct
 
 data class SetGasStorageViewData(
@@ -24,11 +25,11 @@ data class SetGasStorageViewData(
     val port: Int,
     var usable: Boolean = true,
     var ViewType: Int = 0,
-    var sensorType: String = "Sensts 142PSI",
+    var sensorType: String = "WIKAI 160BAR",
     var gasName: String = "Air",
     var gasColor: Int? = Color.parseColor("#6599CD"),
     var pressure_Min: Float? = 0f,
-    var pressure_Max: Float? = 2000f,
+    var pressure_Max: Float? = null,
     var gasIndex: Int? = null,
     var isAlert: Boolean? = false,
     var isAlertLeft: Boolean? = false,

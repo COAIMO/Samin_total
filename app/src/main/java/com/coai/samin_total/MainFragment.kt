@@ -15,10 +15,13 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminProtocol
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.ThreadSynchronied
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentMainBinding
 import com.coai.uikit.samin.status.TopStatusView
+import org.json.JSONArray
+import org.json.JSONObject
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,6 +45,7 @@ class MainFragment : Fragment() {
     private val threadSync = ThreadSynchronied()
     private lateinit var soundPool: SoundPool
     lateinit var alertdialogFragment: AlertDialogFragment
+    lateinit var shared: SaminSharedPreference
 
 
     override fun onAttach(context: Context) {
@@ -67,6 +71,7 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentMainBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
         setButtonClickEvent()
         initView()
 
@@ -88,17 +93,24 @@ class MainFragment : Fragment() {
             }.start()
         }
         udateAlert()
-//        mainViewModel.model_ID_Data.observe(viewLifecycleOwner, Observer {
-//            Log.d("태그", "model_ID_Data: $it")
-//        })
-
-        val count = 0
-//        mBinding.labIDTextView.setOnClickListener{
+        mBinding.labIDTextView.setOnClickListener {
+//            val aa = SaminSharedPreference(requireContext())
+//            val arrJson = JSONArray(aa.requestData("GasStorage"))
+//            val resultARR = ArrayList<String>()
 //
-//            val protocol = SaminProtocol()
-//            protocol.led_NormalState(0, 1)
-//            activity?.serialService?.sendData(protocol.mProtocol)
-//        }
+//            for (i in 0 until arrJson.length()) {
+//                resultARR.add(arrJson.optString(i))
+//            }
+//            for (i in resultARR) {
+//                Log.d("test", "$i")
+//            }
+
+            for ((key, value) in shared.loadhashmap()) {
+                Log.d("테스트", "key:$key, value:${HexDump.dumpHexString(value)}")
+            }
+
+
+        }
         return mBinding.root
     }
 
@@ -204,10 +216,10 @@ class MainFragment : Fragment() {
                 for (model in 1..5) {
                     for (id in 0..7) {
                         for (count in 0..2) {
-                        val protocol = SaminProtocol()
-                        protocol.checkModel(model.toByte(), id.toByte())
-                        activity?.serialService?.sendData(protocol.mProtocol)
-                        Thread.sleep(40)
+                            val protocol = SaminProtocol()
+                            protocol.checkModel(model.toByte(), id.toByte())
+                            activity?.serialService?.sendData(protocol.mProtocol)
+                            Thread.sleep(40)
                         }
                     }
                 }
@@ -227,6 +239,10 @@ class MainFragment : Fragment() {
                 activity?.callFeedback()
                 activity?.isSending = true
             }
+
+            val json = JSONObject(viewmodel.modelMap as Map<*, *>)
+            shared.saveHashMap("map", json.toString())
+
         }
         sendThread.start()
 
@@ -239,6 +255,13 @@ class MainFragment : Fragment() {
         mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
         mBinding.oxygenMainStatusLayout.visibility = View.GONE
         mBinding.steamerMainStatusLayout.visibility = View.GONE
+
+        if (!shared.loadhashmap().isNullOrEmpty()) {
+            for ((key, value) in shared.loadhashmap()) {
+                viewmodel.modelMap[key] = value
+            }
+
+        }
         for ((key, ids) in viewmodel.modelMap) {
             when (key) {
                 "GasDock" -> {
@@ -315,42 +338,42 @@ class MainFragment : Fragment() {
             if (it) {
                 mBinding.wasteLiquorMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-            }else{
+            } else {
 //                mBinding.wasteLiquorMainStatus.setAlert(false)
 
             }
         }
-        viewmodel.oxyenAlert.observe(viewLifecycleOwner){
-            if (it){
+        viewmodel.oxyenAlert.observe(viewLifecycleOwner) {
+            if (it) {
                 mBinding.oxygenMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-            }else{
+            } else {
 //                mBinding.oxygenMainStatus.setAlert(false)
 
             }
         }
-        viewmodel.gasStorageAlert.observe(viewLifecycleOwner){
-            if (it){
+        viewmodel.gasStorageAlert.observe(viewLifecycleOwner) {
+            if (it) {
                 mBinding.gasDockMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-            }else{
+            } else {
 //                mBinding.gasDockMainStatus.setAlert(false)
             }
         }
-        viewmodel.steamerAlert.observe(viewLifecycleOwner){
-            if (it){
+        viewmodel.steamerAlert.observe(viewLifecycleOwner) {
+            if (it) {
                 mBinding.steamerMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-            }else{
+            } else {
 //                mBinding.steamerMainStatus.setAlert(false)
 
             }
         }
-        viewmodel.gasRoomAlert.observe(viewLifecycleOwner){
-            if (it){
+        viewmodel.gasRoomAlert.observe(viewLifecycleOwner) {
+            if (it) {
                 mBinding.gasRoomMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-            }else{
+            } else {
 //                mBinding.gasRoomMainStatus.setAlert(false)
 
             }

@@ -18,7 +18,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.*
 import com.coai.samin_total.CustomView.SpaceDecoration
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.databinding.FragmentGasStorageSettingBinding
+import org.json.JSONArray
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -38,8 +40,6 @@ class GasStorageSettingFragment : Fragment() {
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
     private val viewmodel by activityViewModels<MainViewModel>()
-
-    //    private lateinit var recycleAdapter: AqSetting_RecycleAdapter
     private lateinit var recycleAdapter: GasStorageSetting_RecycleAdapter
     private val setGasSensorInfo = mutableListOf<SetGasStorageViewData>()
     var selectedSensor = SetGasStorageViewData("0", 0, 0)
@@ -94,13 +94,10 @@ class GasStorageSettingFragment : Fragment() {
                         selectedSensor.sensorType
                     )
                 )
-                Log.d(
-                    "테스트", "index:${
-                        viewmodel.gasSensorType.indexOf(
-                            selectedSensor.sensorType
-                        )
-                    } // 값 :${selectedSensor.sensorType}"
-                )
+
+                selectedSensor.pressure_Max =
+                    viewmodel.maxPressureMap[selectedSensor.sensorType]
+
 
                 mBinding.gasStorageBoardSettingView.mGasType_Sp.setSelection(
                     viewmodel.gasType.indexOf(
@@ -116,7 +113,7 @@ class GasStorageSettingFragment : Fragment() {
                 )
                 mBinding.gasStorageBoardSettingView.setRadioButton(selectedSensor.ViewType)
                 mBinding.gasStorageBoardSettingView.mCapaAlert_Et.setText(selectedSensor.pressure_Min.toString())
-                mBinding.gasStorageBoardSettingView.mMaxCapa_Et.setText(selectedSensor.pressure_Max.toString())
+//                mBinding.gasStorageBoardSettingView.mMaxCapa_Et.setText(selectedSensor.pressure_Max.toString())
                 mBinding.gasStorageBoardSettingView.mRewardValue_Et.setText(selectedSensor.rewardValue.toString())
                 mBinding.gasStorageBoardSettingView.mZeroPoint_Et.setText(selectedSensor.zeroPoint.toString())
 
@@ -416,10 +413,17 @@ class GasStorageSettingFragment : Fragment() {
             Log.d("테스트", "viewmodel: $i")
         }
         //위에꺼
-//        if (!activity?.isSending!!) {
-//            activity?.callFeedback()
-//            activity?.isSending = true
-//        }
+////        if (!activity?.isSending!!) {
+////            activity?.callFeedback()
+////            activity?.isSending = true
+////        }
+        val jsonArray = JSONArray()
+        for (i in viewmodel.GasStorageDataLiveList.value!!){
+            jsonArray.put(i)
+        }
+        val result = jsonArray.toString()
+        val sharedPref = SaminSharedPreference(requireContext())
+        sharedPref.saveBoardSetData("GasStorage",result)
         activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
     }
 

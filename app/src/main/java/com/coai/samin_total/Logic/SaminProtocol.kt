@@ -37,6 +37,7 @@ class SaminProtocol {
         mProtocol[5] = checkSum()
     }
 
+    @OptIn(ExperimentalUnsignedTypes::class)
     fun checkSum(): Byte {
         //if()
         // mProtocol[4]
@@ -44,16 +45,22 @@ class SaminProtocol {
         //                                   4 + 1
         //                                   ========================================
         // Checksum(1) + Mode(1) + Data(?) + Header(2) + Model(1) + ID(1) + Length(1)
-        val datacount = mProtocol[4] + 4 + 1
-        return (mProtocol.toUByteArray().take(datacount).sum()
-                - mProtocol[0].toUByte()
-                - mProtocol[1].toUByte()
-                - mProtocol[5].toUByte()
-                )
-            .toUByte()
-            .inv()
-            .toByte()
+        var result:Byte = 0.toByte()
+        try {
+            val datacount = mProtocol[4] + 4 + 1
+            result = (mProtocol.toUByteArray().take(datacount).sum()
+                    - mProtocol[0].toUByte()
+                    - mProtocol[1].toUByte()
+                    - mProtocol[5].toUByte()
+                    )
+                .toUByte()
+                .inv()
+                .toByte()
 
+        }catch (e:Exception){
+            Log.e("Error","$e")
+        }
+        return result
     }
 
     /**
