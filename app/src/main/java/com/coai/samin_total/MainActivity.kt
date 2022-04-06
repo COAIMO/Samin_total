@@ -16,6 +16,8 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProvider
+import com.coai.samin_total.DataBase.AQmdel_IDs
+import com.coai.samin_total.DataBase.SaminDataBase
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.ScanDialogFragment
 import com.coai.samin_total.Dialog.SetAlertData
@@ -39,6 +41,9 @@ import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
 import com.coai.samin_total.databinding.ActivityMainBinding
 import com.coai.uikit.GlobalUiTimer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -68,15 +73,16 @@ class MainActivity : AppCompatActivity() {
     lateinit var steamerSettingFragment: SteamerSettingFragment
     lateinit var wasteLiquorSettingFragment: WasteWaterSettingFragment
     private lateinit var mainViewModel: MainViewModel
-
+    lateinit var db: SaminDataBase
     val templist = mutableListOf<TimePSI>()
+    lateinit var aqmodel_id: AQmdel_IDs
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
+        db = SaminDataBase.getIstance(applicationContext)!!
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-
         setFragment()
         for (a in 1..5) {
             for (b in 0..7) {
@@ -198,6 +204,7 @@ class MainActivity : AppCompatActivity() {
 
                     }
                 }
+
             } else if (receiveParser.packetName == "RequestFeedBackPing") {
                 if(receiveParser.mProtocol.size == 14){
                     val aqInfo = receiveParser.mProtocol.slice(2..3)

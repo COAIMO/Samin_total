@@ -3,6 +3,7 @@ package com.coai.samin_total.Logic
 import android.annotation.SuppressLint
 import android.content.Context
 import com.coai.samin_total.GasDock.SetGasStorageViewData
+import com.coai.samin_total.Service.HexDump
 import org.json.JSONObject
 
 class SaminSharedPreference(context: Context) {
@@ -57,15 +58,16 @@ class SaminSharedPreference(context: Context) {
         return boardSetDataSharedPreference.getString(key, "")
     }
 
-    fun saveHashMap(key: String, data:String){
-        boardSetDataSharedPreference.edit().apply {
-            putString(key, data)
-            apply()
-        }
-    }
+//    fun saveHashMap(key: String, data:String){
+//        boardSetDataSharedPreference.edit().apply {
+//            putString(key, data)
+//            apply()
+//        }
+//    }
 
-    fun saveHa(hashMap: HashMap<String, ByteArray>){
-        val ss = JSONObject(hashMap as Map<*, *>?)
+    fun saveHashMap(hashMap: HashMap<String, ByteArray>){
+//        val iterator =
+        val ss = JSONObject(hashMap as Map<*, *>)
         val aa = ss.toString()
         boardSetDataSharedPreference.edit().apply {
             putString("map", aa)
@@ -81,8 +83,11 @@ class SaminSharedPreference(context: Context) {
         val keysltr: MutableIterator<String> = jsonObject.keys()
         while (keysltr.hasNext()){
             val key = keysltr.next()
-            val value = jsonObject.get(key).toString().toByteArray()
-            outMap.put(key, value)
+//            val stringvalue = jsonObject.get(key).toString().getBytes()
+
+//            val value = HexDump.hexStringToByteArray(stringvalue)
+//            val value = stringvalue.toByteArray()
+            outMap.put(key, ByteArray(1))
         }
         return outMap
     }

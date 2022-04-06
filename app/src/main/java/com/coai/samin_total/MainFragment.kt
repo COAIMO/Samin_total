@@ -13,6 +13,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import com.coai.samin_total.DataBase.AQmdel_IDs
+import com.coai.samin_total.DataBase.SaminDataBase
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
@@ -20,6 +22,9 @@ import com.coai.samin_total.Logic.ThreadSynchronied
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentMainBinding
 import com.coai.uikit.samin.status.TopStatusView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -46,7 +51,7 @@ class MainFragment : Fragment() {
     private lateinit var soundPool: SoundPool
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
-
+//    lateinit var db: SaminDataBase
 
     override fun onAttach(context: Context) {
         activity = getActivity() as MainActivity
@@ -72,6 +77,7 @@ class MainFragment : Fragment() {
     ): View? {
         mBinding = FragmentMainBinding.inflate(inflater, container, false)
         shared = SaminSharedPreference(requireContext())
+//        db = SaminDataBase.getIstance(requireContext())!!
         setButtonClickEvent()
         initView()
 
@@ -94,21 +100,13 @@ class MainFragment : Fragment() {
         }
         udateAlert()
         mBinding.labIDTextView.setOnClickListener {
-//            val aa = SaminSharedPreference(requireContext())
-//            val arrJson = JSONArray(aa.requestData("GasStorage"))
-//            val resultARR = ArrayList<String>()
-//
-//            for (i in 0 until arrJson.length()) {
-//                resultARR.add(arrJson.optString(i))
-//            }
-//            for (i in resultARR) {
-//                Log.d("test", "$i")
-//            }
+            CoroutineScope(Dispatchers.IO).launch {
+                val aa = activity?.db?.saminDao()?.getAll()
+                for (i in aa!!.iterator()) {
+                    Log.d("테스트", "model:${i.model}  ids:${HexDump.dumpHexString(i.ids)}")
+                }
 
-            for ((key, value) in shared.loadhashmap()) {
-                Log.d("테스트", "key:$key, value:${HexDump.dumpHexString(value)}")
             }
-
 
         }
         return mBinding.root
@@ -239,10 +237,14 @@ class MainFragment : Fragment() {
                 activity?.callFeedback()
                 activity?.isSending = true
             }
+//            shared.saveHashMap(viewmodel.modelMap)
 
-            val json = JSONObject(viewmodel.modelMap as Map<*, *>)
-            shared.saveHashMap("map", json.toString())
-
+            CoroutineScope(Dispatchers.IO).launch {
+                activity?.db?.saminDao()?.deleteAll()
+                for ((key, value) in viewmodel.modelMap) {
+                    activity?.db?.saminDao()?.inert(AQmdel_IDs(key, value))
+                }
+            }
         }
         sendThread.start()
 
@@ -256,12 +258,12 @@ class MainFragment : Fragment() {
         mBinding.oxygenMainStatusLayout.visibility = View.GONE
         mBinding.steamerMainStatusLayout.visibility = View.GONE
 
-        if (!shared.loadhashmap().isNullOrEmpty()) {
-            for ((key, value) in shared.loadhashmap()) {
-                viewmodel.modelMap[key] = value
-            }
-
-        }
+//        if (!shared.loadhashmap().isNullOrEmpty()) {
+//            for ((key, value) in shared.loadhashmap()) {
+//                viewmodel.modelMap[key] = value
+//            }
+//
+//        }
         for ((key, ids) in viewmodel.modelMap) {
             when (key) {
                 "GasDock" -> {
