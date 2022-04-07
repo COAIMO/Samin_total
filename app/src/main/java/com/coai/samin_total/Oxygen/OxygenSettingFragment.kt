@@ -4,10 +4,12 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -15,6 +17,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
+import com.coai.samin_total.GasDock.SetGasStorageViewData
+import com.coai.samin_total.GasRoom.SetGasRoomViewData
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
@@ -41,7 +46,7 @@ class OxygenSettingFragment : Fragment() {
     private lateinit var recycleAdapter: OxygenSetting_RecyclerAdapter
     private val setOxygenInfo = mutableListOf<SetOxygenViewData>()
     var selectedSensor = SetOxygenViewData("adsfsd", 0, 0)
-
+    lateinit var shared: SaminSharedPreference
     private val mOxygen_minValueWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
@@ -54,7 +59,6 @@ class OxygenSettingFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
         }
     }
-
     private val mOxygen_maxValueWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
@@ -67,6 +71,7 @@ class OxygenSettingFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -97,6 +102,7 @@ class OxygenSettingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentOxygenSettingBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
         initRecycler()
         initView()
         setSensorTypeSpinner()
@@ -131,6 +137,13 @@ class OxygenSettingFragment : Fragment() {
                 }
             }
         }
+        //이전 저장된 설정 데이터 불러와서 적용.
+        val exData =shared.loadBoardSetData(SaminSharedPreference.OXYGEN) as MutableList<SetOxygenViewData>
+        if (exData.isNotEmpty()){
+            for ((index, value) in exData.withIndex()){
+                setOxygenInfo.set(index, value)
+            }
+        }
         recycleAdapter.submitList(setOxygenInfo)
 
         mBinding.oxygenBoardSettingView.mSensorUsable_Sw.setOnClickListener {
@@ -143,6 +156,9 @@ class OxygenSettingFragment : Fragment() {
         }
         mBinding.saveBtn.setOnClickListener {
             setSaveData()
+        }
+        mBinding.oxygenSettingLayout.setOnClickListener {
+            hideKeyboard()
         }
     }
 
@@ -195,10 +211,13 @@ class OxygenSettingFragment : Fragment() {
                 }else iter.remove()
             }
         }
-//        if (!activity?.isSending!!) {
-//            activity?.callFeedback()
-//            activity?.isSending = true
-//        }
+        //설정값 저장
+        val buff = mutableListOf<SetOxygenViewData>()
+        for (i in viewmodel.OxygenDataLiveList.value!!) {
+            Log.d("테스트", "viewmodel: $i")
+            buff.add(i)
+        }
+        shared.saveBoardSetData(SaminSharedPreference.OXYGEN, buff)
         activity?.onFragmentChange(MainViewModel.OXYGENMAINFRAGMENT)
     }
 
@@ -220,5 +239,16 @@ class OxygenSettingFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+    private fun hideKeyboard() {
+        if (getActivity() != null && requireActivity().currentFocus != null) {
+            // 프래그먼트기 때문에 getActivity() 사용
+            val inputManager: InputMethodManager =
+                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputManager.hideSoftInputFromWindow(
+                requireActivity().currentFocus!!.windowToken,
+                InputMethodManager.HIDE_NOT_ALWAYS
+            )
+        }
     }
 }

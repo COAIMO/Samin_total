@@ -38,7 +38,7 @@ class GasDockMainFragment : Fragment() {
     private lateinit var sendThread: Thread
     var sending = false
     private val mainViewModel by activityViewModels<MainViewModel>()
-    var btn_Count = 0
+    private var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
 
 
@@ -185,21 +185,8 @@ class GasDockMainFragment : Fragment() {
         sending = false
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-//        if (gasStorageViewData.isEmpty()){
-//
-//            for (i in mainViewModel.GasStorageDataLiveList.value!!
-//
-//            ) {
-//                Log.d("테스트","Data: $i")
-//
-//                gasStorageViewData.add(i)
-//            }
-//            recycleAdapter.submitList(gasStorageViewData)
-//            recycleAdapter.notifyDataSetChanged()
-//        }
-
+        //셋팅 데이터 불러와서 뷰추가 할것!!!
         val mm = mainViewModel.GasStorageDataLiveList.value!!.sortedWith(
             compareBy({ it.id },
                 { it.port })

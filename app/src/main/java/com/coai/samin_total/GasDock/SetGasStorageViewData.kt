@@ -29,7 +29,7 @@ data class SetGasStorageViewData(
     var gasName: String = "Air",
     var gasColor: Int? = Color.parseColor("#6599CD"),
     var pressure_Min: Float? = 0f,
-    var pressure_Max: Float? = null,
+    var pressure_Max: Float? = 2320.6f,
     var gasIndex: Int? = null,
     var isAlert: Boolean? = false,
     var isAlertLeft: Boolean? = false,

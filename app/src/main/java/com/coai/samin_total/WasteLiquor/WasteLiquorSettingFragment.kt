@@ -4,16 +4,21 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
+import com.coai.samin_total.GasDock.SetGasStorageViewData
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
+import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.databinding.FragmentWasteLiquorSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -37,7 +42,7 @@ class WasteWaterSettingFragment : Fragment() {
     private lateinit var recycleAdapter: WasteLiquorSetting_RecyclerAdapter
     private val setWasteLiquorInfo = mutableListOf<SetWasteLiquorViewData>()
     var selectedSensor = SetWasteLiquorViewData("adsfsd", 0, 0)
-
+    lateinit var shared: SaminSharedPreference
     private val mWasteNameWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
@@ -84,6 +89,7 @@ class WasteWaterSettingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentWasteLiquorSettingBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
         initRecycler()
         initView()
 //        setLevelSensorTypeSpinner()
@@ -128,7 +134,7 @@ class WasteWaterSettingFragment : Fragment() {
         setWasteLiquorInfo.removeAll(setWasteLiquorInfo)
         for ((key, ids) in viewmodel.modelMap) {
             //indices 배열을 인덱스 범위
-            if (key == "Steamer") {
+            if (key == "WasteLiquor") {
                 for (id in ids.indices) {
                     for (port in 1..4) {
                         setWasteLiquorInfo.add(
@@ -140,6 +146,14 @@ class WasteWaterSettingFragment : Fragment() {
                         )
                     }
                 }
+            }
+        }
+        //이전 저장된 설정 데이터 불러와서 적용.
+        val exData =
+            shared.loadBoardSetData(SaminSharedPreference.WASTELIQUOR) as MutableList<SetWasteLiquorViewData>
+        if (exData.isNotEmpty()) {
+            for ((index, value) in exData.withIndex()) {
+                setWasteLiquorInfo.set(index, value)
             }
         }
         recycleAdapter.submitList(setWasteLiquorInfo)
@@ -156,6 +170,9 @@ class WasteWaterSettingFragment : Fragment() {
         mBinding.saveBtn.setOnClickListener {
             setSaveData()
         }
+        mBinding.wasteLiquorLayout.setOnClickListener {
+            hideKeyboard()
+        }
     }
 
     private fun setSaveData() {
@@ -168,10 +185,12 @@ class WasteWaterSettingFragment : Fragment() {
                 } else iter.remove()
             }
         }
-//        if (!activity?.isSending!!) {
-//            activity?.callFeedback()
-//            activity?.isSending = true
-//        }
+        val buff = mutableListOf<SetWasteLiquorViewData>()
+        for (i in viewmodel.WasteLiquorDataLiveList.value!!) {
+            Log.d("테스트", "viewmodel: $i")
+            buff.add(i)
+        }
+        shared.saveBoardSetData(SaminSharedPreference.WASTELIQUOR, buff)
         activity?.onFragmentChange(MainViewModel.WASTELIQUORMAINFRAGMENT)
     }
 
@@ -194,5 +213,16 @@ class WasteWaterSettingFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+    private fun hideKeyboard() {
+        if (getActivity() != null && requireActivity().currentFocus != null) {
+            // 프래그먼트기 때문에 getActivity() 사용
+            val inputManager: InputMethodManager =
+                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputManager.hideSoftInputFromWindow(
+                requireActivity().currentFocus!!.windowToken,
+                InputMethodManager.HIDE_NOT_ALWAYS
+            )
+        }
     }
 }

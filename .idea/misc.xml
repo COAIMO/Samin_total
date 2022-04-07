@@ -43,7 +43,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/sensor_ic.xml" value="0.194140625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/setting_ic.xml" value="0.27734375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/sound_ic.xml" value="0.263125" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/sound_mute_ic.xml" value="0.41796875" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/sound_mute_ic.xml" value="0.33" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/spinner_background.xml" value="0.276953125" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/spinner_design.xml" value="0.27734375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/drawable/version_ic.xml" value="0.276953125" />
@@ -83,6 +83,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_steamer_setting.xml" value="0.224609375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_version.xml" value="0.22" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_waste_liquor_main.xml" value="0.24140625" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_waste_liquor_setting.xml" value="0.351875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_waste_water_setting.xml" value="0.282421875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_board_setting_view.xml" value="0.247265625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_room_board_setting_view.xml" value="0.18" />

@@ -2,8 +2,16 @@ package com.coai.samin_total.Logic
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
 import com.coai.samin_total.GasDock.SetGasStorageViewData
+import com.coai.samin_total.GasRoom.GasRoomMainFragment
+import com.coai.samin_total.GasRoom.SetGasRoomViewData
+import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Service.HexDump
+import com.coai.samin_total.Steamer.SetSteamerViewData
+import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.json.JSONObject
 
 class SaminSharedPreference(context: Context) {
@@ -12,85 +20,148 @@ class SaminSharedPreference(context: Context) {
         const val DISABLE_PASSLOCK = 2
         const val CHANGE_PASSWORD = 3
         const val UNLOCK_PASSWORD = 4
-
+        const val GASSTORAGE = "GasStorage"
+        const val GASROOM = "GasRoom"
+        const val WASTELIQUOR = "WasteLiquor"
+        const val OXYGEN = "Oxygen"
+        const val STEAMER = "Steamer"
     }
 
     private val boardSetDataSharedPreference =
         context.getSharedPreferences("aa", Context.MODE_PRIVATE)
 
+    fun saveHashMap(hashMap: HashMap<String, ByteArray>) {
+        val mapString: String = Gson().toJson(hashMap)
+        boardSetDataSharedPreference.edit().apply {
+            putString("model_IDs", mapString)
+            apply()
+        }
+    }
 
-    fun saveBoardSetData(key: String, data: String) {
+    fun loadHashMap(): HashMap<String, ByteArray> {
+        val value = boardSetDataSharedPreference.getString("model_IDs", "")
+        val token = object : TypeToken<HashMap<String, ByteArray>>() {}.type
+        var map: HashMap<String, ByteArray> = hashMapOf()
+        if (!value.isNullOrBlank()) {
+            map = Gson().fromJson(value, token)
+        }
+        return map
+    }
+
+    fun saveGasStorageSetData(data: MutableList<SetGasStorageViewData>) {
+        val listString = Gson().toJson(data)
+        boardSetDataSharedPreference.edit().apply {
+            putString("GasStorage", listString)
+            apply()
+        }
+    }
+
+    fun loadGasStorageSetData(): MutableList<SetGasStorageViewData> {
+        val data = boardSetDataSharedPreference.getString("GasStorage", "")!!
+        var setDataList = ArrayList<SetGasStorageViewData>()
+        val token = object : TypeToken<MutableList<SetGasStorageViewData>>() {}.type
+        if (data.isNotEmpty()) {
+            setDataList = Gson().fromJson(data, token)
+        }
+        return setDataList
+    }
+
+    fun saveBoardSetData(key: String, data: Any) {
         when (key) {
             "GasStorage" -> {
+                val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
-                    putString("GasStorage", data)
+                    putString(key, listString)
                     apply()
                 }
             }
             "GasRoom" -> {
+                val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
-                    putString("GasRoom", data)
+                    putString(key, listString)
                     apply()
                 }
             }
             "WasteLiquor" -> {
+                val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
-                    putString("WasteLiquor", data)
+                    putString(key, listString)
                     apply()
                 }
             }
             "Oxygen" -> {
+                val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
-                    putString("Oxygen", data)
+                    putString(key, listString)
                     apply()
                 }
             }
             "Steamer" -> {
+                val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
-                    putString("Steamer", data)
+                    putString(key, listString)
                     apply()
                 }
             }
         }
+    }
+
+    fun loadBoardSetData(key: String): Any {
+        var setdata = Any()
+        when (key) {
+            "GasStorage" -> {
+                val data = boardSetDataSharedPreference.getString(key, "")!!
+                var setDataList = ArrayList<SetGasStorageViewData>()
+                val token = object : TypeToken<MutableList<SetGasStorageViewData>>() {}.type
+                if (data.isNotEmpty()) {
+                    setDataList = Gson().fromJson(data, token)
+                }
+                setdata = setDataList
+            }
+            "GasRoom" -> {
+                val data = boardSetDataSharedPreference.getString(key, "")!!
+                var setDataList = ArrayList<SetGasRoomViewData>()
+                val token = object : TypeToken<MutableList<SetGasRoomViewData>>() {}.type
+                if (data.isNotEmpty()) {
+                    setDataList = Gson().fromJson(data, token)
+                }
+                setdata = setDataList
+            }
+            "WasteLiquor" -> {
+                val data = boardSetDataSharedPreference.getString(key, "")!!
+                var setDataList = ArrayList<SetWasteLiquorViewData>()
+                val token = object : TypeToken<MutableList<SetWasteLiquorViewData>>() {}.type
+                if (data.isNotEmpty()) {
+                    setDataList = Gson().fromJson(data, token)
+                }
+                setdata = setDataList
+            }
+            "Oxygen" -> {
+                val data = boardSetDataSharedPreference.getString(key, "")!!
+                var setDataList = ArrayList<SetOxygenViewData>()
+                val token = object : TypeToken<MutableList<SetOxygenViewData>>() {}.type
+                if (data.isNotEmpty()) {
+                    setDataList = Gson().fromJson(data, token)
+                }
+                setdata = setDataList
+            }
+            "Steamer" -> {
+                val data = boardSetDataSharedPreference.getString(key, "")!!
+                var setDataList = ArrayList<SetSteamerViewData>()
+                val token = object : TypeToken<MutableList<SetSteamerViewData>>() {}.type
+                if (data.isNotEmpty()) {
+                    setDataList = Gson().fromJson(data, token)
+                }
+                setdata = setDataList
+            }
+        }
+        return setdata
     }
 
     fun requestData(key: String): String? {
         return boardSetDataSharedPreference.getString(key, "")
     }
 
-//    fun saveHashMap(key: String, data:String){
-//        boardSetDataSharedPreference.edit().apply {
-//            putString(key, data)
-//            apply()
-//        }
-//    }
-
-    fun saveHashMap(hashMap: HashMap<String, ByteArray>){
-//        val iterator =
-        val ss = JSONObject(hashMap as Map<*, *>)
-        val aa = ss.toString()
-        boardSetDataSharedPreference.edit().apply {
-            putString("map", aa)
-            apply()
-        }
-    }
-
-    fun loadhashmap():HashMap<String, ByteArray>{
-        val outMap = HashMap<String, ByteArray>()
-        val jsonString = boardSetDataSharedPreference.getString("map",JSONObject().toString())
-        val jsonObject = JSONObject(jsonString)
-
-        val keysltr: MutableIterator<String> = jsonObject.keys()
-        while (keysltr.hasNext()){
-            val key = keysltr.next()
-//            val stringvalue = jsonObject.get(key).toString().getBytes()
-
-//            val value = HexDump.hexStringToByteArray(stringvalue)
-//            val value = stringvalue.toByteArray()
-            outMap.put(key, ByteArray(1))
-        }
-        return outMap
-    }
 //    fun setPassLock(password: String) {
 //        sharedPref.edit().apply {
 //            putString("AdminLock", password)

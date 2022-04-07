@@ -12,10 +12,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.DataBase.AQmdel_IDs
 import com.coai.samin_total.DataBase.SaminDataBase
 import com.coai.samin_total.Dialog.AlertDialogFragment
+import com.coai.samin_total.GasDock.SetGasStorageViewData
+import com.coai.samin_total.Logic.MutableListLiveData
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.ThreadSynchronied
@@ -47,15 +51,29 @@ class MainFragment : Fragment() {
     private val viewmodel: MainViewModel by activityViewModels()
     lateinit var progress_Dialog: ProgressDialog
     lateinit var sendThread: Thread
-    private val threadSync = ThreadSynchronied()
-    private lateinit var soundPool: SoundPool
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
-//    lateinit var db: SaminDataBase
+    private lateinit var onBackPressed: OnBackPressedCallback
+    var backKeyPressedTime: Long = 0
+    private var btn_Count = 0
+
+    //    lateinit var db: SaminDataBase
 
     override fun onAttach(context: Context) {
         activity = getActivity() as MainActivity
         super.onAttach(context)
+        onBackPressed = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (System.currentTimeMillis() > backKeyPressedTime + 2500) {
+                    backKeyPressedTime = System.currentTimeMillis()
+                    return
+                }
+                if (System.currentTimeMillis() <= backKeyPressedTime + 2500) {
+                    activity?.finishAffinity()
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
     }
 
     override fun onDetach() {
@@ -81,13 +99,6 @@ class MainFragment : Fragment() {
         setButtonClickEvent()
         initView()
 
-        mBinding.btnSound.setOnClickListener {
-//            mBinding.gasDockMainStatus.setAlert(true)
-            val mediaPlayer: android.media.MediaPlayer? =
-                android.media.MediaPlayer.create(context, R.raw.tada)
-            mediaPlayer?.start()
-        }
-
         mBinding.labIDTextView.setOnClickListener {
             Thread {
                 for (id in 0..7) {
@@ -100,14 +111,15 @@ class MainFragment : Fragment() {
         }
         udateAlert()
         mBinding.labIDTextView.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                val aa = activity?.db?.saminDao()?.getAll()
-                for (i in aa!!.iterator()) {
-                    Log.d("테스트", "model:${i.model}  ids:${HexDump.dumpHexString(i.ids)}")
-                }
+            val cc = shared.loadHashMap()
+            for ((key, value) in cc) {
+                Log.d("테스트cc", "model:${key}  ids:${HexDump.dumpHexString(value)}")
+            }
+            val aa = shared.loadBoardSetData("GasStorage") as MutableList<*>
+            for (i in aa) {
+                Log.d("테스트cc", "$i")
 
             }
-
         }
         return mBinding.root
     }
@@ -192,17 +204,22 @@ class MainFragment : Fragment() {
 
             }
             mBinding.btnSound -> {
-                animate(mBinding.gasDockMainStatus)
+                sounAlert()
+                mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
+
+                if (btn_Count % 2 == 0) {
+                    btn_Count++
+
+                } else {
+                    btn_Count++
+
+
+                }
             }
             mBinding.btnScan -> {
                 scanModel()
             }
         }
-    }
-
-    fun animate(view: View) {
-        val v: TopStatusView = view as TopStatusView
-        v.setAlert(v.isAlert())
     }
 
     private fun scanModel() {
@@ -237,14 +254,7 @@ class MainFragment : Fragment() {
                 activity?.callFeedback()
                 activity?.isSending = true
             }
-//            shared.saveHashMap(viewmodel.modelMap)
-
-            CoroutineScope(Dispatchers.IO).launch {
-                activity?.db?.saminDao()?.deleteAll()
-                for ((key, value) in viewmodel.modelMap) {
-                    activity?.db?.saminDao()?.inert(AQmdel_IDs(key, value))
-                }
-            }
+            shared.saveHashMap(viewmodel.modelMap)
         }
         sendThread.start()
 
@@ -258,12 +268,12 @@ class MainFragment : Fragment() {
         mBinding.oxygenMainStatusLayout.visibility = View.GONE
         mBinding.steamerMainStatusLayout.visibility = View.GONE
 
-//        if (!shared.loadhashmap().isNullOrEmpty()) {
-//            for ((key, value) in shared.loadhashmap()) {
-//                viewmodel.modelMap[key] = value
-//            }
-//
-//        }
+        if (!shared.loadHashMap().isNullOrEmpty()) {
+            shared.loadHashMap().forEach { (key, value) ->
+                viewmodel.modelMap[key] = value
+            }
+        }
+
         for ((key, ids) in viewmodel.modelMap) {
             when (key) {
                 "GasDock" -> {
@@ -381,5 +391,11 @@ class MainFragment : Fragment() {
             }
         }
 
+    }
+
+    private fun sounAlert() {
+        val mediaPlayer: android.media.MediaPlayer? =
+            android.media.MediaPlayer.create(context, R.raw.tada)
+        mediaPlayer?.start()
     }
 }

@@ -4,10 +4,12 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -15,8 +17,11 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
+import com.coai.samin_total.GasDock.SetGasStorageViewData
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
+import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.R
 import com.coai.samin_total.databinding.FragmentSteamerSettingBinding
 
@@ -41,7 +46,7 @@ class SteamerSettingFragment : Fragment() {
     private lateinit var recycleAdapter: SteamerSetting_RecyclerAdapter
     private val setSteamerInfo = mutableListOf<SetSteamerViewData>()
     var selectedSensor = SetSteamerViewData("adsfsd", 0, 0)
-
+    lateinit var shared: SaminSharedPreference
     private val mTemp_minValueWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
@@ -57,6 +62,7 @@ class SteamerSettingFragment : Fragment() {
         }
 
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -87,6 +93,7 @@ class SteamerSettingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentSteamerSettingBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
         initRecycler()
         initView()
         setWaterSensorTypeSpinner()
@@ -144,6 +151,13 @@ class SteamerSettingFragment : Fragment() {
                 }
             }
         }
+        //이전 저장된 설정 데이터 불러와서 적용.
+        val exData =shared.loadBoardSetData(SaminSharedPreference.STEAMER) as MutableList<SetSteamerViewData>
+        if (exData.isNotEmpty()){
+            for ((index, value) in exData.withIndex()){
+                setSteamerInfo.set(index, value)
+            }
+        }
         recycleAdapter.submitList(setSteamerInfo)
 
         mBinding.steamerBoardSettingView.mSensorUsable_Sw.setOnClickListener {
@@ -158,6 +172,9 @@ class SteamerSettingFragment : Fragment() {
         mBinding.saveBtn.setOnClickListener {
             setSaveData()
         }
+        mBinding.steamerSettingLayout.setOnClickListener {
+            hideKeyboard()
+        }
     }
 
     private fun setSaveData() {
@@ -170,10 +187,13 @@ class SteamerSettingFragment : Fragment() {
                 }else iter.remove()
             }
         }
-//        if (!activity?.isSending!!) {
-//            activity?.callFeedback()
-//            activity?.isSending = true
-//        }
+        //설정값 저장
+        val buff = mutableListOf<SetSteamerViewData>()
+        for (i in viewmodel.SteamerDataLiveList.value!!) {
+            Log.d("테스트", "viewmodel: $i")
+            buff.add(i)
+        }
+        shared.saveBoardSetData(SaminSharedPreference.STEAMER, buff)
         activity?.onFragmentChange(MainViewModel.STEAMERMAINFRAGMENT)
     }
 
@@ -242,5 +262,16 @@ class SteamerSettingFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+    private fun hideKeyboard() {
+        if (getActivity() != null && requireActivity().currentFocus != null) {
+            // 프래그먼트기 때문에 getActivity() 사용
+            val inputManager: InputMethodManager =
+                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputManager.hideSoftInputFromWindow(
+                requireActivity().currentFocus!!.windowToken,
+                InputMethodManager.HIDE_NOT_ALWAYS
+            )
+        }
     }
 }

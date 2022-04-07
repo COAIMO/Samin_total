@@ -26,10 +26,7 @@ import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
 import com.coai.samin_total.GasRoom.GasRoomSettingFragment
 import com.coai.samin_total.GasRoom.TimePSI
-import com.coai.samin_total.Logic.AnalyticUtils
-import com.coai.samin_total.Logic.CurrentSensorInfo
-import com.coai.samin_total.Logic.PortInfo
-import com.coai.samin_total.Logic.SaminProtocol
+import com.coai.samin_total.Logic.*
 import com.coai.samin_total.Oxygen.OxygenMainFragment
 import com.coai.samin_total.Oxygen.OxygenSettingFragment
 import com.coai.samin_total.Service.HexDump
@@ -75,13 +72,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mainViewModel: MainViewModel
     lateinit var db: SaminDataBase
     val templist = mutableListOf<TimePSI>()
-    lateinit var aqmodel_id: AQmdel_IDs
+    lateinit var shared: SaminSharedPreference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
         db = SaminDataBase.getIstance(applicationContext)!!
+        shared = SaminSharedPreference(this)
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         setFragment()
         for (a in 1..5) {
@@ -206,7 +204,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
             } else if (receiveParser.packetName == "RequestFeedBackPing") {
-                if(receiveParser.mProtocol.size == 14){
+                if(receiveParser.mProtocol.size >= 14){
                     val aqInfo = receiveParser.mProtocol.slice(2..3)
                     val sensorData = receiveParser.mProtocol.slice(7..14).toByteArray()
                     val currentSensorInfo = CurrentSensorInfo(aqInfo, sensorData)

@@ -43,97 +43,7 @@ class GasStorageSettingFragment : Fragment() {
     private lateinit var recycleAdapter: GasStorageSetting_RecycleAdapter
     private val setGasSensorInfo = mutableListOf<SetGasStorageViewData>()
     var selectedSensor = SetGasStorageViewData("0", 0, 0)
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        activity = getActivity() as MainActivity
-        onBackPressed = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                activity!!.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
-            }
-        }
-        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        activity = null
-        onBackPressed.remove()
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        mBinding = FragmentGasStorageSettingBinding.inflate(inflater, container, false)
-        initRecycler()
-        initView()
-        setGasTypeSpinner()
-        setSensorTypeSpinner()
-        changeView()
-
-        recycleAdapter.setItemClickListener(object :
-            GasStorageSetting_RecycleAdapter.OnItemClickListener {
-            override fun onClick(v: View, position: Int) {
-//                val view = (v as AQInfoView)
-                selectedSensor = setGasSensorInfo[position]
-                mBinding.gasStorageBoardSettingView.mSensorUsable_Sw.isChecked =
-                    selectedSensor.usable
-
-                mBinding.gasStorageBoardSettingView.mSensorType_Sp.setSelection(
-                    viewmodel.gasSensorType.indexOf(
-                        selectedSensor.sensorType
-                    )
-                )
-
-                selectedSensor.pressure_Max =
-                    viewmodel.maxPressureMap[selectedSensor.sensorType]
-
-
-                mBinding.gasStorageBoardSettingView.mGasType_Sp.setSelection(
-                    viewmodel.gasType.indexOf(
-                        selectedSensor.gasName
-                    )
-                )
-                Log.d(
-                    "테스트", "index:${
-                        viewmodel.gasType.indexOf(
-                            selectedSensor.gasName
-                        )
-                    } // 값 :${selectedSensor.gasName}"
-                )
-                mBinding.gasStorageBoardSettingView.setRadioButton(selectedSensor.ViewType)
-                mBinding.gasStorageBoardSettingView.mCapaAlert_Et.setText(selectedSensor.pressure_Min.toString())
-//                mBinding.gasStorageBoardSettingView.mMaxCapa_Et.setText(selectedSensor.pressure_Max.toString())
-                mBinding.gasStorageBoardSettingView.mRewardValue_Et.setText(selectedSensor.rewardValue.toString())
-                mBinding.gasStorageBoardSettingView.mZeroPoint_Et.setText(selectedSensor.zeroPoint.toString())
-
-
-            }
-        })
-
-        mBinding.saveBtn.setOnClickListener {
-            setSaveData()
-        }
-        mBinding.gasStorageSettingLayout.setOnClickListener {
-            hideKeyboard()
-        }
-        mBinding.btnBack.setOnClickListener {
-            activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
-        }
-
-        return mBinding.root
-    }
-
+    lateinit var shared: SaminSharedPreference
     private val mCapaAlerttextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
@@ -194,6 +104,97 @@ class GasStorageSettingFragment : Fragment() {
         }
 
     }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            param1 = it.getString(ARG_PARAM1)
+            param2 = it.getString(ARG_PARAM2)
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        activity = getActivity() as MainActivity
+        onBackPressed = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                activity!!.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        activity = null
+        onBackPressed.remove()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        mBinding = FragmentGasStorageSettingBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
+        initRecycler()
+        initView()
+        setGasTypeSpinner()
+        setSensorTypeSpinner()
+        changeView()
+
+        recycleAdapter.setItemClickListener(object :
+            GasStorageSetting_RecycleAdapter.OnItemClickListener {
+            override fun onClick(v: View, position: Int) {
+//                val view = (v as AQInfoView)
+                selectedSensor = setGasSensorInfo[position]
+                mBinding.gasStorageBoardSettingView.mSensorUsable_Sw.isChecked =
+                    selectedSensor.usable
+
+                mBinding.gasStorageBoardSettingView.mSensorType_Sp.setSelection(
+                    viewmodel.gasSensorType.indexOf(
+                        selectedSensor.sensorType
+                    )
+                )
+
+                selectedSensor.pressure_Max =
+                    viewmodel.maxPressureMap[selectedSensor.sensorType]
+
+
+                mBinding.gasStorageBoardSettingView.mGasType_Sp.setSelection(
+                    viewmodel.gasType.indexOf(
+                        selectedSensor.gasName
+                    )
+                )
+                Log.d(
+                    "테스트", "index:${
+                        viewmodel.gasType.indexOf(
+                            selectedSensor.gasName
+                        )
+                    } // 값 :${selectedSensor.gasName}"
+                )
+                mBinding.gasStorageBoardSettingView.setRadioButton(selectedSensor.ViewType)
+                mBinding.gasStorageBoardSettingView.mCapaAlert_Et.setText(selectedSensor.pressure_Min.toString())
+//                mBinding.gasStorageBoardSettingView.mMaxCapa_Et.setText(selectedSensor.pressure_Max.toString())
+                mBinding.gasStorageBoardSettingView.mRewardValue_Et.setText(selectedSensor.rewardValue.toString())
+                mBinding.gasStorageBoardSettingView.mZeroPoint_Et.setText(selectedSensor.zeroPoint.toString())
+
+
+            }
+        })
+
+        mBinding.saveBtn.setOnClickListener {
+            setSaveData()
+        }
+        mBinding.gasStorageSettingLayout.setOnClickListener {
+            hideKeyboard()
+        }
+        mBinding.btnBack.setOnClickListener {
+            activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
+        }
+
+        return mBinding.root
+    }
+
 
     fun changeView() {
         mBinding.gasStorageBoardSettingView.mSensorUsable_Sw.setOnClickListener {
@@ -346,6 +347,7 @@ class GasStorageSettingFragment : Fragment() {
     private fun initView() {
         setGasSensorInfo.removeAll(setGasSensorInfo)
         viewmodel.GasStorageDataLiveList.clear(true)
+
         for ((key, ids) in viewmodel.modelMap) {
             //indices 배열을 인덱스 범위
             if (key == "GasDock") {
@@ -354,6 +356,14 @@ class GasStorageSettingFragment : Fragment() {
                         setGasSensorInfo.add(SetGasStorageViewData(key, ids.get(id).toInt(), port))
                     }
                 }
+            }
+        }
+
+        //이전 저장된 설정 데이터 불러와서 적용.
+        val exData =shared.loadBoardSetData(SaminSharedPreference.GASSTORAGE) as MutableList<SetGasStorageViewData>
+        if (exData.isNotEmpty()){
+            for ((index, value) in exData.withIndex()){
+                setGasSensorInfo.set(index, value)
             }
         }
         recycleAdapter.submitList(setGasSensorInfo)
@@ -409,21 +419,13 @@ class GasStorageSettingFragment : Fragment() {
 
             }
         }
+        //설정값 저장
+        val buff = mutableListOf<SetGasStorageViewData>()
         for (i in viewmodel.GasStorageDataLiveList.value!!) {
             Log.d("테스트", "viewmodel: $i")
+            buff.add(i)
         }
-        //위에꺼
-////        if (!activity?.isSending!!) {
-////            activity?.callFeedback()
-////            activity?.isSending = true
-////        }
-        val jsonArray = JSONArray()
-        for (i in viewmodel.GasStorageDataLiveList.value!!){
-            jsonArray.put(i)
-        }
-        val result = jsonArray.toString()
-        val sharedPref = SaminSharedPreference(requireContext())
-        sharedPref.saveBoardSetData("GasStorage",result)
+        shared.saveBoardSetData(SaminSharedPreference.GASSTORAGE, buff)
         activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
     }
 
