@@ -12,11 +12,6 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.coai.samin_total.CustomView.*
-import com.coai.samin_total.GasDock.SetGasStorageViewData
-import com.coai.samin_total.GasRoom.SetGasRoomViewData
-import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.ThreadSynchronied
 import com.coai.samin_total.databinding.FragmentAqSettingBinding
 

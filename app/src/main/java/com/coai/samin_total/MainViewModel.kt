@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
+import com.coai.samin_total.Logic.AQData
 import com.coai.samin_total.Logic.CurrentSensorInfo
 import com.coai.samin_total.Logic.MutableListLiveData
 import com.coai.samin_total.Logic.PortInfo
@@ -78,6 +79,8 @@ class MainViewModel : ViewModel() {
     val gasStorageAlert:MutableLiveData<Boolean> = MutableLiveData()
     val steamerAlert:MutableLiveData<Boolean> = MutableLiveData()
     val gasRoomAlert:MutableLiveData<Boolean> = MutableLiveData()
+
+    val testHashMap = HashMap<Short, AQData>()
 
     var labName:String = "Lab - 015"
     // 변경되지 않는 데이터를 가져올때 이름을 _ 언더스코어 없이 설정

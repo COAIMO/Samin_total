@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
     val templist = mutableListOf<TimePSI>()
     lateinit var shared: SaminSharedPreference
     val id_slopeMap = HashMap<Int, List<TimePSI>>()
+    val testmap = HashMap<Int, Boolean>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -211,6 +212,15 @@ class MainActivity : AppCompatActivity() {
                     val sensorData = receiveParser.mProtocol.slice(7..14).toByteArray()
                     val currentSensorInfo = CurrentSensorInfo(aqInfo, sensorData)
                     mainViewModel.latestSensorInfo[aqInfo] = currentSensorInfo
+
+
+                    val aqInfotest = littleEndianConversion(
+                        receiveParser.mProtocol.slice(2..3).toByteArray()
+                    ).toShort()
+                    val inputInfo = receiveParser.mProtocol.slice(7..14).toByteArray()
+                    val aqdata =
+                        AQData(receiveParser.mProtocol[2], receiveParser.mProtocol[3], inputInfo)
+                    mainViewModel.testHashMap.put(aqInfotest, aqdata)
 
                     when (receiveParser.modelName) {
 
@@ -545,8 +555,7 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                                 if (i.id == receiveParser.mProtocol.get(3).toInt()) {
-                                    val port = listOf<Int>(3, i.id, i.port)
-
+                                    val port = listOf<Int>(2, i.id, i.port)
                                     when (i.port) {
                                         1 -> {
                                             //
@@ -592,20 +601,23 @@ class MainActivity : AppCompatActivity() {
                                                 Log.d("test", "$slope")
 
                                                 if (slope < -10f) {
-                                                    Log.d("test", "key:$key //$ // 설림 $slope")
-                                                    val info = mainViewModel.exportInfo[port]
-                                                    mainViewModel.alertInfo.add(
-                                                        SetAlertData(
-                                                            info!!.getLatestTime(),
-                                                            info.getAQ_Model().toInt(),
-                                                            info.getAQ_Id().toInt(),
-                                                            "수위 초과",
-                                                            3
-                                                        )
-                                                    )
+                                                    testmap.put(key, true)
+                                                } else {
+
                                                 }
                                             }
+                                            for ((key, value) in testmap) {
+                                                if (i.id == key) {
+                                                    if (value) {
+                                                        i.isAlert = true
+                                                        mainViewModel.gasRoomAlert.value = true
 
+                                                    }else{
+
+
+                                                    }
+                                                }
+                                            }
 //                                            val lstTicks = templist.map {
 //                                                (it.Ticks / 100).toDouble()
 //                                            }
