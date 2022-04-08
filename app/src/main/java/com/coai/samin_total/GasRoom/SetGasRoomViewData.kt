@@ -18,5 +18,5 @@ data class SetGasRoomViewData(
     var zeroPoint: Float = 0f,
     var rewardValue: Float = 1f,
     var unit:Int = 0,
-    var slopeValue: Float = 1f
+    var slopeValue: Float = -10f
 )

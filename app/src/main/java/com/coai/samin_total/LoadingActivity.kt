@@ -6,9 +6,12 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
+import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Service.SerialService
 import com.coai.samin_total.databinding.ActivityLoadingBinding
+import java.util.ArrayList
 
 val loadingTAG = "로딩 태그"
 val mainTAG = "태그"
@@ -89,6 +92,45 @@ class LoadingActivity : AppCompatActivity() {
         mBinding = ActivityLoadingBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(mBinding.root)
+
+        val mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        val lst = ArrayList<SetGasRoomViewData>()
+        lst.add(SetGasRoomViewData(
+            model = "GasRoom",
+            id = 1,
+            port = 1
+        ))
+        lst.add(SetGasRoomViewData(
+            model = "GasRoom",
+            id = 1,
+            port = 2
+        ))
+        mainViewModel.GasRoomDataLiveList.addAll(lst)
+        val tmp = AQDataParser(mainViewModel)
+        var start = 0x04
+        for(t in 1..10) {
+            tmp.Parser(
+                byteArrayOf(
+                    0xff.toByte(),
+                    0xfe.toByte(),
+                    0x02.toByte(),
+                    0x01.toByte(),
+                    0x00.toByte(), // Length
+                    0x00.toByte(), // checksum
+                    0x00.toByte(), // protocol mode
+                    0x00.toByte(), // 7
+                    start.toByte(), // 8
+                    0xf0.toByte(), // 9
+                    0x00.toByte(), // 10
+                    0x00.toByte(), // 11
+                    0xf0.toByte(), // 12
+                    0x00.toByte(), // 13
+                    0xf0.toByte() // 14
+                )
+            )
+            start -= 1
+            Thread.sleep(500)
+        }
     }
 
     override fun onResume() {
