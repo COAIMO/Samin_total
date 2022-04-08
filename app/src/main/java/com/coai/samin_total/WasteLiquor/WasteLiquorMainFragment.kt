@@ -13,10 +13,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.SetAlertData
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
+import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.databinding.FragmentWasteLiquorMainBinding
 import kotlin.concurrent.thread
 
@@ -45,6 +47,8 @@ class WasteLiquorMainFragment : Fragment() {
     var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var alertThread: Thread
+    lateinit var shared: SaminSharedPreference
+
     override fun onDestroyView() {
         super.onDestroyView()
         sending = false
@@ -81,6 +85,7 @@ class WasteLiquorMainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentWasteLiquorMainBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
         initRecycler()
         initView()
         updateView()
@@ -155,6 +160,13 @@ class WasteLiquorMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
+        viewmodel.WasteLiquorDataLiveList.clear(true)
+        val wasteDataSet = shared.loadBoardSetData(SaminSharedPreference.WASTELIQUOR) as MutableList<SetWasteLiquorViewData>
+        if (wasteDataSet.isNotEmpty()){
+            for (i in wasteDataSet){
+                viewmodel.WasteLiquorDataLiveList.add(i)
+            }
+        }
         val mm =
             viewmodel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)

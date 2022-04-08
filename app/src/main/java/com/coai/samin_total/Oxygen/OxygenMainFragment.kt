@@ -20,6 +20,7 @@ import com.coai.samin_total.GasRoom.GasRoom_RecycleAdapter
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.PortInfo
 import com.coai.samin_total.Logic.SaminProtocol
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
@@ -52,6 +53,7 @@ class OxygenMainFragment : Fragment() {
     var sending = false
     var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
+    lateinit var shared: SaminSharedPreference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,6 +90,7 @@ class OxygenMainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentOxygenMainBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
         initRecycler()
         initView()
         updateView()
@@ -158,6 +161,13 @@ class OxygenMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
+        viewmodel.OxygenDataLiveList.clear(true)
+        val oxygenDataSet = shared.loadBoardSetData(SaminSharedPreference.OXYGEN) as MutableList<SetOxygenViewData>
+        if (oxygenDataSet.isNotEmpty()){
+            for (i in oxygenDataSet){
+                viewmodel.OxygenDataLiveList.add(i)
+            }
+        }
         val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()

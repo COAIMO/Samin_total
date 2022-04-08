@@ -396,7 +396,7 @@ class GasStorageSettingFragment : Fragment() {
     }
 
     private fun setSaveData() {
-        viewmodel.GasStorageDataLiveList.clear(true)
+//        viewmodel.GasStorageDataLiveList.clear(true)
         val iter = setGasSensorInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {

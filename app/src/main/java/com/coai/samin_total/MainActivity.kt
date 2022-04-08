@@ -43,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity() {
 
@@ -73,6 +74,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var db: SaminDataBase
     val templist = mutableListOf<TimePSI>()
     lateinit var shared: SaminSharedPreference
+    val id_slopeMap = HashMap<Int, List<TimePSI>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -204,7 +206,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
             } else if (receiveParser.packetName == "RequestFeedBackPing") {
-                if(receiveParser.mProtocol.size >= 14){
+                if (receiveParser.mProtocol.size >= 14) {
                     val aqInfo = receiveParser.mProtocol.slice(2..3)
                     val sensorData = receiveParser.mProtocol.slice(7..14).toByteArray()
                     val currentSensorInfo = CurrentSensorInfo(aqInfo, sensorData)
@@ -543,27 +545,44 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                                 if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+                                    val port = listOf<Int>(3, i.id, i.port)
+
                                     when (i.port) {
                                         1 -> {
+                                            //
                                             i.pressure = sensor_1
+
                                             val ticks = System.currentTimeMillis()
                                             val item =
                                                 TimePSI(ticks, i.pressure, model, i.id, i.port)
                                             val basetime = ticks - 1000 * 2
                                             templist.add(item)
+
+                                            //
+//                                            id_slopeMap[i.id] = templist
+//                                            val tempremove = id_slopeMap[i.id]!!.filter {
+//                                                it.Ticks < basetime
+//                                            }
+//                                            id_slopeMap.remove(i.id, tempremove)
+
+
                                             val tempremove = templist.filter {
                                                 it.Ticks < basetime
                                             }
                                             templist.removeAll(tempremove)
 
-                                            val lstTicks = templist.map {
-                                                (it.Ticks / 100).toDouble()
+                                            val temp = templist.filter {
+                                                it.Id == i.id
                                             }
-                                            val lstPsi = templist.map {
-                                                (it.Psi).toDouble()
-                                            }
+                                            id_slopeMap.put(i.id, temp)
 
-                                            if (lstTicks.count() > 1) {
+                                            for ((key, value) in id_slopeMap) {
+                                                val lstTicks = value.map {
+                                                    (it.Ticks / 100).toDouble()
+                                                }
+                                                val lstPsi = value.map {
+                                                    (it.Psi).toDouble()
+                                                }
                                                 val slope = AnalyticUtils.LinearRegression(
                                                     lstTicks.toTypedArray(),
                                                     lstPsi.toTypedArray(),
@@ -571,9 +590,41 @@ class MainActivity : AppCompatActivity() {
                                                     lstPsi.size
                                                 )
                                                 Log.d("test", "$slope")
-//                                            if(Double.)
-                                                slope.isInfinite()
+
+                                                if (slope < -10f) {
+                                                    Log.d("test", "key:$key //$ // 설림 $slope")
+                                                    val info = mainViewModel.exportInfo[port]
+                                                    mainViewModel.alertInfo.add(
+                                                        SetAlertData(
+                                                            info!!.getLatestTime(),
+                                                            info.getAQ_Model().toInt(),
+                                                            info.getAQ_Id().toInt(),
+                                                            "수위 초과",
+                                                            3
+                                                        )
+                                                    )
+                                                }
                                             }
+
+//                                            val lstTicks = templist.map {
+//                                                (it.Ticks / 100).toDouble()
+//                                            }
+//                                            val lstPsi = templist.map {
+//                                                (it.Psi).toDouble()
+//                                            }
+//
+//                                            if (lstTicks.count() > 1) {
+//                                                val slope = AnalyticUtils.LinearRegression(
+//                                                    lstTicks.toTypedArray(),
+//                                                    lstPsi.toTypedArray(),
+//                                                    0,
+//                                                    lstPsi.size
+//                                                )
+////                                                Log.d("test", "$slope")
+//                                                if (slope.isInfinite() && slope < -10f) {
+//
+//                                                }
+//                                            }
 
 
                                         }
@@ -592,8 +643,6 @@ class MainActivity : AppCompatActivity() {
                                     }
                                     mainViewModel.GasRoomDataLiveList.notifyChange()
                                 }
-
-
                             }
                         }
                         "WasteLiquor" -> {

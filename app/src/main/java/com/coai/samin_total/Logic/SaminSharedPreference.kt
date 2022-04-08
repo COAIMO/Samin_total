@@ -158,24 +158,16 @@ class SaminSharedPreference(context: Context) {
         return setdata
     }
 
-    fun requestData(key: String): String? {
-        return boardSetDataSharedPreference.getString(key, "")
+    fun removeBoardSetData(key: String){
+        boardSetDataSharedPreference.edit().apply {
+            remove(key)
+            apply()
+        }
     }
 
-//    fun setPassLock(password: String) {
-//        sharedPref.edit().apply {
-//            putString("AdminLock", password)
-//            apply()
-//        }
-//    }
-//
-//    fun removePassLock() {
-//        sharedPref.edit().apply {
-//            remove("AdminLock")
-//            apply()
-//        }
-//    }
-//
+
+
+
 //    fun checkPassLockSet(password: String): Boolean {
 //        return sharedPref.getString("AdminLock", initPassword) == password
 //    }

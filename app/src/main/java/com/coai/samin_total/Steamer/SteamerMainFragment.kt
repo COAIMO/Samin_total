@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.GasRoom.GasRoom_RecycleAdapter
 import com.coai.samin_total.Logic.SaminProtocol
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.Oxygen.Oxygen_RecycleAdapter
@@ -46,6 +47,7 @@ class SteamerMainFragment : Fragment() {
     var sending = false
     var btn_Count = 0
     lateinit var alertdialogFragment:AlertDialogFragment
+    lateinit var shared: SaminSharedPreference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +81,7 @@ class SteamerMainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentSteamerMainBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
         initRecycler()
         initView()
         updateView()
@@ -170,6 +173,13 @@ class SteamerMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
+        viewmodel.SteamerDataLiveList.clear(true)
+        val steamerDataSet = shared.loadBoardSetData(SaminSharedPreference.STEAMER) as MutableList<SetSteamerViewData>
+        if (steamerDataSet.isNotEmpty()){
+            for (i in steamerDataSet){
+                viewmodel.SteamerDataLiveList.add(i)
+            }
+        }
         val mm = viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()

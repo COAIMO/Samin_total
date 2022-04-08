@@ -12,6 +12,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.Dialog.AlertDialogFragment
+import com.coai.samin_total.GasDock.SetGasStorageViewData
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.RecyclerDecoration_Height
@@ -38,6 +40,7 @@ class GasRoomMainFragment : Fragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     var btn_Count = 0
     lateinit var alertdialogFragment:AlertDialogFragment
+    lateinit var shared: SaminSharedPreference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +73,7 @@ class GasRoomMainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentGasRoomMainBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
         initRecycler()
         initView()
         updateView()
@@ -154,6 +158,13 @@ class GasRoomMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
+        viewmodel.GasRoomDataLiveList.clear(true)
+        val roomDataSet = shared.loadBoardSetData(SaminSharedPreference.GASROOM) as MutableList<SetGasRoomViewData>
+        if (roomDataSet.isNotEmpty()){
+            for (i in roomDataSet){
+                viewmodel.GasRoomDataLiveList.add(i)
+            }
+        }
         val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()

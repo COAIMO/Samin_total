@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.*
 import com.coai.samin_total.Dialog.AlertDialogFragment
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.databinding.FragmentGasDockMainBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -40,7 +41,7 @@ class GasDockMainFragment : Fragment() {
     private val mainViewModel by activityViewModels<MainViewModel>()
     private var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
-
+    lateinit var shared: SaminSharedPreference
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -77,6 +78,7 @@ class GasDockMainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentGasDockMainBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
         initRecycler()
         initView()
         updateView()
@@ -187,6 +189,14 @@ class GasDockMainFragment : Fragment() {
 
     private fun initView() {
         //셋팅 데이터 불러와서 뷰추가 할것!!!
+        val storgeDataSet = shared.loadBoardSetData(SaminSharedPreference.GASSTORAGE) as MutableList<SetGasStorageViewData>
+        mainViewModel.GasStorageDataLiveList.clear(true)
+        if (storgeDataSet.isNotEmpty()){
+            for (i in storgeDataSet){
+                mainViewModel.GasStorageDataLiveList.add(i)
+            }
+        }
+
         val mm = mainViewModel.GasStorageDataLiveList.value!!.sortedWith(
             compareBy({ it.id },
                 { it.port })

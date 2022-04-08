@@ -111,15 +111,11 @@ class MainFragment : Fragment() {
         }
         udateAlert()
         mBinding.labIDTextView.setOnClickListener {
-            val cc = shared.loadHashMap()
-            for ((key, value) in cc) {
-                Log.d("테스트cc", "model:${key}  ids:${HexDump.dumpHexString(value)}")
-            }
-            val aa = shared.loadBoardSetData("GasStorage") as MutableList<*>
-            for (i in aa) {
-                Log.d("테스트cc", "$i")
-
-            }
+            shared.removeBoardSetData(SaminSharedPreference.GASSTORAGE)
+            shared.removeBoardSetData(SaminSharedPreference.GASROOM)
+            shared.removeBoardSetData(SaminSharedPreference.WASTELIQUOR)
+            shared.removeBoardSetData(SaminSharedPreference.OXYGEN)
+            shared.removeBoardSetData(SaminSharedPreference.STEAMER)
         }
         return mBinding.root
     }
