@@ -17,6 +17,7 @@ data class SetGasRoomViewData(
     var isAlert: Boolean = false,
     var zeroPoint: Float = 0f,
     var rewardValue: Float = 1f,
-    var unit:Int = 0,
-    var slopeValue: Float = -10f
+    var unit: Int = 0,
+    var slopeValue: Float = -10f,
+    val modelByte: Byte = 2
 )

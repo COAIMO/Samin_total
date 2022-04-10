@@ -39,7 +39,7 @@ class GasRoomMainFragment : Fragment() {
     private var activity: MainActivity? = null
     private val viewmodel by activityViewModels<MainViewModel>()
     var btn_Count = 0
-    lateinit var alertdialogFragment:AlertDialogFragment
+    lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,24 +112,30 @@ class GasRoomMainFragment : Fragment() {
             }
         }
         mBinding.btnUnit.setOnClickListener {
-            for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy(
-                { it.id },
-                { it.port })).withIndex()) {
+            for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(
+                compareBy(
+                    { it.id },
+                    { it.port })
+            ).withIndex()) {
                 Log.d("room 전", "인텍스: $index" + "데이더 : $data")
                 data.unit++
                 viewmodel.GasRoomDataLiveList.value!!.set(index, data)
-                if(data.unit == 3) data.unit = 0
+                if (data.unit == 3) data.unit = 0
             }
             recycleAdapter.submitList(viewmodel.GasRoomDataLiveList.value!!)
             recycleAdapter.notifyDataSetChanged()
-            for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({it.id}, {it.port})).withIndex()){
+            for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(
+                compareBy(
+                    { it.id },
+                    { it.port })
+            ).withIndex()) {
                 Log.d("room 후", "인텍스: $index" + "데이더 : $data")
 
             }
         }
         mBinding.btnAlert.setOnClickListener {
             alertdialogFragment = AlertDialogFragment()
-            val bundle =Bundle()
+            val bundle = Bundle()
             bundle.putString("model", "GasRoom")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "GasRoom")
@@ -159,21 +165,24 @@ class GasRoomMainFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
         viewmodel.GasRoomDataLiveList.clear(true)
-        val roomDataSet = shared.loadBoardSetData(SaminSharedPreference.GASROOM) as MutableList<SetGasRoomViewData>
-        if (roomDataSet.isNotEmpty()){
-            for (i in roomDataSet){
+        val roomDataSet =
+            shared.loadBoardSetData(SaminSharedPreference.GASROOM) as MutableList<SetGasRoomViewData>
+        if (roomDataSet.isNotEmpty()) {
+            for (i in roomDataSet) {
                 viewmodel.GasRoomDataLiveList.add(i)
             }
         }
-        val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
+        val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()
+        activity?.tmp?.LoadSetting()
+
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView() {
         viewmodel.GasRoomDataLiveList.observe(viewLifecycleOwner, {
-            val mm = it.sortedWith(compareBy({it.id},{it.port}))
+            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
             recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
         })

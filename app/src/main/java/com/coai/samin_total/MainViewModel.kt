@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
+import com.coai.samin_total.GasRoom.TimePSI
 import com.coai.samin_total.Logic.AQData
 import com.coai.samin_total.Logic.CurrentSensorInfo
 import com.coai.samin_total.Logic.MutableListLiveData
@@ -90,6 +91,10 @@ class MainViewModel : ViewModel() {
         get() = _model_ID_Data
 
     val modelMap = HashMap<String, ByteArray>()
+    val roomAlert_1 = HashMap<Int, Int>()
+    val roomAlert_2 = HashMap<Int, Boolean>()
+    val roomAlert_3 = HashMap<Int, Boolean>()
+    val roomAlert_4 = HashMap<Int, Boolean>()
 
     val gasColorMap = hashMapOf<String, Int>(
         "Air" to Color.parseColor("#6599CD"),

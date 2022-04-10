@@ -1,8 +1,6 @@
 package com.coai.samin_total
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.PendingIntent.getActivity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -11,12 +9,9 @@ import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProvider
-import com.coai.samin_total.DataBase.AQmdel_IDs
 import com.coai.samin_total.DataBase.SaminDataBase
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.ScanDialogFragment
@@ -31,16 +26,12 @@ import com.coai.samin_total.Oxygen.OxygenMainFragment
 import com.coai.samin_total.Oxygen.OxygenSettingFragment
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Service.SerialService
-import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerMainFragment
 import com.coai.samin_total.Steamer.SteamerSettingFragment
 import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
 import com.coai.samin_total.databinding.ActivityMainBinding
 import com.coai.uikit.GlobalUiTimer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
@@ -72,10 +63,18 @@ class MainActivity : AppCompatActivity() {
     lateinit var wasteLiquorSettingFragment: WasteWaterSettingFragment
     private lateinit var mainViewModel: MainViewModel
     lateinit var db: SaminDataBase
-    val templist = mutableListOf<TimePSI>()
+    val templist_1 = mutableListOf<TimePSI>()
+    val templist_2 = mutableListOf<TimePSI>()
+    val templist_3 = mutableListOf<TimePSI>()
+    val templist_4 = mutableListOf<TimePSI>()
+
     lateinit var shared: SaminSharedPreference
-    val id_slopeMap = HashMap<Int, List<TimePSI>>()
-    val testmap = HashMap<Int, Boolean>()
+    val id_slopeMap_1 = HashMap<Int, List<TimePSI>>()
+    val id_slopeMap_2 = HashMap<Int, List<TimePSI>>()
+    val id_slopeMap_3 = HashMap<Int, List<TimePSI>>()
+    val id_slopeMap_4 = HashMap<Int, List<TimePSI>>()
+
+    lateinit var tmp: AQDataParser
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,6 +83,8 @@ class MainActivity : AppCompatActivity() {
         db = SaminDataBase.getIstance(applicationContext)!!
         shared = SaminSharedPreference(this)
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        tmp = AQDataParser(mainViewModel)
+
         setFragment()
         for (a in 1..5) {
             for (b in 0..7) {
@@ -212,8 +213,6 @@ class MainActivity : AppCompatActivity() {
                     val sensorData = receiveParser.mProtocol.slice(7..14).toByteArray()
                     val currentSensorInfo = CurrentSensorInfo(aqInfo, sensorData)
                     mainViewModel.latestSensorInfo[aqInfo] = currentSensorInfo
-
-
                     val aqInfotest = littleEndianConversion(
                         receiveParser.mProtocol.slice(2..3).toByteArray()
                     ).toShort()
@@ -497,6 +496,8 @@ class MainActivity : AppCompatActivity() {
 
                         }
                         "GasRoom" -> {
+                            tmp.Parser(receiveParser.mProtocol)
+
                             val model = receiveParser.mProtocol.get(2).toInt()
                             val pin1_data = littleEndianConversion(
                                 receiveParser.mProtocol.slice(7..8).toByteArray()
@@ -553,108 +554,220 @@ class MainActivity : AppCompatActivity() {
                                         i.zeroPoint
                                     )
                                 }
+//                                val ticks = System.currentTimeMillis()
+//                                val item =
+//                                    TimePSI(ticks, i.pressure, model, i.id, i.port)
+//                                val basetime = ticks - 1000 * 3
+//                                templist.add(item)
+//
+//                                val tempremove = templist.filter {
+//                                    it.Ticks < basetime
+//                                }
+//                                templist.removeAll(tempremove)
 
-                                if (i.id == receiveParser.mProtocol.get(3).toInt()) {
-                                    val port = listOf<Int>(2, i.id, i.port)
-                                    when (i.port) {
-                                        1 -> {
-                                            //
-                                            i.pressure = sensor_1
-
-                                            val ticks = System.currentTimeMillis()
-                                            val item =
-                                                TimePSI(ticks, i.pressure, model, i.id, i.port)
-                                            val basetime = ticks - 1000 * 2
-                                            templist.add(item)
-
-                                            //
-//                                            id_slopeMap[i.id] = templist
-//                                            val tempremove = id_slopeMap[i.id]!!.filter {
+//                                if (i.id == receiveParser.mProtocol.get(3).toInt()) {
+//                                    when (i.port) {
+//                                        1 -> {
+//                                            i.pressure = sensor_1
+//                                            val ticks = System.currentTimeMillis()
+//                                            val item =
+//                                                TimePSI(ticks, i.pressure, model, i.id, i.port)
+//                                            val basetime = ticks - 1000 * 3
+//                                            templist_1.add(item)
+//
+//                                            val tempremove = templist_1.filter {
 //                                                it.Ticks < basetime
 //                                            }
-//                                            id_slopeMap.remove(i.id, tempremove)
-
-
-                                            val tempremove = templist.filter {
-                                                it.Ticks < basetime
-                                            }
-                                            templist.removeAll(tempremove)
-
-                                            val temp = templist.filter {
-                                                it.Id == i.id
-                                            }
-                                            id_slopeMap.put(i.id, temp)
-
-                                            for ((key, value) in id_slopeMap) {
-                                                val lstTicks = value.map {
-                                                    (it.Ticks / 100).toDouble()
-                                                }
-                                                val lstPsi = value.map {
-                                                    (it.Psi).toDouble()
-                                                }
-                                                val slope = AnalyticUtils.LinearRegression(
-                                                    lstTicks.toTypedArray(),
-                                                    lstPsi.toTypedArray(),
-                                                    0,
-                                                    lstPsi.size
-                                                )
-                                                Log.d("test", "$slope")
-
-                                                if (slope < -10f) {
-                                                    testmap.put(key, true)
-                                                } else {
-
-                                                }
-                                            }
-                                            for ((key, value) in testmap) {
-                                                if (i.id == key) {
-                                                    if (value) {
-                                                        i.isAlert = true
-                                                        mainViewModel.gasRoomAlert.value = true
-
-                                                    }else{
-
-
-                                                    }
-                                                }
-                                            }
-//                                            val lstTicks = templist.map {
-//                                                (it.Ticks / 100).toDouble()
+//                                            templist_1.removeAll(tempremove)
+//                                            val temp = templist_1.filter {
+//                                                it.Id == i.id
 //                                            }
-//                                            val lstPsi = templist.map {
-//                                                (it.Psi).toDouble()
-//                                            }
+//                                            id_slopeMap_1.put(i.id, temp)
 //
-//                                            if (lstTicks.count() > 1) {
+//                                            for ((key, value) in id_slopeMap_1) {
+//                                                val lstTicks = value.map {
+//                                                    (it.Ticks / 100).toDouble()
+//                                                }
+//                                                val lstPsi = value.map {
+//                                                    (it.Psi).toDouble()
+//                                                }
 //                                                val slope = AnalyticUtils.LinearRegression(
 //                                                    lstTicks.toTypedArray(),
 //                                                    lstPsi.toTypedArray(),
 //                                                    0,
 //                                                    lstPsi.size
 //                                                )
-////                                                Log.d("test", "$slope")
-//                                                if (slope.isInfinite() && slope < -10f) {
 //
+//                                                if (slope < -10f) {
+//                                                    Log.d("Test", "$slope")
+//                                                    mainViewModel.roomAlert_1.put(key, 1)
+////                                                    if(key == i.id){
+////                                                        i.isAlert = true
+////                                                    }
+//                                                } else {
 //                                                }
 //                                            }
-
-
-                                        }
-                                        2 -> {
-                                            i.pressure = sensor_2
-
-                                        }
-                                        3 -> {
-                                            i.pressure = sensor_3
-
-                                        }
-                                        4 -> {
-                                            i.pressure = sensor_4
-
-                                        }
-                                    }
-                                    mainViewModel.GasRoomDataLiveList.notifyChange()
-                                }
+//
+//
+////                                            val lstTicks = templist.map {
+////                                                (it.Ticks / 100).toDouble()
+////                                            }
+////                                            val lstPsi = templist.map {
+////                                                (it.Psi).toDouble()
+////                                            }
+////
+////                                            if (lstTicks.count() > 1) {
+////                                                val slope = AnalyticUtils.LinearRegression(
+////                                                    lstTicks.toTypedArray(),
+////                                                    lstPsi.toTypedArray(),
+////                                                    0,
+////                                                    lstPsi.size
+////                                                )
+//////                                                Log.d("test", "$slope")
+////                                                if (slope.isInfinite() && slope < -10f) {
+////
+////                                                }
+////                                            }
+//
+//
+//                                        }
+//                                        2 -> {
+//                                            i.pressure = sensor_2
+//                                            val ticks = System.currentTimeMillis()
+//                                            val item =
+//                                                TimePSI(ticks, i.pressure, model, i.id, i.port)
+//                                            val basetime = ticks - 1000 * 3
+//                                            templist_2.add(item)
+//
+//                                            val tempremove = templist_2.filter {
+//                                                it.Ticks < basetime
+//                                            }
+//                                            templist_2.removeAll(tempremove)
+//
+//                                            val temp = templist_2.filter {
+//                                                it.Id == i.id
+//                                            }
+//                                            id_slopeMap_2.put(i.id, temp)
+//
+//                                            for ((key, value) in id_slopeMap_2) {
+//                                                val lstTicks = value.map {
+//                                                    (it.Ticks / 100).toDouble()
+//                                                }
+//                                                val lstPsi = value.map {
+//                                                    (it.Psi).toDouble()
+//                                                }
+//                                                val slope = AnalyticUtils.LinearRegression(
+//                                                    lstTicks.toTypedArray(),
+//                                                    lstPsi.toTypedArray(),
+//                                                    0,
+//                                                    lstPsi.size
+//                                                )
+//
+//                                                if (slope < -10f) {
+//                                                    Log.d("Test", "$slope")
+//                                                    mainViewModel.roomAlert_1.put(key, 2)
+////                                                    if(key == i.id){
+////                                                        i.isAlert = true
+////                                                    }
+//                                                } else {
+//                                                }
+//                                            }
+//                                        }
+//                                        3 -> {
+//                                            i.pressure = sensor_3
+//                                            val ticks = System.currentTimeMillis()
+//                                            val item =
+//                                                TimePSI(ticks, i.pressure, model, i.id, i.port)
+//                                            val basetime = ticks - 1000 * 3
+//                                            templist_3.add(item)
+//
+//                                            val tempremove = templist_3.filter {
+//                                                it.Ticks < basetime
+//                                            }
+//                                            templist_3.removeAll(tempremove)
+//
+//                                            val temp = templist_3.filter {
+//                                                it.Id == i.id
+//                                            }
+//                                            id_slopeMap_3.put(i.id, temp)
+//
+//                                            for ((key, value) in id_slopeMap_3) {
+//                                                val lstTicks = value.map {
+//                                                    (it.Ticks / 100).toDouble()
+//                                                }
+//                                                val lstPsi = value.map {
+//                                                    (it.Psi).toDouble()
+//                                                }
+//                                                val slope = AnalyticUtils.LinearRegression(
+//                                                    lstTicks.toTypedArray(),
+//                                                    lstPsi.toTypedArray(),
+//                                                    0,
+//                                                    lstPsi.size
+//                                                )
+//
+//                                                if (slope < -10f) {
+//                                                    Log.d("Test", "$slope")
+//                                                    mainViewModel.roomAlert_1.put(key, 3)
+////                                                    if(key == i.id){
+////                                                        i.isAlert = true
+////                                                    }
+//                                                } else {
+//                                                }
+//                                            }
+//                                        }
+//                                        4 -> {
+//                                            i.pressure = sensor_4
+//                                            val ticks = System.currentTimeMillis()
+//                                            val item =
+//                                                TimePSI(ticks, i.pressure, model, i.id, i.port)
+//                                            val basetime = ticks - 1000 * 3
+//                                            templist_4.add(item)
+//
+//                                            val tempremove = templist_4.filter {
+//                                                it.Ticks < basetime
+//                                            }
+//                                            templist_4.removeAll(tempremove)
+//
+//                                            val temp = templist_4.filter {
+//                                                it.Id == i.id
+//                                            }
+//                                            id_slopeMap_4.put(i.id, temp)
+//
+//                                            for ((key, value) in id_slopeMap_4) {
+//                                                val lstTicks = value.map {
+//                                                    (it.Ticks / 100).toDouble()
+//                                                }
+//                                                val lstPsi = value.map {
+//                                                    (it.Psi).toDouble()
+//                                                }
+//                                                val slope = AnalyticUtils.LinearRegression(
+//                                                    lstTicks.toTypedArray(),
+//                                                    lstPsi.toTypedArray(),
+//                                                    0,
+//                                                    lstPsi.size
+//                                                )
+//
+//                                                if (slope < -10f) {
+//                                                    Log.d("Test", "$slope")
+//                                                    mainViewModel.roomAlert_1.put(key, 4)
+////                                                    if(key == i.id){
+////                                                        i.isAlert = true
+////                                                    }
+//                                                } else {
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                    for ((key, value) in mainViewModel.roomAlert_1) {
+//                                        if (key == i.id) {
+//                                            if (value == i.port) {
+//                                                i.isAlert = true
+//                                            }
+//                                        }
+//                                    }
+//
+//                                    mainViewModel.GasRoomDataLiveList.notifyChange()
+//                                }
                             }
                         }
                         "WasteLiquor" -> {
@@ -667,7 +780,7 @@ class MainActivity : AppCompatActivity() {
                             val pin3_data = littleEndianConversion(
                                 receiveParser.mProtocol.slice(11..12).toByteArray()
                             )
-                            val pin4_data = littleEndianConversion(
+                            val pin4_data= littleEndianConversion(
                                 receiveParser.mProtocol.slice(13..14).toByteArray()
                             )
 
@@ -830,7 +943,7 @@ class MainActivity : AppCompatActivity() {
                             try {
                                 val tempval = littleEndianConversion(
                                     receiveParser.mProtocol.slice(7..8).toByteArray()
-                                ).toUShort()
+                                )
                                 Log.d(
                                     "산소",
                                     "protocol : ${HexDump.dumpHexString(receiveParser.mProtocol)}"

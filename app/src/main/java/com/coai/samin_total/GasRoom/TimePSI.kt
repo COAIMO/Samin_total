@@ -5,5 +5,6 @@ data class TimePSI(
     var Psi: Float,
     var model: Int,
     var Id: Int,
-    var port: Int
+    var port: Int,
+    var isAlert:Boolean? =false
 )

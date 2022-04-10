@@ -46,6 +46,7 @@ class GasRoomSettingFragment : Fragment() {
     private val setGasSensorInfo = mutableListOf<SetGasRoomViewData>()
     var selectedSensor = SetGasRoomViewData("adsfsd", 0, 0)
     lateinit var shared: SaminSharedPreference
+
     private val mMaxCapatextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
