@@ -170,14 +170,25 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             }, 0)
             return
         }
-        for (i in usbDrivers!!) {
-            usbDriver = i
-            device = i.device
+        if(usbDrivers!!.count() > 0){
+            usbDriver = getFirstDevice(usbDrivers!!)
+            device = usbDriver.device
             val intent: PendingIntent =
                 PendingIntent.getBroadcast(this, 0, Intent(INTENT_ACTION_GRANT_USB), 0)
             usbManager.requestPermission(device, intent)
-            Log.d(serviceTAG, "${i.device}")
         }
+//        for (i in usbDrivers!!) {
+//            usbDriver = i
+//            device = i.device
+//            val intent: PendingIntent =
+//                PendingIntent.getBroadcast(this, 0, Intent(INTENT_ACTION_GRANT_USB), 0)
+//            usbManager.requestPermission(device, intent)
+//            Log.d(serviceTAG, "${i.device}")
+//        }
+    }
+    private fun getFirstDevice(lst : List<UsbSerialDriver>): UsbSerialDriver {
+        val sortList = lst.sortedBy { it.device.deviceName}
+        return sortList.get(0)
     }
 
     private fun serialPortConnect() {

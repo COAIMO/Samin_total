@@ -5,11 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.coai.samin_total.Logic.AutoUpdatableAdapter
 import com.coai.samin_total.R
 import com.coai.uikit.samin.status.GasRoomView
 import com.coai.uikit.samin.status.GasStorageView
+import kotlin.properties.Delegates
 
-class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+    AutoUpdatableAdapter {
 
     var setGasRoomViewData = listOf<SetGasRoomViewData>()
 
@@ -47,6 +50,7 @@ class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             gasRoomView.setGasUnit(setGasRoomViewData.unit)
             gasRoomView.setGasIndex(setGasRoomViewData.gasIndex)
             gasRoomView.setAlert(setGasRoomViewData.isAlert)
+            gasRoomView.heartBeat(setGasRoomViewData.heartbeatCount)
         }
     }
 

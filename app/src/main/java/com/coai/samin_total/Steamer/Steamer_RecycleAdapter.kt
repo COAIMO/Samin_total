@@ -4,10 +4,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.coai.samin_total.Logic.AutoUpdatableAdapter
 import com.coai.samin_total.R
 import com.coai.uikit.samin.status.SteamView
 
-class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+    AutoUpdatableAdapter {
 
     var setSteamerViewData = listOf<SetSteamerViewData>()
 
@@ -39,8 +41,9 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             steamerView.setAlertLow(setSteamerViewData.isAlertLow)
             steamerView.setTempMin(setSteamerViewData.isTempMin)
             steamerView.setTemp(setSteamerViewData.isTemp)
-//            steamerView.setTempUnit(setSteamerViewData.unit)
+            steamerView.setTempUnit(setSteamerViewData.unit)
             steamerView.setAlertTemp(setSteamerViewData.isAlertTemp)
+            steamerView.heartBeat(setSteamerViewData.heartbeatCount)
         }
     }
 

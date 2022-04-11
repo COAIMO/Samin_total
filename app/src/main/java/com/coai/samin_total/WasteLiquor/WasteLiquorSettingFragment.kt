@@ -191,6 +191,7 @@ class WasteWaterSettingFragment : Fragment() {
             buff.add(i)
         }
         shared.saveBoardSetData(SaminSharedPreference.WASTELIQUOR, buff)
+        activity?.tmp?.LoadSetting()
         activity?.onFragmentChange(MainViewModel.WASTELIQUORMAINFRAGMENT)
     }
 

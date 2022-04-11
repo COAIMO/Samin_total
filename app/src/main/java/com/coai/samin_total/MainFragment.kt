@@ -1,11 +1,11 @@
 package com.coai.samin_total
 
 import android.app.ProgressDialog
-import android.content.Context
-import android.content.DialogInterface
-import android.media.SoundPool
-import android.os.Build
+import android.content.*
 import android.os.Bundle
+import android.os.Handler
+import android.os.IBinder
+import android.os.Message
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,24 +13,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.GridLayoutManager
-import com.coai.samin_total.DataBase.AQmdel_IDs
-import com.coai.samin_total.DataBase.SaminDataBase
+import com.coai.libmodbus.service.SaminModbusService
+import com.coai.libsaminmodbus.model.ModelMonitorValues
+import com.coai.libsaminmodbus.model.ObserveModelMonitorValues
 import com.coai.samin_total.Dialog.AlertDialogFragment
-import com.coai.samin_total.GasDock.SetGasStorageViewData
-import com.coai.samin_total.Logic.MutableListLiveData
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
-import com.coai.samin_total.Logic.ThreadSynchronied
-import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentMainBinding
-import com.coai.uikit.samin.status.TopStatusView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.json.JSONArray
-import org.json.JSONObject
+import java.lang.ref.WeakReference
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -200,7 +192,7 @@ class MainFragment : Fragment() {
 
             }
             mBinding.btnSound -> {
-                sounAlert()
+                soundAlert()
                 mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
 
                 if (btn_Count % 2 == 0) {
@@ -219,9 +211,9 @@ class MainFragment : Fragment() {
     }
 
     private fun scanModel() {
+        activity?.isSending =false
         getProgressShow()
         viewmodel.removeModelMap()
-
         sendThread = Thread {
             try {
                 for (model in 1..5) {
@@ -251,6 +243,7 @@ class MainFragment : Fragment() {
                 activity?.isSending = true
             }
             shared.saveHashMap(viewmodel.modelMap)
+
         }
         sendThread.start()
 
@@ -347,7 +340,7 @@ class MainFragment : Fragment() {
                 mBinding.wasteLiquorMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
-//                mBinding.wasteLiquorMainStatus.setAlert(false)
+                mBinding.wasteLiquorMainStatus.setAlert(false)
 
             }
         }
@@ -356,7 +349,7 @@ class MainFragment : Fragment() {
                 mBinding.oxygenMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
-//                mBinding.oxygenMainStatus.setAlert(false)
+                mBinding.oxygenMainStatus.setAlert(false)
 
             }
         }
@@ -365,7 +358,7 @@ class MainFragment : Fragment() {
                 mBinding.gasDockMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
-//                mBinding.gasDockMainStatus.setAlert(false)
+                mBinding.gasDockMainStatus.setAlert(false)
             }
         }
         viewmodel.steamerAlert.observe(viewLifecycleOwner) {
@@ -373,7 +366,7 @@ class MainFragment : Fragment() {
                 mBinding.steamerMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
-//                mBinding.steamerMainStatus.setAlert(false)
+                mBinding.steamerMainStatus.setAlert(false)
 
             }
         }
@@ -382,16 +375,17 @@ class MainFragment : Fragment() {
                 mBinding.gasRoomMainStatus.setAlert(true)
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
-//                mBinding.gasRoomMainStatus.setAlert(false)
+                mBinding.gasRoomMainStatus.setAlert(false)
 
             }
         }
 
     }
 
-    private fun sounAlert() {
+    private fun soundAlert() {
         val mediaPlayer: android.media.MediaPlayer? =
             android.media.MediaPlayer.create(context, R.raw.tada)
         mediaPlayer?.start()
     }
+
 }

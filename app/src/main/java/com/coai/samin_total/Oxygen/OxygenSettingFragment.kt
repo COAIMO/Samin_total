@@ -218,6 +218,7 @@ class OxygenSettingFragment : Fragment() {
             buff.add(i)
         }
         shared.saveBoardSetData(SaminSharedPreference.OXYGEN, buff)
+        activity?.tmp?.LoadSetting()
         activity?.onFragmentChange(MainViewModel.OXYGENMAINFRAGMENT)
     }
 

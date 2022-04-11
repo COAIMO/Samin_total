@@ -13,8 +13,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.*
 import com.coai.samin_total.Dialog.AlertDialogFragment
+import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.databinding.FragmentGasDockMainBinding
+import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,6 +44,8 @@ class GasDockMainFragment : Fragment() {
     private var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
+    private var timerTaskRefresh: Timer? = null
+    var heartbeatCount: UByte = 0u
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -71,6 +75,22 @@ class GasDockMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
+            heartbeatCount++
+            for (tmp in mainViewModel.GasStorageDataLiveList.value!!.iterator()) {
+                tmp.heartbeatCount = heartbeatCount
+            }
+
+            var tmp = (mBinding.gasStorageRecyclerView.layoutManager as GridLayoutManager)
+            activity?.runOnUiThread() {
+                try {
+                    val start = tmp.findFirstVisibleItemPosition()
+                    val end = tmp.findLastVisibleItemPosition()
+                    recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
+                } catch (ex: Exception) {
+                }
+            }
+        }
     }
 
     override fun onCreateView(
@@ -97,9 +117,10 @@ class GasDockMainFragment : Fragment() {
                     val decoration_height = RecyclerDecoration_Height(25)
                     addItemDecoration(decoration_height)
 
-                    recycleAdapter.submitList(gasStorageViewData)
                     adapter = recycleAdapter
                 }
+                timerTaskRefresh?.cancel()
+
             } else {
                 btn_Count++
                 mBinding.gasStorageRecyclerView.apply {
@@ -110,7 +131,6 @@ class GasDockMainFragment : Fragment() {
                     val decoration_height = RecyclerDecoration_Height(25)
                     addItemDecoration(decoration_height)
 
-                    recycleAdapter.submitList(gasStorageViewData)
                     adapter = recycleAdapter
                 }
 
@@ -125,7 +145,7 @@ class GasDockMainFragment : Fragment() {
                 Log.d("gasdock 전", "인텍스: $index" + "데이더 : $data")
                 data.unit++
                 mainViewModel.GasStorageDataLiveList.value!!.set(index, data)
-                if (data.unit == 3) data.unit = 0
+                if (data.unit == 4) data.unit = 0
             }
             recycleAdapter.submitList(mainViewModel.GasStorageDataLiveList.value!!)
             recycleAdapter.notifyDataSetChanged()
@@ -140,7 +160,7 @@ class GasDockMainFragment : Fragment() {
         }
         mBinding.btnAlert.setOnClickListener {
             alertdialogFragment = AlertDialogFragment()
-            val bundle =Bundle()
+            val bundle = Bundle()
             bundle.putString("model", "GasStorage")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "GasStorage")
@@ -150,35 +170,7 @@ class GasDockMainFragment : Fragment() {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
         }
 
-//        mBinding.gasStorageRecyclerView.apply {
-//            gasStorageViewData.apply {
-//                add(
-//                    SetGasdockViewData(
-//                        0,
-//                        "O2",
-//                        Color.parseColor("#6599CD"),
-//                        200f,
-//                        2000f,
-//                        gasIndex = 0,
-//                        pressure = 0f,
-//                    )
-//                )
-//            }
-//        }
-//
-//        mainViewModel.GasStorageData.observe(viewLifecycleOwner,{
-//            recycleAdapter.setGasdockViewData.set(0, SetGasdockViewData(0,
-//                "O2",
-//                Color.parseColor("#6599CD"),
-//                200f,
-//                2000f,
-//                gasIndex = 0,
-//                pressure = it)
-//            )
-//            recycleAdapter.notifyDataSetChanged()
-//
-//        })
-        udateAlert()
+        updateAlert()
         return mBinding.root
     }
 
@@ -189,10 +181,11 @@ class GasDockMainFragment : Fragment() {
 
     private fun initView() {
         //셋팅 데이터 불러와서 뷰추가 할것!!!
-        val storgeDataSet = shared.loadBoardSetData(SaminSharedPreference.GASSTORAGE) as MutableList<SetGasStorageViewData>
+        val storgeDataSet =
+            shared.loadBoardSetData(SaminSharedPreference.GASSTORAGE) as MutableList<SetGasStorageViewData>
         mainViewModel.GasStorageDataLiveList.clear(true)
-        if (storgeDataSet.isNotEmpty()){
-            for (i in storgeDataSet){
+        if (storgeDataSet.isNotEmpty()) {
+            for (i in storgeDataSet) {
                 mainViewModel.GasStorageDataLiveList.add(i)
             }
         }
@@ -203,19 +196,13 @@ class GasDockMainFragment : Fragment() {
         )
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()
+        activity?.tmp?.LoadSetting()
+
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView() {
         mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner) {
-//            for ((index, data) in it.sortedWith(compareBy({it.id},{it.port})).withIndex()){
-//                Log.d("테스트","인텍스: $index" + "데이더 : $data")
-//
-//                gasStorageViewData.set(index, data)
-//            }
-//            recycleAdapter.submitList(gasStorageViewData)
-//            recycleAdapter.notifyDataSetChanged()
-
             val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
             recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
@@ -267,7 +254,7 @@ class GasDockMainFragment : Fragment() {
 
     }
 
-    private fun udateAlert() {
+    private fun updateAlert() {
         mainViewModel.gasStorageAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)

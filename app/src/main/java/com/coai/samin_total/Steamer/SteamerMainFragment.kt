@@ -22,6 +22,7 @@ import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
 import com.coai.samin_total.databinding.FragmentSteamerMainBinding
+import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -48,6 +49,8 @@ class SteamerMainFragment : Fragment() {
     var btn_Count = 0
     lateinit var alertdialogFragment:AlertDialogFragment
     lateinit var shared: SaminSharedPreference
+    private var timerTaskRefresh: Timer? = null
+    var heartbeatCount: UByte = 0u
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +77,25 @@ class SteamerMainFragment : Fragment() {
         onBackPressed.remove()
     }
 
+    override fun onResume() {
+        super.onResume()
+        timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
+            heartbeatCount++
+            for (tmp in viewmodel.SteamerDataLiveList.value!!.iterator()) {
+                tmp.heartbeatCount = heartbeatCount
+            }
+
+            var tmp = (mBinding.steamerRecyclerView.layoutManager as GridLayoutManager)
+            activity?.runOnUiThread() {
+                try {
+                    val start = tmp.findFirstVisibleItemPosition()
+                    val end = tmp.findLastVisibleItemPosition()
+                    recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
+                } catch (ex: Exception) {
+                }
+            }
+        }
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
@@ -183,6 +205,8 @@ class SteamerMainFragment : Fragment() {
         val mm = viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()
+        activity?.tmp?.LoadSetting()
+
     }
 
     @SuppressLint("NotifyDataSetChanged")

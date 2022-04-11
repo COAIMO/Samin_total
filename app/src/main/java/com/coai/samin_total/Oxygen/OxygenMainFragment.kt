@@ -27,6 +27,7 @@ import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentOxygenMainBinding
+import java.util.*
 import kotlin.concurrent.thread
 
 // TODO: Rename parameter arguments, choose names that match
@@ -54,6 +55,8 @@ class OxygenMainFragment : Fragment() {
     var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
+    private var timerTaskRefresh: Timer? = null
+    var heartbeatCount: UByte = 0u
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +86,26 @@ class OxygenMainFragment : Fragment() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
+            heartbeatCount++
+            for (tmp in viewmodel.OxygenDataLiveList.value!!.iterator()) {
+                tmp.heartbeatCount = heartbeatCount
+            }
+
+            var tmp = (mBinding.oxygenRecyclerView.layoutManager as GridLayoutManager)
+            activity?.runOnUiThread() {
+                try {
+                    val start = tmp.findFirstVisibleItemPosition()
+                    val end = tmp.findLastVisibleItemPosition()
+                    recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
+                } catch (ex: Exception) {
+                }
+            }
+        }
     }
 
     override fun onCreateView(
@@ -171,6 +194,7 @@ class OxygenMainFragment : Fragment() {
         val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()
+        activity?.tmp?.LoadSetting()
     }
 
     @SuppressLint("NotifyDataSetChanged")

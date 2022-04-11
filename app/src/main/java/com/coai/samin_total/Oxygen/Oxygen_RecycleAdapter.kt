@@ -5,12 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.coai.samin_total.Logic.AutoUpdatableAdapter
 import com.coai.samin_total.R
 import com.coai.uikit.samin.status.GasRoomView
 import com.coai.uikit.samin.status.GasStorageView
 import com.coai.uikit.samin.status.OxyzenView
 
-class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+    AutoUpdatableAdapter {
 
     var setOxygenViewData = listOf<SetOxygenViewData>()
 
@@ -42,10 +44,11 @@ class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
             view.findViewById<OxyzenView>(R.id.oxygen_view)
 
         fun bind(setOxygenViewData: SetOxygenViewData) {
-//            oxygenView.id = setOxygenViewData.id
+            oxygenView.id = setOxygenViewData.id
             oxygenView.setAlert(setOxygenViewData.isAlert)
             oxygenView.setOxyzenData(setOxygenViewData.setValue)
             oxygenView.setMinOxyzen(setOxygenViewData.setMinValue)
+            oxygenView.heartBeat(setOxygenViewData.heartbeatCount)
         }
     }
 

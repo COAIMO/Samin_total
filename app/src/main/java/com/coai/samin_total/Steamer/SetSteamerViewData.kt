@@ -14,5 +14,8 @@ data class SetSteamerViewData(
     var isTemp: Int = 0,
     var temp_SensorType: String = "SST2109",
     var level_SensorType: String = "BS1",
-    var unit:Int = 0
+    var unit:Int = 0,
+    val modelByte: Byte = 5,
+    var heartbeatCount : UByte = 0u
+
 )

@@ -20,6 +20,7 @@ import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.databinding.FragmentWasteLiquorMainBinding
+import java.util.*
 import kotlin.concurrent.thread
 
 // TODO: Rename parameter arguments, choose names that match
@@ -48,6 +49,8 @@ class WasteLiquorMainFragment : Fragment() {
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var alertThread: Thread
     lateinit var shared: SaminSharedPreference
+    private var timerTaskRefresh: Timer? = null
+    var heartbeatCount: UByte = 0u
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -77,6 +80,26 @@ class WasteLiquorMainFragment : Fragment() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
+            heartbeatCount++
+            for (tmp in viewmodel.WasteLiquorDataLiveList.value!!.iterator()) {
+                tmp.heartbeatCount = heartbeatCount
+            }
+
+            var tmp = (mBinding.wasteLiquorRecyclerView.layoutManager as GridLayoutManager)
+            activity?.runOnUiThread() {
+                try {
+                    val start = tmp.findFirstVisibleItemPosition()
+                    val end = tmp.findLastVisibleItemPosition()
+                    recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
+                } catch (ex: Exception) {
+                }
+            }
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -171,6 +194,7 @@ class WasteLiquorMainFragment : Fragment() {
             viewmodel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()
+        activity?.tmp?.LoadSetting()
     }
 
     @SuppressLint("NotifyDataSetChanged")

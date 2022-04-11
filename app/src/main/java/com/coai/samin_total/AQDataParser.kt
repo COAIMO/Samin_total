@@ -1,6 +1,7 @@
 package com.coai.samin_total
 
 import android.util.Log
+import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.GasRoom.TimePSI
@@ -8,10 +9,16 @@ import com.coai.samin_total.Logic.AnalyticUtils
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.Exception
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class AQDataParser(viewModel: MainViewModel) {
     val hmapAQPortSettings = HashMap<Int, Any>()
     val viewModel: MainViewModel = viewModel
+    val setAQport = HashMap<Int, Any>()
 
 
     // 최종 숫신시간
@@ -19,6 +26,8 @@ class AQDataParser(viewModel: MainViewModel) {
     val hmapPsis = HashMap<Int, ArrayList<TimePSI>>()
 
     val alertBase = HashMap<Int, Float>()
+    val alertMap = HashMap<Int, Boolean>()
+    val alertMap2 = HashMap<Int, Boolean>()
 
     /**
      * 바이트배열 Int 변환
@@ -37,6 +46,7 @@ class AQDataParser(viewModel: MainViewModel) {
     fun Clear() {
         synchronized(this) {
             hmapAQPortSettings.clear()
+            setAQport.clear()
             hmapLastedDate.clear()
 
             for (t in hmapPsis.values)
@@ -52,7 +62,18 @@ class AQDataParser(viewModel: MainViewModel) {
     fun LoadSetting() {
         Clear()
         // 각 설정별 처리
-
+        for (tmp in viewModel.GasStorageDataLiveList.value!!) {
+            val key = littleEndianConversion(
+                byteArrayOf(
+                    tmp.modelByte,
+                    tmp.id.toByte(),
+                    tmp.port.toByte()
+                )
+            )
+            hmapAQPortSettings[key] = tmp.copy()
+            setAQport[key] = tmp
+            hmapLastedDate[key] = System.currentTimeMillis()
+        }
         // 룸 센서에 대해서만 처리
         for (tmp in viewModel.GasRoomDataLiveList.value!!) {
             val key = littleEndianConversion(
@@ -63,6 +84,46 @@ class AQDataParser(viewModel: MainViewModel) {
                 )
             )
             hmapAQPortSettings[key] = tmp.copy()
+            setAQport[key] = tmp
+            hmapLastedDate[key] = System.currentTimeMillis()
+        }
+
+        for (tmp in viewModel.WasteLiquorDataLiveList.value!!) {
+            val key = littleEndianConversion(
+                byteArrayOf(
+                    tmp.modelByte,
+                    tmp.id.toByte(),
+                    tmp.port.toByte()
+                )
+            )
+            hmapAQPortSettings[key] = tmp.copy()
+            setAQport[key] = tmp
+            hmapLastedDate[key] = System.currentTimeMillis()
+        }
+
+        for (tmp in viewModel.OxygenDataLiveList.value!!) {
+            val key = littleEndianConversion(
+                byteArrayOf(
+                    tmp.modelByte,
+                    tmp.id.toByte(),
+                    tmp.port.toByte()
+                )
+            )
+            hmapAQPortSettings[key] = tmp.copy()
+            setAQport[key] = tmp
+            hmapLastedDate[key] = System.currentTimeMillis()
+        }
+
+        for (tmp in viewModel.SteamerDataLiveList.value!!) {
+            val key = littleEndianConversion(
+                byteArrayOf(
+                    tmp.modelByte,
+                    tmp.id.toByte(),
+                    tmp.port.toByte()
+                )
+            )
+            hmapAQPortSettings[key] = tmp.copy()
+            setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
         }
     }
@@ -92,6 +153,161 @@ class AQDataParser(viewModel: MainViewModel) {
      * 가스 룸 로직
      * Todo: 에러 체크 기능 필요. 정상화 체크 필요.
      */
+    private fun ProcessSingleGasStorage(id: Int, data: Int) {
+        val tmp1 = hmapAQPortSettings[id] ?: return
+        val tmp = (tmp1 as SetGasStorageViewData)
+
+        var value: Float = 0f
+        when (tmp.sensorType) {
+            "Sensts 142PSI" -> {
+                value = calcPSI142(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+            }
+            "Sensts 2000PSI" -> {
+                value = calcPSI2000(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+            }
+            else -> {
+                value = calcSensor(
+                    data.toFloat(),
+                    tmp.pressure_Max!!,
+                    tmp.rewardValue,
+                    tmp.zeroPoint
+                )
+            }
+        }
+        tmp.pressure = value
+        if (tmp.pressure_Min!! > tmp.pressure!!) {
+            tmp.isAlert = true
+
+            if (alertMap[id] == null) {
+                alertMap.put(id, true)
+                Log.d("ProcessWasteLiquor", "")
+                viewModel.gasStorageAlert.value = true
+                viewModel.alertInfo.add(
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "가스 압력 하한 값",
+                        tmp.port
+                    )
+                )
+            }
+
+        } else {
+            if (alertMap.containsKey(id)) {
+                tmp.isAlert = false
+                viewModel.gasStorageAlert.value = false
+                if (alertMap.containsKey(id)) {
+                    alertMap.remove(id)
+                }
+            }
+        }
+        val bro = setAQport[id] as SetGasStorageViewData
+        bro.isAlert = tmp.isAlert
+        bro.pressure = tmp.pressure
+    }
+
+
+    private fun ProcessDualGasStorage(id: Int, left_value: Int, right_value: Int) {
+        val tmp1 = hmapAQPortSettings[id] ?: return
+        val tmp = (tmp1 as SetGasStorageViewData)
+
+        var left_pressure: Float = 0f
+        var right_pressure: Float = 0f
+
+        when (tmp.sensorType) {
+            "Sensts 142PSI" -> {
+                left_pressure = calcPSI142(left_value.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+                right_pressure = calcPSI142(right_value.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+
+            }
+            "Sensts 2000PSI" -> {
+                left_pressure = calcPSI2000(left_value.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+                right_pressure = calcPSI2000(right_value.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+
+            }
+            else -> {
+                left_pressure = calcSensor(
+                    left_value.toFloat(),
+                    tmp.pressure_Max!!,
+                    tmp.rewardValue,
+                    tmp.zeroPoint
+                )
+                right_pressure = calcSensor(
+                    right_value.toFloat(),
+                    tmp.pressure_Max!!,
+                    tmp.rewardValue,
+                    tmp.zeroPoint
+                )
+            }
+        }
+        tmp.pressureLeft = left_pressure
+        tmp.pressureRight = right_pressure
+
+        if (tmp.pressure_Min!! > tmp.pressureLeft!!) {
+            tmp.isAlertLeft = true
+
+            if (alertMap[id] == null) {
+                alertMap.put(id, true)
+                Log.d("ProcessWasteLiquor", "")
+                viewModel.gasStorageAlert.value = true
+                viewModel.alertInfo.add(
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "가스 압력 하한 값",
+                        tmp.port
+                    )
+                )
+            }
+
+        } else if (tmp.pressure_Min!! < tmp.pressureLeft!!) {
+            if (alertMap.containsKey(id)) {
+                tmp.isAlertLeft = false
+                viewModel.gasStorageAlert.value = false
+                if (alertMap.containsKey(id)) {
+                    alertMap.remove(id)
+                }
+            }
+        }
+
+        if (tmp.pressure_Min!! > tmp.pressureRight!!) {
+            tmp.isAlertRight = true
+
+            if (alertMap2[id] == null) {
+                alertMap2.put(id, true)
+                Log.d("ProcessWasteLiquor", "")
+                viewModel.gasStorageAlert.value = true
+                viewModel.alertInfo.add(
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "가스 압력 하한 값",
+                        tmp.port
+                    )
+                )
+            }
+
+        } else if (tmp.pressure_Min!! < tmp.pressureRight!!) {
+            if (alertMap2.containsKey(id)) {
+                tmp.isAlertRight = false
+                viewModel.gasStorageAlert.value = false
+                if (alertMap2.containsKey(id)) {
+                    alertMap2.remove(id)
+                }
+            }
+        }
+
+        val bro = setAQport[id] as SetGasStorageViewData
+        bro.pressureLeft = tmp.pressureLeft
+        bro.pressureRight = tmp.pressureRight
+        bro.isAlertLeft = tmp.isAlertLeft
+        bro.isAlertRight = tmp.isAlertRight
+    }
+
+
     private fun ProcessGasRoom(id: Int, data: Int) {
         // 설정이 존재하는지 확인
         // val tmp = (hmapAQPortSettings[id] as SetGasRoomViewData) ?: return
@@ -116,7 +332,6 @@ class AQDataParser(viewModel: MainViewModel) {
                 )
             }
         }
-        Log.d("ProcessGasRoom", "id: ${tmp.id}, port:${tmp.port}value : $value")
         tmp.pressure = value
 
         // 기울기 데이터 값 수집
@@ -156,53 +371,72 @@ class AQDataParser(viewModel: MainViewModel) {
             alertBase.put(id, value)
             tmp.isAlert = true
             tmp.pressure
-        }else{
-            if (alertBase.containsKey(id)){
 
-                if (alertBase[id]!! + 2 > value) {
+            if (alertMap[id] == null) {
+                alertMap.put(id, true)
+                Log.d("ProcessGasRoom", "${alertMap}")
+                viewModel.gasRoomAlert.value = true
+                viewModel.alertInfo.add(
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "MASSIVE_LEAK 발생",
+                        tmp.port
+                    )
+                )
+            }
+        } else {
+            if (alertMap.containsKey(id)) {
+                if (alertBase[id]!! + 2 < value) {
                     tmp.isAlert = false
+                    viewModel.gasRoomAlert.value = false
+
+                    if (alertMap.containsKey(id)) {
+                        alertMap.remove(id)
+                    }
                 }
             }
 
         }
-
-
+        val bro = setAQport[id] as SetGasRoomViewData
+        bro.isAlert = tmp.isAlert
+        bro.pressure = tmp.pressure
     }
 
-    private fun ProcessGasStorage(id: Int, data: Int) {
-        val tmp1 = hmapAQPortSettings[id] ?: return
-        val tmp = (tmp1 as SetGasStorageViewData)
-
-        var value: Float = 0f
-        when (tmp.sensorType) {
-            "Sensts 142PSI" -> {
-                value = calcPSI142(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
-            }
-            "Sensts 2000PSI" -> {
-                value = calcPSI2000(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
-            }
-            else -> {
-                value = calcSensor(
-                    data.toFloat(),
-                    tmp.pressure_Max!!,
-                    tmp.rewardValue,
-                    tmp.zeroPoint
-                )
-            }
-        }
-        if (tmp.ViewType == 1 || tmp.ViewType ==2){
-            if (tmp.port ==1) tmp.pressureLeft = value
-        }
-    }
 
     private fun ProcessWasteLiquor(id: Int, data: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetWasteLiquorViewData)
         // 수위 초과일때 0 아니면 1
         tmp.isAlert = data == 0
-
-        Log.d("ProcessWasteLiquor", "value : $")
-
+        if (data == 0) {
+            tmp.isAlert = true
+            if (alertMap[id] == null) {
+                alertMap.put(id, true)
+                Log.d("ProcessWasteLiquor", "")
+                viewModel.wasteAlert.value = true
+                viewModel.alertInfo.add(
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "수위 초과",
+                        tmp.port
+                    )
+                )
+            }
+        } else {
+            if (alertMap.containsKey(id)) {
+                tmp.isAlert = false
+                viewModel.wasteAlert.value = false
+                if (alertMap.containsKey(id)) {
+                    alertMap.remove(id)
+                }
+            }
+        }
+        val bro = setAQport[id] as SetWasteLiquorViewData
+        bro.isAlert = tmp.isAlert
     }
 
     private fun ProcessOxygen(id: Int, data: Int) {
@@ -213,25 +447,130 @@ class AQDataParser(viewModel: MainViewModel) {
 
         if (tmp.setMinValue > oxygenValue) {
             tmp.isAlert = true
-        } else if (tmp.setMaxValue < oxygenValue) {
-            tmp.isAlert = false
+            if (alertMap[id] == null) {
+                alertMap.put(id, true)
+                Log.d("ProcessOxygen", "")
+                viewModel.oxyenAlert.value = true
+                viewModel.alertInfo.add(
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "산소농도 하한 값",
+                        tmp.port
+                    )
+                )
+            }
+        } else {
+            if (alertMap.containsKey(id)) {
+                tmp.isAlert = false
+                viewModel.oxyenAlert.value = false
+                if (alertMap.containsKey(id)) {
+                    alertMap.remove(id)
+                }
+            }
         }
 
+        if (tmp.setMaxValue < oxygenValue) {
+            tmp.isAlert = true
+            if (alertMap[id] == null) {
+                alertMap.put(id, true)
+                Log.d("ProcessOxygen", "")
+                viewModel.oxyenAlert.value = true
+                viewModel.alertInfo.add(
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "산소농도 상한 값",
+                        tmp.port
+                    )
+                )
+            }
+        } else {
+            if (alertMap.containsKey(id)) {
+                tmp.isAlert = false
+                viewModel.oxyenAlert.value = false
+                if (alertMap.containsKey(id)) {
+                    alertMap.remove(id)
+                }
+            }
+        }
+        val bro = setAQport[id] as SetOxygenViewData
+        bro.setValue = tmp.setValue
+        bro.isAlert = tmp.isAlert
     }
 
-    private fun ProcessSteamer(id: Int, temp: Int, level:Int) {
+    private fun ProcessSteamer(id: Int, temp: Int, level: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetSteamerViewData)
 
-        tmp.isTemp = temp/33
+        tmp.isTemp = temp / 33
         tmp.unit
         //설정 온도보다 현재 온도가 낮을경우 알람
-        tmp.isAlertTemp = tmp.isTempMin > tmp.isTemp
+        if (tmp.isTempMin > tmp.isTemp) {
+            tmp.isAlertTemp = true
+
+            if (alertMap[id] == null) {
+                alertMap.put(id, true)
+                Log.d("ProcessSteamer", "")
+                viewModel.steamerAlert.value = true
+                viewModel.alertInfo.add(
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "온도 하한 값",
+                        tmp.port
+                    )
+                )
+            }
+
+        } else {
+            if (alertMap.containsKey(id)) {
+                viewModel.steamerAlert.value = false
+
+                tmp.isAlertTemp = false
+                if (alertMap.containsKey(id)) {
+                    alertMap.remove(id)
+                }
+            }
+        }
 
         //센서가 물에 담겨져있지 않다면(1000보다 클 경우) 알람
         tmp.isAlertLow = level > 1000
 
+        if (level > 1000) {
+            tmp.isAlertLow = true
+            if (alertMap2[id] == null) {
+                alertMap2.put(id, true)
+                Log.d("ProcessSteamer", "")
+                viewModel.steamerAlert.value = true
+                viewModel.alertInfo.add(
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "수위 레벨 하한 값",
+                        tmp.port
+                    )
+                )
+            }
 
+        } else {
+            if (alertMap2.containsKey(id)) {
+                viewModel.steamerAlert.value = false
+                tmp.isAlertTemp = false
+                if (alertMap2.containsKey(id)) {
+                    alertMap2.remove(id)
+                }
+            }
+        }
+
+        val bro = setAQport[id] as SetSteamerViewData
+        bro.isAlertTemp = tmp.isAlertTemp
+        bro.isAlertLow = tmp.isAlertLow
+        bro.isTemp = tmp.isTemp
     }
 
     /**
@@ -265,20 +604,62 @@ class AQDataParser(viewModel: MainViewModel) {
 
             when (model) {
                 0x01.toByte() -> {
+                    if (hmapAQPortSettings.size > 0) {
+//                        try {
+//                            dockSetting = hmapAQPortSettings.filter {
+//                                (it.value as SetGasStorageViewData).modelByte == 1.toByte()
+//                            }
+//                        } catch (e: Exception) {
+//                        }
 
-                    for (m in viewModel.GasStorageDataLiveList.value!!){
+                        for (i in viewModel.GasStorageDataLiveList.value!!)
+                            if ((i as SetGasStorageViewData).ViewType == 1 || (i as SetGasStorageViewData).ViewType == 2) {
+                                if ((i as SetGasStorageViewData).port == 1) {
+                                    val left_value = datas[0]
+                                    val right_value = datas[1]
+                                    val key = littleEndianConversion(
+                                        byteArrayOf(
+                                            model,
+                                            id.toByte(),
+                                            1
+                                        )
+                                    )
+                                    hmapLastedDate[key] = time
+                                    ProcessDualGasStorage(key, left_value, right_value)
+                                } else if ((i as SetGasStorageViewData).port == 3) {
+                                    val left_value = datas[2]
+                                    val right_value = datas[3]
+                                    val key = littleEndianConversion(
+                                        byteArrayOf(
+                                            model,
+                                            id.toByte(),
+                                            3
+                                        )
+                                    )
+                                    hmapLastedDate[key] = time
+                                    ProcessDualGasStorage(key, left_value, right_value)
+                                }
 
+
+                            } else {
+                                var loop = 1
+                                for (tmp in datas) {
+                                    //아이디 1개당 포트 4개 추가
+                                    val port = loop++.toByte()
+                                    //키는 아이디 포트
+                                    val key = littleEndianConversion(
+                                        byteArrayOf(
+                                            model,
+                                            id.toByte(),
+                                            port
+                                        )
+                                    )
+                                    hmapLastedDate[key] = time
+                                    ProcessSingleGasStorage(key, tmp)
+                                }
+                            }
                     }
 
-                    var loop = 1
-                    for (tmp in datas) {
-                        //아이디 1개당 포트 4개 추가
-                        val port = loop++.toByte()
-                        //키는 아이디 포트
-                        val key = littleEndianConversion(byteArrayOf(model, id.toByte(), port))
-                        hmapLastedDate[key] = time
-                        ProcessGasStorage(key, tmp)
-                    }
                 }
                 0x02.toByte() -> {
                     var loop = 1
@@ -311,8 +692,9 @@ class AQDataParser(viewModel: MainViewModel) {
                 0x05.toByte() -> {
                     for (loop in 1..2) {
                         val temp_data = datas[loop - 1]
-                        val level_data = datas[loop + 2]
-                        val key = littleEndianConversion(byteArrayOf(model, id.toByte(), loop.toByte()))
+                        val level_data = datas[loop + 1]
+                        val key =
+                            littleEndianConversion(byteArrayOf(model, id.toByte(), loop.toByte()))
                         hmapLastedDate[key] = time
                         ProcessSteamer(key, temp_data, level_data)
 
@@ -320,6 +702,13 @@ class AQDataParser(viewModel: MainViewModel) {
                 }
             }
         }
+    }
+
+    fun getLatest_time(time: Long): String {
+        val dateformat: SimpleDateFormat =
+            SimpleDateFormat("yyyy-mm-dd kk:mm:ss", Locale("ko", "KR"))
+        val date: Date = Date(time)
+        return dateformat.format(date)
     }
 
     init {

@@ -13,8 +13,8 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/../SmartLABPROTOTYPE/UIKit" />
-            <option value="$PROJECT_DIR$/../saminmodbustest-master/libmodbus" />
-            <option value="$PROJECT_DIR$/../saminmodbustest-master/libsaminmodbus" />
+            <option value="$PROJECT_DIR$/../saminmodbustest/libmodbus" />
+            <option value="$PROJECT_DIR$/../saminmodbustest/libsaminmodbus" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

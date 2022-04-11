@@ -16,8 +16,10 @@ import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
+import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
 import com.coai.samin_total.databinding.FragmentGasRoomMainBinding
+import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -122,16 +124,17 @@ class GasRoomMainFragment : Fragment() {
                 viewmodel.GasRoomDataLiveList.value!!.set(index, data)
                 if (data.unit == 3) data.unit = 0
             }
-            recycleAdapter.submitList(viewmodel.GasRoomDataLiveList.value!!)
-            recycleAdapter.notifyDataSetChanged()
-            for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(
-                compareBy(
-                    { it.id },
-                    { it.port })
-            ).withIndex()) {
-                Log.d("room 후", "인텍스: $index" + "데이더 : $data")
-
-            }
+//            recycleAdapter.submitList(viewmodel.GasRoomDataLiveList.value!!)
+//            recycleAdapter.notifyDataSetChanged()
+//            for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(
+//                compareBy(
+//                    { it.id },
+//                    { it.port })
+//            ).withIndex()) {
+//                Log.d("room 후", "인텍스: $index" + "데이더 : $data")
+//
+//            }
+//
         }
         mBinding.btnAlert.setOnClickListener {
             alertdialogFragment = AlertDialogFragment()
@@ -139,12 +142,13 @@ class GasRoomMainFragment : Fragment() {
             bundle.putString("model", "GasRoom")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "GasRoom")
+            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
         }
 
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
         }
-
+        udateAlert()
         return mBinding.root
     }
 
@@ -161,6 +165,9 @@ class GasRoomMainFragment : Fragment() {
         }
 
     }
+
+    private var timerTaskRefresh: Timer? = null
+    var heartbeatCount: UByte = 0u
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
@@ -181,11 +188,42 @@ class GasRoomMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView() {
-        viewmodel.GasRoomDataLiveList.observe(viewLifecycleOwner, {
+        viewmodel.GasRoomDataLiveList.observe(viewLifecycleOwner) {
             val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
             recycleAdapter.submitList(mm)
             recycleAdapter.notifyDataSetChanged()
-        })
+        }
+
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
+            heartbeatCount++
+            for (tmp in viewmodel.GasRoomDataLiveList.value!!.iterator()) {
+                tmp.heartbeatCount = heartbeatCount
+            }
+
+            var tmp = (mBinding.gasRoomRecyclerView.layoutManager as GridLayoutManager)
+            activity?.runOnUiThread() {
+                try {
+                    val start = tmp.findFirstVisibleItemPosition()
+                    val end = tmp.findLastVisibleItemPosition()
+                    recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
+                } catch (ex: Exception) {
+                }
+            }
+        }
+    }
+
+    private fun udateAlert() {
+        viewmodel.gasRoomAlert.observe(viewLifecycleOwner) {
+            if (it) {
+                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }
+        }
+
     }
 
     companion object {

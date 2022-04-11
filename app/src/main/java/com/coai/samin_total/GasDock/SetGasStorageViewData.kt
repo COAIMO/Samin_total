@@ -39,6 +39,9 @@ data class SetGasStorageViewData(
     var pressureRight: Float? = null,
     var zeroPoint: Float = 0f,
     var rewardValue: Float = 1f,
-    var unit:Int = 0
+    var unit:Int = 0,
+    val modelByte: Byte = 1,
+    var heartbeatCount : UByte = 0u
+
 
 )

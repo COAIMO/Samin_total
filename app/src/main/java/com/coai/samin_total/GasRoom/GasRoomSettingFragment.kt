@@ -303,6 +303,7 @@ class GasRoomSettingFragment : Fragment() {
             buff.add(i)
         }
         shared.saveBoardSetData(SaminSharedPreference.GASROOM, buff)
+        activity?.tmp?.LoadSetting()
         activity?.onFragmentChange(MainViewModel.GASROOMMAINFRAGMENT)
     }
 

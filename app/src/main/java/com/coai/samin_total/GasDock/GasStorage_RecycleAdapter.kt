@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.coai.samin_total.Logic.AutoUpdatableAdapter
 import com.coai.samin_total.R
 import com.coai.uikit.samin.status.GasStorageView
 
-class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+    AutoUpdatableAdapter {
 
 
     private val TAG = "로그"
@@ -23,6 +25,7 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.gas_storage_single_view, parent, false)
                 gasDockSingleViewHodler(view)
+
             }
             1 -> {
                 view =
@@ -64,6 +67,7 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             0 -> {
                 (holder as gasDockSingleViewHodler).bind(setGasdockViewData[position])
                 holder.setIsRecyclable(false)
+
             }
             1 -> {
                 (holder as gasDockDualViewHodler).bind(setGasdockViewData[position])
@@ -96,6 +100,7 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
             setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
             gasDcokView.setGasUnit(setGasStorageViewData.unit)
+            gasDcokView.heartBeat(setGasStorageViewData.heartbeatCount)
         }
     }
 
@@ -115,6 +120,8 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             setGasStorageViewData.pressureLeft?.let { gasDcokView.setPressureLeft(it) }
             setGasStorageViewData.pressureRight?.let { gasDcokView.setPressureRight(it) }
             gasDcokView.setGasUnit(setGasStorageViewData.unit)
+            gasDcokView.heartBeat(setGasStorageViewData.heartbeatCount)
+
         }
     }
 
@@ -135,6 +142,7 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             setGasStorageViewData.pressureLeft?.let { gasDcokView.setPressureLeft(it) }
             setGasStorageViewData.pressureRight?.let { gasDcokView.setPressureRight(it) }
             gasDcokView.setGasUnit(setGasStorageViewData.unit)
+            gasDcokView.heartBeat(setGasStorageViewData.heartbeatCount)
         }
     }
 }

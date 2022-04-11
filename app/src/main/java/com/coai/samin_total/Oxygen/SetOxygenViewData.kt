@@ -10,4 +10,7 @@ data class SetOxygenViewData(
     var setValue: Int = 0,
     var setMinValue: Int = 20,
     var setMaxValue: Int = 23,
+    val modelByte: Byte = 4,
+    var heartbeatCount : UByte = 0u
+
 )

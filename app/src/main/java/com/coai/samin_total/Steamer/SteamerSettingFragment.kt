@@ -194,6 +194,7 @@ class SteamerSettingFragment : Fragment() {
             buff.add(i)
         }
         shared.saveBoardSetData(SaminSharedPreference.STEAMER, buff)
+        activity?.tmp?.LoadSetting()
         activity?.onFragmentChange(MainViewModel.STEAMERMAINFRAGMENT)
     }
 

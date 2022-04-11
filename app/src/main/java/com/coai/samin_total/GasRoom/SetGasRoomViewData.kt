@@ -19,5 +19,6 @@ data class SetGasRoomViewData(
     var rewardValue: Float = 1f,
     var unit: Int = 0,
     var slopeValue: Float = -10f,
-    val modelByte: Byte = 2
+    val modelByte: Byte = 2,
+    var heartbeatCount : UByte = 0u
 )

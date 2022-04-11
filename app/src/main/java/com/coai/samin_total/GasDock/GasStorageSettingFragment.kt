@@ -386,15 +386,6 @@ class GasStorageSettingFragment : Fragment() {
 
     }
 
-    fun <K, V> getKey(map: Map<K, V>, value: V): K? {
-        for (key in map.keys) {
-            if (value == map[key]) {
-                return key
-            }
-        }
-        return null
-    }
-
     private fun setSaveData() {
 //        viewmodel.GasStorageDataLiveList.clear(true)
         val iter = setGasSensorInfo.iterator()
@@ -427,6 +418,8 @@ class GasStorageSettingFragment : Fragment() {
         }
         shared.saveBoardSetData(SaminSharedPreference.GASSTORAGE, buff)
         activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
+        activity?.tmp?.LoadSetting()
+
     }
 
     private fun setGasTypeSpinner() {
