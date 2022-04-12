@@ -5,5 +5,6 @@ data class SetAlertData(
     val model:Int,
     val id:Int,
     val content : String,
-    val port:Int
+    val port:Int,
+    var isAlert:Boolean
 )

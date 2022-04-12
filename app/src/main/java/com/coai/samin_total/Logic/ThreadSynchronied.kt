@@ -46,7 +46,7 @@ class ThreadSynchronied {
             while (!_isOpen) {
                 _monitor.wait(timeout)
                 // Check for timeout
-                Log.d(TAG, "waitOne $timeout")
+//                Log.d(TAG, "waitOne $timeout")
 
 
                 if (System.currentTimeMillis() - t >= timeout) {
@@ -111,10 +111,10 @@ class ThreadSynchronied {
     }
 
     fun masterThreadWork() {
-        Log.d(TAG, "port1ThreadStart-masterThreadWork()")
+//        Log.d(TAG, "port1ThreadStart-masterThreadWork()")
 
         synchronized(_monitor) {
-            Log.d(TAG, "port1ThreadStart-notify()")
+//            Log.d(TAG, "port1ThreadStart-notify()")
             _monitor.notify()
 
             try {

@@ -70,7 +70,7 @@ class LoadingActivity : AppCompatActivity() {
 
     val datahandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
-            Log.d(loadingTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
+//            Log.d(loadingTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
 
             super.handleMessage(msg)
         }
@@ -82,7 +82,7 @@ class LoadingActivity : AppCompatActivity() {
 //            startService(startSerialService)
 //
 //        }
-        Log.d(loadingTAG, "바인드 시작")
+//        Log.d(loadingTAG, "바인드 시작")
         val usbSerialServiceIntent = Intent(this, SerialService::class.java)
         bindService(usbSerialServiceIntent, serialServiceConnection, Context.BIND_AUTO_CREATE)
     }

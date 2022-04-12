@@ -2,6 +2,7 @@ package com.coai.samin_total.Logic
 
 import android.util.Log
 import com.coai.samin_total.Service.HexDump
+import com.hoho.android.usbserial.driver.Ch34xSerialDriver
 import kotlin.experimental.inv
 
 class SaminProtocol {
@@ -101,8 +102,28 @@ class SaminProtocol {
     /**
      * Tab.송신 - LED Alert State
      */
-    fun led_AlertState(model: Byte, id: Byte) {
-        buildProtocol(model, id, 0xA3.toByte(), 0x1F)
+    fun led_AlertState(model: Byte, id: Byte, port1 : Boolean, port2: Boolean, port3:Boolean, port4: Boolean) {
+        var alertData = 0x00.toByte()
+        if (port1 || port2 || port3 || port4) {
+            alertData = alertData.plus(16).toByte()
+
+            if (port1)
+                alertData = alertData.plus(1).toByte()
+            if (port2)
+                alertData = alertData.plus(2).toByte()
+            if (port3)
+                alertData = alertData.plus(4).toByte()
+            if (port4)
+                alertData = alertData.plus(8).toByte()
+
+
+
+        }
+        buildProtocol(model, id, 0xA3.toByte(), alertData)
+    }
+
+    fun led_AlertStateByte(model: Byte, id: Byte, alertData: Byte) {
+        buildProtocol(model, id, 0xA3.toByte(), alertData)
     }
 
     @ExperimentalUnsignedTypes
@@ -110,7 +131,7 @@ class SaminProtocol {
         var ret = false
         try {
             mProtocol = ByteArray(data.size)
-            Log.d("로그", "parse : ${HexDump.dumpHexString(mProtocol)}")
+//            Log.d("로그", "parse : ${HexDump.dumpHexString(mProtocol)}")
 
             data.copyInto(mProtocol, endIndex = mProtocol.size)
 

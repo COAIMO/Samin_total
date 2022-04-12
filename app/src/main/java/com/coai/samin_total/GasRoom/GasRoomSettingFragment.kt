@@ -299,7 +299,7 @@ class GasRoomSettingFragment : Fragment() {
         //설정값 저장
         val buff = mutableListOf<SetGasRoomViewData>()
         for (i in viewmodel.GasRoomDataLiveList.value!!) {
-            Log.d("테스트", "viewmodel: $i")
+//            Log.d("테스트", "viewmodel: $i")
             buff.add(i)
         }
         shared.saveBoardSetData(SaminSharedPreference.GASROOM, buff)

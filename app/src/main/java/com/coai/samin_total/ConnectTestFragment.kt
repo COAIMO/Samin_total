@@ -96,7 +96,7 @@ class ConnectTestFragment : Fragment() {
         }
         mBinding.btnLedAlert.setOnClickListener {
             val protocol = SaminProtocol()
-            protocol.led_AlertState(selected_Model.toInt().toByte(), selected_ID.toInt().toByte())
+//            protocol.led_AlertState(selected_Model.toInt().toByte(), selected_ID.toInt().toByte())
             activity?.serialService?.sendData(protocol.mProtocol)
         }
         mBinding.btnLedNomarl.setOnClickListener {

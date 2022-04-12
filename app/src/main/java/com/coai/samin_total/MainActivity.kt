@@ -23,7 +23,6 @@ import com.coai.samin_total.GasDock.GasDockMainFragment
 import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
 import com.coai.samin_total.GasRoom.GasRoomSettingFragment
-import com.coai.samin_total.GasRoom.TimePSI
 import com.coai.samin_total.Logic.*
 import com.coai.samin_total.Oxygen.OxygenMainFragment
 import com.coai.samin_total.Oxygen.OxygenSettingFragment
@@ -39,6 +38,10 @@ import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
+import kotlin.concurrent.thread
+import kotlin.experimental.and
+import kotlin.experimental.or
+import kotlin.experimental.xor
 
 class MainActivity : AppCompatActivity() {
 
@@ -95,6 +98,8 @@ class MainActivity : AppCompatActivity() {
         tmp = AQDataParser(mainViewModel)
 
         setFragment()
+        tabletSoundAlert()
+        sendAlert()
     }
 
     fun bindSerialService() {
@@ -103,7 +108,6 @@ class MainActivity : AppCompatActivity() {
 //            startService(startSerialService)
 //
 //        }
-        Log.d(mainTAG, "바인드 시작")
         val usbSerialServiceIntent = Intent(this, SerialService::class.java)
 //        val usbSerialServiceIntent = Intent(this, UsbSerialService::class.java)
         bindService(usbSerialServiceIntent, serialServiceConnection, Context.BIND_AUTO_CREATE)
@@ -157,18 +161,18 @@ class MainActivity : AppCompatActivity() {
                         0,
                         0,
                         "시리얼 통신 연결이 끊겼습니다.",
-                        0
+                        0,
+                        true
                     )
                 )
             }
-            Log.d(mainTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
+//            Log.d(mainTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
             val receiveParser = SaminProtocol()
             receiveParser.parse(msg.obj as ByteArray)
 
             if (receiveParser.packetName == "CheckProductPing") {
                 val model = receiveParser.modelName
                 val input_id = receiveParser.mProtocol.get(3)
-                Log.d("CheckProductPing", "model:$model // id : $input_id")
                 when (model) {
                     "GasDock" -> {
                         val id = receiveParser.mProtocol.get(3)
@@ -207,935 +211,9 @@ class MainActivity : AppCompatActivity() {
 
             } else if (receiveParser.packetName == "RequestFeedBackPing") {
                 if (receiveParser.mProtocol.size >= 14) {
-                    val aqInfo = receiveParser.mProtocol.slice(2..3)
-                    val sensorData = receiveParser.mProtocol.slice(7..14).toByteArray()
-                    val currentSensorInfo = CurrentSensorInfo(aqInfo, sensorData)
-                    mainViewModel.latestSensorInfo[aqInfo] = currentSensorInfo
-                    val aqInfotest = littleEndianConversion(
-                        receiveParser.mProtocol.slice(2..3).toByteArray()
-                    ).toShort()
-                    val inputInfo = receiveParser.mProtocol.slice(7..14).toByteArray()
-                    val aqdata =
-                        AQData(receiveParser.mProtocol[2], receiveParser.mProtocol[3], inputInfo)
-                    mainViewModel.testHashMap.put(aqInfotest, aqdata)
-
                     tmp.Parser(receiveParser.mProtocol)
-
-//                    when (receiveParser.modelName) {
-//
-//                        "GasDock" -> {
-//
-//                            val pin1_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(7..8).toByteArray()
-//                            ).toFloat()
-//                            val pin2_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(9..10).toByteArray()
-//                            ).toFloat()
-//                            val pin3_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(11..12).toByteArray()
-//                            ).toFloat()
-//                            val pin4_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(13..14).toByteArray()
-//                            ).toFloat()
-//                            var sensor_1: Float
-//                            var sensor_2: Float
-//                            var sensor_3: Float
-//                            var sensor_4: Float
-//
-//                            for (i in mainViewModel.GasStorageDataLiveList.value!!) {
-//                                if (i.sensorType == "Sensts 142PSI") {
-//                                    sensor_1 = calcPSI142(pin1_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_2 = calcPSI142(pin2_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_3 = calcPSI142(pin3_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_4 = calcPSI142(pin4_data, i.rewardValue, i.zeroPoint)
-//
-//                                } else if (i.sensorType == "Sensts 2000PSI") {
-//                                    sensor_1 = calcPSI2000(pin1_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_2 = calcPSI2000(pin2_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_3 = calcPSI2000(pin3_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_4 = calcPSI2000(pin4_data, i.rewardValue, i.zeroPoint)
-//                                } else {
-//                                    sensor_1 = calcSensor(
-//                                        pin1_data,
-//                                        i.pressure_Max!!,
-//                                        i.rewardValue,
-//                                        i.zeroPoint
-//                                    )
-//                                    sensor_2 = calcSensor(
-//                                        pin2_data,
-//                                        i.pressure_Max!!,
-//                                        i.rewardValue,
-//                                        i.zeroPoint
-//                                    )
-//                                    sensor_3 = calcSensor(
-//                                        pin3_data,
-//                                        i.pressure_Max!!,
-//                                        i.rewardValue,
-//                                        i.zeroPoint
-//                                    )
-//                                    sensor_4 = calcSensor(
-//                                        pin4_data,
-//                                        i.pressure_Max!!,
-//                                        i.rewardValue,
-//                                        i.zeroPoint
-//                                    )
-//                                }
-//
-//                                //받은 데이터 아이디와 데이터리스트의 아디가 동일한 경우
-//                                if (i.id == receiveParser.mProtocol.get(3).toInt()) {
-//                                    val port = listOf<Int>(1, i.id, i.port)
-//                                    val portInfo = PortInfo(1.toByte(), i.id.toByte(), i.port)
-//                                    // 데이터 리스트의 데이터의 뷰타입이 듀얼 또는 오토체인처일 경우
-//                                    if (i.ViewType == 1 || i.ViewType == 2) {
-//                                        //2,4port 삭제되서 날라옴
-//                                        if (i.port == 1) {
-//                                            i.pressureLeft = sensor_1
-//                                            i.pressureRight = sensor_2
-//                                            if (i.pressure_Min!! > i.pressureLeft!!) {
-//                                                i.isAlertLeft = true
-//                                                mainViewModel.gasStorageAlert.value = true
-//
-//                                                if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
-//                                                    mainViewModel.alertInfo.add(
-//                                                        SetAlertData(
-//                                                            portInfo.latest_time,
-//                                                            portInfo.model.toInt(),
-//                                                            portInfo.id.toInt(),
-//                                                            "가스 압력 하한 값",
-//                                                            portInfo.port
-//                                                        )
-//                                                    )
-////                                                mainViewModel.gasStorageAlert.value = true
-//                                                    mainViewModel.mExPortInfo[port]?.alert_1 = true
-//                                                }
-//                                            } else if (i.pressure_Min!! > i.pressureRight!!) {
-//                                                i.isAlertRight = true
-//                                                mainViewModel.gasStorageAlert.value = true
-//                                                if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
-//                                                    mainViewModel.alertInfo.add(
-//                                                        SetAlertData(
-//                                                            portInfo.latest_time,
-//                                                            portInfo.model.toInt(),
-//                                                            portInfo.id.toInt(),
-//                                                            "가스 압력 하한 값",
-//                                                            portInfo.port
-//                                                        )
-//                                                    )
-////                                                mainViewModel.gasStorageAlert.value = true
-//                                                    mainViewModel.mExPortInfo[port]?.alert_1 = true
-//                                                }
-//                                            } else {
-//                                                mainViewModel.mExPortInfo[port] = portInfo
-//                                                mainViewModel.mPortInfo[port] = portInfo
-//                                                mainViewModel.mPortInfo[port]?.alert_1 = false
-//                                                mainViewModel.mExPortInfo[port]?.alert_1 = false
-//                                                mainViewModel.gasStorageAlert.value = false
-//                                            }
-//                                        } else {
-//                                            i.pressureLeft = sensor_3
-//                                            i.pressureRight = sensor_4
-//                                            if (i.pressure_Min!! > i.pressureLeft!!) {
-//                                                i.isAlertLeft = true
-//                                                mainViewModel.gasStorageAlert.value = true
-//                                                if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
-//                                                    mainViewModel.alertInfo.add(
-//                                                        SetAlertData(
-//                                                            portInfo.latest_time,
-//                                                            portInfo.model.toInt(),
-//                                                            portInfo.id.toInt(),
-//                                                            "가스 압력 하한 값",
-//                                                            portInfo.port
-//                                                        )
-//                                                    )
-////                                                mainViewModel.gasStorageAlert.value = true
-//                                                    mainViewModel.mExPortInfo[port]?.alert_1 = true
-//                                                }
-//                                            } else if (i.pressure_Min!! > i.pressureRight!!) {
-//                                                i.isAlertRight = true
-//                                                mainViewModel.gasStorageAlert.value = true
-//                                                if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
-//                                                    mainViewModel.alertInfo.add(
-//                                                        SetAlertData(
-//                                                            portInfo.latest_time,
-//                                                            portInfo.model.toInt(),
-//                                                            portInfo.id.toInt(),
-//                                                            "가스 압력 하한 값",
-//                                                            portInfo.port
-//                                                        )
-//                                                    )
-////                                                mainViewModel.gasStorageAlert.value = true
-//                                                    mainViewModel.mExPortInfo[port]?.alert_1 = true
-//                                                }
-//                                            } else {
-//                                                mainViewModel.mExPortInfo[port] = portInfo
-//                                                mainViewModel.mPortInfo[port] = portInfo
-//                                                mainViewModel.mPortInfo[port]?.alert_1 = false
-//                                                mainViewModel.mExPortInfo[port]?.alert_1 = false
-//                                                mainViewModel.gasStorageAlert.value = false
-//                                            }
-//                                        }
-//
-//                                    } else {
-//                                        when (i.port) {
-//                                            1 -> {
-//                                                i.pressure = sensor_1
-//                                                if (i.pressure_Min!! > i.pressure!!) {
-//                                                    i.isAlert = true
-//                                                    mainViewModel.gasStorageAlert.value = true
-//                                                    if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
-//                                                        mainViewModel.alertInfo.add(
-//                                                            SetAlertData(
-//                                                                portInfo.latest_time,
-//                                                                portInfo.model.toInt(),
-//                                                                portInfo.id.toInt(),
-//                                                                "가스 압력 하한 값",
-//                                                                portInfo.port
-//                                                            )
-//                                                        )
-////                                                    mainViewModel.gasStorageAlert.value = true
-//                                                        mainViewModel.mExPortInfo[port]?.alert_1 =
-//                                                            true
-//                                                    }
-//                                                } else {
-//                                                    mainViewModel.mExPortInfo[port] = portInfo
-//                                                    mainViewModel.mPortInfo[port] = portInfo
-//                                                    mainViewModel.mPortInfo[port]?.alert_1 = false
-//                                                    mainViewModel.mExPortInfo[port]?.alert_1 = false
-//                                                    mainViewModel.gasStorageAlert.value = false
-//                                                }
-//
-//                                            }
-//                                            2 -> {
-//                                                i.pressure = sensor_2
-//                                                if (i.pressure_Min!! > i.pressure!!) {
-//                                                    i.isAlert = true
-//                                                    mainViewModel.gasStorageAlert.value = true
-//                                                    if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
-//                                                        mainViewModel.alertInfo.add(
-//                                                            SetAlertData(
-//                                                                portInfo.latest_time,
-//                                                                portInfo.model.toInt(),
-//                                                                portInfo.id.toInt(),
-//                                                                "가스 압력 하한 값",
-//                                                                portInfo.port
-//                                                            )
-//                                                        )
-////                                                    mainViewModel.gasStorageAlert.value = true
-//                                                        mainViewModel.mExPortInfo[port]?.alert_1 =
-//                                                            true
-//                                                    }
-//                                                } else {
-//                                                    mainViewModel.mExPortInfo[port] = portInfo
-//                                                    mainViewModel.mPortInfo[port] = portInfo
-//                                                    mainViewModel.mPortInfo[port]?.alert_1 = false
-//                                                    mainViewModel.mExPortInfo[port]?.alert_1 = false
-//                                                    mainViewModel.gasStorageAlert.value = false
-//                                                }
-//                                            }
-//                                            3 -> {
-//                                                i.pressure = sensor_3
-//                                                if (i.pressure_Min!! > i.pressure!!) {
-//                                                    mainViewModel.gasStorageAlert.value = true
-//
-//                                                    i.isAlert = true
-//                                                    if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
-//                                                        mainViewModel.alertInfo.add(
-//                                                            SetAlertData(
-//                                                                portInfo.latest_time,
-//                                                                portInfo.model.toInt(),
-//                                                                portInfo.id.toInt(),
-//                                                                "가스 압력 하한 값",
-//                                                                portInfo.port
-//                                                            )
-//                                                        )
-////                                                    mainViewModel.gasStorageAlert.value = true
-//                                                        mainViewModel.mExPortInfo[port]?.alert_1 =
-//                                                            true
-//                                                    }
-//                                                } else {
-//                                                    mainViewModel.mExPortInfo[port] = portInfo
-//                                                    mainViewModel.mPortInfo[port] = portInfo
-//                                                    mainViewModel.mPortInfo[port]?.alert_1 = false
-//                                                    mainViewModel.mExPortInfo[port]?.alert_1 = false
-//                                                    mainViewModel.gasStorageAlert.value = false
-//                                                }
-//                                            }
-//                                            4 -> {
-//                                                i.pressure = sensor_4
-//                                                mainViewModel.gasStorageAlert.value = true
-//                                                if (i.pressure_Min!! > i.pressure!!) {
-//                                                    i.isAlert = true
-//                                                    if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
-//                                                        mainViewModel.alertInfo.add(
-//                                                            SetAlertData(
-//                                                                portInfo.latest_time,
-//                                                                portInfo.model.toInt(),
-//                                                                portInfo.id.toInt(),
-//                                                                "가스 압력 하한 값",
-//                                                                portInfo.port
-//                                                            )
-//                                                        )
-////                                                    mainViewModel.gasStorageAlert.value = true
-//                                                        mainViewModel.mExPortInfo[port]?.alert_1 =
-//                                                            true
-//                                                    }
-//                                                } else {
-//                                                    mainViewModel.mExPortInfo[port] = portInfo
-//                                                    mainViewModel.mPortInfo[port] = portInfo
-//                                                    mainViewModel.mPortInfo[port]?.alert_1 = false
-//                                                    mainViewModel.mExPortInfo[port]?.alert_1 = false
-//                                                    mainViewModel.gasStorageAlert.value = false
-//                                                }
-//                                            }
-//                                        }
-//
-//                                    }
-//                                    mainViewModel.GasStorageDataLiveList.notifyChange()
-//                                }
-//                            }
-//
-//                        }
-//                        "GasRoom" -> {
-////                            tmp.Parser(receiveParser.mProtocol)
-//
-//                            val model = receiveParser.mProtocol.get(2).toInt()
-//                            val pin1_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(7..8).toByteArray()
-//                            ).toFloat()
-//                            val pin2_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(9..10).toByteArray()
-//                            ).toFloat()
-//                            val pin3_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(11..12).toByteArray()
-//                            ).toFloat()
-//                            val pin4_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(13..14).toByteArray()
-//                            ).toFloat()
-//                            var sensor_1: Float
-//                            var sensor_2: Float
-//                            var sensor_3: Float
-//                            var sensor_4: Float
-//
-//                            for (i in mainViewModel.GasRoomDataLiveList.value!!) {
-//                                if (i.sensorType == "Sensts 142PSI") {
-//                                    sensor_1 = calcPSI142(pin1_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_2 = calcPSI142(pin2_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_3 = calcPSI142(pin3_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_4 = calcPSI142(pin4_data, i.rewardValue, i.zeroPoint)
-//
-//                                } else if (i.sensorType == "Sensts 2000PSI") {
-//                                    sensor_1 = calcPSI2000(pin1_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_2 = calcPSI2000(pin2_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_3 = calcPSI2000(pin3_data, i.rewardValue, i.zeroPoint)
-//                                    sensor_4 = calcPSI2000(pin4_data, i.rewardValue, i.zeroPoint)
-//                                } else {
-//                                    sensor_1 = calcSensor(
-//                                        pin1_data,
-//                                        i.pressure_Max!!,
-//                                        i.rewardValue,
-//                                        i.zeroPoint
-//                                    )
-//                                    sensor_2 = calcSensor(
-//                                        pin2_data,
-//                                        i.pressure_Max!!,
-//                                        i.rewardValue,
-//                                        i.zeroPoint
-//                                    )
-//                                    sensor_3 = calcSensor(
-//                                        pin3_data,
-//                                        i.pressure_Max!!,
-//                                        i.rewardValue,
-//                                        i.zeroPoint
-//                                    )
-//                                    sensor_4 = calcSensor(
-//                                        pin4_data,
-//                                        i.pressure_Max!!,
-//                                        i.rewardValue,
-//                                        i.zeroPoint
-//                                    )
-//                                }
-////                                val ticks = System.currentTimeMillis()
-////                                val item =
-////                                    TimePSI(ticks, i.pressure, model, i.id, i.port)
-////                                val basetime = ticks - 1000 * 3
-////                                templist.add(item)
-////
-////                                val tempremove = templist.filter {
-////                                    it.Ticks < basetime
-////                                }
-////                                templist.removeAll(tempremove)
-//
-////                                if (i.id == receiveParser.mProtocol.get(3).toInt()) {
-////                                    when (i.port) {
-////                                        1 -> {
-////                                            i.pressure = sensor_1
-////                                            val ticks = System.currentTimeMillis()
-////                                            val item =
-////                                                TimePSI(ticks, i.pressure, model, i.id, i.port)
-////                                            val basetime = ticks - 1000 * 3
-////                                            templist_1.add(item)
-////
-////                                            val tempremove = templist_1.filter {
-////                                                it.Ticks < basetime
-////                                            }
-////                                            templist_1.removeAll(tempremove)
-////                                            val temp = templist_1.filter {
-////                                                it.Id == i.id
-////                                            }
-////                                            id_slopeMap_1.put(i.id, temp)
-////
-////                                            for ((key, value) in id_slopeMap_1) {
-////                                                val lstTicks = value.map {
-////                                                    (it.Ticks / 100).toDouble()
-////                                                }
-////                                                val lstPsi = value.map {
-////                                                    (it.Psi).toDouble()
-////                                                }
-////                                                val slope = AnalyticUtils.LinearRegression(
-////                                                    lstTicks.toTypedArray(),
-////                                                    lstPsi.toTypedArray(),
-////                                                    0,
-////                                                    lstPsi.size
-////                                                )
-////
-////                                                if (slope < -10f) {
-////                                                    Log.d("Test", "$slope")
-////                                                    mainViewModel.roomAlert_1.put(key, 1)
-//////                                                    if(key == i.id){
-//////                                                        i.isAlert = true
-//////                                                    }
-////                                                } else {
-////                                                }
-////                                            }
-////
-////
-//////                                            val lstTicks = templist.map {
-//////                                                (it.Ticks / 100).toDouble()
-//////                                            }
-//////                                            val lstPsi = templist.map {
-//////                                                (it.Psi).toDouble()
-//////                                            }
-//////
-//////                                            if (lstTicks.count() > 1) {
-//////                                                val slope = AnalyticUtils.LinearRegression(
-//////                                                    lstTicks.toTypedArray(),
-//////                                                    lstPsi.toTypedArray(),
-//////                                                    0,
-//////                                                    lstPsi.size
-//////                                                )
-////////                                                Log.d("test", "$slope")
-//////                                                if (slope.isInfinite() && slope < -10f) {
-//////
-//////                                                }
-//////                                            }
-////
-////
-////                                        }
-////                                        2 -> {
-////                                            i.pressure = sensor_2
-////                                            val ticks = System.currentTimeMillis()
-////                                            val item =
-////                                                TimePSI(ticks, i.pressure, model, i.id, i.port)
-////                                            val basetime = ticks - 1000 * 3
-////                                            templist_2.add(item)
-////
-////                                            val tempremove = templist_2.filter {
-////                                                it.Ticks < basetime
-////                                            }
-////                                            templist_2.removeAll(tempremove)
-////
-////                                            val temp = templist_2.filter {
-////                                                it.Id == i.id
-////                                            }
-////                                            id_slopeMap_2.put(i.id, temp)
-////
-////                                            for ((key, value) in id_slopeMap_2) {
-////                                                val lstTicks = value.map {
-////                                                    (it.Ticks / 100).toDouble()
-////                                                }
-////                                                val lstPsi = value.map {
-////                                                    (it.Psi).toDouble()
-////                                                }
-////                                                val slope = AnalyticUtils.LinearRegression(
-////                                                    lstTicks.toTypedArray(),
-////                                                    lstPsi.toTypedArray(),
-////                                                    0,
-////                                                    lstPsi.size
-////                                                )
-////
-////                                                if (slope < -10f) {
-////                                                    Log.d("Test", "$slope")
-////                                                    mainViewModel.roomAlert_1.put(key, 2)
-//////                                                    if(key == i.id){
-//////                                                        i.isAlert = true
-//////                                                    }
-////                                                } else {
-////                                                }
-////                                            }
-////                                        }
-////                                        3 -> {
-////                                            i.pressure = sensor_3
-////                                            val ticks = System.currentTimeMillis()
-////                                            val item =
-////                                                TimePSI(ticks, i.pressure, model, i.id, i.port)
-////                                            val basetime = ticks - 1000 * 3
-////                                            templist_3.add(item)
-////
-////                                            val tempremove = templist_3.filter {
-////                                                it.Ticks < basetime
-////                                            }
-////                                            templist_3.removeAll(tempremove)
-////
-////                                            val temp = templist_3.filter {
-////                                                it.Id == i.id
-////                                            }
-////                                            id_slopeMap_3.put(i.id, temp)
-////
-////                                            for ((key, value) in id_slopeMap_3) {
-////                                                val lstTicks = value.map {
-////                                                    (it.Ticks / 100).toDouble()
-////                                                }
-////                                                val lstPsi = value.map {
-////                                                    (it.Psi).toDouble()
-////                                                }
-////                                                val slope = AnalyticUtils.LinearRegression(
-////                                                    lstTicks.toTypedArray(),
-////                                                    lstPsi.toTypedArray(),
-////                                                    0,
-////                                                    lstPsi.size
-////                                                )
-////
-////                                                if (slope < -10f) {
-////                                                    Log.d("Test", "$slope")
-////                                                    mainViewModel.roomAlert_1.put(key, 3)
-//////                                                    if(key == i.id){
-//////                                                        i.isAlert = true
-//////                                                    }
-////                                                } else {
-////                                                }
-////                                            }
-////                                        }
-////                                        4 -> {
-////                                            i.pressure = sensor_4
-////                                            val ticks = System.currentTimeMillis()
-////                                            val item =
-////                                                TimePSI(ticks, i.pressure, model, i.id, i.port)
-////                                            val basetime = ticks - 1000 * 3
-////                                            templist_4.add(item)
-////
-////                                            val tempremove = templist_4.filter {
-////                                                it.Ticks < basetime
-////                                            }
-////                                            templist_4.removeAll(tempremove)
-////
-////                                            val temp = templist_4.filter {
-////                                                it.Id == i.id
-////                                            }
-////                                            id_slopeMap_4.put(i.id, temp)
-////
-////                                            for ((key, value) in id_slopeMap_4) {
-////                                                val lstTicks = value.map {
-////                                                    (it.Ticks / 100).toDouble()
-////                                                }
-////                                                val lstPsi = value.map {
-////                                                    (it.Psi).toDouble()
-////                                                }
-////                                                val slope = AnalyticUtils.LinearRegression(
-////                                                    lstTicks.toTypedArray(),
-////                                                    lstPsi.toTypedArray(),
-////                                                    0,
-////                                                    lstPsi.size
-////                                                )
-////
-////                                                if (slope < -10f) {
-////                                                    Log.d("Test", "$slope")
-////                                                    mainViewModel.roomAlert_1.put(key, 4)
-//////                                                    if(key == i.id){
-//////                                                        i.isAlert = true
-//////                                                    }
-////                                                } else {
-////                                                }
-////                                            }
-////                                        }
-////                                    }
-////                                    for ((key, value) in mainViewModel.roomAlert_1) {
-////                                        if (key == i.id) {
-////                                            if (value == i.port) {
-////                                                i.isAlert = true
-////                                            }
-////                                        }
-////                                    }
-////
-////                                    mainViewModel.GasRoomDataLiveList.notifyChange()
-////                                }
-//                            }
-//                        }
-//                        "WasteLiquor" -> {
-//                            val pin1_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(7..8).toByteArray()
-//                            )
-//                            val pin2_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(9..10).toByteArray()
-//                            )
-//                            val pin3_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(11..12).toByteArray()
-//                            )
-//                            val pin4_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(13..14).toByteArray()
-//                            )
-//
-//                            for (i in mainViewModel.WasteLiquorDataLiveList.value!!) {
-//                                if (i.id == receiveParser.mProtocol.get(3).toInt()) {
-//                                    val port = listOf<Int>(3, i.id, i.port)
-//                                    when (i.port) {
-//                                        //exsensorinfo ->exprotinfo
-//                                        //latestsensorinfo ->portinfo aqinfo를 port로
-//
-//                                        1 -> {
-//                                            if (pin1_data == 0) {
-//                                                i.isAlert = true
-//                                                mainViewModel.wasteAlert.value = true
-//                                                if (mainViewModel.exportInfo[port] != null
-//                                                ) {
-//                                                    if (!mainViewModel.exportInfo[port]!!.pin1_Alert) {
-//                                                        val info = mainViewModel.exportInfo[port]
-//                                                        mainViewModel.portInfo[port]!!.pin1_Alert =
-//                                                            true
-//                                                        mainViewModel.alertInfo.add(
-//                                                            SetAlertData(
-//                                                                info!!.getLatestTime(),
-//                                                                info.getAQ_Model().toInt(),
-//                                                                info.getAQ_Id().toInt(),
-//                                                                "수위 초과",
-//                                                                1
-//                                                            )
-//                                                        )
-////                                                    mainViewModel.wasteAlert.value = true
-//                                                        mainViewModel.exportInfo[port]!!.pin1_Alert =
-//                                                            true
-//                                                    }
-//                                                }
-//                                            } else {
-//                                                i.isAlert = false
-//                                                mainViewModel.exportInfo[port] = currentSensorInfo
-//                                                mainViewModel.portInfo[port] = currentSensorInfo
-//                                                mainViewModel.portInfo[port]?.pin1_Alert =
-//                                                    false
-//                                                mainViewModel.exportInfo[port]?.pin1_Alert = false
-//                                                mainViewModel.wasteAlert.value = false
-//
-//                                            }
-//                                        }
-//                                        2 -> {
-//                                            if (pin2_data == 0) {
-//                                                i.isAlert = true
-//                                                mainViewModel.wasteAlert.value = true
-//                                                if (mainViewModel.exportInfo[port] != null) {
-//                                                    if (!mainViewModel.exportInfo[port]!!.pin2_Alert) {
-//                                                        val info = mainViewModel.exportInfo[port]
-//                                                        mainViewModel.portInfo[port]!!.pin2_Alert =
-//                                                            true
-//                                                        mainViewModel.alertInfo.add(
-//                                                            SetAlertData(
-//                                                                info!!.getLatestTime(),
-//                                                                info.getAQ_Model().toInt(),
-//                                                                info.getAQ_Id().toInt(),
-//                                                                "수위 초과",
-//                                                                2
-//                                                            )
-//                                                        )
-////                                                    mainViewModel.wasteAlert.value = true
-//                                                        mainViewModel.exportInfo[port]!!.pin2_Alert =
-//                                                            true
-//                                                    }
-//                                                }
-//                                            } else {
-//                                                i.isAlert = false
-//                                                mainViewModel.exportInfo[port] = currentSensorInfo
-//                                                mainViewModel.portInfo[port] = currentSensorInfo
-//                                                mainViewModel.portInfo[port]?.pin2_Alert =
-//                                                    false
-//                                                mainViewModel.exportInfo[port]?.pin2_Alert = false
-//                                                mainViewModel.wasteAlert.value = false
-//
-//                                            }
-//
-//                                        }
-//                                        3 -> {
-//                                            if (pin3_data == 0) {
-//                                                i.isAlert = true
-//                                                mainViewModel.wasteAlert.value = true
-//                                                if (mainViewModel.exportInfo[port] != null) {
-//                                                    if (!mainViewModel.exportInfo[port]!!.pin3_Alert) {
-//                                                        val info = mainViewModel.exportInfo[port]
-//                                                        mainViewModel.portInfo[port]!!.pin3_Alert =
-//                                                            true
-//                                                        mainViewModel.alertInfo.add(
-//                                                            SetAlertData(
-//                                                                info!!.getLatestTime(),
-//                                                                info.getAQ_Model().toInt(),
-//                                                                info.getAQ_Id().toInt(),
-//                                                                "수위 초과",
-//                                                                3
-//                                                            )
-//                                                        )
-////                                                    mainViewModel.wasteAlert.value = true
-//                                                        mainViewModel.exportInfo[port]!!.pin3_Alert =
-//                                                            true
-//                                                    }
-//                                                }
-//                                            } else {
-//                                                i.isAlert = false
-//                                                mainViewModel.exportInfo[port] = currentSensorInfo
-//                                                mainViewModel.portInfo[port] = currentSensorInfo
-//                                                mainViewModel.portInfo[port]?.pin3_Alert =
-//                                                    false
-//                                                mainViewModel.exportInfo[port]?.pin3_Alert = false
-//                                                mainViewModel.wasteAlert.value = false
-//
-//                                            }
-//
-//                                        }
-//                                        4 -> {
-//                                            if (pin4_data == 0) {
-//                                                i.isAlert = true
-//                                                mainViewModel.wasteAlert.value = true
-//                                                if (mainViewModel.exportInfo[port] != null) {
-//                                                    if (!mainViewModel.exportInfo[port]!!.pin4_Alert) {
-//                                                        val info = mainViewModel.exportInfo[port]
-//                                                        mainViewModel.portInfo[port]!!.pin4_Alert =
-//                                                            true
-//                                                        mainViewModel.alertInfo.add(
-//                                                            SetAlertData(
-//                                                                info!!.getLatestTime(),
-//                                                                info.getAQ_Model().toInt(),
-//                                                                info.getAQ_Id().toInt(),
-//                                                                "수위 초과",
-//                                                                4
-//                                                            )
-//                                                        )
-////                                                    mainViewModel.wasteAlert.value = true
-//                                                        mainViewModel.exportInfo[port]!!.pin4_Alert =
-//                                                            true
-//                                                    }
-//                                                }
-//                                            } else {
-//                                                i.isAlert = false
-//                                                mainViewModel.exportInfo[port] = currentSensorInfo
-//                                                mainViewModel.portInfo[port] = currentSensorInfo
-//                                                mainViewModel.portInfo[port]?.pin4_Alert =
-//                                                    false
-//                                                mainViewModel.exportInfo[port]?.pin4_Alert = false
-//                                                mainViewModel.wasteAlert.value = false
-//
-//                                            }
-//
-//                                        }
-//                                    }
-//                                    mainViewModel.WasteLiquorDataLiveList.notifyChange()
-//
-//                                }
-//                            }
-//
-//
-//                        }
-//                        "Oxygen" -> {
-//                            try {
-//                                val tempval = littleEndianConversion(
-//                                    receiveParser.mProtocol.slice(7..8).toByteArray()
-//                                )
-//                                Log.d(
-//                                    "산소",
-//                                    "protocol : ${HexDump.dumpHexString(receiveParser.mProtocol)}"
-//                                )
-//                                val oxygen = tempval.toInt() / 100
-//                                for (i in mainViewModel.OxygenDataLiveList.value!!) {
-//                                    if (i.id == receiveParser.mProtocol.get(3).toInt()) {
-//                                        i.setValue = oxygen
-//                                        val port = listOf<Int>(4, i.id, i.port)
-//                                        val portInfo = PortInfo(4.toByte(), i.id.toByte(), i.port)
-//                                        if (i.setMinValue > oxygen) {
-//                                            i.isAlert = true
-//                                            mainViewModel.oxyenAlert.value = true
-//                                            if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
-//                                                mainViewModel.alertInfo.add(
-//                                                    SetAlertData(
-//                                                        portInfo.latest_time,
-//                                                        portInfo.model.toInt(),
-//                                                        portInfo.id.toInt(),
-//                                                        "산소농도 하한 값",
-//                                                        portInfo.port
-//                                                    )
-//                                                )
-////                                            mainViewModel.oxyenAlert.value = true
-//                                                mainViewModel.mExPortInfo[port]?.alert_1 = true
-//                                            }
-//                                        } else {
-//                                            mainViewModel.mExPortInfo[port] = portInfo
-//                                            mainViewModel.mPortInfo[port] = portInfo
-//                                            mainViewModel.mPortInfo[port]?.alert_1 = false
-//                                            mainViewModel.mExPortInfo[port]?.alert_1 = false
-//                                            mainViewModel.oxyenAlert.value = false
-//                                        }
-//
-//                                        mainViewModel.OxygenDataLiveList.notifyChange()
-//                                    }
-//                                }
-//                            } catch (ex: Exception) {
-//
-//                            }
-//
-//                        }
-//                        "Steamer" -> {
-//                            Log.d(
-//                                "태그",
-//                                "Steamer // id:${receiveParser.mProtocol.get(3)} model:${
-//                                    receiveParser.mProtocol.get(2)
-//                                }"
-//                            )
-//
-//                            val pin1_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(7..8).toByteArray()
-//                            )
-//                            val pin2_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(9..10).toByteArray()
-//                            )
-//                            val pin3_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(11..12).toByteArray()
-//                            )
-//                            val pin4_data = littleEndianConversion(
-//                                receiveParser.mProtocol.slice(13..14).toByteArray()
-//                            )
-////                            for (i in mainViewModel.SteamerDataLiveList.value!!) {
-////                                if (i.id == receiveParser.mProtocol.get(3).toInt()) {
-////                                    val port = listOf<Int>(5, i.id, i.port)
-////                                    val portInfo = PortInfo(5.toByte(), i.id.toByte(), i.port)
-////                                    when (i.port) {
-////                                        1 -> {
-////                                            i.isTemp = pin1_data / 33
-////                                            i.unit
-////                                            if (pin3_data > 1000) {
-////                                                i.isAlertLow = true
-////                                                mainViewModel.steamerAlert.value = true
-////
-////                                                if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
-////                                                    mainViewModel.alertInfo.add(
-////                                                        SetAlertData(
-////                                                            portInfo.latest_time,
-////                                                            portInfo.model.toInt(),
-////                                                            portInfo.id.toInt(),
-////                                                            "수위 레벨 하한 값",
-////                                                            portInfo.port
-////                                                        )
-////                                                    )
-//////                                                mainViewModel.steamerAlert.value = true
-////                                                    mainViewModel.mExPortInfo[port]?.alert_1 = true
-////                                                }
-////                                            } else {
-////                                                i.isAlertLow = false
-//////                                            mainViewModel.mExPortInfo[port] = portInfo
-//////                                            mainViewModel.mPortInfo[port] = portInfo
-////                                                mainViewModel.mPortInfo[port]?.alert_1 = false
-////                                                mainViewModel.mExPortInfo[port]?.alert_1 = false
-////                                                mainViewModel.steamerAlert.value = false
-////                                            }
-////
-////                                            if (i.isTempMin > i.isTemp) {
-////                                                mainViewModel.steamerAlert.value = true
-////                                                i.isAlertTemp = true
-////                                                if (!mainViewModel.mExPortInfo[port]!!.alert_2) {
-////                                                    mainViewModel.alertInfo.add(
-////                                                        SetAlertData(
-////                                                            portInfo.latest_time,
-////                                                            portInfo.model.toInt(),
-////                                                            portInfo.id.toInt(),
-////                                                            "온도 레벨 하한 값",
-////                                                            portInfo.port
-////                                                        )
-////                                                    )
-//////                                                mainViewModel.steamerAlert.value = true
-////                                                    mainViewModel.mExPortInfo[port]?.alert_2 = true
-////                                                }
-////                                            } else {
-////                                                i.isAlertTemp = false
-//////                                            mainViewModel.mExPortInfo[port] = portInfo
-//////                                            mainViewModel.mPortInfo[port] = portInfo
-////                                                mainViewModel.mPortInfo[port]?.alert_2 = false
-////                                                mainViewModel.mExPortInfo[port]?.alert_2 = false
-////                                                mainViewModel.steamerAlert.value = false
-////                                            }
-////
-////                                        }
-////                                        2 -> {
-////                                            i.isTemp = pin2_data / 33
-////                                            i.unit
-////
-////                                            if (pin4_data > 1000) {
-////                                                i.isAlertLow = true
-////                                                mainViewModel.steamerAlert.value = true
-////                                                if (!mainViewModel.mExPortInfo[port]!!.alert_1) {
-////                                                    mainViewModel.alertInfo.add(
-////                                                        SetAlertData(
-////                                                            portInfo.latest_time,
-////                                                            portInfo.model.toInt(),
-////                                                            portInfo.id.toInt(),
-////                                                            "수위 레벨 하한 값",
-////                                                            portInfo.port
-////                                                        )
-////                                                    )
-//////                                                mainViewModel.steamerAlert.value = true
-////                                                    mainViewModel.mExPortInfo[port]?.alert_1 = true
-////                                                }
-////                                            } else {
-////                                                i.isAlertLow = false
-//////                                            mainViewModel.mExPortInfo[port] = portInfo
-//////                                            mainViewModel.mPortInfo[port] = portInfo
-////                                                mainViewModel.mPortInfo[port]?.alert_1 = false
-////                                                mainViewModel.mExPortInfo[port]?.alert_1 = false
-////                                                mainViewModel.steamerAlert.value = false
-////                                            }
-////
-////                                            if (i.isTempMin > i.isTemp) {
-////                                                i.isAlertTemp = true
-////                                                mainViewModel.steamerAlert.value = true
-////                                                if (!mainViewModel.mExPortInfo[port]!!.alert_2) {
-////                                                    mainViewModel.alertInfo.add(
-////                                                        SetAlertData(
-////                                                            portInfo.latest_time,
-////                                                            portInfo.model.toInt(),
-////                                                            portInfo.id.toInt(),
-////                                                            "온도 레벨 상한 값",
-////                                                            portInfo.port
-////                                                        )
-////                                                    )
-//////                                                mainViewModel.steamerAlert.value = true
-////                                                    mainViewModel.mExPortInfo[port]?.alert_2 = true
-////                                                }
-////                                            } else {
-////                                                i.isAlertTemp = false
-//////                                            mainViewModel.mExPortInfo[port] = portInfo
-//////                                            mainViewModel.mPortInfo[port] = portInfo
-////                                                mainViewModel.mPortInfo[port]?.alert_2 = false
-////                                                mainViewModel.mExPortInfo[port]?.alert_2 = false
-////                                                mainViewModel.oxyenAlert.value = false
-////                                            }
-////                                        }
-////
-////                                    }
-////                                    mainViewModel.SteamerDataLiveList.notifyChange()
-////
-////                                }
-////                            }
-//                        }
-//                        "Temp_Hum" -> {
-//
-//                        }
-//                    }
-
                 }
             }
-
-
             super.handleMessage(msg)
         }
     }
@@ -1259,14 +337,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun littleEndianConversion(bytes: ByteArray): Int {
-        var result = 0
-        for (i in bytes.indices) {
-            result = result or (bytes[i].toUByte().toInt() shl 8 * i)
-        }
-        return result
-    }
-
     lateinit var callbackThread: Thread
     var isSending = false
     fun callFeedback() {
@@ -1281,32 +351,32 @@ class MainActivity : AppCompatActivity() {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.GasDockStorage, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(25)
+                                    Thread.sleep(20)
                                 }
                                 "GasRoom" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.GasRoom, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(25)
+                                    Thread.sleep(20)
                                 }
                                 "WasteLiquor" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.WasteLiquor, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(25)
+                                    Thread.sleep(20)
                                 }
                                 "Oxygen" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.Oxygen, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(25)
+                                    Thread.sleep(35)
                                     //정상 17ms 비정상 35ms
                                 }
                                 "Steamer" -> {
                                     val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.Steamer, id)
                                     serialService?.sendData(protocol.mProtocol)
-                                    Thread.sleep(25)
+                                    Thread.sleep(20)
                                 }
                             }
                         }
@@ -1317,6 +387,146 @@ class MainActivity : AppCompatActivity() {
         }
         callbackThread.start()
 
+    }
+
+    private var alertTask: Timer? = null
+    private var alertCheckTask: Timer? = null
+    private var alertSoundTask: Timer? = null
+
+    private fun tabletSoundAlert() {
+        alertTask = kotlin.concurrent.timer(period = 2000) {
+            if (isTabletAlert) {
+                val mediaPlayer: android.media.MediaPlayer? =
+                    android.media.MediaPlayer.create(this@MainActivity, R.raw.tada)
+                mediaPlayer?.start()
+            }
+
+        }
+    }
+
+    var isTabletAlert = false
+    val exData = HashMap<Int, Boolean>()
+
+    private fun littleEndianConversion(bytes: ByteArray): Int {
+        var result = 0
+        for (i in bytes.indices) {
+            result = result or (bytes[i].toUByte().toInt() shl 8 * i)
+        }
+        return result
+    }
+
+    lateinit var alertThread: Thread
+    private fun sendAlert() {
+
+//        alertSoundTask = kotlin.concurrent.timer(period = 100) {
+        alertThread = Thread {
+            while (true) {
+
+                val protocol = SaminProtocol()
+
+                var diffkeys = mainViewModel.portAlertMapLed.keys.toMutableList()
+
+                for ((key, value) in mainViewModel.alertMap) {
+                    val aqInfo = HexDump.toByteArray(key)
+                    val model = aqInfo[3]
+                    val id = aqInfo[2]
+                    val port = aqInfo[1]
+
+                    val ledkey = littleEndianConversion(byteArrayOf(model, id)).toShort()
+                    //isAlert 1개 해결된것을 제외
+                    if (!value.isAlert) {
+                        if (mainViewModel.portAlertMapLed.size == 0)
+                            continue
+
+                        var tmpBits = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+                        if (tmpBits and (1 shl (port - 1)).toByte() > 0) {
+                            tmpBits = tmpBits xor (1 shl (port - 1)).toByte()
+                            mainViewModel.portAlertMapLed[ledkey] = tmpBits
+                        }
+                        continue
+                    }
+
+                    // LED 켜짐 유무 확인
+                    // 기존 경고와의 차이점 식별 가능
+                    var tmpBits = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+                    val tmplast = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+
+                    diffkeys.remove(ledkey)
+                    tmpBits = tmpBits or (1 shl (port - 1)).toByte()
+
+                    isSending = false
+                    callbackThread.interrupt()
+                    // LED 경고 상태를 전달.
+                    for (cnt in 0..2) {
+                        protocol.led_AlertStateByte(model, id, tmpBits)
+                        serialService?.sendData(protocol.mProtocol.clone())
+                    }
+                    Log.d("Test", "tmpBit: $tmpBits")
+
+                    if (!tmpBits.equals(tmplast)) {
+                        // 경고음 처리전
+                        protocol.buzzer_On(model, id)
+                        for (cnt in 0..2) {
+                            serialService?.sendData(protocol.mProtocol.clone())
+                            Thread.sleep(35)
+                        }
+                    }
+                    mainViewModel.portAlertMapLed[ledkey] = tmpBits
+
+                    isSending = true
+                    callFeedback()
+                }
+                // 에러가 사라진 AQ 찾기
+                for (tmp in diffkeys) {
+                    val aqInfo = HexDump.toByteArray(tmp)
+                    val model = aqInfo[1]
+                    val id = aqInfo[0]
+                    isSending = false
+                    callbackThread.interrupt()
+                    for (cnt in 0..2) {
+                        protocol.buzzer_Off(model, id)
+                        serialService?.sendData(protocol.mProtocol.clone())
+                        Thread.sleep(35)
+
+                        protocol.led_AlertStateByte(model, id, 0.toByte())
+                        serialService?.sendData(protocol.mProtocol.clone())
+                        Thread.sleep(35)
+                    }
+                    isSending = true
+                    callFeedback()
+                    mainViewModel.portAlertMapLed.remove(tmp)
+                }
+                Thread.sleep(200)
+            }
+
+        }
+        alertThread.start()
+//        }
+
+//        alertCheckTask = kotlin.concurrent.timer(period = 100) {
+//            val protocol = SaminProtocol()
+//            for ((key, value) in mainViewModel.alertStateMap) {
+//                val aqInfo = HexDump.toByteArray(key)
+//                val model = aqInfo[0]
+//                val id = aqInfo[1]
+//                protocol.led_AlertState(
+//                    model,
+//                    id,
+//                    value[0],
+//                    value[1],
+//                    value[2],
+//                    value[3]
+//                )
+//                serialService?.sendData(protocol.mProtocol.clone())
+//
+//
+//            }
+//        }
+
+
+//        mainViewModel.alertStateMap.filter {
+//            it.value.
+//        }
     }
 
     private var modbusService: SaminModbusService? = null
@@ -1396,3 +606,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+
+

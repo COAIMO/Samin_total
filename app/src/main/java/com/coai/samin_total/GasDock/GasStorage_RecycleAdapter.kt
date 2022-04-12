@@ -61,8 +61,6 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        Log.d(TAG, "RecyclerViewAdapter - onBindViewHolder() called / position : $position")
-
         when (setGasdockViewData[position].ViewType) {
             0 -> {
                 (holder as gasDockSingleViewHodler).bind(setGasdockViewData[position])

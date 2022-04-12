@@ -214,7 +214,6 @@ class OxygenSettingFragment : Fragment() {
         //설정값 저장
         val buff = mutableListOf<SetOxygenViewData>()
         for (i in viewmodel.OxygenDataLiveList.value!!) {
-            Log.d("테스트", "viewmodel: $i")
             buff.add(i)
         }
         shared.saveBoardSetData(SaminSharedPreference.OXYGEN, buff)

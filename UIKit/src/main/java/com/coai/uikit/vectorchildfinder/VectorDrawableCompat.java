@@ -361,6 +361,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
         mVectorState.mAutoMirrored = mirrored;
     }
+
     /**
      * The size of a pixel when scaled from the intrinsic dimension to the viewport dimension. This
      * is used to calculate the path animation accuracy.
@@ -1135,7 +1136,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
                 matrixScale = Math.abs(crossProduct) / maxScale;
             }
             if (DBG_VECTOR_DRAWABLE) {
-                Log.d(LOGTAG, "Scale x " + scaleX + " y " + scaleY + " final " + matrixScale);
+//                Log.d(LOGTAG, "Scale x " + scaleX + " y " + scaleY + " final " + matrixScale);
             }
             return matrixScale;
         }

@@ -8,14 +8,12 @@ import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.GasRoom.TimePSI
-import com.coai.samin_total.Logic.AQData
-import com.coai.samin_total.Logic.CurrentSensorInfo
-import com.coai.samin_total.Logic.MutableListLiveData
-import com.coai.samin_total.Logic.PortInfo
+import com.coai.samin_total.Logic.*
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerSettingFragment
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
+import java.util.concurrent.ConcurrentHashMap
 
 class MainViewModel : ViewModel() {
     companion object {
@@ -51,50 +49,27 @@ class MainViewModel : ViewModel() {
 
     }
 
-    //내부에서 설정하는 자료형은 뮤터블로
-    //변경가능하도록 설정
-    private val _model_ID_Data = MutableLiveData<HashMap<String, Byte>>()
-
     val GasStorageDataLiveList = MutableListLiveData<SetGasStorageViewData>()
     val GasRoomDataLiveList = MutableListLiveData<SetGasRoomViewData>()
     val WasteLiquorDataLiveList = MutableListLiveData<SetWasteLiquorViewData>()
     val OxygenDataLiveList = MutableListLiveData<SetOxygenViewData>()
     val SteamerDataLiveList = MutableListLiveData<SetSteamerViewData>()
 
-
-    val latestSensorInfo = HashMap<List<Byte>, CurrentSensorInfo>()
-    val exSensorInfo = HashMap<List<Byte>, CurrentSensorInfo>()
-
-    val portInfo = HashMap<List<Int>, CurrentSensorInfo>()
-    val exportInfo = HashMap<List<Int>, CurrentSensorInfo>()
-
-
-    val mPortInfo = HashMap<List<Int>, PortInfo>()
-    val mExPortInfo = HashMap<List<Int>, PortInfo>()
-
-//    val lastStateInfo = MutableLiveData<HashMap<List<Byte>, CurrentSensorInfo>>()
-
     val alertInfo = MutableListLiveData<SetAlertData>()
+    val alertMap = ConcurrentHashMap<Int, SetAlertData>()
+    val portAlertMapLed = ConcurrentHashMap<Short, Byte>()
+
     val wasteAlert:MutableLiveData<Boolean> = MutableLiveData()
     val oxyenAlert:MutableLiveData<Boolean> = MutableLiveData()
     val gasStorageAlert:MutableLiveData<Boolean> = MutableLiveData()
     val steamerAlert:MutableLiveData<Boolean> = MutableLiveData()
     val gasRoomAlert:MutableLiveData<Boolean> = MutableLiveData()
 
-    val testHashMap = HashMap<Short, AQData>()
+    var isSoundAlert = true
 
     var labName:String = "Lab - 015"
-    // 변경되지 않는 데이터를 가져올때 이름을 _ 언더스코어 없이 설정
-    // 공개적으로 가져오는 변수는 private 이 아닌 퍼블릭으로 외부에서도 접근가능하도록 설정
-    // 하지만 값을 직접 라이브데이터에 접근하지 않고 뷰모델을 통해 가져올수 있도록 설정
-    val model_ID_Data: MutableLiveData<HashMap<String, Byte>>
-        get() = _model_ID_Data
 
     val modelMap = HashMap<String, ByteArray>()
-    val roomAlert_1 = HashMap<Int, Int>()
-    val roomAlert_2 = HashMap<Int, Boolean>()
-    val roomAlert_3 = HashMap<Int, Boolean>()
-    val roomAlert_4 = HashMap<Int, Boolean>()
 
     val gasColorMap = hashMapOf<String, Int>(
         "Air" to Color.parseColor("#6599CD"),
@@ -174,19 +149,6 @@ class MainViewModel : ViewModel() {
         modelMap.remove("Oxygen")
         modelMap.remove("Steamer")
     }
-    init {
-//        Log.d(TAG, "MainViewModel - 생성자 호출")
-//        Log.d(TAG, "MainViewModel _currentValue : $_currentValue")
-//        _IDsList.value = IDs
 
-
-    }
 }
 
-class ListLiveData<T> : MutableLiveData<MutableList<T>>() {
-    private val temp = mutableListOf<T>()
-
-    init {
-        value = temp
-    }
-}

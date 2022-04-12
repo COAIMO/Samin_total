@@ -183,13 +183,13 @@ class WasteLiquorMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        viewmodel.WasteLiquorDataLiveList.clear(true)
-        val wasteDataSet = shared.loadBoardSetData(SaminSharedPreference.WASTELIQUOR) as MutableList<SetWasteLiquorViewData>
-        if (wasteDataSet.isNotEmpty()){
-            for (i in wasteDataSet){
-                viewmodel.WasteLiquorDataLiveList.add(i)
-            }
-        }
+//        viewmodel.WasteLiquorDataLiveList.clear(true)
+//        val wasteDataSet = shared.loadBoardSetData(SaminSharedPreference.WASTELIQUOR) as MutableList<SetWasteLiquorViewData>
+//        if (wasteDataSet.isNotEmpty()){
+//            for (i in wasteDataSet){
+//                viewmodel.WasteLiquorDataLiveList.add(i)
+//            }
+//        }
         val mm =
             viewmodel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)

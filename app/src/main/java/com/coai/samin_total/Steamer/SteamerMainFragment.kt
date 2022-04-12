@@ -147,7 +147,7 @@ class SteamerMainFragment : Fragment() {
                 { it.port })).withIndex()) {
                 data.unit++
                 viewmodel.SteamerDataLiveList.value!!.set(index, data)
-                Log.d("전", "인텍스: $index" + "데이더 : $data")
+//                Log.d("전", "인텍스: $index" + "데이더 : $data")
                 if(data.unit > 1) data.unit = 0
             }
             recycleAdapter.submitList(viewmodel.SteamerDataLiveList.value!!)
@@ -156,7 +156,7 @@ class SteamerMainFragment : Fragment() {
             for ((index, data) in viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy(
                 { it.id },
                 { it.port })).withIndex()) {
-                Log.d("후", "인텍스: $index" + "데이더 : $data")
+//                Log.d("후", "인텍스: $index" + "데이더 : $data")
             }
         }
 
@@ -195,13 +195,13 @@ class SteamerMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        viewmodel.SteamerDataLiveList.clear(true)
-        val steamerDataSet = shared.loadBoardSetData(SaminSharedPreference.STEAMER) as MutableList<SetSteamerViewData>
-        if (steamerDataSet.isNotEmpty()){
-            for (i in steamerDataSet){
-                viewmodel.SteamerDataLiveList.add(i)
-            }
-        }
+//        viewmodel.SteamerDataLiveList.clear(true)
+//        val steamerDataSet = shared.loadBoardSetData(SaminSharedPreference.STEAMER) as MutableList<SetSteamerViewData>
+//        if (steamerDataSet.isNotEmpty()){
+//            for (i in steamerDataSet){
+//                viewmodel.SteamerDataLiveList.add(i)
+//            }
+//        }
         val mm = viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy({it.id},{it.port}))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()

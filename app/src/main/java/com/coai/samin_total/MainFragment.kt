@@ -19,10 +19,17 @@ import com.coai.libmodbus.service.SaminModbusService
 import com.coai.libsaminmodbus.model.ModelMonitorValues
 import com.coai.libsaminmodbus.model.ObserveModelMonitorValues
 import com.coai.samin_total.Dialog.AlertDialogFragment
+import com.coai.samin_total.GasDock.SetGasStorageViewData
+import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
+import com.coai.samin_total.Oxygen.SetOxygenViewData
+import com.coai.samin_total.Steamer.SetSteamerViewData
+import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentMainBinding
 import java.lang.ref.WeakReference
+import java.util.*
+import kotlin.concurrent.thread
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -48,7 +55,6 @@ class MainFragment : Fragment() {
     private lateinit var onBackPressed: OnBackPressedCallback
     var backKeyPressedTime: Long = 0
     private var btn_Count = 0
-
     //    lateinit var db: SaminDataBase
 
     override fun onAttach(context: Context) {
@@ -87,21 +93,10 @@ class MainFragment : Fragment() {
     ): View? {
         mBinding = FragmentMainBinding.inflate(inflater, container, false)
         shared = SaminSharedPreference(requireContext())
-//        db = SaminDataBase.getIstance(requireContext())!!
         setButtonClickEvent()
         initView()
-
-        mBinding.labIDTextView.setOnClickListener {
-            Thread {
-                for (id in 0..7) {
-                    val protocol = SaminProtocol()
-                    protocol.feedBack(MainViewModel.Oxygen, id.toByte())
-                    activity?.serialService?.sendData(protocol.mProtocol)
-                    Thread.sleep(50)
-                }
-            }.start()
-        }
         udateAlert()
+
         mBinding.labIDTextView.setOnClickListener {
             shared.removeBoardSetData(SaminSharedPreference.GASSTORAGE)
             shared.removeBoardSetData(SaminSharedPreference.GASROOM)
@@ -109,6 +104,7 @@ class MainFragment : Fragment() {
             shared.removeBoardSetData(SaminSharedPreference.OXYGEN)
             shared.removeBoardSetData(SaminSharedPreference.STEAMER)
         }
+
         return mBinding.root
     }
 
@@ -192,16 +188,15 @@ class MainFragment : Fragment() {
 
             }
             mBinding.btnSound -> {
-                soundAlert()
-                mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
 
                 if (btn_Count % 2 == 0) {
                     btn_Count++
-
+                    mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
+                    viewmodel.isSoundAlert = false
                 } else {
                     btn_Count++
-
-
+                    mBinding.btnSound.setImageResource(R.drawable.sound_ic)
+                    viewmodel.isSoundAlert = true
                 }
             }
             mBinding.btnScan -> {
@@ -211,7 +206,7 @@ class MainFragment : Fragment() {
     }
 
     private fun scanModel() {
-        activity?.isSending =false
+        activity?.isSending = false
         getProgressShow()
         viewmodel.removeModelMap()
         sendThread = Thread {
@@ -261,6 +256,52 @@ class MainFragment : Fragment() {
             shared.loadHashMap().forEach { (key, value) ->
                 viewmodel.modelMap[key] = value
             }
+
+            val storgeDataSet =
+                shared.loadBoardSetData(SaminSharedPreference.GASSTORAGE) as MutableList<SetGasStorageViewData>
+            viewmodel.GasStorageDataLiveList.clear(true)
+            if (storgeDataSet.isNotEmpty()) {
+                for (i in storgeDataSet) {
+                    viewmodel.GasStorageDataLiveList.add(i)
+                }
+            }
+
+            viewmodel.GasRoomDataLiveList.clear(true)
+            val roomDataSet =
+                shared.loadBoardSetData(SaminSharedPreference.GASROOM) as MutableList<SetGasRoomViewData>
+            if (roomDataSet.isNotEmpty()) {
+                for (i in roomDataSet) {
+                    viewmodel.GasRoomDataLiveList.add(i)
+                }
+            }
+
+            viewmodel.OxygenDataLiveList.clear(true)
+            val oxygenDataSet = shared.loadBoardSetData(SaminSharedPreference.OXYGEN) as MutableList<SetOxygenViewData>
+            if (oxygenDataSet.isNotEmpty()){
+                for (i in oxygenDataSet){
+                    viewmodel.OxygenDataLiveList.add(i)
+                }
+            }
+
+            viewmodel.SteamerDataLiveList.clear(true)
+            val steamerDataSet = shared.loadBoardSetData(SaminSharedPreference.STEAMER) as MutableList<SetSteamerViewData>
+            if (steamerDataSet.isNotEmpty()){
+                for (i in steamerDataSet){
+                    viewmodel.SteamerDataLiveList.add(i)
+                }
+            }
+
+            viewmodel.WasteLiquorDataLiveList.clear(true)
+            val wasteDataSet = shared.loadBoardSetData(SaminSharedPreference.WASTELIQUOR) as MutableList<SetWasteLiquorViewData>
+            if (wasteDataSet.isNotEmpty()){
+                for (i in wasteDataSet){
+                    viewmodel.WasteLiquorDataLiveList.add(i)
+                }
+            }
+            activity?.tmp?.LoadSetting()
+            activity?.isSending = true
+            activity?.callFeedback()
+
         }
 
         for ((key, ids) in viewmodel.modelMap) {
@@ -306,7 +347,6 @@ class MainFragment : Fragment() {
                         viewmodel.removeModelMap()
                         getProgressHidden()
                     } catch (e: Exception) {
-                        Log.d("interrupt", "$e")
                     }
                 })
 //            progress_Dialog.setButton(
@@ -380,12 +420,6 @@ class MainFragment : Fragment() {
             }
         }
 
-    }
-
-    private fun soundAlert() {
-        val mediaPlayer: android.media.MediaPlayer? =
-            android.media.MediaPlayer.create(context, R.raw.tada)
-        mediaPlayer?.start()
     }
 
 }

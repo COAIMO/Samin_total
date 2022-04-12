@@ -184,13 +184,13 @@ class OxygenMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        viewmodel.OxygenDataLiveList.clear(true)
-        val oxygenDataSet = shared.loadBoardSetData(SaminSharedPreference.OXYGEN) as MutableList<SetOxygenViewData>
-        if (oxygenDataSet.isNotEmpty()){
-            for (i in oxygenDataSet){
-                viewmodel.OxygenDataLiveList.add(i)
-            }
-        }
+//        viewmodel.OxygenDataLiveList.clear(true)
+//        val oxygenDataSet = shared.loadBoardSetData(SaminSharedPreference.OXYGEN) as MutableList<SetOxygenViewData>
+//        if (oxygenDataSet.isNotEmpty()){
+//            for (i in oxygenDataSet){
+//                viewmodel.OxygenDataLiveList.add(i)
+//            }
+//        }
         val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()

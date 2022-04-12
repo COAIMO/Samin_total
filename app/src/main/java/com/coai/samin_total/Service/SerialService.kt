@@ -102,11 +102,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     //SerialInputOutputManager.Listener
     override fun onNewData(data: ByteArray?) {
-        Log.d("로그", "onNewData : ${HexDump.dumpHexString(data)}")
+//        Log.d("로그", "onNewData : ${HexDump.dumpHexString(data)}")
         if (data != null) {
             parseReceiveData(data)
         }
-//        mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, data).sendToTarget()
     }
 
 //    SerialInputOutputManager.Listener
@@ -117,7 +116,6 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     }
 
     override fun onCreate() {
-        Log.d(serviceTAG, "SerialService : onCreate")
         GlobalScope.launch {
             delay(1000L)
             findUSBSerialDevice()
@@ -131,7 +129,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
 
     override fun onDestroy() {
-        Log.d(serviceTAG, "SerialService : onDestroy")
+//        Log.d(serviceTAG, "SerialService : onDestroy")
         unregisterReceiver(broadcastReceiver)
         super.onDestroy()
     }
@@ -154,7 +152,6 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     private fun findUSBSerialDevice() {
         usbManager = getSystemService(Context.USB_SERVICE) as UsbManager
         if (usbManager.deviceList.isEmpty()) {
-            Log.d(serviceTAG, "connection failed: device not found")
             mHandler.postDelayed({
                 Toast.makeText(this, "connection failed: device not found", Toast.LENGTH_SHORT)
                     .show()
@@ -163,7 +160,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         }
         usbDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
         if (usbDrivers == null) {
-            Log.d(serviceTAG, "connection failed: no driver for device")
+//            Log.d(serviceTAG, "connection failed: no driver for device")
             mHandler.postDelayed({
                 Toast.makeText(this, "connection failed: no driver for device", Toast.LENGTH_SHORT)
                     .show()
@@ -218,7 +215,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //            }.start()
 //
             usbIoManager = SerialInputOutputManager(usbSerialPort, this)
-            usbIoManager!!.readTimeout = 50
+            usbIoManager!!.readTimeout = 35
 //            usbIoManager!!.writeTimeout = 200
 //            usbIoManager!!.readBufferSize = 1000
             usbIoManager!!.start()
@@ -245,7 +242,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
         usbIoManager!!.writeAsync(data)
 
-        Log.d("태그", "send data :${HexDump.dumpHexString(data)}")
+//        Log.d("태그", "send data :${HexDump.dumpHexString(data)}")
     }
 
     fun checkModelandID() {

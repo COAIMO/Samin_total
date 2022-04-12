@@ -56,12 +56,15 @@ class GasDockMainFragment : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
+
+
     }
 
     override fun onDetach() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,13 +78,14 @@ class GasDockMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+
         timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
             heartbeatCount++
             for (tmp in mainViewModel.GasStorageDataLiveList.value!!.iterator()) {
                 tmp.heartbeatCount = heartbeatCount
             }
 
-            var tmp = (mBinding.gasStorageRecyclerView.layoutManager as GridLayoutManager)
+            val tmp = (mBinding.gasStorageRecyclerView.layoutManager as GridLayoutManager)
             activity?.runOnUiThread() {
                 try {
                     val start = tmp.findFirstVisibleItemPosition()
@@ -91,6 +95,11 @@ class GasDockMainFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        timerTaskRefresh?.cancel()
     }
 
     override fun onCreateView(
@@ -142,7 +151,6 @@ class GasDockMainFragment : Fragment() {
                     { it.id },
                     { it.port })
             ).withIndex()) {
-                Log.d("gasdock 전", "인텍스: $index" + "데이더 : $data")
                 data.unit++
                 mainViewModel.GasStorageDataLiveList.value!!.set(index, data)
                 if (data.unit == 4) data.unit = 0
@@ -155,7 +163,6 @@ class GasDockMainFragment : Fragment() {
                     { it.id },
                     { it.port })
             ).withIndex()) {
-                Log.d("gasdock 후", "인텍스: $index" + "데이더 : $data")
             }
         }
         mBinding.btnAlert.setOnClickListener {
@@ -181,14 +188,14 @@ class GasDockMainFragment : Fragment() {
 
     private fun initView() {
         //셋팅 데이터 불러와서 뷰추가 할것!!!
-        val storgeDataSet =
-            shared.loadBoardSetData(SaminSharedPreference.GASSTORAGE) as MutableList<SetGasStorageViewData>
-        mainViewModel.GasStorageDataLiveList.clear(true)
-        if (storgeDataSet.isNotEmpty()) {
-            for (i in storgeDataSet) {
-                mainViewModel.GasStorageDataLiveList.add(i)
-            }
-        }
+//        val storgeDataSet =
+//            shared.loadBoardSetData(SaminSharedPreference.GASSTORAGE) as MutableList<SetGasStorageViewData>
+//        mainViewModel.GasStorageDataLiveList.clear(true)
+//        if (storgeDataSet.isNotEmpty()) {
+//            for (i in storgeDataSet) {
+//                mainViewModel.GasStorageDataLiveList.add(i)
+//            }
+//        }
 
         val mm = mainViewModel.GasStorageDataLiveList.value!!.sortedWith(
             compareBy({ it.id },

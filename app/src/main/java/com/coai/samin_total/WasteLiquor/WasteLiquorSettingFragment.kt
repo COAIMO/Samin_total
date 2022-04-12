@@ -187,7 +187,6 @@ class WasteWaterSettingFragment : Fragment() {
         }
         val buff = mutableListOf<SetWasteLiquorViewData>()
         for (i in viewmodel.WasteLiquorDataLiveList.value!!) {
-            Log.d("테스트", "viewmodel: $i")
             buff.add(i)
         }
         shared.saveBoardSetData(SaminSharedPreference.WASTELIQUOR, buff)

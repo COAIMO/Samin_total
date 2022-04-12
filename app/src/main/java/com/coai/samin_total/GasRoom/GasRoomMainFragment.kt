@@ -86,31 +86,20 @@ class GasRoomMainFragment : Fragment() {
         mBinding.btnZoomInout.setOnClickListener {
             if (btn_Count % 2 == 0) {
                 btn_Count++
-                mBinding.gasRoomRecyclerView.apply {
-                    layoutManager =
-                        GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-
-                    //아이템 높이 간격 조절
-//                    val decoration_height = RecyclerDecoration_Height(25)
-//                    addItemDecoration(decoration_height)
-
-                    recycleAdapter.submitList(gasRoomViewData)
-                    adapter = recycleAdapter
+                synchronized(lockobj) {
+                    mBinding.gasRoomRecyclerView.apply {
+                        layoutManager =
+                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                    }
                 }
             } else {
                 btn_Count++
-                mBinding.gasRoomRecyclerView.apply {
-                    layoutManager =
-                        GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-
-                    //아이템 높이 간격 조절
-//                    val decoration_height = RecyclerDecoration_Height(25)
-//                    addItemDecoration(decoration_height)
-
-                    recycleAdapter.submitList(gasRoomViewData)
-                    adapter = recycleAdapter
+                synchronized(lockobj) {
+                    mBinding.gasRoomRecyclerView.apply {
+                        layoutManager =
+                            GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+                    }
                 }
-
             }
         }
         mBinding.btnUnit.setOnClickListener {
@@ -119,7 +108,6 @@ class GasRoomMainFragment : Fragment() {
                     { it.id },
                     { it.port })
             ).withIndex()) {
-                Log.d("room 전", "인텍스: $index" + "데이더 : $data")
                 data.unit++
                 viewmodel.GasRoomDataLiveList.value!!.set(index, data)
                 if (data.unit == 3) data.unit = 0
@@ -171,14 +159,14 @@ class GasRoomMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        viewmodel.GasRoomDataLiveList.clear(true)
-        val roomDataSet =
-            shared.loadBoardSetData(SaminSharedPreference.GASROOM) as MutableList<SetGasRoomViewData>
-        if (roomDataSet.isNotEmpty()) {
-            for (i in roomDataSet) {
-                viewmodel.GasRoomDataLiveList.add(i)
-            }
-        }
+//        viewmodel.GasRoomDataLiveList.clear(true)
+//        val roomDataSet =
+//            shared.loadBoardSetData(SaminSharedPreference.GASROOM) as MutableList<SetGasRoomViewData>
+//        if (roomDataSet.isNotEmpty()) {
+//            for (i in roomDataSet) {
+//                viewmodel.GasRoomDataLiveList.add(i)
+//            }
+//        }
         val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
         recycleAdapter.notifyDataSetChanged()
@@ -196,7 +184,7 @@ class GasRoomMainFragment : Fragment() {
 
 
     }
-
+    val lockobj = object{}
     override fun onResume() {
         super.onResume()
         timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
@@ -205,13 +193,15 @@ class GasRoomMainFragment : Fragment() {
                 tmp.heartbeatCount = heartbeatCount
             }
 
-            var tmp = (mBinding.gasRoomRecyclerView.layoutManager as GridLayoutManager)
-            activity?.runOnUiThread() {
-                try {
-                    val start = tmp.findFirstVisibleItemPosition()
-                    val end = tmp.findLastVisibleItemPosition()
-                    recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
-                } catch (ex: Exception) {
+            synchronized(lockobj) {
+                var tmp = (mBinding.gasRoomRecyclerView.layoutManager as GridLayoutManager)
+                activity?.runOnUiThread() {
+                    try {
+                        val start = tmp.findFirstVisibleItemPosition()
+                        val end = tmp.findLastVisibleItemPosition()
+                        recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
+                    } catch (ex: Exception) {
+                    }
                 }
             }
         }
