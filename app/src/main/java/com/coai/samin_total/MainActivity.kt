@@ -98,7 +98,6 @@ class MainActivity : AppCompatActivity() {
         tmp = AQDataParser(mainViewModel)
 
         setFragment()
-        tabletSoundAlert()
         sendAlert()
     }
 
@@ -428,15 +427,16 @@ class MainActivity : AppCompatActivity() {
     private var alertCheckTask: Timer? = null
     private var alertSoundTask: Timer? = null
 
-    private fun tabletSoundAlert() {
+    fun tabletSoundAlertOn() {
         alertTask = kotlin.concurrent.timer(period = 2000) {
-            if (isTabletAlert) {
-                val mediaPlayer: android.media.MediaPlayer? =
-                    android.media.MediaPlayer.create(this@MainActivity, R.raw.tada)
-                mediaPlayer?.start()
-            }
-
+            val mediaPlayer: android.media.MediaPlayer? =
+                android.media.MediaPlayer.create(this@MainActivity, R.raw.tada)
+            mediaPlayer?.start()
         }
+    }
+
+    fun tabletSoundAlertOff() {
+        alertTask?.cancel()
     }
 
     var isTabletAlert = false
@@ -506,6 +506,7 @@ class MainActivity : AppCompatActivity() {
                     if (!tmpBits.equals(tmplast)) {
                         // 경고음 처리전
                         if (mainViewModel.isSoundAlert) {
+                            tabletSoundAlertOn()
                             protocol.buzzer_On(model, id)
                             for (cnt in 0..2) {
                                 serialService?.sendData(protocol.mProtocol.clone())
@@ -529,7 +530,7 @@ class MainActivity : AppCompatActivity() {
                     val id = aqInfo[0]
 //                    isSending = false
 //                    callbackThread.interrupt()
-
+                    tabletSoundAlertOff()
                     for (cnt in 0..2) {
                         protocol.buzzer_Off(model, id)
                         serialService?.sendData(protocol.mProtocol.clone())

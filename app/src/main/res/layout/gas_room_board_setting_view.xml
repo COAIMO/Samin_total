@@ -36,26 +36,83 @@
         app:layout_constraintStart_toEndOf="@id/tv_max_cap."
         app:layout_constraintTop_toBottomOf="@id/tv_max_cap." />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:text="가스종류"
-        android:textSize="15sp" />
-
-    <Spinner
-        android:id="@+id/sp_gas_type"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_gravity="center"
-        android:layout_marginHorizontal="10dp"
-        android:background="@drawable/spinner_background"
-        android:inputType="number"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/tv_max_cap."
-        app:layout_constraintTop_toBottomOf="@id/tv_max_cap." />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:text="가스종류"
+                android:textSize="15sp" />
+
+            <Spinner
+                android:id="@+id/sp_gas_type"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="10dp"
+                android:background="@drawable/spinner_background"
+                android:inputType="number"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tv_max_cap."
+                app:layout_constraintTop_toBottomOf="@id/tv_max_cap." />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:text="가스추가"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/et_addGas"
+                    android:layout_width="200dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:hint="새로운 가스입력"
+                    android:imeOptions="actionDone"
+                    android:inputType="text"
+                    android:maxLength="5"
+                    android:maxLines="1"
+                    android:textSize="20sp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_addGas"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:background="@color/SaveButtonBack"
+                    android:gravity="center"
+                    android:text="추가"
+                    android:textColor="#ffffff"
+                    android:textSize="20sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
 
     <!--    <TextView-->
     <!--        android:layout_width="wrap_content"-->
@@ -93,7 +150,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:text="최대 용량(레귤레이터 설정 압력)"
+            android:text="최대 용량(레귤레이터 설정 압력)[단위 : psi]"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -161,7 +218,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="영점조절"
+        android:text="영점조절 [단위 : psi]"
         android:textSize="15sp" />
 
     <EditText

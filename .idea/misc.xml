@@ -70,7 +70,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_dock_main.xml" value="0.241796875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_room_main.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_room_setting.xml" value="0.33" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_storage_setting.xml" value="0.25" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_gas_storage_setting.xml" value="0.67" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_layout.xml" value="0.244921875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_main.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_main_setting.xml" value="0.22" />
@@ -86,11 +86,11 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_waste_liquor_setting.xml" value="0.351875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_waste_water_setting.xml" value="0.282421875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_board_setting_view.xml" value="0.247265625" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_room_board_setting_view.xml" value="0.18" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_room_board_setting_view.xml" value="0.33" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_room_view.xml" value="0.184375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_setting_view.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_autochanger_view.xml" value="0.199375" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_board_setting_view.xml" value="0.22" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_board_setting_view.xml" value="0.5" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_dual_view.xml" value="0.199375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_single_view.xml" value="0.184375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gasdockview.xml" value="0.155625" />

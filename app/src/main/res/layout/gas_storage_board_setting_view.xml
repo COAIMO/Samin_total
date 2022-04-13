@@ -145,7 +145,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="용량 경고알람"
+        android:text="용량 경고알람[단위 : psi]"
         android:textSize="15sp" />
 
     <EditText
@@ -169,7 +169,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:text="최대 용량(레귤레이터 설정 압력)"
+            android:text="최대 용량(레귤레이터 설정 압력)[단위 : psi]"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -217,7 +217,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="영점조절"
+        android:text="영점조절 [단위 : psi]"
         android:textSize="15sp" />
 
     <EditText

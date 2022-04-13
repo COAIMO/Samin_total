@@ -306,11 +306,11 @@ class AQDataParser(viewModel: MainViewModel) {
                 alertMap2.put(id, true)
                 viewModel.gasStorageAlert.value = true
                 viewModel.addAlertInfo(
-                    id + 256,
+                    id + 65536,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id + 256,
+                        tmp.id + 65536,
                         "가스 압력 하한 값",
                         tmp.port + 1,
                         true
@@ -323,11 +323,11 @@ class AQDataParser(viewModel: MainViewModel) {
                 tmp.isAlertRight = false
                 viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
-                    id + 256,
+                    id + 65536,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id + 256,
+                        tmp.id + 65536,
                         "가스 압력 정상",
                         tmp.port + 1,
                         false
