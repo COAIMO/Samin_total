@@ -469,7 +469,7 @@ class MainActivity : AppCompatActivity() {
 
                     val ledkey = littleEndianConversion(byteArrayOf(model, id)).toShort()
                     //isAlert 1개 해결된것을 제외
-                    if (!value.isAlert) {
+                    if (!value.isAlert){
                         if (mainViewModel.portAlertMapLed.size == 0)
                             continue
 
@@ -487,6 +487,7 @@ class MainActivity : AppCompatActivity() {
                     val tmplast = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
 
                     diffkeys.remove(ledkey)
+
                     tmpBits = tmpBits or (1 shl (port - 1)).toByte()
 
 //                    isSending = false

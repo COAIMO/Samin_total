@@ -306,13 +306,13 @@ class AQDataParser(viewModel: MainViewModel) {
                 alertMap2.put(id, true)
                 viewModel.gasStorageAlert.value = true
                 viewModel.addAlertInfo(
-                    id,
+                    id + 256,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id,
+                        tmp.id + 256,
                         "가스 압력 하한 값",
-                        tmp.port,
+                        tmp.port + 1,
                         true
                     )
                 )
@@ -323,13 +323,13 @@ class AQDataParser(viewModel: MainViewModel) {
                 tmp.isAlertRight = false
                 viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
-                    id,
+                    id + 256,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id,
+                        tmp.id + 256,
                         "가스 압력 정상",
-                        tmp.port,
+                        tmp.port + 1,
                         false
                     )
                 )
@@ -566,7 +566,7 @@ class AQDataParser(viewModel: MainViewModel) {
                         tmp.id,
                         "산소농도 상한 값",
                         tmp.port,
-                        true
+                        false
                     )
                 )
             }
@@ -652,14 +652,14 @@ class AQDataParser(viewModel: MainViewModel) {
                 alertMap2.put(id, true)
                 viewModel.steamerAlert.value = true
                 viewModel.addAlertInfo(
-                    id,
+                    id + 512,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id,
+                        tmp.id + 512,
                         "수위 레벨 하한 값",
-                        tmp.port,
-                        true
+                        tmp.port + 2,
+                        false
                     )
                 )
             }
@@ -669,13 +669,13 @@ class AQDataParser(viewModel: MainViewModel) {
                 viewModel.steamerAlert.value = false
                 tmp.isAlertTemp = false
                 viewModel.addAlertInfo(
-                    id,
+                    id + 512,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id,
+                        tmp.id + 512,
                         "수위 레벨 정상",
-                        tmp.port,
+                        tmp.port + 2,
                         false
                     )
                 )
