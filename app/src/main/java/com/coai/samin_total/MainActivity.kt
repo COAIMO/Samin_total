@@ -38,7 +38,6 @@ import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
-import kotlin.concurrent.thread
 import kotlin.experimental.and
 import kotlin.experimental.or
 import kotlin.experimental.xor
@@ -93,6 +92,7 @@ class MainActivity : AppCompatActivity() {
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
         db = SaminDataBase.getIstance(applicationContext)!!
+        callbackThread = Thread()
         shared = SaminSharedPreference(this)
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         tmp = AQDataParser(mainViewModel)
@@ -346,6 +346,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var callbackThread: Thread
     var isSending = false
+    var isAnotherJob = false
 
     fun feedBackThreadInterrupt(){
         isSending = false
@@ -366,8 +367,15 @@ class MainActivity : AppCompatActivity() {
         callbackThread = Thread {
             while (isSending) {
                 try {
+                    if (isAnotherJob) {
+                        Thread.sleep(200)
+                        continue
+                    }
+
                     for ((model, ids) in mainViewModel.modelMap) {
                         for (index in ids.indices) {
+                            if (isAnotherJob) break
+
                             val id = ids.get(index)
                             when (model) {
                                 "GasDock" -> {
@@ -447,7 +455,7 @@ class MainActivity : AppCompatActivity() {
 
                 val protocol = SaminProtocol()
 
-                var diffkeys = mainViewModel.portAlertMapLed.keys.toMutableList()
+                val diffkeys = mainViewModel.portAlertMapLed.keys.toMutableList()
 
                 for ((key, value) in mainViewModel.alertMap) {
                     val aqInfo = HexDump.toByteArray(key)
@@ -477,8 +485,10 @@ class MainActivity : AppCompatActivity() {
                     diffkeys.remove(ledkey)
                     tmpBits = tmpBits or (1 shl (port - 1)).toByte()
 
-                    isSending = false
-                    callbackThread.interrupt()
+//                    isSending = false
+//                    callbackThread.interrupt()
+                    isAnotherJob = true
+                    Thread.sleep(100)
                     // LED 경고 상태를 전달.
                     for (cnt in 0..2) {
                         protocol.led_AlertStateByte(model, id, tmpBits)
@@ -496,16 +506,20 @@ class MainActivity : AppCompatActivity() {
                     }
                     mainViewModel.portAlertMapLed[ledkey] = tmpBits
 
-                    isSending = true
-                    callFeedback()
+                    isAnotherJob = false
+//                    isSending = true
+//                    callFeedback()
                 }
                 // 에러가 사라진 AQ 찾기
                 for (tmp in diffkeys) {
                     val aqInfo = HexDump.toByteArray(tmp)
                     val model = aqInfo[1]
                     val id = aqInfo[0]
-                    isSending = false
-                    callbackThread.interrupt()
+//                    isSending = false
+//                    callbackThread.interrupt()
+                    isAnotherJob = true
+                    Thread.sleep(100)
+
                     for (cnt in 0..2) {
                         protocol.buzzer_Off(model, id)
                         serialService?.sendData(protocol.mProtocol.clone())
@@ -515,8 +529,9 @@ class MainActivity : AppCompatActivity() {
                         serialService?.sendData(protocol.mProtocol.clone())
                         Thread.sleep(35)
                     }
-                    isSending = true
-                    callFeedback()
+                    isAnotherJob = false
+//                    isSending = true
+//                    callFeedback()
                     mainViewModel.portAlertMapLed.remove(tmp)
                 }
                 Thread.sleep(200)

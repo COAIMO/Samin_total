@@ -28,8 +28,8 @@ class ConnectTestFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var onBackPressed: OnBackPressedCallback
-    var activity:MainActivity? = null
-    lateinit var mBinding:FragmentConnectTestBinding
+    var activity: MainActivity? = null
+    lateinit var mBinding: FragmentConnectTestBinding
     val aqModel = arrayListOf<String>(
         "1",
         "2",
@@ -49,12 +49,12 @@ class ConnectTestFragment : Fragment() {
         "6",
         "7"
     )
-    lateinit var selected_Model :String
+    lateinit var selected_Model: String
     var selected_ID = ""
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
-        onBackPressed = object : OnBackPressedCallback(true){
+        onBackPressed = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 activity!!.onFragmentChange(MainViewModel.ADMINFRAGMENT)
             }
@@ -85,24 +85,59 @@ class ConnectTestFragment : Fragment() {
         setAQmdoelSpinner()
 
         mBinding.btnBuzzerOn.setOnClickListener {
-            val protocol = SaminProtocol()
-            protocol.buzzer_On(selected_Model.toInt().toByte(), selected_ID.toInt().toByte())
-            activity?.serialService?.sendData(protocol.mProtocol)
+            activity?.isAnotherJob = true
+            Thread.sleep(100)
+            for (i in 0..1) {
+                val protocol = SaminProtocol()
+                protocol.buzzer_On(selected_Model.toInt().toByte(), selected_ID.toInt().toByte())
+                activity?.serialService?.sendData(protocol.mProtocol)
+                Thread.sleep(30)
+            }
+            activity?.isAnotherJob = false
+
         }
         mBinding.btnBuzzerOff.setOnClickListener {
-            val protocol = SaminProtocol()
-            protocol.buzzer_Off(selected_Model.toInt().toByte(), selected_ID.toInt().toByte())
-            activity?.serialService?.sendData(protocol.mProtocol)
+            activity?.isAnotherJob = true
+            Thread.sleep(100)
+            for (i in 0..1) {
+                val protocol = SaminProtocol()
+                protocol.buzzer_Off(selected_Model.toInt().toByte(), selected_ID.toInt().toByte())
+                activity?.serialService?.sendData(protocol.mProtocol)
+                Thread.sleep(30)
+            }
+            activity?.isAnotherJob = false
         }
         mBinding.btnLedAlert.setOnClickListener {
-            val protocol = SaminProtocol()
-//            protocol.led_AlertState(selected_Model.toInt().toByte(), selected_ID.toInt().toByte())
-            activity?.serialService?.sendData(protocol.mProtocol)
+            activity?.isAnotherJob = true
+            Thread.sleep(100)
+            for (i in 0..1) {
+                val protocol = SaminProtocol()
+                protocol.led_AlertState(
+                    selected_Model.toInt().toByte(),
+                    selected_ID.toInt().toByte(),
+                    true,
+                    true,
+                    true,
+                    true
+                )
+                activity?.serialService?.sendData(protocol.mProtocol)
+                Thread.sleep(30)
+            }
+            activity?.isAnotherJob = false
         }
         mBinding.btnLedNomarl.setOnClickListener {
-            val protocol = SaminProtocol()
-            protocol.led_NormalState(selected_Model.toInt().toByte(), selected_ID.toInt().toByte())
-            activity?.serialService?.sendData(protocol.mProtocol)
+            activity?.isAnotherJob = true
+            Thread.sleep(100)
+            for (i in 0..1){
+                val protocol = SaminProtocol()
+                protocol.led_NormalState(
+                    selected_Model.toInt().toByte(),
+                    selected_ID.toInt().toByte()
+                )
+                activity?.serialService?.sendData(protocol.mProtocol)
+                Thread.sleep(30)
+            }
+            activity?.isAnotherJob = false
         }
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
@@ -117,7 +152,7 @@ class ConnectTestFragment : Fragment() {
             aqModel
         )
         mBinding.spAQModel.adapter = arrayAdapter
-        mBinding.spAQModel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        mBinding.spAQModel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -141,7 +176,7 @@ class ConnectTestFragment : Fragment() {
             aqID
         )
         mBinding.spAQId.adapter = arrayAdapter
-        mBinding.spAQId.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        mBinding.spAQId.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
