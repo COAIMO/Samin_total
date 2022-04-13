@@ -365,48 +365,52 @@ class MainActivity : AppCompatActivity() {
 
     fun callFeedback() {
         callbackThread = Thread {
+            val protocol = SaminProtocol()
             while (isSending) {
                 try {
                     if (isAnotherJob) {
-                        Thread.sleep(200)
-                        continue
+                        while (isAnotherJob) {
+                            Thread.sleep(10)
+                        }
                     }
 
+                    val tmp = mainViewModel.modelMap
                     for ((model, ids) in mainViewModel.modelMap) {
                         for (index in ids.indices) {
-                            if (isAnotherJob) break
+                            if (isAnotherJob) {
+                                while (isAnotherJob) {
+                                    Thread.sleep(10)
+                                }
+                            }
 
                             val id = ids.get(index)
+                            Log.d("aaa", "model : $model")
                             when (model) {
                                 "GasDock" -> {
-                                    val protocol = SaminProtocol()
+
                                     protocol.feedBack(MainViewModel.GasDockStorage, id)
-                                    serialService?.sendData(protocol.mProtocol)
+                                    serialService?.sendData(protocol.mProtocol.clone())
                                     Thread.sleep(20)
                                 }
                                 "GasRoom" -> {
-                                    val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.GasRoom, id)
-                                    serialService?.sendData(protocol.mProtocol)
+                                    serialService?.sendData(protocol.mProtocol.clone())
                                     Thread.sleep(20)
                                 }
                                 "WasteLiquor" -> {
-                                    val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.WasteLiquor, id)
-                                    serialService?.sendData(protocol.mProtocol)
+                                    serialService?.sendData(protocol.mProtocol.clone())
                                     Thread.sleep(20)
                                 }
                                 "Oxygen" -> {
-                                    val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.Oxygen, id)
-                                    serialService?.sendData(protocol.mProtocol)
+                                    serialService?.sendData(protocol.mProtocol.clone())
                                     Thread.sleep(35)
                                     //정상 17ms 비정상 35ms
                                 }
                                 "Steamer" -> {
-                                    val protocol = SaminProtocol()
                                     protocol.feedBack(MainViewModel.Steamer, id)
-                                    serialService?.sendData(protocol.mProtocol)
+                                    serialService?.sendData(protocol.mProtocol.clone())
                                     Thread.sleep(20)
                                 }
                             }
@@ -489,10 +493,12 @@ class MainActivity : AppCompatActivity() {
 //                    callbackThread.interrupt()
                     isAnotherJob = true
                     Thread.sleep(100)
+
                     // LED 경고 상태를 전달.
                     for (cnt in 0..2) {
                         protocol.led_AlertStateByte(model, id, tmpBits)
                         serialService?.sendData(protocol.mProtocol.clone())
+                        Thread.sleep(35)
                     }
                     Log.d("Test", "tmpBit: $tmpBits")
 
@@ -511,14 +517,15 @@ class MainActivity : AppCompatActivity() {
 //                    callFeedback()
                 }
                 // 에러가 사라진 AQ 찾기
+                isAnotherJob = true
+                Thread.sleep(100)
+
                 for (tmp in diffkeys) {
                     val aqInfo = HexDump.toByteArray(tmp)
                     val model = aqInfo[1]
                     val id = aqInfo[0]
 //                    isSending = false
 //                    callbackThread.interrupt()
-                    isAnotherJob = true
-                    Thread.sleep(100)
 
                     for (cnt in 0..2) {
                         protocol.buzzer_Off(model, id)
@@ -529,11 +536,12 @@ class MainActivity : AppCompatActivity() {
                         serialService?.sendData(protocol.mProtocol.clone())
                         Thread.sleep(35)
                     }
-                    isAnotherJob = false
 //                    isSending = true
 //                    callFeedback()
                     mainViewModel.portAlertMapLed.remove(tmp)
                 }
+                isAnotherJob = false
+
                 Thread.sleep(200)
             }
 
