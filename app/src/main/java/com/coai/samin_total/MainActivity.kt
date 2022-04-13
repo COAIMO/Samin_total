@@ -346,6 +346,22 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var callbackThread: Thread
     var isSending = false
+
+    fun feedBackThreadInterrupt(){
+        isSending = false
+        callbackThread.interrupt()
+    }
+
+    fun deleteExDataSet(){
+        shared.removeBoardSetData(SaminSharedPreference.GASSTORAGE)
+        shared.removeBoardSetData(SaminSharedPreference.GASROOM)
+        shared.removeBoardSetData(SaminSharedPreference.WASTELIQUOR)
+        shared.removeBoardSetData(SaminSharedPreference.OXYGEN)
+        shared.removeBoardSetData(SaminSharedPreference.STEAMER)
+        mainViewModel.removeModelMap()
+        idsListClear()
+    }
+
     fun callFeedback() {
         callbackThread = Thread {
             while (isSending) {

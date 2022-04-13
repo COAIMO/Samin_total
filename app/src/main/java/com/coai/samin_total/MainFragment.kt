@@ -206,16 +206,9 @@ class MainFragment : Fragment() {
     }
 
     private fun scanModel() {
-        activity?.isSending = false
-        activity?.idsListClear()
+        activity?.feedBackThreadInterrupt()
+        activity?.deleteExDataSet()
         getProgressShow()
-        viewmodel.removeModelMap()
-        shared.removeBoardSetData(SaminSharedPreference.GASSTORAGE)
-        shared.removeBoardSetData(SaminSharedPreference.GASROOM)
-        shared.removeBoardSetData(SaminSharedPreference.WASTELIQUOR)
-        shared.removeBoardSetData(SaminSharedPreference.OXYGEN)
-        shared.removeBoardSetData(SaminSharedPreference.STEAMER)
-
         sendThread = Thread {
             try {
                 for (model in 1..5) {
