@@ -151,5 +151,12 @@ class MainViewModel : ViewModel() {
     }
 
 
+    /**
+     * 경고 상태 전달
+     */
+    fun addAlertInfo(id: Int, arg: SetAlertData) {
+        alertInfo.add(arg)
+        alertMap.put(id, arg)
+    }
 }
 

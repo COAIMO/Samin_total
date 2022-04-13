@@ -282,18 +282,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
                 viewModel.gasStorageAlert.value = true
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "가스 압력 하한 값",
-                        tmp.port,
-                        true
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
@@ -308,7 +299,8 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap.containsKey(id)) {
                 tmp.isAlertLeft = false
                 viewModel.gasStorageAlert.value = false
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
@@ -318,16 +310,7 @@ class AQDataParser(viewModel: MainViewModel) {
                         false
                     )
                 )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "가스 압력 정상",
-                        tmp.port,
-                        false
-                    )
-                )
+
                 if (alertMap.containsKey(id)) {
                     alertMap.remove(id)
                 }
@@ -340,17 +323,8 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap2[id] == null) {
                 alertMap2.put(id, true)
                 viewModel.gasStorageAlert.value = true
-                viewModel.alertInfo.add(
-                    SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "가스 압력 하한 값",
-                        tmp.port,
-                        true
-                    )
-                )
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
@@ -366,7 +340,8 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap2.containsKey(id)) {
                 tmp.isAlertRight = false
                 viewModel.gasStorageAlert.value = false
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
@@ -376,16 +351,7 @@ class AQDataParser(viewModel: MainViewModel) {
                         false
                     )
                 )
-                viewModel.alertInfo.add(
-                    SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "가스 압력 정상",
-                        tmp.port,
-                        false
-                    )
-                )
+
                 if (alertMap2.containsKey(id)) {
                     alertMap2.remove(id)
                 }
@@ -467,18 +433,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
                 viewModel.gasRoomAlert.value = true
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "MASSIVE_LEAK 발생",
-                        tmp.port,
-                        true
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
@@ -493,7 +450,8 @@ class AQDataParser(viewModel: MainViewModel) {
                 if (alertBase[id]!! + 2 < value) {
                     tmp.isAlert = false
                     viewModel.gasRoomAlert.value = false
-                    viewModel.alertInfo.add(
+                    viewModel.addAlertInfo(
+                        id,
                         SetAlertData(
                             getLatest_time(hmapLastedDate[id]!!),
                             tmp.modelByte.toInt(),
@@ -503,16 +461,7 @@ class AQDataParser(viewModel: MainViewModel) {
                             false
                         )
                     )
-                    viewModel.alertMap.put(
-                        id, SetAlertData(
-                            getLatest_time(hmapLastedDate[id]!!),
-                            tmp.modelByte.toInt(),
-                            tmp.id,
-                            "MASSIVE_LEAK 문제해결",
-                            tmp.port,
-                            false
-                        )
-                    )
+
                     if (alertMap.containsKey(id)) {
                         alertMap.remove(id)
                     }
@@ -542,18 +491,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
                 viewModel.wasteAlert.value = true
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "수위 초과",
-                        tmp.port,
-                        true
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
@@ -567,18 +507,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap.containsKey(id)) {
                 tmp.isAlert = false
                 viewModel.wasteAlert.value = false
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "수위 정상",
-                        tmp.port,
-                        false
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
@@ -607,18 +538,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
                 viewModel.oxyenAlert.value = true
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "산소농도 하한 값",
-                        tmp.port,
-                        true
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
@@ -632,18 +554,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap.containsKey(id)) {
                 tmp.isAlert = false
                 viewModel.oxyenAlert.value = false
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "산소농도 정상",
-                        tmp.port,
-                        false
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
@@ -663,18 +576,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
                 viewModel.oxyenAlert.value = true
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "산소농도 상한 값",
-                        tmp.port,
-                        true
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
@@ -688,18 +592,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap.containsKey(id)) {
                 tmp.isAlert = false
                 viewModel.oxyenAlert.value = false
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "산소농도 정상",
-                        tmp.port,
-                        false
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
@@ -731,18 +626,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
                 viewModel.steamerAlert.value = true
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "온도 하한 값",
-                        tmp.port,
-                        true
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
@@ -757,7 +643,8 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap.containsKey(id)) {
                 viewModel.steamerAlert.value = false
                 tmp.isAlertTemp = false
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
@@ -767,16 +654,7 @@ class AQDataParser(viewModel: MainViewModel) {
                         false
                     )
                 )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "온도 정상",
-                        tmp.port,
-                        false
-                    )
-                )
+
                 if (alertMap.containsKey(id)) {
                     alertMap.remove(id)
                 }
@@ -791,18 +669,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap2[id] == null) {
                 alertMap2.put(id, true)
                 viewModel.steamerAlert.value = true
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "수위 레벨 하한 값",
-                        tmp.port,
-                        true
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
@@ -817,7 +686,8 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap2.containsKey(id)) {
                 viewModel.steamerAlert.value = false
                 tmp.isAlertTemp = false
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
@@ -827,16 +697,7 @@ class AQDataParser(viewModel: MainViewModel) {
                         false
                     )
                 )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "수위 레벨 정상",
-                        tmp.port,
-                        false
-                    )
-                )
+
                 if (alertMap2.containsKey(id)) {
                     alertMap2.remove(id)
                 }
