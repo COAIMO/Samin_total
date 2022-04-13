@@ -348,12 +348,12 @@ class MainActivity : AppCompatActivity() {
     var isSending = false
     var isAnotherJob = false
 
-    fun feedBackThreadInterrupt(){
+    fun feedBackThreadInterrupt() {
         isSending = false
         callbackThread.interrupt()
     }
 
-    fun deleteExDataSet(){
+    fun deleteExDataSet() {
         shared.removeBoardSetData(SaminSharedPreference.GASSTORAGE)
         shared.removeBoardSetData(SaminSharedPreference.GASROOM)
         shared.removeBoardSetData(SaminSharedPreference.WASTELIQUOR)
@@ -504,10 +504,12 @@ class MainActivity : AppCompatActivity() {
 
                     if (!tmpBits.equals(tmplast)) {
                         // 경고음 처리전
-                        protocol.buzzer_On(model, id)
-                        for (cnt in 0..2) {
-                            serialService?.sendData(protocol.mProtocol.clone())
-                            Thread.sleep(35)
+                        if (mainViewModel.isSoundAlert) {
+                            protocol.buzzer_On(model, id)
+                            for (cnt in 0..2) {
+                                serialService?.sendData(protocol.mProtocol.clone())
+                                Thread.sleep(35)
+                            }
                         }
                     }
                     mainViewModel.portAlertMapLed[ledkey] = tmpBits

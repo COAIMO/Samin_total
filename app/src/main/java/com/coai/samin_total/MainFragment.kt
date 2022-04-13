@@ -323,6 +323,7 @@ class MainFragment : Fragment() {
                 }
             }
         }
+        mBinding.wasteLiquorMainStatusLayout.invalidate()
     }
 
     private fun getProgressShow() {
