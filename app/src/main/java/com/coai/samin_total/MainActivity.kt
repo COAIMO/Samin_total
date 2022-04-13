@@ -143,7 +143,14 @@ class MainActivity : AppCompatActivity() {
     var oxygen_ids_list = mutableListOf<Byte>()
     var steamer_ids_list = mutableListOf<Byte>()
 
-//    val modelMap = HashMap<String, ByteArray>()
+    //    val modelMap = HashMap<String, ByteArray>()
+    fun idsListClear() {
+        gasdock_ids_list.clear()
+        gasroom_ids_list.clear()
+        wasteLiquor_ids_list.clear()
+        oxygen_ids_list.clear()
+        steamer_ids_list.clear()
+    }
 
     @ExperimentalUnsignedTypes
     val datahandler = object : Handler(Looper.getMainLooper()) {

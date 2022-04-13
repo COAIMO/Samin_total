@@ -4,8 +4,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.coai.samin_total.DataBase.AlertData
 import com.coai.samin_total.Dialog.SetAlertData
+import com.coai.samin_total.databinding.AlertlogViewBinding
 
 class AlertLog_RecyclerAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var alertData = listOf<SetAlertData>()
@@ -37,12 +40,17 @@ class AlertLog_RecyclerAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() 
         private val tv_id = view.findViewById<TextView>(R.id.tv_id)
         private val tv_error_content = view.findViewById<TextView>(R.id.tv_error_content)
         private val tv_time = view.findViewById<TextView>(R.id.tv_time)
-
+        private val tv_port = view.findViewById<TextView>(R.id.tv_port)
         fun bind(setAlertData: SetAlertData) {
             tv_model.text = setAlertData.model.toString()
             tv_id.text = setAlertData.id.toString()
             tv_error_content.text = setAlertData.content
             tv_time.text = setAlertData.time
+            tv_port.text = setAlertData.port.toString()
         }
+
+
     }
+
 }
+

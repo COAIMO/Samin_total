@@ -92,9 +92,10 @@ class AlertLogFragment : Fragment() {
 
     }
     private fun initVieiw() {
+        alertData.clear()
         for (i in viewmodel.alertInfo.value!!) {
             alertData.add(i)
-            recycleAdapter.submitList(alertData)
+            recycleAdapter.submitList(alertData.asReversed())
         }
         recycleAdapter.notifyDataSetChanged()
 

@@ -15,17 +15,19 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private val TAG = "로그"
     var setGasdockViewData = listOf<SetGasStorageViewData>()
-
+    var mItemViewType:Int? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view: View?
+
         return when (viewType) {
             0 -> {
                 view =
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.gas_storage_single_view, parent, false)
+                val width = view?.measuredWidth
+                val height = view?.measuredHeight
                 gasDockSingleViewHodler(view)
-
             }
             1 -> {
                 view =
@@ -51,13 +53,16 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     override fun getItemCount(): Int {
-//        return datas.size
         return setGasdockViewData.size
     }
 
 
     fun submitList(viewData: List<SetGasStorageViewData>) {
         this.setGasdockViewData = viewData
+    }
+
+    fun setItemViewType(viewType: Int){
+        mItemViewType = viewType
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

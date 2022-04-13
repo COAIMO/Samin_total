@@ -4,11 +4,12 @@
     android:layout_width="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:layout_height="200dp">
+    android:layout_marginTop="12dp"
+    android:layout_height="wrap_content">
 
     <com.coai.uikit.samin.status.GasRoomView
         android:id="@+id/gas_room_view"
-        android:layout_width="match_parent"
+        android:layout_width="470dp"
         android:layout_height="wrap_content"
         android:visibility="visible"
         app:gasColor="#6599CD"

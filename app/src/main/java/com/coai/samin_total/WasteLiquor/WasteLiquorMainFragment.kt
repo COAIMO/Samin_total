@@ -3,7 +3,6 @@ package com.coai.samin_total.WasteLiquor
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,16 +11,14 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.Dialog.AlertDialogFragment
-import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.Logic.SaminSharedPreference
+import com.coai.samin_total.Logic.SpacesItemDecoration
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
-import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.databinding.FragmentWasteLiquorMainBinding
 import java.util.*
-import kotlin.concurrent.thread
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -44,18 +41,13 @@ class WasteLiquorMainFragment : Fragment() {
     private var activity: MainActivity? = null
     private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var sendThread: Thread
-    var sending = false
     var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var alertThread: Thread
     lateinit var shared: SaminSharedPreference
     private var timerTaskRefresh: Timer? = null
     var heartbeatCount: UByte = 0u
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        sending = false
-    }
+    val lockobj = object {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,16 +82,22 @@ class WasteLiquorMainFragment : Fragment() {
                 tmp.heartbeatCount = heartbeatCount
             }
 
-            var tmp = (mBinding.wasteLiquorRecyclerView.layoutManager as GridLayoutManager)
-            activity?.runOnUiThread() {
-                try {
-                    val start = tmp.findFirstVisibleItemPosition()
-                    val end = tmp.findLastVisibleItemPosition()
-                    recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
-                } catch (ex: Exception) {
+            synchronized(lockobj) {
+                val tmp = (mBinding.wasteLiquorRecyclerView.layoutManager as GridLayoutManager)
+                activity?.runOnUiThread() {
+                    try {
+                        val start = tmp.findFirstVisibleItemPosition()
+                        val end = tmp.findLastVisibleItemPosition()
+                        recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
+                    } catch (ex: Exception) {
+                    }
                 }
             }
         }
+    }
+    override fun onPause() {
+        super.onPause()
+        timerTaskRefresh?.cancel()
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -120,31 +118,22 @@ class WasteLiquorMainFragment : Fragment() {
         mBinding.btnZoomInout.setOnClickListener {
             if (btn_Count % 2 == 0) {
                 btn_Count++
-                mBinding.wasteLiquorRecyclerView.apply {
-                    layoutManager =
-                        GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-
-                    //아이템 높이 간격 조절
-                    val decoration_height = RecyclerDecoration_Height(25)
-                    addItemDecoration(decoration_height)
-
-//                    recycleAdapter.submitList(wasteLiquorViewData)
-                    adapter = recycleAdapter
+                synchronized(lockobj) {
+                    mBinding.wasteLiquorRecyclerView.apply {
+                        layoutManager =
+                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                        adapter = recycleAdapter
+                    }
                 }
             } else {
                 btn_Count++
-                mBinding.wasteLiquorRecyclerView.apply {
-                    layoutManager =
-                        GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-
-                    //아이템 높이 간격 조절
-                    val decoration_height = RecyclerDecoration_Height(25)
-                    addItemDecoration(decoration_height)
-
-//                    recycleAdapter.submitList(wasteLiquorViewData)
-                    adapter = recycleAdapter
+                synchronized(lockobj) {
+                    mBinding.wasteLiquorRecyclerView.apply {
+                        layoutManager =
+                            GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+                        adapter = recycleAdapter
+                    }
                 }
-
             }
         }
 
@@ -155,13 +144,12 @@ class WasteLiquorMainFragment : Fragment() {
             bundle.putString("model", "WasteLiquor")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "WasteLiquor")
-            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
         }
 
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
         }
-        udateAlert()
+        updateAlert()
 
         return mBinding.root
     }
@@ -172,8 +160,10 @@ class WasteLiquorMainFragment : Fragment() {
                 GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
 
             //아이템 높이 간격 조절
-            val decoration_height = RecyclerDecoration_Height(50)
-            addItemDecoration(decoration_height)
+//            val decoration_height = RecyclerDecoration_Height(50)
+//            addItemDecoration(decoration_height)
+            val itemSpace = SpacesItemDecoration(100, 5000)
+            addItemDecoration(itemSpace)
 
             recycleAdapter = WasteLiquor_RecycleAdapter()
             adapter = recycleAdapter
@@ -207,10 +197,12 @@ class WasteLiquorMainFragment : Fragment() {
     }
 
 
-    private fun udateAlert() {
+    private fun updateAlert() {
         viewmodel.wasteAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }else{
+                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }
 

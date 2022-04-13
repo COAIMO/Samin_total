@@ -29,7 +29,6 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class GasDockMainFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     lateinit private var mBinding: FragmentGasDockMainBinding
@@ -37,8 +36,6 @@ class GasDockMainFragment : Fragment() {
     private val gasStorageViewData = mutableListOf<SetGasStorageViewData>()
     private lateinit var recycleAdapter: GasStorage_RecycleAdapter
     private lateinit var onBackPressed: OnBackPressedCallback
-    val TAG = "GasDockMainFragment"
-    private lateinit var sendThread: Thread
     var sending = false
     private val mainViewModel by activityViewModels<MainViewModel>()
     private var btn_Count = 0
@@ -46,6 +43,7 @@ class GasDockMainFragment : Fragment() {
     lateinit var shared: SaminSharedPreference
     private var timerTaskRefresh: Timer? = null
     var heartbeatCount: UByte = 0u
+    val lockobj = object {}
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -64,7 +62,6 @@ class GasDockMainFragment : Fragment() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,20 +75,21 @@ class GasDockMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
         timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
             heartbeatCount++
             for (tmp in mainViewModel.GasStorageDataLiveList.value!!.iterator()) {
                 tmp.heartbeatCount = heartbeatCount
             }
 
-            val tmp = (mBinding.gasStorageRecyclerView.layoutManager as GridLayoutManager)
-            activity?.runOnUiThread() {
-                try {
-                    val start = tmp.findFirstVisibleItemPosition()
-                    val end = tmp.findLastVisibleItemPosition()
-                    recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
-                } catch (ex: Exception) {
+            synchronized(lockobj) {
+                val tmp = (mBinding.gasStorageRecyclerView.layoutManager as GridLayoutManager)
+                activity?.runOnUiThread() {
+                    try {
+                        val start = tmp.findFirstVisibleItemPosition()
+                        val end = tmp.findLastVisibleItemPosition()
+                        recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
+                    } catch (ex: Exception) {
+                    }
                 }
             }
         }
@@ -118,31 +116,22 @@ class GasDockMainFragment : Fragment() {
         mBinding.btnZoomInout.setOnClickListener {
             if (btn_Count % 2 == 0) {
                 btn_Count++
-                mBinding.gasStorageRecyclerView.apply {
-                    layoutManager =
-                        GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-
-                    //아이템 높이 간격 조절
-                    val decoration_height = RecyclerDecoration_Height(25)
-                    addItemDecoration(decoration_height)
-
-                    adapter = recycleAdapter
+                synchronized(lockobj) {
+                    mBinding.gasStorageRecyclerView.apply {
+                        layoutManager =
+                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                        adapter = recycleAdapter
+                    }
                 }
-                timerTaskRefresh?.cancel()
-
             } else {
                 btn_Count++
-                mBinding.gasStorageRecyclerView.apply {
-                    layoutManager =
-                        GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-
-                    //아이템 높이 간격 조절
-                    val decoration_height = RecyclerDecoration_Height(25)
-                    addItemDecoration(decoration_height)
-
-                    adapter = recycleAdapter
+                synchronized(lockobj){
+                    mBinding.gasStorageRecyclerView.apply {
+                        layoutManager =
+                            GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+                        adapter = recycleAdapter
+                    }
                 }
-
             }
         }
         mBinding.btnUnit.setOnClickListener {
@@ -171,7 +160,6 @@ class GasDockMainFragment : Fragment() {
             bundle.putString("model", "GasStorage")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "GasStorage")
-            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
         }
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
@@ -265,6 +253,8 @@ class GasDockMainFragment : Fragment() {
         mainViewModel.gasStorageAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }else{
+                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }
 

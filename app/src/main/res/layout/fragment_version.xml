@@ -8,9 +8,9 @@
 
     <com.coai.uikit.samin.VersionView
         android:id="@+id/view_version"
-        android:layout_width="505dp"
-        android:layout_height="505dp"
-        android:layout_marginTop="145dp"
+        android:layout_width="413dp"
+        android:layout_height="413dp"
+        android:layout_marginTop="173dp"
         app:app_version="1.0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

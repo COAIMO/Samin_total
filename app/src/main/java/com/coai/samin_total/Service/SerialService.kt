@@ -55,7 +55,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     var usbDrivers: List<UsbSerialDriver>? = null
     var device: UsbDevice? = null
     var usbConnection: UsbDeviceConnection? = null
-    private var usbIoManager: SerialInputOutputManager? = null
+    private var usbIoManager: CoAISerialInputOutputManager? = null
     var mHandler = Handler()
     lateinit var checkThread: Thread
 
@@ -214,7 +214,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //
 //            }.start()
 //
-            usbIoManager = SerialInputOutputManager(usbSerialPort, this)
+            usbIoManager = CoAISerialInputOutputManager(usbSerialPort, this)
             usbIoManager!!.readTimeout = 35
 //            usbIoManager!!.writeTimeout = 200
 //            usbIoManager!!.readBufferSize = 1000
@@ -242,7 +242,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
         usbIoManager!!.writeAsync(data)
 
-//        Log.d("태그", "send data :${HexDump.dumpHexString(data)}")
+        Log.d("태그", "send data :${HexDump.dumpHexString(data)}")
     }
 
     fun checkModelandID() {

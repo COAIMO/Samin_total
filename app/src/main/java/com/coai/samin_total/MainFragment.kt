@@ -207,8 +207,15 @@ class MainFragment : Fragment() {
 
     private fun scanModel() {
         activity?.isSending = false
+        activity?.idsListClear()
         getProgressShow()
         viewmodel.removeModelMap()
+        shared.removeBoardSetData(SaminSharedPreference.GASSTORAGE)
+        shared.removeBoardSetData(SaminSharedPreference.GASROOM)
+        shared.removeBoardSetData(SaminSharedPreference.WASTELIQUOR)
+        shared.removeBoardSetData(SaminSharedPreference.OXYGEN)
+        shared.removeBoardSetData(SaminSharedPreference.STEAMER)
+
         sendThread = Thread {
             try {
                 for (model in 1..5) {
@@ -381,6 +388,7 @@ class MainFragment : Fragment() {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
                 mBinding.wasteLiquorMainStatus.setAlert(false)
+                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
 
             }
         }
@@ -390,6 +398,7 @@ class MainFragment : Fragment() {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
                 mBinding.oxygenMainStatus.setAlert(false)
+                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
 
             }
         }
@@ -399,6 +408,7 @@ class MainFragment : Fragment() {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
                 mBinding.gasDockMainStatus.setAlert(false)
+                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }
         viewmodel.steamerAlert.observe(viewLifecycleOwner) {
@@ -407,7 +417,7 @@ class MainFragment : Fragment() {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
                 mBinding.steamerMainStatus.setAlert(false)
-
+                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }
         viewmodel.gasRoomAlert.observe(viewLifecycleOwner) {
@@ -416,6 +426,7 @@ class MainFragment : Fragment() {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
                 mBinding.gasRoomMainStatus.setAlert(false)
+                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
 
             }
         }

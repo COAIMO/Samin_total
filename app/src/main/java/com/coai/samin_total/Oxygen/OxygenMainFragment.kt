@@ -2,33 +2,23 @@ package com.coai.samin_total.Oxygen
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.Dialog.AlertDialogFragment
-import com.coai.samin_total.Dialog.SetAlertData
-import com.coai.samin_total.GasRoom.GasRoom_RecycleAdapter
-import com.coai.samin_total.GasRoom.SetGasRoomViewData
-import com.coai.samin_total.Logic.PortInfo
-import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
-import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentOxygenMainBinding
 import java.util.*
-import kotlin.concurrent.thread
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -57,6 +47,7 @@ class OxygenMainFragment : Fragment() {
     lateinit var shared: SaminSharedPreference
     private var timerTaskRefresh: Timer? = null
     var heartbeatCount: UByte = 0u
+    val lockobj = object {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +77,7 @@ class OxygenMainFragment : Fragment() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+        timerTaskRefresh?.cancel()
     }
 
     override fun onResume() {
@@ -95,18 +87,25 @@ class OxygenMainFragment : Fragment() {
             for (tmp in viewmodel.OxygenDataLiveList.value!!.iterator()) {
                 tmp.heartbeatCount = heartbeatCount
             }
-
-            var tmp = (mBinding.oxygenRecyclerView.layoutManager as GridLayoutManager)
-            activity?.runOnUiThread() {
-                try {
-                    val start = tmp.findFirstVisibleItemPosition()
-                    val end = tmp.findLastVisibleItemPosition()
-                    recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
-                } catch (ex: Exception) {
+            synchronized(lockobj) {
+                val tmp = (mBinding.oxygenRecyclerView.layoutManager as GridLayoutManager)
+                activity?.runOnUiThread() {
+                    try {
+                        val start = tmp.findFirstVisibleItemPosition()
+                        val end = tmp.findLastVisibleItemPosition()
+                        recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
+                    } catch (ex: Exception) {
+                    }
                 }
             }
         }
     }
+
+    override fun onPause() {
+        super.onPause()
+        timerTaskRefresh?.cancel()
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -123,31 +122,22 @@ class OxygenMainFragment : Fragment() {
         mBinding.btnZoomInout.setOnClickListener {
             if (btn_Count % 2 == 0) {
                 btn_Count++
-                mBinding.oxygenRecyclerView.apply {
-                    layoutManager =
-                        GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-
-                    //아이템 높이 간격 조절
-                    val decoration_height = RecyclerDecoration_Height(25)
-                    addItemDecoration(decoration_height)
-
-                    recycleAdapter.submitList(oxygenViewData)
-                    adapter = recycleAdapter
+                synchronized(lockobj) {
+                    mBinding.oxygenRecyclerView.apply {
+                        layoutManager =
+                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                        adapter = recycleAdapter
+                    }
                 }
             } else {
                 btn_Count++
-                mBinding.oxygenRecyclerView.apply {
-                    layoutManager =
-                        GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-
-                    //아이템 높이 간격 조절
-                    val decoration_height = RecyclerDecoration_Height(25)
-                    addItemDecoration(decoration_height)
-
-                    recycleAdapter.submitList(oxygenViewData)
-                    adapter = recycleAdapter
+                synchronized(lockobj) {
+                    mBinding.oxygenRecyclerView.apply {
+                        layoutManager =
+                            GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+                        adapter = recycleAdapter
+                    }
                 }
-
             }
         }
 
@@ -157,24 +147,23 @@ class OxygenMainFragment : Fragment() {
             bundle.putString("model", "Oxygen")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "Oxygen")
-            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
         }
 
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
         }
-        udateAlert()
+        updateAlert()
         return mBinding.root
     }
 
     private fun initRecycler() {
         mBinding.oxygenRecyclerView.apply {
             layoutManager =
-                GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+                GridLayoutManager(context, 1, LinearLayoutManager.VERTICAL, false)
 
             //아이템 높이 간격 조절
-            val decoration_height = RecyclerDecoration_Height(70)
-            addItemDecoration(decoration_height)
+//            val decoration_height = RecyclerDecoration_Height(70)
+//            addItemDecoration(decoration_height)
 
             recycleAdapter = Oxygen_RecycleAdapter()
             adapter = recycleAdapter
@@ -211,14 +200,17 @@ class OxygenMainFragment : Fragment() {
         sending = false
     }
 
-    private fun udateAlert() {
+    private fun updateAlert() {
         viewmodel.oxyenAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }else{
+                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }
 
     }
+
     companion object {
         /**
          * Use this factory method to create a new instance of

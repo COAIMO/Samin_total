@@ -8,7 +8,7 @@
 
     <com.coai.uikit.samin.status.GasStorageView
         android:id="@+id/gas_storage_single_view"
-        android:layout_width="match_parent"
+        android:layout_width="242dp"
         android:layout_height="match_parent"
         android:visibility="visible"
         app:gasColor="#6599CD"

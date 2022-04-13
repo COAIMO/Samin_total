@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
+import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentAlertDialogBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -65,54 +66,121 @@ class AlertDialogFragment : DialogFragment() {
         when (model) {
             "Main" -> {
                 mBinding.tvTitle.setText(R.string.title_event_log)
-                for (i in viewmodel.alertInfo.value!!) {
-                    alertData.add(i)
-                    recycleAdapter.submitList(alertData)
+//                for (i in viewmodel.alertInfo.value!!) {
+//                    alertData.add(i)
+//                    recycleAdapter.submitList(alertData)
+//                }
+
+                for ((key, value) in viewmodel.alertMap) {
+                    val aqInfo = HexDump.toByteArray(key)
+                    val portNum = aqInfo[1]
+                    val id = aqInfo[2]
+                    val model = aqInfo[3]
+
+                    if (value.isAlert) {
+                        alertData.add(value)
+                        recycleAdapter.submitList(alertData)
+                    }
                 }
             }
             "GasStorage" -> {
                 mBinding.tvTitle.setText(R.string.title_gasstorage_event_log)
-                for (i in viewmodel.alertInfo.value!!) {
-                    if (i.model == 1) {
-                        alertData.add(i)
-                        recycleAdapter.submitList(alertData)
+//                for (i in viewmodel.alertInfo.value!!) {
+//                    if (i.model == 1) {
+//                        alertData.add(i)
+//                        recycleAdapter.submitList(alertData)
+//                    }
+//                }
+                for ((key, value) in viewmodel.alertMap) {
+                    val aqInfo = HexDump.toByteArray(key)
+                    val model = aqInfo[3]
+                    if (model == 1.toByte()) {
+                        if (value.isAlert) {
+                            alertData.add(value)
+                            recycleAdapter.submitList(alertData)
+                        }
                     }
+
                 }
             }
             "GasRoom" -> {
                 mBinding.tvTitle.setText(R.string.title_gasroom_event_log)
-                for (i in viewmodel.alertInfo.value!!) {
-                    if (i.model == 2) {
-                        alertData.add(i)
-                        recycleAdapter.submitList(alertData)
+//                for (i in viewmodel.alertInfo.value!!) {
+//                    if (i.model == 2) {
+//                        alertData.add(i)
+//                        recycleAdapter.submitList(alertData)
+//                    }
+//                }
+                for ((key, value) in viewmodel.alertMap) {
+                    val aqInfo = HexDump.toByteArray(key)
+                    val model = aqInfo[3]
+                    if (model == 2.toByte()) {
+                        if (value.isAlert) {
+                            alertData.add(value)
+                            recycleAdapter.submitList(alertData)
+                        }
                     }
+
                 }
             }
             "WasteLiquor" -> {
                 mBinding.tvTitle.setText(R.string.title_wasteliquor_event_log)
-                for (i in viewmodel.alertInfo.value!!) {
-                    if (i.model == 3) {
-                        alertData.add(i)
-                        recycleAdapter.submitList(alertData)
+//                for (i in viewmodel.alertInfo.value!!) {
+//                    if (i.model == 3) {
+//                        alertData.add(i)
+//                        recycleAdapter.submitList(alertData)
+//                    }
+//                }
+                for ((key, value) in viewmodel.alertMap) {
+                    val aqInfo = HexDump.toByteArray(key)
+                    val model = aqInfo[3]
+                    if (model == 3.toByte()) {
+                        if (value.isAlert) {
+                            alertData.add(value)
+                            recycleAdapter.submitList(alertData)
+                        }
                     }
+
                 }
             }
             "Oxygen" -> {
                 mBinding.tvTitle.setText(R.string.title_oxygen_event_log)
-                for (i in viewmodel.alertInfo.value!!) {
-                    if (i.model == 4) {
-                        alertData.add(i)
-                        recycleAdapter.submitList(alertData)
+//                for (i in viewmodel.alertInfo.value!!) {
+//                    if (i.model == 4) {
+//                        alertData.add(i)
+//                        recycleAdapter.submitList(alertData)
+//                    }
+//                }
+                for ((key, value) in viewmodel.alertMap) {
+                    val aqInfo = HexDump.toByteArray(key)
+                    val model = aqInfo[3]
+                    if (model == 4.toByte()) {
+                        if (value.isAlert) {
+                            alertData.add(value)
+                            recycleAdapter.submitList(alertData)
+                        }
                     }
+
                 }
             }
             "Steamer" -> {
                 mBinding.tvTitle.setText(R.string.title_steamer_event_log)
-                for (i in viewmodel.alertInfo.value!!) {
-                    if (i.model == 5) {
-                        alertData.add(i)
-                        recycleAdapter.submitList(alertData)
+//                for (i in viewmodel.alertInfo.value!!) {
+//                    if (i.model == 5) {
+//                        alertData.add(i)
+//                        recycleAdapter.submitList(alertData)
+//                    }
+//                }
+                for ((key, value) in viewmodel.alertMap) {
+                    val aqInfo = HexDump.toByteArray(key)
+                    val model = aqInfo[3]
+                    if (model == 5.toByte()) {
+                        if (value.isAlert) {
+                            alertData.add(value)
+                            recycleAdapter.submitList(alertData)
+                        }
                     }
+
                 }
             }
         }

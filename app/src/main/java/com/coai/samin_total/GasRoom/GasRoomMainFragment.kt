@@ -3,7 +3,6 @@ package com.coai.samin_total.GasRoom
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,12 +11,10 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.Dialog.AlertDialogFragment
-import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
-import com.coai.samin_total.RecyclerDecoration_Height
 import com.coai.samin_total.databinding.FragmentGasRoomMainBinding
 import java.util.*
 
@@ -69,6 +66,10 @@ class GasRoomMainFragment : Fragment() {
         onBackPressed.remove()
     }
 
+    override fun onPause() {
+        super.onPause()
+        timerTaskRefresh?.cancel()
+    }
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -97,7 +98,7 @@ class GasRoomMainFragment : Fragment() {
                 synchronized(lockobj) {
                     mBinding.gasRoomRecyclerView.apply {
                         layoutManager =
-                            GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
                     }
                 }
             }
@@ -130,13 +131,12 @@ class GasRoomMainFragment : Fragment() {
             bundle.putString("model", "GasRoom")
             alertdialogFragment.arguments = bundle
             alertdialogFragment.show(childFragmentManager, "GasRoom")
-            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
         }
 
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
         }
-        udateAlert()
+        updateAlert()
         return mBinding.root
     }
 
@@ -144,7 +144,7 @@ class GasRoomMainFragment : Fragment() {
 //        recycleAdapter = GasRoom_RecycleAdapter()
         mBinding.gasRoomRecyclerView.apply {
             layoutManager =
-                GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+                GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
             //아이템 높이 간격 조절
 //            val decoration_height = RecyclerDecoration_Height(25)
 //            addItemDecoration(decoration_height)
@@ -194,7 +194,7 @@ class GasRoomMainFragment : Fragment() {
             }
 
             synchronized(lockobj) {
-                var tmp = (mBinding.gasRoomRecyclerView.layoutManager as GridLayoutManager)
+                val tmp = (mBinding.gasRoomRecyclerView.layoutManager as GridLayoutManager)
                 activity?.runOnUiThread() {
                     try {
                         val start = tmp.findFirstVisibleItemPosition()
@@ -207,10 +207,12 @@ class GasRoomMainFragment : Fragment() {
         }
     }
 
-    private fun udateAlert() {
+    private fun updateAlert() {
         viewmodel.gasRoomAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+            }else{
+                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }
 
