@@ -183,18 +183,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
                 viewModel.gasStorageAlert.value = true
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "가스 압력 하한 값",
-                        tmp.port,
-                        true
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
@@ -209,18 +200,9 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap.containsKey(id)) {
                 tmp.isAlert = false
                 viewModel.gasStorageAlert.value = false
-                viewModel.alertInfo.add(
+                viewModel.addAlertInfo(
+                    id,
                     SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "가스 압력 정상",
-                        tmp.port,
-                        false
-                    )
-                )
-                viewModel.alertMap.put(
-                    id, SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
