@@ -25,6 +25,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
     // 최종 숫신시간
     val hmapLastedDate = HashMap<Int, Long>()
+    var hmapIDLastedDate = HashMap<Short, Long>()
     val hmapPsis = HashMap<Int, ArrayList<TimePSI>>()
 
     val alertBase = HashMap<Int, Float>()
@@ -55,6 +56,7 @@ class AQDataParser(viewModel: MainViewModel) {
                 t.clear()
 
             hmapPsis.clear()
+            hmapIDLastedDate.clear()
         }
     }
 
@@ -75,6 +77,9 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapAQPortSettings[key] = tmp.copy()
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
+
+            val aqid = littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
+            hmapIDLastedDate[aqid] = System.currentTimeMillis()
         }
         // 룸 센서에 대해서만 처리
         for (tmp in viewModel.GasRoomDataLiveList.value!!) {
@@ -88,6 +93,8 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapAQPortSettings[key] = tmp.copy()
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
+            val aqid = littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
+            hmapIDLastedDate[aqid] = System.currentTimeMillis()
         }
 
         for (tmp in viewModel.WasteLiquorDataLiveList.value!!) {
@@ -101,6 +108,8 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapAQPortSettings[key] = tmp.copy()
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
+            val aqid = littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
+            hmapIDLastedDate[aqid] = System.currentTimeMillis()
         }
 
         for (tmp in viewModel.OxygenDataLiveList.value!!) {
@@ -114,6 +123,8 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapAQPortSettings[key] = tmp.copy()
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
+            val aqid = littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
+            hmapIDLastedDate[aqid] = System.currentTimeMillis()
         }
 
         for (tmp in viewModel.SteamerDataLiveList.value!!) {
@@ -127,6 +138,8 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapAQPortSettings[key] = tmp.copy()
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
+            val aqid = littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
+            hmapIDLastedDate[aqid] = System.currentTimeMillis()
         }
     }
 
@@ -652,11 +665,11 @@ class AQDataParser(viewModel: MainViewModel) {
                 alertMap2.put(id, true)
                 viewModel.steamerAlert.value = true
                 viewModel.addAlertInfo(
-                    id + 512,
+                    id + 65536 * 2,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id + 512,
+                        tmp.id + 65536 * 2,
                         "수위 레벨 하한 값",
                         tmp.port + 2,
                         false
@@ -669,11 +682,11 @@ class AQDataParser(viewModel: MainViewModel) {
                 viewModel.steamerAlert.value = false
                 tmp.isAlertTemp = false
                 viewModel.addAlertInfo(
-                    id + 512,
+                    id + 65536 * 2,
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id + 512,
+                        tmp.id + 65536 * 2,
                         "수위 레벨 정상",
                         tmp.port + 2,
                         false
@@ -866,6 +879,10 @@ class AQDataParser(viewModel: MainViewModel) {
         val prev = exSensorData[key]
         val ret = alphavalue * prev!! + (1 - alphavalue) * x
         return ret.toInt()
+    }
+
+    fun timeoutAQCheckStep() {
+
     }
 
     init {
