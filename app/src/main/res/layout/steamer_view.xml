@@ -4,12 +4,11 @@
     android:layout_width="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:layout_marginTop="60dp"
     android:layout_height="wrap_content">
 
     <com.coai.uikit.samin.status.SteamView
         android:id="@+id/steamer_view"
-        android:layout_width="250dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-
+<!--width 250dp-->
 </LinearLayout>

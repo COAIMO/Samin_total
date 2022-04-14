@@ -48,6 +48,7 @@ class SteamerMainFragment : Fragment() {
     private var timerTaskRefresh: Timer? = null
     var heartbeatCount: UByte = 0u
     val lockobj = object {}
+    lateinit var itemSpace: SpacesItemDecoration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,6 +107,7 @@ class SteamerMainFragment : Fragment() {
     ): View? {
         mBinding = FragmentSteamerMainBinding.inflate(inflater, container, false)
         shared = SaminSharedPreference(requireContext())
+        itemSpace = SpacesItemDecoration(50)
         initRecycler()
         initView()
         updateView()
@@ -145,16 +147,7 @@ class SteamerMainFragment : Fragment() {
 //                Log.d("전", "인텍스: $index" + "데이더 : $data")
                 if (data.unit > 1) data.unit = 0
             }
-            recycleAdapter.submitList(viewmodel.SteamerDataLiveList.value!!)
-            recycleAdapter.notifyDataSetChanged()
 
-            for ((index, data) in viewmodel.SteamerDataLiveList.value!!.sortedWith(
-                compareBy(
-                    { it.id },
-                    { it.port })
-            ).withIndex()) {
-//                Log.d("후", "인텍스: $index" + "데이더 : $data")
-            }
         }
 
         mBinding.btnAlert.setOnClickListener {
@@ -180,8 +173,8 @@ class SteamerMainFragment : Fragment() {
                 GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
 
 //            //아이템 높이 간격 조절
-//            val itemSpace = SpacesItemDecoration(10000, 500)
-//            addItemDecoration(itemSpace)
+            itemSpace.changeSpace(90,50,90,50)
+            addItemDecoration(itemSpace)
 
             recycleAdapter = Steamer_RecycleAdapter()
             adapter = recycleAdapter
@@ -200,18 +193,18 @@ class SteamerMainFragment : Fragment() {
 //        }
         val mm = viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
-        recycleAdapter.notifyDataSetChanged()
-        activity?.tmp?.LoadSetting()
+//        recycleAdapter.notifyDataSetChanged()
+//        activity?.tmp?.LoadSetting()
 
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView() {
-        viewmodel.SteamerDataLiveList.observe(viewLifecycleOwner) {
-            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
-            recycleAdapter.submitList(mm)
-            recycleAdapter.notifyDataSetChanged()
-        }
+//        viewmodel.SteamerDataLiveList.observe(viewLifecycleOwner) {
+//            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
+//            recycleAdapter.submitList(mm)
+//            recycleAdapter.notifyDataSetChanged()
+//        }
     }
 
     override fun onDestroyView() {

@@ -144,15 +144,6 @@ class GasDockMainFragment : Fragment() {
                 mainViewModel.GasStorageDataLiveList.value!!.set(index, data)
                 if (data.unit == 4) data.unit = 0
             }
-            recycleAdapter.submitList(mainViewModel.GasStorageDataLiveList.value!!)
-            recycleAdapter.notifyDataSetChanged()
-
-            for ((index, data) in mainViewModel.GasStorageDataLiveList.value!!.sortedWith(
-                compareBy(
-                    { it.id },
-                    { it.port })
-            ).withIndex()) {
-            }
         }
         mBinding.btnAlert.setOnClickListener {
             alertdialogFragment = AlertDialogFragment()

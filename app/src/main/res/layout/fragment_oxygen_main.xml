@@ -73,8 +73,26 @@
             android:src="@drawable/screen_increase_ic" />
     </LinearLayout>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
+<!--    <androidx.core.widget.NestedScrollView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:orientation="vertical"-->
+<!--        android:scrollbars="vertical"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/top_layer">-->
+
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/oxygen_RecyclerView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginHorizontal="10dp">-->
+
+<!--        </androidx.recyclerview.widget.RecyclerView>-->
+<!--    </androidx.core.widget.NestedScrollView>-->
+    <FrameLayout
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
         android:scrollbars="vertical"
@@ -82,15 +100,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/top_layer">
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/oxygen_RecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp">
-
-        </androidx.recyclerview.widget.RecyclerView>
-    </androidx.core.widget.NestedScrollView>
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="false"
+            android:scrollbarThumbVertical="@color/design_default_color_primary"
+            android:scrollbarSize="18dp"
+            android:scrollbarStyle="outsideInset"
+            android:orientation="vertical"/>
+    </FrameLayout>
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btn_back"

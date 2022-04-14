@@ -14,9 +14,11 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     var setSteamerViewData = listOf<SetSteamerViewData>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return steamerViewHodler(
+        val tmp = steamerViewHodler(
             LayoutInflater.from(parent.context).inflate(R.layout.steamer_view, parent, false)
         )
+        tmp.setIsRecyclable(false)
+        return tmp
     }
 
     override fun getItemCount(): Int {
@@ -30,7 +32,6 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as steamerViewHodler).bind(setSteamerViewData[position])
-        holder.setIsRecyclable(false)
     }
 
     inner class steamerViewHodler(view: View) : RecyclerView.ViewHolder(view) {
@@ -43,6 +44,7 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             steamerView.setTemp(setSteamerViewData.isTemp)
             steamerView.setTempUnit(setSteamerViewData.unit)
             steamerView.setAlertTemp(setSteamerViewData.isAlertTemp)
+
             steamerView.heartBeat(setSteamerViewData.heartbeatCount)
         }
     }
