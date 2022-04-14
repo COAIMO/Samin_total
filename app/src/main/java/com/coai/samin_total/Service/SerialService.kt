@@ -240,9 +240,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     fun sendData(data: ByteArray) {
 //        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
-        usbIoManager!!.writeAsync(data)
+        usbIoManager?.writeAsync(data)
 
-        Log.d("태그", "send data :${HexDump.dumpHexString(data)}")
+//        Log.d("태그", "usbIoManager is Null : ${usbIoManager == null}, send data :${HexDump.dumpHexString(data)}")
     }
 
     fun checkModelandID() {
