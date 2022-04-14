@@ -43,6 +43,8 @@ class GasRoomMainFragment : Fragment() {
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
     lateinit var itemSpace: SpacesItemDecoration
+    private var taskRefresh: Thread? = null
+    private var isOnTaskRefesh: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,10 +71,37 @@ class GasRoomMainFragment : Fragment() {
         onBackPressed.remove()
     }
 
+    val lockobj = object {}
+    override fun onResume() {
+        super.onResume()
+        taskRefresh = Thread() {
+            try {
+                while (isOnTaskRefesh) {
+                    heartbeatCount++
+                    for (tmp in viewmodel.GasRoomDataLiveList.value!!.iterator()) {
+                        tmp.heartbeatCount = heartbeatCount
+                    }
+                    synchronized(lockobj) {
+                        activity?.runOnUiThread() {
+                            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                        }
+                    }
+                    Thread.sleep(50)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        taskRefresh?.start()
+    }
+
     override fun onPause() {
         super.onPause()
-        timerTaskRefresh?.cancel()
+        isOnTaskRefesh = false
+        taskRefresh?.interrupt()
+        taskRefresh?.join()
     }
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -188,34 +217,12 @@ class GasRoomMainFragment : Fragment() {
 
 
     }
-    val lockobj = object{}
-    override fun onResume() {
-        super.onResume()
-        timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
-            heartbeatCount++
-            for (tmp in viewmodel.GasRoomDataLiveList.value!!.iterator()) {
-                tmp.heartbeatCount = heartbeatCount
-            }
-
-            synchronized(lockobj) {
-                val tmp = (mBinding.gasRoomRecyclerView.layoutManager as GridLayoutManager)
-                activity?.runOnUiThread() {
-                    try {
-                        val start = tmp.findFirstVisibleItemPosition()
-                        val end = tmp.findLastVisibleItemPosition()
-                        recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
-                    } catch (ex: Exception) {
-                    }
-                }
-            }
-        }
-    }
 
     private fun updateAlert() {
         viewmodel.gasRoomAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-            }else{
+            } else {
                 mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }

@@ -40,15 +40,15 @@ class WasteLiquorMainFragment : Fragment() {
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
     private val viewmodel by activityViewModels<MainViewModel>()
-    private lateinit var sendThread: Thread
     var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
-    lateinit var alertThread: Thread
     lateinit var shared: SaminSharedPreference
     private var timerTaskRefresh: Timer? = null
     var heartbeatCount: UByte = 0u
     val lockobj = object {}
     lateinit var itemSpace: SpacesItemDecoration
+    private var taskRefresh: Thread? = null
+    private var isOnTaskRefesh: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,28 +77,42 @@ class WasteLiquorMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
-            heartbeatCount++
-            for (tmp in viewmodel.WasteLiquorDataLiveList.value!!.iterator()) {
-                tmp.heartbeatCount = heartbeatCount
-            }
-
-            synchronized(lockobj) {
-                val tmp = (mBinding.wasteLiquorRecyclerView.layoutManager as GridLayoutManager)
-                activity?.runOnUiThread() {
-                    try {
-                        val start = tmp.findFirstVisibleItemPosition()
-                        val end = tmp.findLastVisibleItemPosition()
-                        recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
-                    } catch (ex: Exception) {
+        taskRefresh =Thread(){
+            try {
+                while (isOnTaskRefesh){
+                    heartbeatCount++
+                    for (tmp in viewmodel.WasteLiquorDataLiveList.value!!.iterator()) {
+                        tmp.heartbeatCount = heartbeatCount
                     }
+
+                    synchronized(lockobj) {
+//                        val tmp =
+//                            (mBinding.wasteLiquorRecyclerView.layoutManager as GridLayoutManager)
+                        activity?.runOnUiThread() {
+//                            try {
+//                                val start = tmp.findFirstVisibleItemPosition()
+//                                val end = tmp.findLastVisibleItemPosition()
+//                                recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
+//                            } catch (ex: Exception) {
+//                            }
+                            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                        }
+                    }
+                    Thread.sleep(50)
+
                 }
+
+            }catch (e:Exception){
+                e.printStackTrace()
             }
         }
+        taskRefresh?.start()
     }
     override fun onPause() {
         super.onPause()
-        timerTaskRefresh?.cancel()
+        isOnTaskRefesh = false
+        taskRefresh?.interrupt()
+        taskRefresh?.join()
     }
 
     @SuppressLint("NotifyDataSetChanged")

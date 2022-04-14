@@ -323,7 +323,15 @@ class MainFragment : Fragment() {
                 }
             }
         }
+        invalidateView()
+    }
+
+    fun invalidateView(){
+        mBinding.gasDockMainStatusLayout.invalidate()
+        mBinding.gasRoomMainStatusLayout.invalidate()
         mBinding.wasteLiquorMainStatusLayout.invalidate()
+        mBinding.oxygenMainStatusLayout.invalidate()
+        mBinding.steamerMainStatusLayout.invalidate()
     }
 
     private fun getProgressShow() {

@@ -364,6 +364,7 @@ class GasStorageSettingFragment : Fragment() {
         if (exData.isNotEmpty()){
             for ((index, value) in exData.withIndex()){
                 setGasSensorInfo.set(index, value)
+//                if (value.usable)
             }
         }
         recycleAdapter.submitList(setGasSensorInfo)

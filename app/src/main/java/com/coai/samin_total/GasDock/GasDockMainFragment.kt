@@ -46,6 +46,8 @@ class GasDockMainFragment : Fragment() {
     var heartbeatCount: UByte = 0u
     val lockobj = object {}
     lateinit var itemSpace: SpacesItemDecoration
+    private var taskRefresh: Thread? = null
+    private var isOnTaskRefesh: Boolean = true
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -77,29 +79,32 @@ class GasDockMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
-            heartbeatCount++
-            for (tmp in mainViewModel.GasStorageDataLiveList.value!!.iterator()) {
-                tmp.heartbeatCount = heartbeatCount
-            }
-
-            synchronized(lockobj) {
-                val tmp = (mBinding.gasStorageRecyclerView.layoutManager as GridLayoutManager)
-                activity?.runOnUiThread() {
-                    try {
-                        val start = tmp.findFirstVisibleItemPosition()
-                        val end = tmp.findLastVisibleItemPosition()
-                        recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
-                    } catch (ex: Exception) {
+        taskRefresh = Thread() {
+            try {
+                while (isOnTaskRefesh) {
+                    heartbeatCount++
+                    for (tmp in mainViewModel.GasStorageDataLiveList.value!!.iterator()) {
+                        tmp.heartbeatCount = heartbeatCount
                     }
+                    synchronized(lockobj) {
+                        activity?.runOnUiThread() {
+                            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                        }
+                    }
+                    Thread.sleep(50)
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
+        taskRefresh?.start()
     }
 
     override fun onPause() {
         super.onPause()
-        timerTaskRefresh?.cancel()
+        isOnTaskRefesh = false
+        taskRefresh?.interrupt()
+        taskRefresh?.join()
     }
 
     override fun onCreateView(

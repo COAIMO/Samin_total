@@ -45,7 +45,8 @@ class SteamerMainFragment : Fragment() {
     var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
-//    private var timerTaskRefresh: Timer? = null
+
+    //    private var timerTaskRefresh: Timer? = null
     private var taskRefresh: Thread? = null
     private var isOnTaskRefesh: Boolean = true
     var heartbeatCount: UByte = 0u
@@ -89,17 +90,21 @@ class SteamerMainFragment : Fragment() {
         super.onResume()
 
         taskRefresh = Thread() {
-            while (isOnTaskRefesh) {
-                heartbeatCount++
-                for (tmp in viewmodel.SteamerDataLiveList.value!!.iterator()) {
-                    tmp.heartbeatCount = heartbeatCount
-                }
-                synchronized(lockobj) {
-                    activity?.runOnUiThread() {
-                        recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+            try {
+                while (isOnTaskRefesh) {
+                    heartbeatCount++
+                    for (tmp in viewmodel.SteamerDataLiveList.value!!.iterator()) {
+                        tmp.heartbeatCount = heartbeatCount
                     }
+                    synchronized(lockobj) {
+                        activity?.runOnUiThread() {
+                            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                        }
+                    }
+                    Thread.sleep(50)
                 }
-                Thread.sleep(50)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
         taskRefresh?.start()
@@ -146,8 +151,6 @@ class SteamerMainFragment : Fragment() {
                     }
                 }
             }
-            mBinding.steamerRecyclerView.invalidate()
-//            mBinding.steamerRecyclerView.visibility = VISIBLE
         }
         mBinding.btnUnit.setOnClickListener {
             for ((index, data) in viewmodel.SteamerDataLiveList.value!!.sortedWith(
@@ -180,28 +183,29 @@ class SteamerMainFragment : Fragment() {
 
 
     private fun initRecycler() {
-        if (!viewmodel.steamViewZoomState){
-            mBinding.steamerRecyclerView.apply {
-                layoutManager =
-                    GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+//        if (!viewmodel.steamViewZoomState) {
+        mBinding.steamerRecyclerView.apply {
+            layoutManager =
+                GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
 
-                itemSpace.changeSpace(50, 50, 90, 50)
-                addItemDecoration(itemSpace)
+            itemSpace.changeSpace(50, 50, 90, 50)
+            addItemDecoration(itemSpace)
 
-                recycleAdapter = Steamer_RecycleAdapter()
-                adapter = recycleAdapter
-            }
-
-        }else{
-            mBinding.steamerRecyclerView.apply {
-                layoutManager =
-                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-                itemSpace.changeSpace(220, 150, 200, 150)
-                addItemDecoration(itemSpace)
-                recycleAdapter = Steamer_RecycleAdapter()
-                adapter = recycleAdapter
-            }
+            recycleAdapter = Steamer_RecycleAdapter()
+            adapter = recycleAdapter
         }
+
+//        }
+//        else {
+//            mBinding.steamerRecyclerView.apply {
+//                layoutManager =
+//                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+//                itemSpace.changeSpace(220, 150, 200, 150)
+//                addItemDecoration(itemSpace)
+//                recycleAdapter = Steamer_RecycleAdapter()
+//                adapter = recycleAdapter
+//            }
+//        }
         mBinding.steamerRecyclerView.itemAnimator = null
     }
 
@@ -214,9 +218,79 @@ class SteamerMainFragment : Fragment() {
 //                viewmodel.SteamerDataLiveList.add(i)
 //            }
 //        }
+        val aa = mutableListOf<SetSteamerViewData>()
+        aa.apply {
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+            add(
+                SetSteamerViewData(
+                    "1", 1, 1
+                )
+            )
+
+
+        }
 
         val mm = viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
-        recycleAdapter.submitList(mm)
+        recycleAdapter.submitList(aa)
 //        recycleAdapter.notifyDataSetChanged()
 //        activity?.tmp?.LoadSetting()
 
