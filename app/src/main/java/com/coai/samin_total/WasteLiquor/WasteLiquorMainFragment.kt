@@ -121,18 +121,21 @@ class WasteLiquorMainFragment : Fragment() {
                 btn_Count++
                 synchronized(lockobj) {
                     mBinding.wasteLiquorRecyclerView.apply {
-                        layoutManager =
-                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-                        adapter = recycleAdapter
+                        (layoutManager as GridLayoutManager).let {
+                            it.spanCount = 2
+                        }
+                        itemSpace.changeSpace(180, 150, 180, 150)
                     }
                 }
             } else {
                 btn_Count++
                 synchronized(lockobj) {
                     mBinding.wasteLiquorRecyclerView.apply {
-                        layoutManager =
-                            GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-                        adapter = recycleAdapter
+                        (layoutManager as GridLayoutManager).let {
+                            it.spanCount = 4
+                        }
+                        itemSpace.changeSpace(30, 20, 70, 20)
+
                     }
                 }
             }
@@ -161,7 +164,8 @@ class WasteLiquorMainFragment : Fragment() {
                 GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
 
             //아이템 높이 간격 조절
-            itemSpace.changeSpace(90,50,90,50)
+            itemSpace.changeSpace(50, 50, 90, 50)
+
             addItemDecoration(itemSpace)
 
             recycleAdapter = WasteLiquor_RecycleAdapter()
@@ -181,22 +185,7 @@ class WasteLiquorMainFragment : Fragment() {
 //        }
         val mm =
             viewmodel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
-        val testList = mutableListOf<SetWasteLiquorViewData>()
-        testList.apply {
-            add(SetWasteLiquorViewData("1",1,1))
-            add(SetWasteLiquorViewData("1",1,1))
-            add(SetWasteLiquorViewData("1",1,1))
-            add(SetWasteLiquorViewData("1",1,1))
-            add(SetWasteLiquorViewData("1",1,1))
-            add(SetWasteLiquorViewData("1",1,1))
-            add(SetWasteLiquorViewData("1",1,1))
-            add(SetWasteLiquorViewData("1",1,1))
-            add(SetWasteLiquorViewData("1",1,1))
-            add(SetWasteLiquorViewData("1",1,1))
-            add(SetWasteLiquorViewData("1",1,1))
-
-        }
-        recycleAdapter.submitList(testList)
+        recycleAdapter.submitList(mm)
 //        recycleAdapter.notifyDataSetChanged()
 //        activity?.tmp?.LoadSetting()
     }

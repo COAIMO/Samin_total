@@ -13,10 +13,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
+import com.coai.samin_total.Logic.SpacesItemDecoration
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
+import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentOxygenMainBinding
 import java.util.*
 
@@ -48,6 +50,7 @@ class OxygenMainFragment : Fragment() {
     private var timerTaskRefresh: Timer? = null
     var heartbeatCount: UByte = 0u
     val lockobj = object {}
+    lateinit var itemSpace: SpacesItemDecoration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,6 +116,7 @@ class OxygenMainFragment : Fragment() {
     ): View? {
         mBinding = FragmentOxygenMainBinding.inflate(inflater, container, false)
         shared = SaminSharedPreference(requireContext())
+        itemSpace = SpacesItemDecoration(50)
         initRecycler()
         initView()
         updateView()
@@ -124,18 +128,18 @@ class OxygenMainFragment : Fragment() {
                 btn_Count++
                 synchronized(lockobj) {
                     mBinding.oxygenRecyclerView.apply {
-                        layoutManager =
-                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-                        adapter = recycleAdapter
+                        itemSpace.changeSpace(
+                            50, 650, 50, 650
+                        )
                     }
                 }
             } else {
                 btn_Count++
                 synchronized(lockobj) {
                     mBinding.oxygenRecyclerView.apply {
-                        layoutManager =
-                            GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-                        adapter = recycleAdapter
+                        itemSpace.changeSpace(
+                            100, 800, 100, 800
+                        )
                     }
                 }
             }
@@ -159,11 +163,12 @@ class OxygenMainFragment : Fragment() {
     private fun initRecycler() {
         mBinding.oxygenRecyclerView.apply {
             layoutManager =
-                GridLayoutManager(context, 1, LinearLayoutManager.VERTICAL, false)
+                GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
 
-            //아이템 높이 간격 조절
-//            val decoration_height = RecyclerDecoration_Height(70)
-//            addItemDecoration(decoration_height)
+            itemSpace.changeSpace(
+                100, 800, 100, 800
+            )
+            addItemDecoration(itemSpace)
 
             recycleAdapter = Oxygen_RecycleAdapter()
             adapter = recycleAdapter
@@ -182,17 +187,17 @@ class OxygenMainFragment : Fragment() {
 //        }
         val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
-        recycleAdapter.notifyDataSetChanged()
-        activity?.tmp?.LoadSetting()
+//        recycleAdapter.notifyDataSetChanged()
+//        activity?.tmp?.LoadSetting()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView() {
-        viewmodel.OxygenDataLiveList.observe(viewLifecycleOwner) {
-            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
-            recycleAdapter.submitList(mm)
-            recycleAdapter.notifyDataSetChanged()
-        }
+//        viewmodel.OxygenDataLiveList.observe(viewLifecycleOwner) {
+//            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
+//            recycleAdapter.submitList(mm)
+//            recycleAdapter.notifyDataSetChanged()
+//        }
     }
 
     override fun onDestroyView() {
@@ -204,7 +209,7 @@ class OxygenMainFragment : Fragment() {
         viewmodel.oxyenAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-            }else{
+            } else {
                 mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }

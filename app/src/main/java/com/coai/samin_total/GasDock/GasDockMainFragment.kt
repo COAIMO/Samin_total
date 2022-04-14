@@ -15,6 +15,7 @@ import com.coai.samin_total.*
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.SaminSharedPreference
+import com.coai.samin_total.Logic.SpacesItemDecoration
 import com.coai.samin_total.databinding.FragmentGasDockMainBinding
 import java.util.*
 
@@ -44,6 +45,7 @@ class GasDockMainFragment : Fragment() {
     private var timerTaskRefresh: Timer? = null
     var heartbeatCount: UByte = 0u
     val lockobj = object {}
+    lateinit var itemSpace: SpacesItemDecoration
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -106,6 +108,7 @@ class GasDockMainFragment : Fragment() {
     ): View? {
         mBinding = FragmentGasDockMainBinding.inflate(inflater, container, false)
         shared = SaminSharedPreference(requireContext())
+        itemSpace = SpacesItemDecoration(50)
         initRecycler()
         initView()
         updateView()
@@ -118,18 +121,20 @@ class GasDockMainFragment : Fragment() {
                 btn_Count++
                 synchronized(lockobj) {
                     mBinding.gasStorageRecyclerView.apply {
-                        layoutManager =
-                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-                        adapter = recycleAdapter
+                        (layoutManager as GridLayoutManager).let {
+                            it.spanCount = 2
+                        }
+                        itemSpace.changeSpace(200, 300, 200, 300)
                     }
                 }
             } else {
                 btn_Count++
                 synchronized(lockobj){
                     mBinding.gasStorageRecyclerView.apply {
-                        layoutManager =
-                            GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-                        adapter = recycleAdapter
+                        (layoutManager as GridLayoutManager).let {
+                            it.spanCount = 4
+                        }
+                        itemSpace.changeSpace(50, 100, 50, 100)
                     }
                 }
             }
@@ -181,18 +186,18 @@ class GasDockMainFragment : Fragment() {
                 { it.port })
         )
         recycleAdapter.submitList(mm)
-        recycleAdapter.notifyDataSetChanged()
-        activity?.tmp?.LoadSetting()
+//        recycleAdapter.notifyDataSetChanged()
+//        activity?.tmp?.LoadSetting()
 
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView() {
-        mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner) {
-            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
-            recycleAdapter.submitList(mm)
-            recycleAdapter.notifyDataSetChanged()
-        }
+//        mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner) {
+//            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
+//            recycleAdapter.submitList(mm)
+//            recycleAdapter.notifyDataSetChanged()
+//        }
     }
 
     companion object {
@@ -220,19 +225,9 @@ class GasDockMainFragment : Fragment() {
         mBinding.gasStorageRecyclerView.apply {
             layoutManager =
                 GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-
-            this.setHasFixedSize(true)
             //아이템 높이 간격 조절
-            val decoration_height = RecyclerDecoration_Height(25)
-            addItemDecoration(decoration_height)
-
-            //페이지 넘기는 효과
-//            val snapHelper = PagerSnapHelper()
-//            snapHelper.attachToRecyclerView(this)
-
-            //Indicator 추가
-//            addItemDecoration(LinePagerIndicatorDecoration())
-
+            itemSpace.changeSpace(50, 100, 50, 100)
+            addItemDecoration(itemSpace)
 
             recycleAdapter.submitList(gasStorageViewData)
             adapter = recycleAdapter

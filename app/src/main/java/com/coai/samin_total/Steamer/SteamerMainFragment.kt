@@ -17,6 +17,7 @@ import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
+import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentSteamerMainBinding
 import java.util.*
 
@@ -36,11 +37,9 @@ class SteamerMainFragment : Fragment() {
     private var param2: String? = null
     lateinit var mBinding: FragmentSteamerMainBinding
     private lateinit var recycleAdapter: Steamer_RecycleAdapter
-    private val steamerViewData = mutableListOf<SetSteamerViewData>()
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
     private val viewmodel by activityViewModels<MainViewModel>()
-    private lateinit var sendThread: Thread
     var sending = false
     var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
@@ -74,6 +73,7 @@ class SteamerMainFragment : Fragment() {
         activity = null
         onBackPressed.remove()
     }
+
     override fun onPause() {
         super.onPause()
         timerTaskRefresh?.cancel()
@@ -100,6 +100,7 @@ class SteamerMainFragment : Fragment() {
         }
     }
 
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -117,21 +118,25 @@ class SteamerMainFragment : Fragment() {
         }
         mBinding.btnZoomInout.setOnClickListener {
             if (btn_Count % 2 == 0) {
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
                 btn_Count++
                 synchronized(lockobj) {
                     mBinding.steamerRecyclerView.apply {
-                        layoutManager =
-                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-                        adapter = recycleAdapter
+                        (layoutManager as GridLayoutManager).let {
+                            it.spanCount = 2
+                        }
+                        itemSpace.changeSpace(220, 150, 200, 150)
                     }
                 }
             } else {
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
                 btn_Count++
                 synchronized(lockobj) {
                     mBinding.steamerRecyclerView.apply {
-                        layoutManager =
-                            GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-                        adapter = recycleAdapter
+                        (layoutManager as GridLayoutManager).let {
+                            it.spanCount = 4
+                        }
+                        itemSpace.changeSpace(90, 50, 90, 50)
                     }
                 }
             }
@@ -144,7 +149,6 @@ class SteamerMainFragment : Fragment() {
             ).withIndex()) {
                 data.unit++
                 viewmodel.SteamerDataLiveList.value!!.set(index, data)
-//                Log.d("전", "인텍스: $index" + "데이더 : $data")
                 if (data.unit > 1) data.unit = 0
             }
 
@@ -168,16 +172,27 @@ class SteamerMainFragment : Fragment() {
 
 
     private fun initRecycler() {
-        mBinding.steamerRecyclerView.apply {
-            layoutManager =
-                GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+        if (!viewmodel.steamViewZoomState){
+            mBinding.steamerRecyclerView.apply {
+                layoutManager =
+                    GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
 
-//            //아이템 높이 간격 조절
-            itemSpace.changeSpace(90,50,90,50)
-            addItemDecoration(itemSpace)
+                itemSpace.changeSpace(50, 50, 90, 50)
+                addItemDecoration(itemSpace)
 
-            recycleAdapter = Steamer_RecycleAdapter()
-            adapter = recycleAdapter
+                recycleAdapter = Steamer_RecycleAdapter()
+                adapter = recycleAdapter
+            }
+
+        }else{
+            mBinding.steamerRecyclerView.apply {
+                layoutManager =
+                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(220, 150, 200, 150)
+                addItemDecoration(itemSpace)
+                recycleAdapter = Steamer_RecycleAdapter()
+                adapter = recycleAdapter
+            }
         }
 
     }
@@ -191,6 +206,7 @@ class SteamerMainFragment : Fragment() {
 //                viewmodel.SteamerDataLiveList.add(i)
 //            }
 //        }
+
         val mm = viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
 //        recycleAdapter.notifyDataSetChanged()
@@ -216,7 +232,7 @@ class SteamerMainFragment : Fragment() {
         viewmodel.steamerAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-            }else{
+            } else {
                 mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }

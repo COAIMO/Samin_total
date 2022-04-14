@@ -12,9 +12,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
+import com.coai.samin_total.Logic.SpacesItemDecoration
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
+import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.databinding.FragmentGasRoomMainBinding
 import java.util.*
 
@@ -40,6 +42,7 @@ class GasRoomMainFragment : Fragment() {
     var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
+    lateinit var itemSpace: SpacesItemDecoration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +80,8 @@ class GasRoomMainFragment : Fragment() {
     ): View? {
         mBinding = FragmentGasRoomMainBinding.inflate(inflater, container, false)
         shared = SaminSharedPreference(requireContext())
+        itemSpace = SpacesItemDecoration(50)
+
         initRecycler()
         initView()
         updateView()
@@ -89,16 +94,14 @@ class GasRoomMainFragment : Fragment() {
                 btn_Count++
                 synchronized(lockobj) {
                     mBinding.gasRoomRecyclerView.apply {
-                        layoutManager =
-                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                        itemSpace.changeSpace(150, 60, 150, 60)
                     }
                 }
             } else {
                 btn_Count++
                 synchronized(lockobj) {
                     mBinding.gasRoomRecyclerView.apply {
-                        layoutManager =
-                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                        itemSpace.changeSpace(20, 150, 20, 150)
                     }
                 }
             }
@@ -146,8 +149,9 @@ class GasRoomMainFragment : Fragment() {
             layoutManager =
                 GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
             //아이템 높이 간격 조절
-//            val decoration_height = RecyclerDecoration_Height(25)
-//            addItemDecoration(decoration_height)
+            itemSpace.changeSpace(20, 150, 20, 150)
+            addItemDecoration(itemSpace)
+
             recycleAdapter = GasRoom_RecycleAdapter()
             adapter = recycleAdapter
         }
@@ -169,18 +173,18 @@ class GasRoomMainFragment : Fragment() {
 //        }
         val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
-        recycleAdapter.notifyDataSetChanged()
-        activity?.tmp?.LoadSetting()
+//        recycleAdapter.notifyDataSetChanged()
+//        activity?.tmp?.LoadSetting()
 
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateView() {
-        viewmodel.GasRoomDataLiveList.observe(viewLifecycleOwner) {
-            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
-            recycleAdapter.submitList(mm)
-            recycleAdapter.notifyDataSetChanged()
-        }
+//        viewmodel.GasRoomDataLiveList.observe(viewLifecycleOwner) {
+//            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
+//            recycleAdapter.submitList(mm)
+//            recycleAdapter.notifyDataSetChanged()
+//        }
 
 
     }

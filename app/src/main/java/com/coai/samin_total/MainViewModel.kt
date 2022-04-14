@@ -158,5 +158,7 @@ class MainViewModel : ViewModel() {
         alertInfo.add(arg)
         alertMap.put(id, arg)
     }
+
+    var steamViewZoomState = false
 }
 
