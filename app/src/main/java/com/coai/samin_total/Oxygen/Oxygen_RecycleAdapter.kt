@@ -31,7 +31,10 @@ class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
 
 
     fun submitList(viewData: List<SetOxygenViewData>) {
-        this.setOxygenViewData = viewData
+        val tmp = viewData.filter {
+            it.usable
+        }
+        this.setOxygenViewData = tmp
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

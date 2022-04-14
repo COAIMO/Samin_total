@@ -171,7 +171,9 @@ class AQDataParser(viewModel: MainViewModel) {
     private fun ProcessSingleGasStorage(id: Int, data: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetGasStorageViewData)
-
+        if (!tmp.usable){
+            return
+        }
         var value: Float = 0f
         when (tmp.sensorType) {
             "Sensts 142PSI" -> {
@@ -238,7 +240,9 @@ class AQDataParser(viewModel: MainViewModel) {
     private fun ProcessDualGasStorage(id: Int, left_value: Int, right_value: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetGasStorageViewData)
-
+        if (!tmp.usable){
+            return
+        }
         var left_pressure: Float = 0f
         var right_pressure: Float = 0f
 
@@ -367,6 +371,10 @@ class AQDataParser(viewModel: MainViewModel) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetGasRoomViewData)
 
+        if (!tmp.usable){
+            return
+        }
+
         // 대상 센서에 맞는 데이터 변환 함수 호출
         var value: Float = 0f
         when (tmp.sensorType) {
@@ -475,6 +483,9 @@ class AQDataParser(viewModel: MainViewModel) {
         // 수위 초과일때 0 아니면 1
         tmp.isAlert = data == 0
 
+        if (!tmp.usable){
+            return
+        }
         val key =
             littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
         Log.d(
@@ -527,6 +538,10 @@ class AQDataParser(viewModel: MainViewModel) {
         val tmp = (tmp1 as SetOxygenViewData)
         val oxygenValue = data / 100
         tmp.setValue = oxygenValue
+
+        if (!tmp.usable){
+            return
+        }
 
         if (tmp.setMinValue > oxygenValue) {
             tmp.isAlert = true
@@ -611,9 +626,12 @@ class AQDataParser(viewModel: MainViewModel) {
     private fun ProcessSteamer(id: Int, temp: Int, level: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetSteamerViewData)
-
         tmp.isTemp = temp / 33
         tmp.unit
+
+        if (!tmp.usable){
+            return
+        }
         //설정 온도보다 현재 온도가 낮을경우 알람
         if (tmp.isTempMin > tmp.isTemp) {
             tmp.isAlertTemp = true

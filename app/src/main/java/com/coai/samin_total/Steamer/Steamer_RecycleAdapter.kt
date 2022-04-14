@@ -27,7 +27,10 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
 
     fun submitList(viewData: List<SetSteamerViewData>) {
-        this.setSteamerViewData = viewData
+        val tmp = viewData.filter {
+            it.usable
+        }
+        this.setSteamerViewData = tmp
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -44,7 +47,6 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             steamerView.setTemp(setSteamerViewData.isTemp)
             steamerView.setTempUnit(setSteamerViewData.unit)
             steamerView.setAlertTemp(setSteamerViewData.isAlertTemp)
-
             steamerView.heartBeat(setSteamerViewData.heartbeatCount)
         }
     }

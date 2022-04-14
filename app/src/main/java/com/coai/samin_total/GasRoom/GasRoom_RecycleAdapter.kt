@@ -30,7 +30,10 @@ class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
 
     fun submitList(viewData: List<SetGasRoomViewData>) {
-        this.setGasRoomViewData = viewData
+        val tmp = viewData.filter {
+            it.usable
+        }
+        this.setGasRoomViewData = tmp
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

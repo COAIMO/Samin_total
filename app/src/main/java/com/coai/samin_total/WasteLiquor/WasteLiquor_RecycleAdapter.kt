@@ -50,9 +50,6 @@ class WasteLiquor_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolde
             wasteLiquorView.setWasteName(setWasteLiquorViewData.liquidName)
             wasteLiquorView.setAlert(setWasteLiquorViewData.isAlert)
             wasteLiquorView.heartBeat(setWasteLiquorViewData.heartbeatCount)
-//            if (!setWasteLiquorViewData.usable) {
-//                wasteLiquorView.visibility = View.GONE
-//            }
         }
     }
 

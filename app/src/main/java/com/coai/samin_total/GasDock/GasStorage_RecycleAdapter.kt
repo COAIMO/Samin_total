@@ -58,11 +58,10 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
     fun submitList(viewData: List<SetGasStorageViewData>) {
-        this.setGasdockViewData = viewData
-    }
-
-    fun setItemViewType(viewType: Int){
-        mItemViewType = viewType
+        val tmp = viewData.filter {
+            it.usable
+        }
+        this.setGasdockViewData = tmp
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
