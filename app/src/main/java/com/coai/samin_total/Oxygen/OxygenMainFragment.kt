@@ -87,6 +87,7 @@ class OxygenMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        isOnTaskRefesh = true
         taskRefresh = Thread() {
             try {
                 while (isOnTaskRefesh) {

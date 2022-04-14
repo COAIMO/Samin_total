@@ -180,9 +180,9 @@ class WasteWaterSettingFragment : Fragment() {
         val iter = setWasteLiquorInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {
-                if (it.usable) {
+//                if (it.usable) {
                     viewmodel.WasteLiquorDataLiveList.add(it)
-                } else iter.remove()
+//                } else iter.remove()
             }
         }
         val buff = mutableListOf<SetWasteLiquorViewData>()

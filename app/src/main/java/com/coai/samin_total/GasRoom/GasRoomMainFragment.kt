@@ -74,6 +74,7 @@ class GasRoomMainFragment : Fragment() {
     val lockobj = object {}
     override fun onResume() {
         super.onResume()
+        isOnTaskRefesh = true
         taskRefresh = Thread() {
             try {
                 while (isOnTaskRefesh) {

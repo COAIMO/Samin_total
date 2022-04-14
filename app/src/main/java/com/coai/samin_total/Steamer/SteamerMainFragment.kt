@@ -88,7 +88,7 @@ class SteamerMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
+        isOnTaskRefesh = true
         taskRefresh = Thread() {
             try {
                 while (isOnTaskRefesh) {
@@ -218,79 +218,9 @@ class SteamerMainFragment : Fragment() {
 //                viewmodel.SteamerDataLiveList.add(i)
 //            }
 //        }
-        val aa = mutableListOf<SetSteamerViewData>()
-        aa.apply {
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-            add(
-                SetSteamerViewData(
-                    "1", 1, 1
-                )
-            )
-
-
-        }
 
         val mm = viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
-        recycleAdapter.submitList(aa)
+        recycleAdapter.submitList(mm)
 //        recycleAdapter.notifyDataSetChanged()
 //        activity?.tmp?.LoadSetting()
 

@@ -30,7 +30,10 @@ class WasteLiquor_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
     fun submitList(viewData: List<SetWasteLiquorViewData>) {
-        this.setWasteLiquorViewData = viewData
+        val tmp = viewData.filter {
+            it.usable
+        }
+        this.setWasteLiquorViewData = tmp
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -47,6 +50,9 @@ class WasteLiquor_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolde
             wasteLiquorView.setWasteName(setWasteLiquorViewData.liquidName)
             wasteLiquorView.setAlert(setWasteLiquorViewData.isAlert)
             wasteLiquorView.heartBeat(setWasteLiquorViewData.heartbeatCount)
+//            if (!setWasteLiquorViewData.usable) {
+//                wasteLiquorView.visibility = View.GONE
+//            }
         }
     }
 
