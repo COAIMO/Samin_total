@@ -626,7 +626,7 @@ class AQDataParser(viewModel: MainViewModel) {
     private fun ProcessSteamer(id: Int, temp: Int, level: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetSteamerViewData)
-        tmp.isTemp = temp / 33
+        tmp.isTemp = ((0.0019 * temp * temp) +(0.0796*temp - 186.76)).toInt()
         tmp.unit
 
         if (!tmp.usable){
