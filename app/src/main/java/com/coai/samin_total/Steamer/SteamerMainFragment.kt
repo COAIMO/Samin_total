@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.*
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
@@ -44,7 +45,9 @@ class SteamerMainFragment : Fragment() {
     var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
-    private var timerTaskRefresh: Timer? = null
+//    private var timerTaskRefresh: Timer? = null
+    private var taskRefresh: Thread? = null
+    private var isOnTaskRefesh: Boolean = true
     var heartbeatCount: UByte = 0u
     val lockobj = object {}
     lateinit var itemSpace: SpacesItemDecoration
@@ -76,28 +79,30 @@ class SteamerMainFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        timerTaskRefresh?.cancel()
+//        timerTaskRefresh?.cancel()
+        isOnTaskRefesh = false
+        taskRefresh?.interrupt()
+        taskRefresh?.join()
     }
 
     override fun onResume() {
         super.onResume()
-        timerTaskRefresh = kotlin.concurrent.timer(period = 50) {
-            heartbeatCount++
-            for (tmp in viewmodel.SteamerDataLiveList.value!!.iterator()) {
-                tmp.heartbeatCount = heartbeatCount
-            }
-            synchronized(lockobj) {
-                val tmp = (mBinding.steamerRecyclerView.layoutManager as GridLayoutManager)
-                activity?.runOnUiThread() {
-                    try {
-                        val start = tmp.findFirstVisibleItemPosition()
-                        val end = tmp.findLastVisibleItemPosition()
-                        recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
-                    } catch (ex: Exception) {
+
+        taskRefresh = Thread() {
+            while (isOnTaskRefesh) {
+                heartbeatCount++
+                for (tmp in viewmodel.SteamerDataLiveList.value!!.iterator()) {
+                    tmp.heartbeatCount = heartbeatCount
+                }
+                synchronized(lockobj) {
+                    activity?.runOnUiThread() {
+                        recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                     }
                 }
+                Thread.sleep(50)
             }
         }
+        taskRefresh?.start()
     }
 
 
@@ -117,6 +122,7 @@ class SteamerMainFragment : Fragment() {
             activity?.onFragmentChange(MainViewModel.STEAMERSETTINGFRAGMENT)
         }
         mBinding.btnZoomInout.setOnClickListener {
+//            mBinding.steamerRecyclerView.visibility = INVISIBLE
             if (btn_Count % 2 == 0) {
                 mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
                 btn_Count++
@@ -140,6 +146,8 @@ class SteamerMainFragment : Fragment() {
                     }
                 }
             }
+            mBinding.steamerRecyclerView.invalidate()
+//            mBinding.steamerRecyclerView.visibility = VISIBLE
         }
         mBinding.btnUnit.setOnClickListener {
             for ((index, data) in viewmodel.SteamerDataLiveList.value!!.sortedWith(
@@ -194,7 +202,7 @@ class SteamerMainFragment : Fragment() {
                 adapter = recycleAdapter
             }
         }
-
+        mBinding.steamerRecyclerView.itemAnimator = null
     }
 
     @SuppressLint("NotifyDataSetChanged")

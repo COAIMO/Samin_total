@@ -17,7 +17,7 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         val tmp = steamerViewHodler(
             LayoutInflater.from(parent.context).inflate(R.layout.steamer_view, parent, false)
         )
-        tmp.setIsRecyclable(false)
+//        tmp.setIsRecyclable(false)
         return tmp
     }
 

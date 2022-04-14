@@ -159,6 +159,14 @@ class MainViewModel : ViewModel() {
         alertMap.put(id, arg)
     }
 
+    /**
+     * 경고 상태 전달
+     * AQ에 LED/Beep음 제어는 제한한다.
+     */
+    fun addAlertInfoNoNoti(id: Int, arg: SetAlertData) {
+        alertInfo.add(arg)
+    }
+
     var steamViewZoomState = false
 }
 
