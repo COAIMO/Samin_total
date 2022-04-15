@@ -18,6 +18,8 @@ class GasRoomBoardSettingView constructor(context: Context, attrs: AttributeSet?
     var mRewardValue_Et: EditText
     var mZeroPoint_Et: EditText
     var mSlopeValue_Et: EditText
+    var mSelectedGas_Et:EditText
+    var mSelectedGasColor_sp:Spinner
     val sensorType = arrayListOf<String>(
         "WIKAI 16BAR",
         "Sensts 142PSI",
@@ -105,7 +107,8 @@ class GasRoomBoardSettingView constructor(context: Context, attrs: AttributeSet?
         mRewardValue_Et = findViewById(R.id.et_reward_value)
         mZeroPoint_Et = findViewById(R.id.et_zero_point)
         mSlopeValue_Et = findViewById(R.id.et_slope_value)
-
+        mSelectedGas_Et = findViewById(R.id.et_selectedGas)
+        mSelectedGasColor_sp = findViewById(R.id.sp_selectedGasColor)
         setSensorTypeSpinner()
         setGasTypeSpinner()
         setIsSensor()

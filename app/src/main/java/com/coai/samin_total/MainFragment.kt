@@ -252,7 +252,6 @@ class MainFragment : Fragment() {
                 mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
             mBinding.btnSound -> {
-//                btn_Count % 2 == 0
                 if (viewmodel.isSoundAlert) {
                     btn_Count++
                     mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
@@ -321,7 +320,6 @@ class MainFragment : Fragment() {
             mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
         }
 
-        invalidateView()
         if (!shared.loadHashMap().isNullOrEmpty()) {
             shared.loadHashMap().forEach { (key, value) ->
                 viewmodel.modelMap[key] = value
@@ -385,6 +383,7 @@ class MainFragment : Fragment() {
             activity?.callTimemout()
 
         }
+        mainLayoutIconVisibility()
     }
 
     private fun mainLayoutIconVisibility() {

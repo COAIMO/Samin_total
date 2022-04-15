@@ -84,6 +84,18 @@ class MainViewModel : ViewModel() {
         "N₂O" to Color.parseColor("#42C8F4"),
         "O₂" to Color.parseColor("#316734")
     )
+    val gasColor = arrayListOf(
+        "#6599CD(Air)",
+        "#333333(Ar)",
+        "#FECD08(C₂H₂)",
+        "#905501(CH₄)",
+        "#2D67B2(CO₂)",
+        "#F2663A(H₂)",
+        "#9A679A(He)",
+        "#42C8F4(N₂)",
+        "#42C8F4(N₂O)",
+        "#316734(O₂)"
+    )
 
     val gasSensorType = arrayListOf<String>(
         "Sensts 142PSI",
@@ -93,6 +105,7 @@ class MainViewModel : ViewModel() {
         "WIKAI 16BAR",
         "Variable Sensor"
     )
+
     val oxygenSensorType = arrayListOf<String>(
         "LOX-02"
     )

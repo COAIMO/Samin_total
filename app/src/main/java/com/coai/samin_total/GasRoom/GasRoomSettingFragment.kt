@@ -107,6 +107,21 @@ class GasRoomSettingFragment : Fragment() {
         }
 
     }
+    private val mSelectedGastextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s != null && !s.toString().equals("")) {
+                selectedSensor.slopeValue = s.toString().toFloat()
+            }
+
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -143,7 +158,7 @@ class GasRoomSettingFragment : Fragment() {
         initView()
         setGasTypeSpinner()
         setSensorTypeSpinner()
-
+        setGasColorSpinner()
         recycleAdapter.setItemClickListener(object :
             GasRoomSetting_RecycleAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
@@ -165,6 +180,7 @@ class GasRoomSettingFragment : Fragment() {
                 mBinding.gasRoomBoardSettingView.mRewardValue_Et.setText(selectedSensor.rewardValue.toString())
                 mBinding.gasRoomBoardSettingView.mZeroPoint_Et.setText(selectedSensor.zeroPoint.toString())
                 mBinding.gasRoomBoardSettingView.mSlopeValue_Et.setText(selectedSensor.slopeValue.toString())
+                mBinding.gasRoomBoardSettingView.mSelectedGas_Et.setText(selectedSensor.gasName.toString())
             }
         })
         return mBinding.root
@@ -249,6 +265,7 @@ class GasRoomSettingFragment : Fragment() {
                     selectedSensor.gasName = viewmodel.gasType[position]
                     selectedSensor.gasColor =
                         viewmodel.gasColorMap[selectedSensor.gasName]!!
+                    mBinding.gasRoomBoardSettingView.mSelectedGas_Et.setText(viewmodel.gasType[position])
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -286,6 +303,31 @@ class GasRoomSettingFragment : Fragment() {
             }
     }
 
+    private fun setGasColorSpinner() {
+        val arrayAdapter = ArrayAdapter(
+            requireContext(),
+            R.layout.support_simple_spinner_dropdown_item,
+            viewmodel.gasColor
+        )
+        mBinding.gasRoomBoardSettingView.mSelectedGasColor_sp.adapter = arrayAdapter
+        mBinding.gasRoomBoardSettingView.mSelectedGasColor_sp.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    selectedSensor.gasColor =
+                        viewmodel.gasColorMap[viewmodel.gasType[position]]!!
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    Toast.makeText(context, "센서 타입을 선택해주세요.", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+    }
     private fun setSaveData() {
         viewmodel.GasRoomDataLiveList.clear(true)
         val iter = setGasSensorInfo.iterator()
