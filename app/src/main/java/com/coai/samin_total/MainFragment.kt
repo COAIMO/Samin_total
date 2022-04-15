@@ -188,8 +188,8 @@ class MainFragment : Fragment() {
 
             }
             mBinding.btnSound -> {
-
-                if (btn_Count % 2 == 0) {
+//                btn_Count % 2 == 0
+                if (viewmodel.isSoundAlert) {
                     btn_Count++
                     mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
                     viewmodel.isSoundAlert = false
@@ -251,6 +251,12 @@ class MainFragment : Fragment() {
         mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
         mBinding.oxygenMainStatusLayout.visibility = View.GONE
         mBinding.steamerMainStatusLayout.visibility = View.GONE
+        if (viewmodel.isSoundAlert){
+            mBinding.btnSound.setImageResource(R.drawable.sound_ic)
+        }else{
+            mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
+        }
+
         invalidateView()
         if (!shared.loadHashMap().isNullOrEmpty()) {
             shared.loadHashMap().forEach { (key, value) ->

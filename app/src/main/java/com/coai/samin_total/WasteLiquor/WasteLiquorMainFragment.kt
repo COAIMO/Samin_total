@@ -78,9 +78,9 @@ class WasteLiquorMainFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         isOnTaskRefesh = true
-        taskRefresh =Thread(){
+        taskRefresh = Thread() {
             try {
-                while (isOnTaskRefesh){
+                while (isOnTaskRefesh) {
                     heartbeatCount++
                     for (tmp in viewmodel.WasteLiquorDataLiveList.value!!.iterator()) {
                         tmp.heartbeatCount = heartbeatCount
@@ -103,12 +103,13 @@ class WasteLiquorMainFragment : Fragment() {
 
                 }
 
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
         taskRefresh?.start()
     }
+
     override fun onPause() {
         super.onPause()
         isOnTaskRefesh = false
@@ -132,8 +133,9 @@ class WasteLiquorMainFragment : Fragment() {
         }
 
         mBinding.btnZoomInout.setOnClickListener {
-            if (btn_Count % 2 == 0) {
-                btn_Count++
+            if (!viewmodel.wasteViewZoomState) {
+                viewmodel.wasteViewZoomState = true
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
                 synchronized(lockobj) {
                     mBinding.wasteLiquorRecyclerView.apply {
                         (layoutManager as GridLayoutManager).let {
@@ -143,14 +145,14 @@ class WasteLiquorMainFragment : Fragment() {
                     }
                 }
             } else {
-                btn_Count++
                 synchronized(lockobj) {
+                    viewmodel.wasteViewZoomState = false
+                    mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
                     mBinding.wasteLiquorRecyclerView.apply {
                         (layoutManager as GridLayoutManager).let {
                             it.spanCount = 4
                         }
                         itemSpace.changeSpace(30, 20, 70, 20)
-
                     }
                 }
             }
@@ -175,14 +177,16 @@ class WasteLiquorMainFragment : Fragment() {
 
     private fun initRecycler() {
         mBinding.wasteLiquorRecyclerView.apply {
-            layoutManager =
-                GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-
-            //아이템 높이 간격 조절
-            itemSpace.changeSpace(50, 50, 90, 50)
-
+            if (!viewmodel.wasteViewZoomState) {
+                layoutManager =
+                    GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(50, 50, 90, 50)
+            } else {
+                layoutManager =
+                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(180, 150, 180, 150)
+            }
             addItemDecoration(itemSpace)
-
             recycleAdapter = WasteLiquor_RecycleAdapter()
             adapter = recycleAdapter
         }
@@ -202,8 +206,12 @@ class WasteLiquorMainFragment : Fragment() {
         val mm =
             viewmodel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         recycleAdapter.submitList(mm)
-//        recycleAdapter.notifyDataSetChanged()
-//        activity?.tmp?.LoadSetting()
+
+        if (viewmodel.wasteViewZoomState) {
+            mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
+        }else{
+            mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+        }
     }
 
 
@@ -211,7 +219,7 @@ class WasteLiquorMainFragment : Fragment() {
         viewmodel.wasteAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-            }else{
+            } else {
                 mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }

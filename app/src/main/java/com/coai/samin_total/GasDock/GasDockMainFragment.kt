@@ -123,8 +123,9 @@ class GasDockMainFragment : Fragment() {
             activity?.onFragmentChange(MainViewModel.GASSTORAGESETTINGFRAGMENT)
         }
         mBinding.btnZoomInout.setOnClickListener {
-            if (btn_Count % 2 == 0) {
-                btn_Count++
+            if (!mainViewModel.storageViewZoomState) {
+                mainViewModel.storageViewZoomState = true
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
                 synchronized(lockobj) {
                     mBinding.gasStorageRecyclerView.apply {
                         (layoutManager as GridLayoutManager).let {
@@ -134,8 +135,9 @@ class GasDockMainFragment : Fragment() {
                     }
                 }
             } else {
-                btn_Count++
-                synchronized(lockobj){
+                mainViewModel.storageViewZoomState = false
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+                synchronized(lockobj) {
                     mBinding.gasStorageRecyclerView.apply {
                         (layoutManager as GridLayoutManager).let {
                             it.spanCount = 4
@@ -192,8 +194,12 @@ class GasDockMainFragment : Fragment() {
                 { it.port })
         )
         recycleAdapter.submitList(mm)
-//        recycleAdapter.notifyDataSetChanged()
-//        activity?.tmp?.LoadSetting()
+
+        if (mainViewModel.storageViewZoomState) {
+            mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
+        }else{
+            mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+        }
 
     }
 
@@ -229,12 +235,19 @@ class GasDockMainFragment : Fragment() {
     private fun initRecycler() {
         recycleAdapter = GasStorage_RecycleAdapter()
         mBinding.gasStorageRecyclerView.apply {
-            layoutManager =
-                GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-            //아이템 높이 간격 조절
-            itemSpace.changeSpace(50, 100, 50, 100)
-            addItemDecoration(itemSpace)
 
+            //아이템 높이 간격 조절
+            if (!mainViewModel.storageViewZoomState) {
+                layoutManager =
+                    GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(50, 100, 50, 100)
+            } else {
+                layoutManager =
+                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(200, 300, 200, 300)
+
+            }
+            addItemDecoration(itemSpace)
             recycleAdapter.submitList(gasStorageViewData)
             adapter = recycleAdapter
         }
@@ -246,7 +259,7 @@ class GasDockMainFragment : Fragment() {
         mainViewModel.gasStorageAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-            }else{
+            } else {
                 mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }

@@ -141,10 +141,9 @@ class SteamerMainFragment : Fragment() {
             activity?.onFragmentChange(MainViewModel.STEAMERSETTINGFRAGMENT)
         }
         mBinding.btnZoomInout.setOnClickListener {
-//            mBinding.steamerRecyclerView.visibility = INVISIBLE
-            if (btn_Count % 2 == 0) {
+            if (!viewmodel.steamerViewZoomState) {
+                viewmodel.steamerViewZoomState = true
                 mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
-                btn_Count++
                 synchronized(lockobj) {
                     mBinding.steamerRecyclerView.apply {
                         (layoutManager as GridLayoutManager).let {
@@ -154,8 +153,8 @@ class SteamerMainFragment : Fragment() {
                     }
                 }
             } else {
-                mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
-                btn_Count++
+                viewmodel.steamerViewZoomState = false
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
                 synchronized(lockobj) {
                     mBinding.steamerRecyclerView.apply {
                         (layoutManager as GridLayoutManager).let {
@@ -197,29 +196,20 @@ class SteamerMainFragment : Fragment() {
 
 
     private fun initRecycler() {
-//        if (!viewmodel.steamViewZoomState) {
         mBinding.steamerRecyclerView.apply {
-            layoutManager =
-                GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-
-            itemSpace.changeSpace(50, 50, 90, 50)
+            if (!viewmodel.steamerViewZoomState) {
+                layoutManager =
+                    GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(50, 50, 90, 50)
+            }else{
+                layoutManager =
+                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(220, 150, 200, 150)
+            }
             addItemDecoration(itemSpace)
-
             recycleAdapter = Steamer_RecycleAdapter()
             adapter = recycleAdapter
         }
-
-//        }
-//        else {
-//            mBinding.steamerRecyclerView.apply {
-//                layoutManager =
-//                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-//                itemSpace.changeSpace(220, 150, 200, 150)
-//                addItemDecoration(itemSpace)
-//                recycleAdapter = Steamer_RecycleAdapter()
-//                adapter = recycleAdapter
-//            }
-//        }
         mBinding.steamerRecyclerView.itemAnimator = null
         mBinding.steamerRecyclerView.animation = null
     }
@@ -238,7 +228,11 @@ class SteamerMainFragment : Fragment() {
         recycleAdapter.submitList(mm)
 //        recycleAdapter.notifyDataSetChanged()
 //        activity?.tmp?.LoadSetting()
-
+        if (viewmodel.steamerViewZoomState) {
+            mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
+        }else{
+            mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

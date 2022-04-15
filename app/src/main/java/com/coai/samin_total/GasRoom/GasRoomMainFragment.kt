@@ -120,15 +120,17 @@ class GasRoomMainFragment : Fragment() {
         }
 
         mBinding.btnZoomInout.setOnClickListener {
-            if (btn_Count % 2 == 0) {
-                btn_Count++
+            if (!viewmodel.roomViewZoomState) {
+                viewmodel.roomViewZoomState = true
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
                 synchronized(lockobj) {
                     mBinding.gasRoomRecyclerView.apply {
                         itemSpace.changeSpace(150, 60, 150, 60)
                     }
                 }
             } else {
-                btn_Count++
+                viewmodel.roomViewZoomState = false
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
                 synchronized(lockobj) {
                     mBinding.gasRoomRecyclerView.apply {
                         itemSpace.changeSpace(20, 150, 20, 150)
@@ -146,17 +148,6 @@ class GasRoomMainFragment : Fragment() {
                 viewmodel.GasRoomDataLiveList.value!!.set(index, data)
                 if (data.unit == 3) data.unit = 0
             }
-//            recycleAdapter.submitList(viewmodel.GasRoomDataLiveList.value!!)
-//            recycleAdapter.notifyDataSetChanged()
-//            for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(
-//                compareBy(
-//                    { it.id },
-//                    { it.port })
-//            ).withIndex()) {
-//                Log.d("room 후", "인텍스: $index" + "데이더 : $data")
-//
-//            }
-//
         }
         mBinding.btnAlert.setOnClickListener {
             alertdialogFragment = AlertDialogFragment()
@@ -176,10 +167,16 @@ class GasRoomMainFragment : Fragment() {
     private fun initRecycler() {
 //        recycleAdapter = GasRoom_RecycleAdapter()
         mBinding.gasRoomRecyclerView.apply {
-            layoutManager =
-                GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-            //아이템 높이 간격 조절
-            itemSpace.changeSpace(20, 150, 20, 150)
+
+            if (!viewmodel.roomViewZoomState){
+                layoutManager =
+                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(20, 150, 20, 150)
+            }else{
+                layoutManager =
+                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(150, 60, 150, 60)
+            }
             addItemDecoration(itemSpace)
 
             recycleAdapter = GasRoom_RecycleAdapter()
@@ -206,6 +203,11 @@ class GasRoomMainFragment : Fragment() {
         recycleAdapter.submitList(mm)
 //        recycleAdapter.notifyDataSetChanged()
 //        activity?.tmp?.LoadSetting()
+        if (viewmodel.roomViewZoomState) {
+            mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
+        }else{
+            mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+        }
 
     }
 

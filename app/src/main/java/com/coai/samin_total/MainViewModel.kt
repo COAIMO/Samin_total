@@ -177,7 +177,11 @@ class MainViewModel : ViewModel() {
             alertInfo.add(arg)
         } catch (e: Exception) {}
     }
+    var storageViewZoomState = false
+    var roomViewZoomState = false
+    var wasteViewZoomState = false
+    var oxygenViewZoomState = false
+    var steamerViewZoomState = false
 
-    var steamViewZoomState = false
 }
 

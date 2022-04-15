@@ -131,8 +131,9 @@ class OxygenMainFragment : Fragment() {
             activity?.onFragmentChange(MainViewModel.OXYGENSETTINGFRAGMENT)
         }
         mBinding.btnZoomInout.setOnClickListener {
-            if (btn_Count % 2 == 0) {
-                btn_Count++
+            if (!viewmodel.oxygenViewZoomState) {
+                viewmodel.oxygenViewZoomState = true
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
                 synchronized(lockobj) {
                     mBinding.oxygenRecyclerView.apply {
                         itemSpace.changeSpace(
@@ -141,7 +142,8 @@ class OxygenMainFragment : Fragment() {
                     }
                 }
             } else {
-                btn_Count++
+                viewmodel.oxygenViewZoomState = false
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
                 synchronized(lockobj) {
                     mBinding.oxygenRecyclerView.apply {
                         itemSpace.changeSpace(
@@ -169,12 +171,19 @@ class OxygenMainFragment : Fragment() {
 
     private fun initRecycler() {
         mBinding.oxygenRecyclerView.apply {
-            layoutManager =
-                GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
-
-            itemSpace.changeSpace(
-                100, 800, 100, 800
-            )
+            if (!viewmodel.oxygenViewZoomState) {
+                layoutManager =
+                    GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(
+                    100, 800, 100, 800
+                )
+            } else {
+                layoutManager =
+                    GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(
+                    50, 650, 50, 650
+                )
+            }
             addItemDecoration(itemSpace)
 
             recycleAdapter = Oxygen_RecycleAdapter()
@@ -197,6 +206,12 @@ class OxygenMainFragment : Fragment() {
         recycleAdapter.submitList(mm)
 //        recycleAdapter.notifyDataSetChanged()
 //        activity?.tmp?.LoadSetting()
+
+        if (viewmodel.oxygenViewZoomState) {
+            mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
+        }else{
+            mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
