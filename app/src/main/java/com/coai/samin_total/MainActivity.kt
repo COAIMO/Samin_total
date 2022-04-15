@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.coai.libmodbus.service.SaminModbusService
 import com.coai.libsaminmodbus.model.ModelMonitorValues
 import com.coai.libsaminmodbus.model.ObserveModelMonitorValues
-import com.coai.samin_total.DataBase.SaminDataBase
+import com.coai.samin_total.database.SaminDataBase
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.ScanDialogFragment
 import com.coai.samin_total.Dialog.SetAlertData
@@ -32,8 +32,10 @@ import com.coai.samin_total.Steamer.SteamerMainFragment
 import com.coai.samin_total.Steamer.SteamerSettingFragment
 import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
+import com.coai.samin_total.database.PageListAdapter
+import com.coai.samin_total.database.PageViewModel
+import com.coai.samin_total.database.ViewModelFactory
 import com.coai.samin_total.databinding.ActivityMainBinding
-import com.coai.uikit.GlobalUiTimer
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
@@ -74,6 +76,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var shared: SaminSharedPreference
     lateinit var tmp: AQDataParser
 
+    lateinit var viewModel : PageViewModel
+    private lateinit var pageListAdapter : PageListAdapter
+
     private var protocolBuffers = ConcurrentHashMap<Short, ByteArray>()
 
     companion object {
@@ -100,6 +105,12 @@ class MainActivity : AppCompatActivity() {
         shared = SaminSharedPreference(this)
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         tmp = AQDataParser(mainViewModel)
+
+        this.viewModel = ViewModelProvider(
+            this,
+            ViewModelFactory(application)
+        ).get(PageViewModel::class.java)
+
 
         setFragment()
         sendAlert()

@@ -1,10 +1,6 @@
-package com.coai.samin_total.DataBase
+package com.coai.samin_total.database
 
-import android.provider.ContactsContract
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.room.*
-import org.jetbrains.annotations.NotNull
 
 @Dao
 interface SaminDao {

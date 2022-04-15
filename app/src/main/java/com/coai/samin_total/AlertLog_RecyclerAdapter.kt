@@ -4,11 +4,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.coai.samin_total.DataBase.AlertData
 import com.coai.samin_total.Dialog.SetAlertData
-import com.coai.samin_total.databinding.AlertlogViewBinding
 
 class AlertLog_RecyclerAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var alertData = listOf<SetAlertData>()

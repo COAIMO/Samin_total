@@ -1,4 +1,4 @@
-package com.coai.samin_total.DataBase
+package com.coai.samin_total.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

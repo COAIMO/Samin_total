@@ -1,4 +1,4 @@
-package com.coai.samin_total.DataBase
+package com.coai.samin_total.database
 
 import android.content.Context
 import androidx.room.Database
