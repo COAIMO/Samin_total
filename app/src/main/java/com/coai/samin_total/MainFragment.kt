@@ -87,6 +87,63 @@ class MainFragment : Fragment() {
         }
     }
 
+    lateinit var thUIError : Thread
+    var isrunthUIError = true
+    override fun onResume() {
+        super.onResume()
+        isrunthUIError = true
+        viewmodel.steamerAlert.value = false
+        thUIError = Thread {
+            try {
+                while (isrunthUIError) {
+                    // 메인화면 경고 유무 변화
+                    val targets = HashMap<Int, Int>()
+                    for (t in viewmodel.alertMap.values) {
+                        if (t.isAlert && !targets.containsKey(t.model)) {
+                            targets[t.model] = t.model
+                        }
+                    }
+
+
+                    activity?.runOnUiThread {
+                        try {
+                            viewmodel.gasStorageAlert.value = targets.containsKey(1)
+                        } catch (ex: Exception) {
+                        }
+                        try {
+                            viewmodel.gasRoomAlert.value = targets.containsKey(2)
+                        } catch (ex: Exception) {
+                        }
+                        try {
+                            viewmodel.wasteAlert.value = targets.containsKey(3)
+                        } catch (ex: Exception) {
+                        }
+                        try {
+                            viewmodel.oxyenAlert.value = targets.containsKey(4)
+                        } catch (ex: Exception) {
+                        }
+                        try {
+                            viewmodel.steamerAlert.value = targets.containsKey(5)
+                        } catch (ex: Exception) {
+                        }
+                    }
+
+                    Thread.sleep(100)
+                }
+            } catch (e : Exception) {
+
+            }
+        }
+        thUIError?.start()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        isrunthUIError = false
+        thUIError?.interrupt()
+        thUIError?.join()
+    }
+
     var isFirst = true
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -100,7 +157,6 @@ class MainFragment : Fragment() {
         if (isFirst) {
             isFirst = false
             initView()
-
         }
         mainLayoutIconVisibility()
         udateAlert()
@@ -194,7 +250,6 @@ class MainFragment : Fragment() {
                 alertdialogFragment.arguments = bundle
                 alertdialogFragment.show(requireActivity().supportFragmentManager, "Main")
                 mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
-
             }
             mBinding.btnSound -> {
 //                btn_Count % 2 == 0
@@ -413,7 +468,7 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun udateAlert() {
+    fun udateAlert() {
         viewmodel.wasteAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.wasteLiquorMainStatus.setAlert(true)

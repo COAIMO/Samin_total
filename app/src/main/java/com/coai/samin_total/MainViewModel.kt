@@ -164,8 +164,10 @@ class MainViewModel : ViewModel() {
     fun addAlertInfo(id: Int, arg: SetAlertData) {
         try {
             alertInfo.add(arg)
-            alertMap.put(id, arg)
-        } catch (e: Exception) {}
+        } catch (e: Exception) { }
+        try {
+            alertMap[id] = arg
+        } catch (e: Exception) { }
     }
 
     /**

@@ -190,7 +190,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
                 if (alertMap[id] == null) {
                     alertMap.put(id, true)
-                    viewModel.gasStorageAlert.value = true
+//                    viewModel.gasStorageAlert.value = true
                     viewModel.addAlertInfo(
                         id,
                         SetAlertData(
@@ -207,7 +207,7 @@ class AQDataParser(viewModel: MainViewModel) {
             } else {
                 if (alertMap.containsKey(id)) {
                     tmp.isAlert = false
-                    viewModel.gasStorageAlert.value = false
+//                    viewModel.gasStorageAlert.value = false
                     viewModel.addAlertInfo(
                         id,
                         SetAlertData(
@@ -236,7 +236,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
                 if (alertMap[id] == null) {
                     alertMap.put(id, true)
-                    viewModel.gasStorageAlert.value = true
+//                    viewModel.gasStorageAlert.value = true
                     viewModel.addAlertInfo(
                         id,
                         SetAlertData(
@@ -253,7 +253,7 @@ class AQDataParser(viewModel: MainViewModel) {
             } else if (tmp.pressure_Min!! < tmp.pressureLeft!!) {
                 if (alertMap.containsKey(id)) {
                     tmp.isAlertLeft = false
-                    viewModel.gasStorageAlert.value = false
+//                    viewModel.gasStorageAlert.value = false
                     viewModel.addAlertInfo(
                         id,
                         SetAlertData(
@@ -275,7 +275,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
                     if (alertMap2[id] == null) {
                         alertMap2.put(id, true)
-                        viewModel.gasStorageAlert.value = true
+//                        viewModel.gasStorageAlert.value = true
                         viewModel.addAlertInfo(
                             id + 65536,
                             SetAlertData(
@@ -292,7 +292,7 @@ class AQDataParser(viewModel: MainViewModel) {
                 } else if (tmp.pressure_Min!! < tmp.pressureRight!!) {
                     if (alertMap2.containsKey(id)) {
                         tmp.isAlertRight = false
-                        viewModel.gasStorageAlert.value = false
+//                        viewModel.gasStorageAlert.value = false
                         viewModel.addAlertInfo(
                             id + 65536,
                             SetAlertData(
@@ -352,7 +352,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
-                viewModel.gasStorageAlert.value = true
+//                viewModel.gasStorageAlert.value = true
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -369,7 +369,7 @@ class AQDataParser(viewModel: MainViewModel) {
         } else {
             if (alertMap.containsKey(id)) {
                 tmp.isAlert = false
-                viewModel.gasStorageAlert.value = false
+//                viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -435,7 +435,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
-                viewModel.gasStorageAlert.value = true
+//                viewModel.gasStorageAlert.value = true
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -452,7 +452,7 @@ class AQDataParser(viewModel: MainViewModel) {
         } else if (tmp.pressure_Min!! < tmp.pressureLeft!!) {
             if (alertMap.containsKey(id)) {
                 tmp.isAlertLeft = false
-                viewModel.gasStorageAlert.value = false
+//                viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -476,7 +476,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
             if (alertMap2[id] == null) {
                 alertMap2.put(id, true)
-                viewModel.gasStorageAlert.value = true
+//                viewModel.gasStorageAlert.value = true
                 viewModel.addAlertInfo(
                     id + 65536,
                     SetAlertData(
@@ -493,7 +493,7 @@ class AQDataParser(viewModel: MainViewModel) {
         } else if (tmp.pressure_Min!! < tmp.pressureRight!!) {
             if (alertMap2.containsKey(id)) {
                 tmp.isAlertRight = false
-                viewModel.gasStorageAlert.value = false
+//                viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
                     id + 65536,
                     SetAlertData(
@@ -590,7 +590,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
-                viewModel.gasRoomAlert.value = true
+//                viewModel.gasRoomAlert.value = true
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -607,7 +607,7 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap.containsKey(id)) {
                 if (alertBase[id]!! + 2 < value) {
                     tmp.isAlert = false
-                    viewModel.gasRoomAlert.value = false
+//                    viewModel.gasRoomAlert.value = false
                     viewModel.addAlertInfo(
                         id,
                         SetAlertData(
@@ -651,7 +651,7 @@ class AQDataParser(viewModel: MainViewModel) {
             tmp.isAlert = true
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
-                viewModel.wasteAlert.value = true
+//                viewModel.wasteAlert.value = true
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -667,7 +667,7 @@ class AQDataParser(viewModel: MainViewModel) {
         } else {
             if (alertMap.containsKey(id)) {
                 tmp.isAlert = false
-                viewModel.wasteAlert.value = false
+//                viewModel.wasteAlert.value = false
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -702,7 +702,7 @@ class AQDataParser(viewModel: MainViewModel) {
             tmp.isAlert = true
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
-                viewModel.oxyenAlert.value = true
+//                viewModel.oxyenAlert.value = true
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -718,7 +718,7 @@ class AQDataParser(viewModel: MainViewModel) {
         } else {
             if (alertMap.containsKey(id)) {
                 tmp.isAlert = false
-                viewModel.oxyenAlert.value = false
+//                viewModel.oxyenAlert.value = false
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -740,7 +740,7 @@ class AQDataParser(viewModel: MainViewModel) {
             tmp.isAlert = true
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
-                viewModel.oxyenAlert.value = true
+//                viewModel.oxyenAlert.value = true
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -756,7 +756,7 @@ class AQDataParser(viewModel: MainViewModel) {
         } else {
             if (alertMap.containsKey(id)) {
                 tmp.isAlert = false
-                viewModel.oxyenAlert.value = false
+//                viewModel.oxyenAlert.value = false
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -793,7 +793,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
-                viewModel.steamerAlert.value = true
+//                viewModel.steamerAlert.value = true
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -809,7 +809,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
         } else {
             if (alertMap.containsKey(id)) {
-                viewModel.steamerAlert.value = false
+//                viewModel.steamerAlert.value = false
                 tmp.isAlertTemp = false
                 viewModel.addAlertInfo(
                     id,
@@ -836,7 +836,7 @@ class AQDataParser(viewModel: MainViewModel) {
             tmp.isAlertLow = true
             if (alertMap2[id] == null) {
                 alertMap2.put(id, true)
-                viewModel.steamerAlert.value = true
+//                viewModel.steamerAlert.value = true
                 viewModel.addAlertInfo(
                     id + 65536 * 2,
                     SetAlertData(
@@ -852,7 +852,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
         } else {
             if (alertMap2.containsKey(id)) {
-                viewModel.steamerAlert.value = false
+//                viewModel.steamerAlert.value = false
                 tmp.isAlertTemp = false
                 viewModel.addAlertInfo(
                     id + 65536 * 2,
@@ -1052,6 +1052,8 @@ class AQDataParser(viewModel: MainViewModel) {
     }
 
     val lostConnectAQs = HashMap<Int, Boolean>()
+
+
     fun timeoutAQCheckStep() {
         val baseTime = System.currentTimeMillis() - 1000 * 10
         val oldDatas = hmapLastedDate.filter { it.value < baseTime }
@@ -1066,14 +1068,18 @@ class AQDataParser(viewModel: MainViewModel) {
             // 경고 전달
             val current = setAQport[tmp.key]
 
-            if (current is SetGasStorageViewData)
+            if (current is SetGasStorageViewData) {
                 (current as SetGasStorageViewData).isAlert = true
-            else if (current is SetGasRoomViewData)
+            }
+            else if (current is SetGasRoomViewData) {
                 (current as SetGasRoomViewData).isAlert = true
-            else if (current is SetWasteLiquorViewData)
+            }
+            else if (current is SetWasteLiquorViewData) {
                 (current as SetWasteLiquorViewData).isAlert = true
-            else if (current is SetOxygenViewData)
+            }
+            else if (current is SetOxygenViewData) {
                 (current as SetOxygenViewData).isAlert = true
+            }
             else if (current is SetSteamerViewData) {
                 (current as SetSteamerViewData).isAlertLow = true
                 (current as SetSteamerViewData).isAlertTemp = true
@@ -1084,7 +1090,7 @@ class AQDataParser(viewModel: MainViewModel) {
             val id = aqInfo[2].toInt()
             val port = aqInfo[1].toInt()
 
-            viewModel.addAlertInfoNoNoti(
+            viewModel.addAlertInfo(
                 tmp.key,
                 SetAlertData(
                     getLatest_time(System.currentTimeMillis()),
@@ -1126,7 +1132,7 @@ class AQDataParser(viewModel: MainViewModel) {
             val id = aqInfo[2].toInt()
             val port = aqInfo[1].toInt()
 
-            viewModel.addAlertInfoNoNoti(
+            viewModel.addAlertInfo(
                 tmp,
                 SetAlertData(
                     getLatest_time(System.currentTimeMillis()),

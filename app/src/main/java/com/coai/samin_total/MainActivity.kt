@@ -386,6 +386,9 @@ class MainActivity : AppCompatActivity() {
         idsListClear()
     }
 
+    /**
+     * 에러 유무 확인
+     */
     var isCallTimeout = true
     fun callTimemout() {
         isCallTimeout = false
@@ -399,8 +402,8 @@ class MainActivity : AppCompatActivity() {
                     val elapsed: Long = measureTimeMillis {
                         tmp.timeoutAQCheckStep()
                     }
-//                    Log.d(mainTAG, "callTimeoutThread measureTimeMillis : $elapsed")
-                    Thread.sleep(10)
+
+                    Thread.sleep(50)
                 }
                 catch (e : Exception)
                 {
