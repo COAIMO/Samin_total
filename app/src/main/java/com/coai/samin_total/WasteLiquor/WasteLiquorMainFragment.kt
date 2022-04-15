@@ -186,7 +186,8 @@ class WasteLiquorMainFragment : Fragment() {
             recycleAdapter = WasteLiquor_RecycleAdapter()
             adapter = recycleAdapter
         }
-
+        mBinding.wasteLiquorRecyclerView.itemAnimator = null
+        mBinding.wasteLiquorRecyclerView.animation = null
     }
 
     @SuppressLint("NotifyDataSetChanged")
