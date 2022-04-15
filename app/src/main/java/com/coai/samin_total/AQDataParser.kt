@@ -25,7 +25,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
     // 최종 숫신시간
     val hmapLastedDate = HashMap<Int, Long>()
-    var hmapIDLastedDate = HashMap<Short, Long>()
+//    var hmapIDLastedDate = HashMap<Short, Long>()
     val hmapPsis = HashMap<Int, ArrayList<TimePSI>>()
 
     val alertBase = HashMap<Int, Float>()
@@ -56,7 +56,8 @@ class AQDataParser(viewModel: MainViewModel) {
                 t.clear()
 
             hmapPsis.clear()
-            hmapIDLastedDate.clear()
+//            hmapIDLastedDate.clear()
+            lostConnectAQs.clear()
         }
     }
 
@@ -77,9 +78,6 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapAQPortSettings[key] = tmp.copy()
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
-
-            val aqid = littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
-            hmapIDLastedDate[aqid] = System.currentTimeMillis()
         }
         // 룸 센서에 대해서만 처리
         for (tmp in viewModel.GasRoomDataLiveList.value!!) {
@@ -93,8 +91,6 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapAQPortSettings[key] = tmp.copy()
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
-            val aqid = littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
-            hmapIDLastedDate[aqid] = System.currentTimeMillis()
         }
 
         for (tmp in viewModel.WasteLiquorDataLiveList.value!!) {
@@ -108,8 +104,6 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapAQPortSettings[key] = tmp.copy()
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
-            val aqid = littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
-            hmapIDLastedDate[aqid] = System.currentTimeMillis()
         }
 
         for (tmp in viewModel.OxygenDataLiveList.value!!) {
@@ -123,8 +117,6 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapAQPortSettings[key] = tmp.copy()
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
-            val aqid = littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
-            hmapIDLastedDate[aqid] = System.currentTimeMillis()
         }
 
         for (tmp in viewModel.SteamerDataLiveList.value!!) {
@@ -138,8 +130,6 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapAQPortSettings[key] = tmp.copy()
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
-            val aqid = littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
-            hmapIDLastedDate[aqid] = System.currentTimeMillis()
         }
     }
 
@@ -1061,8 +1051,93 @@ class AQDataParser(viewModel: MainViewModel) {
         return ret.toInt()
     }
 
+    val lostConnectAQs = HashMap<Int, Boolean>()
     fun timeoutAQCheckStep() {
+        val baseTime = System.currentTimeMillis() - 1000 * 10
+        val oldDatas = hmapLastedDate.filter { it.value < baseTime }
 
+        val lastaqs = lostConnectAQs.keys.toMutableList()
+        for (tmp in oldDatas) {
+            if (lostConnectAQs.containsKey(tmp.key)) {
+                lastaqs.remove(tmp.key)
+                continue
+            }
+
+            // 경고 전달
+            val current = setAQport[tmp.key]
+
+            if (current is SetGasStorageViewData)
+                (current as SetGasStorageViewData).isAlert = true
+            else if (current is SetGasRoomViewData)
+                (current as SetGasRoomViewData).isAlert = true
+            else if (current is SetWasteLiquorViewData)
+                (current as SetWasteLiquorViewData).isAlert = true
+            else if (current is SetOxygenViewData)
+                (current as SetOxygenViewData).isAlert = true
+            else if (current is SetSteamerViewData) {
+                (current as SetSteamerViewData).isAlertLow = true
+                (current as SetSteamerViewData).isAlertTemp = true
+            }
+
+            val aqInfo = HexDump.toByteArray(tmp.key)
+            val model = aqInfo[3].toInt()
+            val id = aqInfo[2].toInt()
+            val port = aqInfo[1].toInt()
+
+            viewModel.addAlertInfoNoNoti(
+                tmp.key,
+                SetAlertData(
+                    getLatest_time(System.currentTimeMillis()),
+                    model,
+                    id,
+                    "AQ 신호 이상(통신불가)",
+                    port,
+                    true
+                )
+            )
+
+            lostConnectAQs[tmp.key] = true
+        }
+
+        for (tmp in lastaqs) {
+            lostConnectAQs.remove(tmp)
+            // 경고 해제 전달
+
+            val current = setAQport[tmp]
+
+            val alertinfo = viewModel.alertMap[tmp]
+            if (alertinfo == alertinfo || !alertinfo!!.isAlert) {
+                if (current is SetGasStorageViewData)
+                    (current as SetGasStorageViewData).isAlert = false
+                else if (current is SetGasRoomViewData)
+                    (current as SetGasRoomViewData).isAlert = false
+                else if (current is SetWasteLiquorViewData)
+                    (current as SetWasteLiquorViewData).isAlert = false
+                else if (current is SetOxygenViewData)
+                    (current as SetOxygenViewData).isAlert = false
+                else if (current is SetSteamerViewData) {
+                    (current as SetSteamerViewData).isAlertLow = false
+                    (current as SetSteamerViewData).isAlertTemp = false
+                }
+            }
+
+            val aqInfo = HexDump.toByteArray(tmp)
+            val model = aqInfo[3].toInt()
+            val id = aqInfo[2].toInt()
+            val port = aqInfo[1].toInt()
+
+            viewModel.addAlertInfoNoNoti(
+                tmp,
+                SetAlertData(
+                    getLatest_time(System.currentTimeMillis()),
+                    model,
+                    id,
+                    "AQ 신호 정상",
+                    port,
+                    false
+                )
+            )
+        }
     }
 
     init {

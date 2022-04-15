@@ -70,6 +70,7 @@ class MainViewModel : ViewModel() {
     var labName:String = "Lab - 015"
 
     val modelMap = HashMap<String, ByteArray>()
+    val modelMapInt = HashMap<Int, ByteArray>()
 
     val gasColorMap = hashMapOf<String, Int>(
         "Air" to Color.parseColor("#6599CD"),
@@ -148,6 +149,12 @@ class MainViewModel : ViewModel() {
         modelMap.remove("WasteLiquor")
         modelMap.remove("Oxygen")
         modelMap.remove("Steamer")
+
+        modelMapInt.remove(1)
+        modelMapInt.remove(2)
+        modelMapInt.remove(3)
+        modelMapInt.remove(4)
+        modelMapInt.remove(5)
     }
 
 
@@ -155,8 +162,10 @@ class MainViewModel : ViewModel() {
      * 경고 상태 전달
      */
     fun addAlertInfo(id: Int, arg: SetAlertData) {
-        alertInfo.add(arg)
-        alertMap.put(id, arg)
+        try {
+            alertInfo.add(arg)
+            alertMap.put(id, arg)
+        } catch (e: Exception) {}
     }
 
     /**
@@ -164,7 +173,9 @@ class MainViewModel : ViewModel() {
      * AQ에 LED/Beep음 제어는 제한한다.
      */
     fun addAlertInfoNoNoti(id: Int, arg: SetAlertData) {
-        alertInfo.add(arg)
+        try {
+            alertInfo.add(arg)
+        } catch (e: Exception) {}
     }
 
     var steamViewZoomState = false

@@ -255,6 +255,16 @@ class MainFragment : Fragment() {
         if (!shared.loadHashMap().isNullOrEmpty()) {
             shared.loadHashMap().forEach { (key, value) ->
                 viewmodel.modelMap[key] = value
+                var id = when {
+                    key.equals("GasDock") -> 1
+                    key.equals("GasRoom") -> 2
+                    key.equals("WasteLiquor") -> 3
+                    key.equals("Oxygen") -> 4
+                    key.equals("Steamer") -> 5
+                    else -> 1
+                }
+
+                viewmodel.modelMapInt[id] = value.clone()
             }
 
             val storgeDataSet =
@@ -301,6 +311,7 @@ class MainFragment : Fragment() {
             activity?.tmp?.LoadSetting()
             activity?.isSending = true
             activity?.callFeedback()
+            activity?.callTimemout()
 
         }
 
