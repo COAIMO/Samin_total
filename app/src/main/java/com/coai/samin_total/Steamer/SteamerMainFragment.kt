@@ -107,24 +107,6 @@ class SteamerMainFragment : Fragment() {
                                         0,
                                         recycleAdapter.itemCount
                                     )
-//                                    recycleAdapter.notifyItemChanged((heartbeatCount % recycleAdapter.itemCount.toUInt()).toInt())
-//                                    if (heartbeatCount % 3u == 0u) {
-
-//                                        recycleAdapter.notifyItemRangeChanged(
-//                                            0,
-//                                            2
-//                                        )
-//                                    } else if (heartbeatCount % 3u == 1u){
-//                                        recycleAdapter.notifyItemRangeChanged(
-//                                            2,
-//                                            2
-//                                        )
-//                                    } else {
-//                                        recycleAdapter.notifyItemRangeChanged(
-//                                            4,
-//                                            2
-//                                        )
-//                                    }
                                 }
                             }
                         }
