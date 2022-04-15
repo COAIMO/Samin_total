@@ -206,9 +206,9 @@ class OxygenSettingFragment : Fragment() {
         val iter = setOxygenInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {
-                if (it.usable){
+//                if (it.usable){
                     viewmodel.OxygenDataLiveList.add(it)
-                }else iter.remove()
+//                }else iter.remove()
             }
         }
         //설정값 저장

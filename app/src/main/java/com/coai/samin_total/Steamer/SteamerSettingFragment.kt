@@ -182,9 +182,9 @@ class SteamerSettingFragment : Fragment() {
         val iter = setSteamerInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {
-                if (it.usable){
+//                if (it.usable){
                     viewmodel.SteamerDataLiveList.add(it)
-                }else iter.remove()
+//                }else iter.remove()
             }
         }
         //설정값 저장

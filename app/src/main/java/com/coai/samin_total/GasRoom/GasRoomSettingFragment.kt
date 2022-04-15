@@ -291,9 +291,9 @@ class GasRoomSettingFragment : Fragment() {
         val iter = setGasSensorInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {
-                if (it.usable) {
+//                if (it.usable) {
                     viewmodel.GasRoomDataLiveList.add(it)
-                } else iter.remove()
+//                } else iter.remove()
             }
         }
         //설정값 저장

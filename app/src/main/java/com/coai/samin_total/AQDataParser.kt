@@ -168,10 +168,175 @@ class AQDataParser(viewModel: MainViewModel) {
      * 가스 룸 로직
      * Todo: 에러 체크 기능 필요. 정상화 체크 필요.
      */
+
+    private fun ProcessGasStorage(id: Int, data: Int) {
+        val tmp1 = hmapAQPortSettings[id] ?: return
+        val tmp = (tmp1 as SetGasStorageViewData)
+        if (!tmp.usable) {
+            return
+        }
+        var value: Float = 0f
+        when (tmp.sensorType) {
+            "Sensts 142PSI" -> {
+                value = calcPSI142(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+            }
+            "Sensts 2000PSI" -> {
+                value = calcPSI2000(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+            }
+            else -> {
+                value = calcSensor(
+                    data.toFloat(),
+                    tmp.pressure_Max!!,
+                    tmp.rewardValue,
+                    tmp.zeroPoint
+                )
+            }
+        }
+
+        if (tmp.ViewType == 0) {
+            tmp.pressure = value
+            if (tmp.pressure_Min!! > tmp.pressure!!) {
+                tmp.isAlert = true
+
+                if (alertMap[id] == null) {
+                    alertMap.put(id, true)
+                    viewModel.gasStorageAlert.value = true
+                    viewModel.addAlertInfo(
+                        id,
+                        SetAlertData(
+                            getLatest_time(hmapLastedDate[id]!!),
+                            tmp.modelByte.toInt(),
+                            tmp.id,
+                            "가스 압력 하한 값",
+                            tmp.port,
+                            true
+                        )
+                    )
+                }
+
+            } else {
+                if (alertMap.containsKey(id)) {
+                    tmp.isAlert = false
+                    viewModel.gasStorageAlert.value = false
+                    viewModel.addAlertInfo(
+                        id,
+                        SetAlertData(
+                            getLatest_time(hmapLastedDate[id]!!),
+                            tmp.modelByte.toInt(),
+                            tmp.id,
+                            "가스 압력 정상",
+                            tmp.port,
+                            false
+                        )
+                    )
+                    if (alertMap.containsKey(id)) {
+                        alertMap.remove(id)
+                    }
+                }
+            }
+        } else if (tmp.ViewType == 1 || tmp.ViewType == 2) {
+            if (tmp.port == 1 || tmp.port == 3){
+                tmp.pressureLeft = value
+            }else{
+                tmp.pressureRight = value
+            }
+
+            if (tmp.pressure_Min!! > tmp.pressureLeft!!) {
+                tmp.isAlertLeft = true
+
+                if (alertMap[id] == null) {
+                    alertMap.put(id, true)
+                    viewModel.gasStorageAlert.value = true
+                    viewModel.addAlertInfo(
+                        id,
+                        SetAlertData(
+                            getLatest_time(hmapLastedDate[id]!!),
+                            tmp.modelByte.toInt(),
+                            tmp.id,
+                            "가스 압력 하한 값",
+                            tmp.port,
+                            true
+                        )
+                    )
+                }
+
+            } else if (tmp.pressure_Min!! < tmp.pressureLeft!!) {
+                if (alertMap.containsKey(id)) {
+                    tmp.isAlertLeft = false
+                    viewModel.gasStorageAlert.value = false
+                    viewModel.addAlertInfo(
+                        id,
+                        SetAlertData(
+                            getLatest_time(hmapLastedDate[id]!!),
+                            tmp.modelByte.toInt(),
+                            tmp.id,
+                            "가스 압력 정상",
+                            tmp.port,
+                            false
+                        )
+                    )
+
+                    if (alertMap.containsKey(id)) {
+                        alertMap.remove(id)
+                    }
+                }
+                if (tmp.pressure_Min!! > tmp.pressureRight!!) {
+                    tmp.isAlertRight = true
+
+                    if (alertMap2[id] == null) {
+                        alertMap2.put(id, true)
+                        viewModel.gasStorageAlert.value = true
+                        viewModel.addAlertInfo(
+                            id + 65536,
+                            SetAlertData(
+                                getLatest_time(hmapLastedDate[id]!!),
+                                tmp.modelByte.toInt(),
+                                tmp.id + 65536,
+                                "가스 압력 하한 값",
+                                tmp.port + 1,
+                                true
+                            )
+                        )
+                    }
+
+                } else if (tmp.pressure_Min!! < tmp.pressureRight!!) {
+                    if (alertMap2.containsKey(id)) {
+                        tmp.isAlertRight = false
+                        viewModel.gasStorageAlert.value = false
+                        viewModel.addAlertInfo(
+                            id + 65536,
+                            SetAlertData(
+                                getLatest_time(hmapLastedDate[id]!!),
+                                tmp.modelByte.toInt(),
+                                tmp.id + 65536,
+                                "가스 압력 정상",
+                                tmp.port + 1,
+                                false
+                            )
+                        )
+
+                        if (alertMap2.containsKey(id)) {
+                            alertMap2.remove(id)
+                        }
+                    }
+                }
+
+            }
+        }
+
+        val bro = setAQport[id] as SetGasStorageViewData
+        bro.pressure = tmp.pressure
+        bro.isAlert = tmp.isAlert
+        bro.pressureLeft = tmp.pressureLeft
+        bro.pressureRight = tmp.pressureRight
+        bro.isAlertLeft = tmp.isAlertLeft
+        bro.isAlertRight = tmp.isAlertRight
+    }
+
     private fun ProcessSingleGasStorage(id: Int, data: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetGasStorageViewData)
-        if (!tmp.usable){
+        if (!tmp.usable) {
             return
         }
         var value: Float = 0f
@@ -240,7 +405,7 @@ class AQDataParser(viewModel: MainViewModel) {
     private fun ProcessDualGasStorage(id: Int, left_value: Int, right_value: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetGasStorageViewData)
-        if (!tmp.usable){
+        if (!tmp.usable) {
             return
         }
         var left_pressure: Float = 0f
@@ -371,7 +536,7 @@ class AQDataParser(viewModel: MainViewModel) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetGasRoomViewData)
 
-        if (!tmp.usable){
+        if (!tmp.usable) {
             return
         }
 
@@ -483,7 +648,7 @@ class AQDataParser(viewModel: MainViewModel) {
         // 수위 초과일때 0 아니면 1
         tmp.isAlert = data == 0
 
-        if (!tmp.usable){
+        if (!tmp.usable) {
             return
         }
         val key =
@@ -539,7 +704,7 @@ class AQDataParser(viewModel: MainViewModel) {
         val oxygenValue = data / 100
         tmp.setValue = oxygenValue
 
-        if (!tmp.usable){
+        if (!tmp.usable) {
             return
         }
 
@@ -626,10 +791,10 @@ class AQDataParser(viewModel: MainViewModel) {
     private fun ProcessSteamer(id: Int, temp: Int, level: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetSteamerViewData)
-        tmp.isTemp = ((0.0019 * temp * temp) +(0.0796*temp - 186.76)).toInt()
+        tmp.isTemp = ((0.0019 * temp * temp) + (0.0796 * temp - 186.76)).toInt()
         tmp.unit
 
-        if (!tmp.usable){
+        if (!tmp.usable) {
             return
         }
         //설정 온도보다 현재 온도가 낮을경우 알람
@@ -752,29 +917,9 @@ class AQDataParser(viewModel: MainViewModel) {
                     )
                 }
 
-//            if (model.equals(0x02.toByte())) {
-//                // 룸가스 일 경우
-//                var loop = 1
-//                for (tmp in datas) {
-//                    //아이디 1개당 포트 4개 추가
-//                    val port = loop++.toByte()
-//                    //키는 아이디 포트
-//                    val key = littleEndianConversion(byteArrayOf(id.toByte(), port))
-//                    hmapLastedDate[key] = time
-//                    ProcessGasRoom(key, tmp)
-//                }
-//            }
-
                 when (model) {
                     0x01.toByte() -> {
                         if (hmapAQPortSettings.size > 0) {
-//                        try {
-//                            dockSetting = hmapAQPortSettings.filter {
-//                                (it.value as SetGasStorageViewData).modelByte == 1.toByte()
-//                            }
-//                        } catch (e: Exception) {
-//                        }
-
                             for (i in viewModel.GasStorageDataLiveList.value!!)
                                 if ((i as SetGasStorageViewData).ViewType == 1 || (i as SetGasStorageViewData).ViewType == 2) {
                                     if ((i as SetGasStorageViewData).port == 1) {
@@ -822,6 +967,22 @@ class AQDataParser(viewModel: MainViewModel) {
                                     }
                                 }
                         }
+
+//                        var loop = 1
+//                        for (tmp in datas) {
+//                            //아이디 1개당 포트 4개 추가
+//                            val port = loop++.toByte()
+//                            //키는 아이디 포트
+//                            val key = littleEndianConversion(
+//                                byteArrayOf(
+//                                    model,
+//                                    id.toByte(),
+//                                    port
+//                                )
+//                            )
+//                            hmapLastedDate[key] = time
+//                            ProcessGasStorage(key, tmp)
+//                        }
 
                     }
                     0x02.toByte() -> {
@@ -886,6 +1047,7 @@ class AQDataParser(viewModel: MainViewModel) {
     }
 
     val alphavalue = 0.25
+
     //들어온값이 이상하게 들어오는거 방지
     fun getLPF(x: Int, key: Int): Int {
 

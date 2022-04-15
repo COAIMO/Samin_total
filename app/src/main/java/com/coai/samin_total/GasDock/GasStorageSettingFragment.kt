@@ -273,6 +273,7 @@ class GasStorageSettingFragment : Fragment() {
                         for (i in setGasSensorInfo) {
                             if (i.port == 2) {
                                 i.ViewType = 1
+                                i.usable = selectedSensor.usable
                             }
                         }
                     } else if (selectedSensor.port == 2) {
@@ -280,6 +281,7 @@ class GasStorageSettingFragment : Fragment() {
                         for (i in setGasSensorInfo) {
                             if (i.port == 1) {
                                 i.ViewType = 1
+                                i.usable = selectedSensor.usable
                             }
                         }
                     } else if (selectedSensor.port == 3) {
@@ -287,6 +289,7 @@ class GasStorageSettingFragment : Fragment() {
                         for (i in setGasSensorInfo) {
                             if (i.port == 4) {
                                 i.ViewType = 1
+                                i.usable = selectedSensor.usable
                             }
                         }
                     } else if (selectedSensor.port == 4) {
@@ -294,6 +297,7 @@ class GasStorageSettingFragment : Fragment() {
                         for (i in setGasSensorInfo) {
                             if (i.port == 3) {
                                 i.ViewType = 1
+                                i.usable = selectedSensor.usable
                             }
                         }
                     }
@@ -304,6 +308,7 @@ class GasStorageSettingFragment : Fragment() {
                         for (i in setGasSensorInfo) {
                             if (i.port == 2) {
                                 i.ViewType = 2
+                                i.usable = selectedSensor.usable
                             }
                         }
                     } else if (selectedSensor.port == 2) {
@@ -311,6 +316,7 @@ class GasStorageSettingFragment : Fragment() {
                         for (i in setGasSensorInfo) {
                             if (i.port == 1) {
                                 i.ViewType = 2
+                                i.usable = selectedSensor.usable
                             }
                         }
                     } else if (selectedSensor.port == 3) {
@@ -318,6 +324,7 @@ class GasStorageSettingFragment : Fragment() {
                         for (i in setGasSensorInfo) {
                             if (i.port == 4) {
                                 i.ViewType = 2
+                                i.usable = selectedSensor.usable
                             }
                         }
                     } else if (selectedSensor.port == 4) {
@@ -325,6 +332,7 @@ class GasStorageSettingFragment : Fragment() {
                         for (i in setGasSensorInfo) {
                             if (i.port == 3) {
                                 i.ViewType = 2
+                                i.usable = selectedSensor.usable
                             }
                         }
                     }
@@ -358,13 +366,21 @@ class GasStorageSettingFragment : Fragment() {
                 }
             }
         }
-
+        var count = 0
         //이전 저장된 설정 데이터 불러와서 적용.
-        val exData =shared.loadBoardSetData(SaminSharedPreference.GASSTORAGE) as MutableList<SetGasStorageViewData>
-        if (exData.isNotEmpty()){
-            for ((index, value) in exData.withIndex()){
-                setGasSensorInfo.set(index, value)
-//                if (value.usable)
+        val exData =
+            shared.loadBoardSetData(SaminSharedPreference.GASSTORAGE) as MutableList<SetGasStorageViewData>
+        if (exData.isNotEmpty()) {
+            for ((index, value) in exData.withIndex()) {
+                if (value.ViewType == 1 || value.ViewType == 2) {
+                    setGasSensorInfo.set(index, value)
+                    val temp = value.copy(port = value.port + 1)
+                    setGasSensorInfo.set(index + 1, temp)
+                    count++
+                } else {
+                    setGasSensorInfo.set(index+count, value)
+                }
+
             }
         }
         recycleAdapter.submitList(setGasSensorInfo)
@@ -392,22 +408,20 @@ class GasStorageSettingFragment : Fragment() {
         val iter = setGasSensorInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {
-                if (it.usable) {
-                    if (it.ViewType == 1 || it.ViewType == 2) {
-                        if (it.port == 2 || it.port == 4) {
-//                        Log.d("테스트", "it 2,4: $it")
-                            iter.remove()
-                        } else {
-//                        Log.d("테스트", "iter 1,3: $it")
-                            viewmodel.GasStorageDataLiveList.add(it)
-                        }
+//                if (it.usable) {
+                if (it.ViewType == 1 || it.ViewType == 2) {
+                    if (it.port == 2 || it.port == 4) {
+                        iter.remove()
                     } else {
                         viewmodel.GasStorageDataLiveList.add(it)
                     }
-
                 } else {
-                    iter.remove()
+                    viewmodel.GasStorageDataLiveList.add(it)
                 }
+//
+//                } else {
+//                    iter.remove()
+//                }
 
             }
         }

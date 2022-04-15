@@ -22,7 +22,7 @@ data class SetGasStorageViewData(
 
     val model: String,
     val id: Int,
-    val port: Int,
+    var port: Int,
     var usable: Boolean = true,
     var ViewType: Int = 0,
     var sensorType: String = "WIKAI 160BAR",

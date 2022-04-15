@@ -25,8 +25,6 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
                 view =
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.gas_storage_single_view, parent, false)
-                val width = view?.measuredWidth
-                val height = view?.measuredHeight
                 gasDockSingleViewHodler(view)
             }
             1 -> {
@@ -125,6 +123,20 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             gasDcokView.heartBeat(setGasStorageViewData.heartbeatCount)
 
         }
+
+//        fun bind(left_data: SetGasStorageViewData, right_data: SetGasStorageViewData) {
+//            gasDcokView.setGasName(left_data.gasName!!)
+//            gasDcokView.setGasColor(left_data.gasColor!!)
+//            left_data.pressure_Min?.let { gasDcokView.setPressureMin(it) }
+//            left_data.pressure_Max?.let { gasDcokView.setPressureMax(it) }
+//            left_data.gasIndex?.let { gasDcokView.setGasIndex(it) }
+//            left_data.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
+//            right_data.isAlertRight?.let { gasDcokView.setAlertRight(it) }
+//            left_data.pressureLeft?.let { gasDcokView.setPressureLeft(it) }
+//            right_data.pressureRight?.let { gasDcokView.setPressureRight(it) }
+//            gasDcokView.setGasUnit(left_data.unit)
+//            gasDcokView.heartBeat(left_data.heartbeatCount)
+//        }
     }
 
     inner class gasDockAutoChangerViewHodler(view: View) : RecyclerView.ViewHolder(view) {
