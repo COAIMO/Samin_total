@@ -1,5 +1,6 @@
 package com.coai.samin_total.Steamer
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.coai.samin_total.Logic.AutoUpdatableAdapter
 import com.coai.samin_total.R
 import com.coai.uikit.samin.status.SteamView
+import kotlin.system.measureTimeMillis
 
 class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AutoUpdatableAdapter {
@@ -42,12 +44,15 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             view.findViewById<SteamView>(R.id.steamer_view)
 
         fun bind(setSteamerViewData: SetSteamerViewData) {
-            steamerView.setAlertLow(setSteamerViewData.isAlertLow)
-            steamerView.setTempMin(setSteamerViewData.isTempMin)
-            steamerView.setTemp(setSteamerViewData.isTemp)
-            steamerView.setTempUnit(setSteamerViewData.unit)
-            steamerView.setAlertTemp(setSteamerViewData.isAlertTemp)
-            steamerView.heartBeat(setSteamerViewData.heartbeatCount)
+            val elapsed: Long = measureTimeMillis {
+                steamerView.setAlertLow(setSteamerViewData.isAlertLow)
+                steamerView.setTempMin(setSteamerViewData.isTempMin)
+                steamerView.setTemp(setSteamerViewData.isTemp)
+                steamerView.setTempUnit(setSteamerViewData.unit)
+                steamerView.setAlertTemp(setSteamerViewData.isAlertTemp)
+                steamerView.heartBeat(setSteamerViewData.heartbeatCount)
+            }
+            Log.d("steamerViewHodler", "bind measureTimeMillis : $elapsed")
         }
     }
 
