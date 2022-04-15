@@ -70,46 +70,51 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
-                android:text="가스추가"
+                android:text="선택된 가스"
                 android:textSize="15sp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <EditText
+                android:id="@+id/et_selectedGas"
+                android:layout_width="150dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:hint="가스입력"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLength="5"
+                android:maxLines="1"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginStart="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:orientation="horizontal">
+                android:layout_marginTop="10dp"
+                android:text="선택된 가스 색상"
+                android:textSize="15sp" />
 
-                <EditText
-                    android:id="@+id/et_addGas"
-                    android:layout_width="200dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:hint="새로운 가스입력"
-                    android:imeOptions="actionDone"
-                    android:inputType="text"
-                    android:maxLength="5"
-                    android:maxLines="1"
-                    android:textSize="20sp" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btn_addGas"
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:background="@color/SaveButtonBack"
-                    android:gravity="center"
-                    android:text="추가"
-                    android:textColor="#ffffff"
-                    android:textSize="20sp" />
-            </LinearLayout>
+            <Spinner
+                android:id="@+id/sp_selectedGasColor"
+                android:layout_width="150dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:background="@drawable/spinner_background"
+                android:textSize="20sp" />
         </LinearLayout>
     </LinearLayout>
 
