@@ -180,7 +180,8 @@ class OxygenMainFragment : Fragment() {
             recycleAdapter = Oxygen_RecycleAdapter()
             adapter = recycleAdapter
         }
-
+        mBinding.oxygenRecyclerView.itemAnimator = null
+        mBinding.oxygenRecyclerView.animation = null
     }
 
     @SuppressLint("NotifyDataSetChanged")

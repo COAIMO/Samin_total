@@ -251,7 +251,7 @@ class MainFragment : Fragment() {
         mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
         mBinding.oxygenMainStatusLayout.visibility = View.GONE
         mBinding.steamerMainStatusLayout.visibility = View.GONE
-
+        invalidateView()
         if (!shared.loadHashMap().isNullOrEmpty()) {
             shared.loadHashMap().forEach { (key, value) ->
                 viewmodel.modelMap[key] = value
@@ -338,6 +338,7 @@ class MainFragment : Fragment() {
     }
 
     fun invalidateView(){
+        Thread.sleep(100)
         mBinding.gasDockMainStatusLayout.invalidate()
         mBinding.gasRoomMainStatusLayout.invalidate()
         mBinding.wasteLiquorMainStatusLayout.invalidate()
