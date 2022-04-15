@@ -87,6 +87,7 @@ class MainFragment : Fragment() {
         }
     }
 
+    var isFirst = true
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -94,8 +95,16 @@ class MainFragment : Fragment() {
         mBinding = FragmentMainBinding.inflate(inflater, container, false)
         shared = SaminSharedPreference(requireContext())
         setButtonClickEvent()
-        initView()
+
+
+        if (isFirst) {
+            isFirst = false
+            initView()
+
+        }
+        mainLayoutIconVisibility()
         udateAlert()
+
 
         mBinding.labIDTextView.setOnClickListener {
             shared.removeBoardSetData(SaminSharedPreference.GASSTORAGE)
@@ -308,13 +317,16 @@ class MainFragment : Fragment() {
                     viewmodel.WasteLiquorDataLiveList.add(i)
                 }
             }
-            activity?.tmp?.LoadSetting()
+
             activity?.isSending = true
+            activity?.tmp?.LoadSetting()
             activity?.callFeedback()
             activity?.callTimemout()
 
         }
+    }
 
+    private fun mainLayoutIconVisibility() {
         for ((key, ids) in viewmodel.modelMap) {
             when (key) {
                 "GasDock" -> {

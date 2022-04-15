@@ -386,9 +386,15 @@ class MainActivity : AppCompatActivity() {
         idsListClear()
     }
 
+    var isCallTimeout = true
     fun callTimemout() {
+        isCallTimeout = false
+        callTimeoutThread?.interrupt()
+        callTimeoutThread?.join()
+        isCallTimeout = true
+
         callTimeoutThread = Thread {
-            while (true) {
+            while (isCallTimeout) {
                 try {
                     val elapsed: Long = measureTimeMillis {
                         tmp.timeoutAQCheckStep()
