@@ -97,6 +97,18 @@ class MainViewModel : ViewModel() {
         "#42C8F4(N₂O)",
         "#316734(O₂)"
     )
+    val gasColorValue = arrayListOf(
+        Color.parseColor("#6599CD"),
+        Color.parseColor("#333333"),
+        Color.parseColor("#FECD08"),
+        Color.parseColor("#905501"),
+        Color.parseColor("#2D67B2"),
+        Color.parseColor("#F2663A"),
+        Color.parseColor("#9A679A"),
+        Color.parseColor("#42C8F4"),
+        Color.parseColor("#42C8F4"),
+        Color.parseColor("#316734")
+    )
 
     val gasSensorType = arrayListOf<String>(
         "Sensts 142PSI",

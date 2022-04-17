@@ -113,7 +113,7 @@ class GasRoomSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.slopeValue = s.toString().toFloat()
+                selectedSensor.gasName = s.toString()
             }
 
         }
@@ -181,6 +181,10 @@ class GasRoomSettingFragment : Fragment() {
                 mBinding.gasRoomBoardSettingView.mZeroPoint_Et.setText(selectedSensor.zeroPoint.toString())
                 mBinding.gasRoomBoardSettingView.mSlopeValue_Et.setText(selectedSensor.slopeValue.toString())
                 mBinding.gasRoomBoardSettingView.mSelectedGas_Et.setText(selectedSensor.gasName.toString())
+
+                mBinding.gasRoomBoardSettingView.mSelectedGasColor_sp.setSelection(
+                    viewmodel.gasColorValue.indexOf(selectedSensor.gasColor)
+                )
             }
         })
         return mBinding.root
@@ -199,9 +203,10 @@ class GasRoomSettingFragment : Fragment() {
             }
         }
         //이전 저장된 설정 데이터 불러와서 적용.
-        val exData =shared.loadBoardSetData(SaminSharedPreference.GASROOM) as MutableList<SetGasRoomViewData>
-        if (exData.isNotEmpty()){
-            for ((index, value) in exData.withIndex()){
+        val exData =
+            shared.loadBoardSetData(SaminSharedPreference.GASROOM) as MutableList<SetGasRoomViewData>
+        if (exData.isNotEmpty()) {
+            for ((index, value) in exData.withIndex()) {
                 setGasSensorInfo.set(index, value)
             }
         }
@@ -219,6 +224,9 @@ class GasRoomSettingFragment : Fragment() {
         )
         mBinding.gasRoomBoardSettingView.mSlopeValue_Et.addTextChangedListener(
             mSlopeValuetextWatcher
+        )
+        mBinding.gasRoomBoardSettingView.mSelectedGas_Et.addTextChangedListener(
+            mSelectedGastextWatcher
         )
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.GASROOMMAINFRAGMENT)
@@ -262,10 +270,11 @@ class GasRoomSettingFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
-                    selectedSensor.gasName = viewmodel.gasType[position]
-                    selectedSensor.gasColor =
-                        viewmodel.gasColorMap[selectedSensor.gasName]!!
+//                    selectedSensor.gasName = viewmodel.gasType[position]
+//                    selectedSensor.gasColor =
+//                        viewmodel.gasColorMap[selectedSensor.gasName]!!
                     mBinding.gasRoomBoardSettingView.mSelectedGas_Et.setText(viewmodel.gasType[position])
+                    mBinding.gasRoomBoardSettingView.mSelectedGasColor_sp.setSelection(position)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -328,13 +337,14 @@ class GasRoomSettingFragment : Fragment() {
                 }
             }
     }
+
     private fun setSaveData() {
         viewmodel.GasRoomDataLiveList.clear(true)
         val iter = setGasSensorInfo.iterator()
         while (iter.hasNext()) {
             iter.forEach {
 //                if (it.usable) {
-                    viewmodel.GasRoomDataLiveList.add(it)
+                viewmodel.GasRoomDataLiveList.add(it)
 //                } else iter.remove()
             }
         }
@@ -368,6 +378,7 @@ class GasRoomSettingFragment : Fragment() {
                 }
             }
     }
+
     private fun hideKeyboard() {
         if (getActivity() != null && requireActivity().currentFocus != null) {
             // 프래그먼트기 때문에 getActivity() 사용
