@@ -228,6 +228,47 @@ class GasStorageSettingFragment : Fragment() {
         }
 
     }
+    private val mSelectedGastextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s != null && !s.toString().equals("")) {
+                selectedSensor.gasName = s.toString()
+
+                if (selectedSensor.port == 1) {
+                    for (i in setGasSensorInfo) {
+                        if (i.port == 2) {
+                            i.gasName = selectedSensor.gasName
+                        }
+                    }
+                } else if (selectedSensor.port == 2) {
+                    for (i in setGasSensorInfo) {
+                        if (i.port == 1) {
+                            i.gasName = selectedSensor.gasName
+                        }
+                    }
+                } else if (selectedSensor.port == 3) {
+                    for (i in setGasSensorInfo) {
+                        if (i.port == 4) {
+                            i.gasName = selectedSensor.gasName
+                        }
+                    }
+                } else if (selectedSensor.port == 4) {
+                    for (i in setGasSensorInfo) {
+                        if (i.port == 3) {
+                            i.gasName = selectedSensor.gasName
+                        }
+                    }
+                }
+            }
+
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -264,12 +305,12 @@ class GasStorageSettingFragment : Fragment() {
         initView()
         setGasTypeSpinner()
         setSensorTypeSpinner()
+        setGasColorSpinner()
         changeView()
 
         recycleAdapter.setItemClickListener(object :
             GasStorageSetting_RecycleAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
-//                val view = (v as AQInfoView)
                 selectedSensor = setGasSensorInfo[position]
                 mBinding.gasStorageBoardSettingView.mSensorUsable_Sw.isChecked =
                     selectedSensor.usable
@@ -280,8 +321,8 @@ class GasStorageSettingFragment : Fragment() {
                     )
                 )
 
-                selectedSensor.pressure_Max =
-                    viewmodel.maxPressureMap[selectedSensor.sensorType]
+//
+
 
 
                 mBinding.gasStorageBoardSettingView.mGasType_Sp.setSelection(
@@ -289,20 +330,18 @@ class GasStorageSettingFragment : Fragment() {
                         selectedSensor.gasName
                     )
                 )
-                Log.d(
-                    "테스트", "index:${
-                        viewmodel.gasType.indexOf(
-                            selectedSensor.gasName
-                        )
-                    } // 값 :${selectedSensor.gasName}"
-                )
+
                 mBinding.gasStorageBoardSettingView.setRadioButton(selectedSensor.ViewType)
                 mBinding.gasStorageBoardSettingView.mCapaAlert_Et.setText(selectedSensor.pressure_Min.toString())
-//                mBinding.gasStorageBoardSettingView.mMaxCapa_Et.setText(selectedSensor.pressure_Max.toString())
+                mBinding.gasStorageBoardSettingView.mMaxCapa_Et.setText(selectedSensor.pressure_Max.toString())
                 mBinding.gasStorageBoardSettingView.mRewardValue_Et.setText(selectedSensor.rewardValue.toString())
                 mBinding.gasStorageBoardSettingView.mZeroPoint_Et.setText(selectedSensor.zeroPoint.toString())
 
+                mBinding.gasStorageBoardSettingView.mSelectedGas_Et.setText(selectedSensor.gasName.toString())
 
+                mBinding.gasStorageBoardSettingView.mSelectedGasColor_sp.setSelection(
+                    viewmodel.gasColorValue.indexOf(selectedSensor.gasColor)
+                )
             }
         })
 
@@ -472,6 +511,10 @@ class GasStorageSettingFragment : Fragment() {
         mBinding.gasStorageBoardSettingView.mRewardValue_Et.addTextChangedListener(
             mRewardValuetextWatcher
         )
+
+        mBinding.gasStorageBoardSettingView.mSelectedGas_Et.addTextChangedListener(
+            mSelectedGastextWatcher
+        )
     }
 
 
@@ -574,46 +617,46 @@ class GasStorageSettingFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
-//                    selectedSensor.gasName = viewmodel.gasType[position]
-//                    selectedSensor.gasColor =
-//                        viewmodel.gasColorMap[mBinding.gasStorageBoardSettingView.selected_GasType]
-
                     if (selectedSensor.ViewType == 1 || selectedSensor.ViewType == 2) {
-//                        viewmodel.gasNameMap[viewmodel.gasType[position]]
-                        selectedSensor.gasName = viewmodel.gasType[position]
-                        selectedSensor.gasColor =
-                            viewmodel.gasColorMap[selectedSensor.gasName]
+//                        selectedSensor.gasName = viewmodel.gasType[position]
+//                        selectedSensor.gasColor =
+//                            viewmodel.gasColorMap[selectedSensor.gasName]
 
-                        if (selectedSensor.port == 1) {
-                            for (i in setGasSensorInfo) {
-                                if (i.port == 2) {
-                                    i.gasName = selectedSensor.gasName
-                                }
-                            }
-                        } else if (selectedSensor.port == 2) {
-                            for (i in setGasSensorInfo) {
-                                if (i.port == 1) {
-                                    i.gasName = selectedSensor.gasName
-                                }
-                            }
-                        } else if (selectedSensor.port == 3) {
-                            for (i in setGasSensorInfo) {
-                                if (i.port == 4) {
-                                    i.gasName = selectedSensor.gasName
-                                }
-                            }
-                        } else if (selectedSensor.port == 4) {
-                            for (i in setGasSensorInfo) {
-                                if (i.port == 3) {
-                                    i.gasName = selectedSensor.gasName
-                                }
-                            }
-                        }
+                        mBinding.gasStorageBoardSettingView.mSelectedGas_Et.setText(viewmodel.gasType[position])
+                        mBinding.gasStorageBoardSettingView.mSelectedGasColor_sp.setSelection(position)
+
+//                        if (selectedSensor.port == 1) {
+//                            for (i in setGasSensorInfo) {
+//                                if (i.port == 2) {
+//                                    i.gasName = selectedSensor.gasName
+//                                }
+//                            }
+//                        } else if (selectedSensor.port == 2) {
+//                            for (i in setGasSensorInfo) {
+//                                if (i.port == 1) {
+//                                    i.gasName = selectedSensor.gasName
+//                                }
+//                            }
+//                        } else if (selectedSensor.port == 3) {
+//                            for (i in setGasSensorInfo) {
+//                                if (i.port == 4) {
+//                                    i.gasName = selectedSensor.gasName
+//                                }
+//                            }
+//                        } else if (selectedSensor.port == 4) {
+//                            for (i in setGasSensorInfo) {
+//                                if (i.port == 3) {
+//                                    i.gasName = selectedSensor.gasName
+//                                }
+//                            }
+//                        }
 
                     } else {
-                        selectedSensor.gasName = viewmodel.gasType[position]
-                        selectedSensor.gasColor =
-                            viewmodel.gasColorMap[selectedSensor.gasName]
+//                        selectedSensor.gasName = viewmodel.gasType[position]
+//                        selectedSensor.gasColor =
+//                            viewmodel.gasColorMap[selectedSensor.gasName]
+                        mBinding.gasStorageBoardSettingView.mSelectedGas_Et.setText(viewmodel.gasType[position])
+                        mBinding.gasStorageBoardSettingView.mSelectedGasColor_sp.setSelection(position)
                     }
                 }
 
@@ -624,6 +667,57 @@ class GasStorageSettingFragment : Fragment() {
             }
     }
 
+    private fun setGasColorSpinner() {
+        val arrayAdapter = ArrayAdapter(
+            requireContext(),
+            R.layout.support_simple_spinner_dropdown_item,
+            viewmodel.gasColor
+        )
+        mBinding.gasStorageBoardSettingView.mSelectedGasColor_sp.adapter = arrayAdapter
+        mBinding.gasStorageBoardSettingView.mSelectedGasColor_sp.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    selectedSensor.gasColor =
+                        viewmodel.gasColorMap[viewmodel.gasType[position]]!!
+
+                    if (selectedSensor.port == 1) {
+                        for (i in setGasSensorInfo) {
+                            if (i.port == 2) {
+                                i.gasColor = selectedSensor.gasColor
+                            }
+                        }
+                    } else if (selectedSensor.port == 2) {
+                        for (i in setGasSensorInfo) {
+                            if (i.port == 1) {
+                                i.gasColor = selectedSensor.gasColor
+                            }
+                        }
+                    } else if (selectedSensor.port == 3) {
+                        for (i in setGasSensorInfo) {
+                            if (i.port == 4) {
+                                i.gasColor = selectedSensor.gasColor
+                            }
+                        }
+                    } else if (selectedSensor.port == 4) {
+                        for (i in setGasSensorInfo) {
+                            if (i.port == 3) {
+                                i.gasColor = selectedSensor.gasColor
+                            }
+                        }
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    Toast.makeText(context, "센서 컬러를 선택해주세요.", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+    }
     private fun setSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
             requireContext(),
