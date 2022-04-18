@@ -65,6 +65,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 val granted: Boolean =
                     intent?.getExtras()!!.getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED)
                 if (granted) {
+                    findUSBSerialDevice()
                     serialPortConnect()
                     val grantedIntent = Intent(ACTION_USB_PERMISSION_GRANTED)
                     context?.sendBroadcast(grantedIntent)
