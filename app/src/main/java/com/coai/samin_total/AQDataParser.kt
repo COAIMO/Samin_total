@@ -1055,7 +1055,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
 
     fun timeoutAQCheckStep() {
-        val baseTime = System.currentTimeMillis() - 1000 * 10
+        val baseTime = System.currentTimeMillis() - 1000 * 60
         val oldDatas = hmapLastedDate.filter { it.value < baseTime }
 
         val lastaqs = lostConnectAQs.keys.toMutableList()

@@ -486,11 +486,20 @@ class MainActivity : AppCompatActivity() {
     private var alertCheckTask: Timer? = null
     private var alertSoundTask: Timer? = null
 
+    var mediaPlayer: android.media.MediaPlayer? = null
     fun tabletSoundAlertOn() {
         alertTask = kotlin.concurrent.timer(period = 2000) {
-            val mediaPlayer: android.media.MediaPlayer? =
-                android.media.MediaPlayer.create(this@MainActivity, R.raw.tada)
-            mediaPlayer?.start()
+            if (mediaPlayer == null)
+                mediaPlayer =
+                    android.media.MediaPlayer.create(
+                        this@MainActivity,
+                        R.raw.tada)
+            if (mainViewModel.isSoundAlert)
+                mediaPlayer?.let {
+                    if (!it.isPlaying)
+                        it.start()
+                }
+
         }
     }
 
