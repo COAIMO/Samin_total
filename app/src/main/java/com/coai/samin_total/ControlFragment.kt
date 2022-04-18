@@ -6,11 +6,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
+import com.coai.samin_total.Logic.ControlData
+import com.coai.samin_total.Logic.ModbusBaudrate
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.databinding.FragmentControlBinding
+import kotlin.system.exitProcess
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -29,6 +35,8 @@ class ControlFragment : Fragment() {
     var activity:MainActivity? = null
     private lateinit var mBinding: FragmentControlBinding
     private lateinit var onBackPressed: OnBackPressedCallback
+    lateinit var shared: SaminSharedPreference
+    private val viewmodel by activityViewModels<MainViewModel>()
     val buadrate = arrayListOf<String>(
         "9600",
         "19200",
@@ -40,7 +48,6 @@ class ControlFragment : Fragment() {
         "1000000",
         )
     val modbusID = arrayListOf<String>(
-        "0",
         "1",
         "2",
         "3",
@@ -49,7 +56,7 @@ class ControlFragment : Fragment() {
         "6",
         "7"
     )
-    var selected_Id = 0
+    var selected_Id = 1
     var selected_buadrate = 9600
 
     override fun onAttach(context: Context) {
@@ -68,12 +75,29 @@ class ControlFragment : Fragment() {
         activity = null
         onBackPressed.remove()
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+    }
+
+    private fun setSaveData() {
+        val tmp = ControlData()
+        tmp.isMirrorMode = mBinding.swMirror.isChecked
+        tmp.modbusBaudrate = ModbusBaudrate.codesMap.get(selected_buadrate)!!
+        tmp.modbusRTUID = selected_Id
+        tmp.useModbusRTU = mBinding.swConnectModbus.isChecked
+        tmp.useSettingShare = mBinding.swConnectSetting.isChecked
+        shared.saveBoardSetData(SaminSharedPreference.CONTROL, tmp)
+        Thread.sleep(500)
+        exitProcess(-1)
     }
 
     override fun onCreateView(
@@ -81,7 +105,21 @@ class ControlFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentControlBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
         setModbusIDSpinner()
+        setModbusBuadrateSpinner()
+
+        mBinding.swMirror.isChecked = viewmodel.controlData.isMirrorMode
+        val ididx = modbusID.indexOf(viewmodel.controlData.modbusRTUID.toString())
+        mBinding.spModbusId.setSelection(ididx)
+        val baudidx = buadrate.indexOf(viewmodel.controlData.modbusBaudrate.value.toString())
+        mBinding.spModbusBuadrate.setSelection(baudidx)
+        mBinding.swConnectModbus.isChecked = viewmodel.controlData.useModbusRTU
+        mBinding.swConnectSetting.isChecked = viewmodel.controlData.useSettingShare
+
+        mBinding.saveBtn.setOnClickListener{
+            setSaveData()
+        }
 
         mBinding.cancelBtn.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
@@ -122,8 +160,8 @@ class ControlFragment : Fragment() {
             R.layout.support_simple_spinner_dropdown_item,
             buadrate
         )
-        mBinding.spModbusId.adapter = arrayAdapter
-        mBinding.spModbusId.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        mBinding.spModbusBuadrate.adapter = arrayAdapter
+        mBinding.spModbusBuadrate.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,

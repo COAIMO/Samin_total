@@ -6,116 +6,211 @@
     android:layout_height="match_parent"
     tools:context=".ControlFragment">
 
-
-    <GridLayout
-        android:id="@+id/grid_layout"
+    <ScrollView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="100dp"
-        android:columnCount="2"
-        android:orientation="horizontal"
-        android:rowCount="5"
+        android:layout_marginBottom="40dp"
+        android:scrollbarFadeDuration="0"
+        app:layout_constraintBottom_toTopOf="@+id/save_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
+        <GridLayout
+            android:id="@+id/grid_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:gravity="center_vertical"
-            android:text="@string/text_use_mirror"
-            android:textColor="#000000"
-            android:textSize="18pt" />
+            android:layout_gravity="center_horizontal"
+            android:columnCount="2"
+            android:orientation="horizontal"
+            android:rowCount="7">
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/sw_mirror"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="center_vertical"
+                android:text="@string/text_setting_pairing"
+                android:textColor="#000000"
+                android:textSize="18pt" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="50dp"
-            android:gravity="center_vertical"
-            android:text="@string/text_setting_pairing"
-            android:textColor="#000000"
-            android:textSize="18pt" />
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_connectSetting"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center_vertical|center_horizontal"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/sw_connectSetting"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_marginTop="45dp"
-            android:gravity="center_vertical|center_horizontal"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="50dp"
-            android:gravity="center_vertical"
-            android:text="@string/text_use_modbus"
-            android:textColor="#000000"
-            android:textSize="18pt" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="50dp"
+                android:gravity="center_vertical"
+                android:text="@string/text_use_mirror"
+                android:textColor="#000000"
+                android:textSize="18pt" />
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/sw_connectModbus"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_marginTop="45dp"
-            android:gravity="center_vertical|center_horizontal"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_mirror"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginTop="45dp"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="50dp"
-            android:gravity="center_vertical"
-            android:text="@string/text_modbus_baudrate"
-            android:textColor="#000000"
-            android:textSize="18pt" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="50dp"
+                android:gravity="center_vertical"
+                android:text="@string/text_use_modbus"
+                android:textColor="#000000"
+                android:textSize="18pt" />
 
-        <androidx.appcompat.widget.AppCompatSpinner
-            android:id="@+id/sp_modbus_Buadrate"
-            android:layout_width="390dp"
-            android:layout_height="40dp"
-            android:layout_gravity="start"
-            android:layout_marginStart="50dp"
-            android:layout_marginTop="50dp"
-            android:background="@drawable/spinner_background"
-            android:gravity="center"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_connectModbus"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginTop="45dp"
+                android:gravity="center_vertical|center_horizontal"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="50dp"
-            android:gravity="center_vertical"
-            android:text="@string/text_modbus_id"
-            android:textColor="#000000"
-            android:textSize="18pt" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="50dp"
+                android:gravity="center_vertical"
+                android:text="@string/text_modbus_baudrate"
+                android:textColor="#000000"
+                android:textSize="18pt" />
 
-        <androidx.appcompat.widget.AppCompatSpinner
-            android:id="@+id/sp_Modbus_Id"
-            android:layout_width="390dp"
-            android:layout_height="40dp"
-            android:layout_gravity="start"
-            android:layout_marginStart="50dp"
-            android:layout_marginTop="50dp"
-            android:background="@drawable/spinner_background"
-            android:gravity="center"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/sp_modbus_Buadrate"
+                android:layout_width="390dp"
+                android:layout_height="40dp"
+                android:layout_gravity="start"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="50dp"
+                android:background="@drawable/spinner_background"
+                android:gravity="center"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-    </GridLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="50dp"
+                android:gravity="center_vertical"
+                android:text="@string/text_modbus_id"
+                android:textColor="#000000"
+                android:textSize="18pt" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/sp_Modbus_Id"
+                android:layout_width="390dp"
+                android:layout_height="40dp"
+                android:layout_gravity="start"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="50dp"
+                android:background="@drawable/spinner_background"
+                android:gravity="center"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="end"-->
+<!--                android:layout_marginTop="50dp"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:text="@string/text_use_modbus_tcp"-->
+<!--                android:textColor="#000000"-->
+<!--                android:textSize="18pt" />-->
+
+<!--            <androidx.appcompat.widget.SwitchCompat-->
+<!--                android:id="@+id/sw_modbus_tcp"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_marginTop="50dp"-->
+<!--                android:gravity="center_vertical|center_horizontal"-->
+<!--                tools:ignore="UseSwitchCompatOrMaterialXml" />-->
+
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="end"-->
+<!--                android:layout_marginTop="50dp"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:text="@string/text_use_modbus_tcp_port"-->
+<!--                android:textColor="#000000"-->
+<!--                android:textSize="18pt" />-->
+
+<!--                <EditText-->
+<!--                    android:id="@+id/ed_modbus_tcp_port"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center_horizontal"-->
+<!--                    android:layout_marginTop="50dp"-->
+<!--                    android:ems="5"-->
+<!--                    android:textAlignment="center"-->
+<!--                    android:inputType="number"-->
+<!--                    android:maxLength="5"-->
+<!--                    android:singleLine="true"-->
+<!--                    android:textSize="18pt"-->
+<!--                    tools:ignore="UseSwitchCompatOrMaterialXml" />-->
+
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="end"-->
+<!--                android:layout_marginTop="50dp"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:text="@string/text_use_modbus_udp"-->
+<!--                android:textColor="#000000"-->
+<!--                android:textSize="18pt" />-->
+
+<!--            <androidx.appcompat.widget.SwitchCompat-->
+<!--                android:id="@+id/sw_modbus_udp"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_marginTop="50dp"-->
+<!--                android:gravity="center_vertical|center_horizontal"-->
+<!--                tools:ignore="UseSwitchCompatOrMaterialXml" />-->
+
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="end"-->
+<!--                android:layout_marginTop="50dp"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:text="@string/text_use_modbus_udp_port"-->
+<!--                android:textColor="#000000"-->
+<!--                android:textSize="18pt" />-->
+
+<!--            <EditText-->
+<!--                android:id="@+id/ed_modbus_udp_port"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center_horizontal"-->
+<!--                android:layout_marginTop="50dp"-->
+<!--                android:inputType="number"-->
+<!--                android:ems="5"-->
+<!--                android:textAlignment="center"-->
+<!--                android:maxLength="5"-->
+<!--                android:singleLine="true"-->
+<!--                android:textSize="18pt"-->
+<!--                tools:ignore="UseSwitchCompatOrMaterialXml" />-->
+        </GridLayout>
+    </ScrollView>
+
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/save_btn"
@@ -137,6 +232,7 @@
         app:layout_constraintStart_toEndOf="@id/save_btn" />
 
     <ImageView
+        android:id="@+id/imageView2"
         android:layout_width="80dp"
         android:layout_height="60dp"
         android:layout_marginBottom="50dp"

@@ -836,7 +836,7 @@ class AQDataParser(viewModel: MainViewModel) {
             tmp.isAlertLow = true
             if (alertMap2[id] == null) {
                 alertMap2.put(id, true)
-//                viewModel.steamerAlert.value = true
+                //viewModel.steamerAlert.value = true
                 viewModel.addAlertInfo(
                     id + 65536 * 2,
                     SetAlertData(

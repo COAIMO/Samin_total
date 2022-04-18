@@ -108,6 +108,7 @@ class MainActivity : AppCompatActivity() {
         callbackThread = Thread()
         shared = SaminSharedPreference(this)
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        mainViewModel.controlData = shared.loadBoardSetData(SaminSharedPreference.CONTROL) as ControlData
         tmp = AQDataParser(mainViewModel)
 
         this.viewModel = ViewModelProvider(
@@ -683,10 +684,15 @@ class MainActivity : AppCompatActivity() {
 //                it.sendMessage(msg13)
             }
 
-            modbusService?.setTCPPort(1502)
-            modbusService?.setUDPPort(5502)
-            modbusService?.setSlaveID(2)
-            modbusService?.setSerialPort(921600, 8, 1, 0)
+            modbusService?.setSlaveID(mainViewModel.controlData.modbusRTUID)
+
+            if (mainViewModel.controlData.useModbusRTU)
+                modbusService?.setSerialPort(
+                    mainViewModel.controlData.modbusBaudrate.value,
+                    8,
+                    1,
+                    0)
+
             mObserveModelMonitorValues =
                 ObserveModelMonitorValues(modbusService!!, mModelMonitorValues)
             modbusService?.startModbusService()

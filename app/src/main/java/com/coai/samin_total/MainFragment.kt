@@ -264,6 +264,9 @@ class MainFragment : Fragment() {
             }
             mBinding.btnScan -> {
                 scanModel()
+//                viewmodel.modelMap["GasRoom"] = byteArrayOf(1.toByte(), 2.toByte(), 3.toByte(),  4.toByte(), 5.toByte())
+//                viewmodel.modelMap["Steamer"] = byteArrayOf(1.toByte(), 2.toByte(), 3.toByte(),  4.toByte(), 5.toByte())
+//                shared.saveHashMap(viewmodel.modelMap)
             }
         }
     }

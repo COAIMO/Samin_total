@@ -216,5 +216,10 @@ class MainViewModel : ViewModel() {
     var oxygenViewZoomState = false
     var steamerViewZoomState = false
 
+    /**
+     *  관제 설정 데이터
+     */
+    var controlData : ControlData = ControlData()
+
 }
 

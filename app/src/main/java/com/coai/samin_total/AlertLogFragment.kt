@@ -15,7 +15,6 @@ import androidx.room.Room
 import com.coai.samin_total.CustomView.SpaceDecoration
 import com.coai.samin_total.Dialog.AlertDialog_RecyclerAdapter
 import com.coai.samin_total.Dialog.SetAlertData
-import com.coai.samin_total.Logic.AppDatabase
 import com.coai.samin_total.R
 import com.coai.samin_total.database.*
 import com.coai.samin_total.databinding.FragmentAlertLogBinding
