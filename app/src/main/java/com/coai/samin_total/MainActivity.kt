@@ -1,6 +1,7 @@
 package com.coai.samin_total
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -12,10 +13,11 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
 import com.coai.libsaminmodbus.model.ModelMonitorValues
 import com.coai.libsaminmodbus.model.ObserveModelMonitorValues
-import com.coai.samin_total.database.SaminDataBase
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.ScanDialogFragment
 import com.coai.samin_total.Dialog.SetAlertData
@@ -32,10 +34,12 @@ import com.coai.samin_total.Steamer.SteamerMainFragment
 import com.coai.samin_total.Steamer.SteamerSettingFragment
 import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
-import com.coai.samin_total.database.PageListAdapter
-import com.coai.samin_total.database.PageViewModel
-import com.coai.samin_total.database.ViewModelFactory
+import com.coai.samin_total.database.*
 import com.coai.samin_total.databinding.ActivityMainBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
@@ -482,11 +486,20 @@ class MainActivity : AppCompatActivity() {
     private var alertCheckTask: Timer? = null
     private var alertSoundTask: Timer? = null
 
+    var mediaPlayer: android.media.MediaPlayer? = null
     fun tabletSoundAlertOn() {
         alertTask = kotlin.concurrent.timer(period = 2000) {
-            val mediaPlayer: android.media.MediaPlayer? =
-                android.media.MediaPlayer.create(this@MainActivity, R.raw.tada)
-            mediaPlayer?.start()
+            if (mediaPlayer == null)
+                mediaPlayer =
+                    android.media.MediaPlayer.create(
+                        this@MainActivity,
+                        R.raw.tada)
+            if (mainViewModel.isSoundAlert)
+                mediaPlayer?.let {
+                    if (!it.isPlaying)
+                        it.start()
+                }
+
         }
     }
 
@@ -496,6 +509,7 @@ class MainActivity : AppCompatActivity() {
 
     var isTabletAlert = false
     val exData = HashMap<Int, Boolean>()
+    val exLastErorr = HashMap<Int, String>()
 
     private fun littleEndianConversion(bytes: ByteArray): Int {
         var result = 0
@@ -527,6 +541,20 @@ class MainActivity : AppCompatActivity() {
                         val port = aqInfo[1]
 
                         val ledkey = littleEndianConversion(byteArrayOf(model, id)).toShort()
+
+                        // 경고 로그 DB저장
+                        if (!exLastErorr[key].equals(value.content)) {
+                            exLastErorr[key] = value.content
+                            addLogs(
+                                value.time,
+                                value.model,
+                                value.id,
+                                value.content,
+                                value.port,
+                                value.isAlert
+                            )
+                        }
+
                         //isAlert 1개 해결된것을 제외
                         if (!value.isAlert) {
                             if (mainViewModel.portAlertMapLed.size == 0)
@@ -685,6 +713,40 @@ class MainActivity : AppCompatActivity() {
 
         init {
             mActivity = WeakReference(activity)
+        }
+    }
+
+    fun addLogs(time: String, model: Int, id: Int, content: String, port: Int, isAlert: Boolean) {
+        GlobalScope.launch {
+            addAlertLogs(
+                time,
+                model,
+                id,
+                content,
+                port,
+                isAlert
+            )
+        }
+    }
+
+    // 알람 로그 생성
+    suspend fun addAlertLogs(time: String, model: Int, id: Int, content: String, port: Int, isAlert: Boolean) {
+        withContext(Dispatchers.IO) {
+            var dao = Room.databaseBuilder(
+                application,
+                AlertDatabase::class.java,
+                "alertLogs")
+                .build()
+                .alertDAO()
+            var data: AlertData = AlertData(
+                time,
+                model,
+                id,
+                content,
+                port,
+                isAlert
+            )
+            dao.insertData(data)
         }
     }
 }

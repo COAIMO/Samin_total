@@ -1,5 +1,6 @@
 package com.coai.samin_total
 
+import android.app.Application
 import android.graphics.Color
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,6 +15,10 @@ import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerSettingFragment
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
+import com.coai.samin_total.database.AlertData
+import com.coai.samin_total.database.AlertDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
 class MainViewModel : ViewModel() {

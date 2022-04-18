@@ -87,9 +87,8 @@ class AlertLogFragment : Fragment() {
         }
 
         mBinding.alertLogRecyclerView.adapter = this.pageListAdapter
-
         GlobalScope.launch {
-            addData()
+//            addData()
             showData()
         }
 
@@ -101,26 +100,26 @@ class AlertLogFragment : Fragment() {
             pageListAdapter.submitData(it)
         }
     }
-    suspend fun addData() =
-        withContext(Dispatchers.IO) {
-            var dao = Room.databaseBuilder(requireActivity().application!!,
-                AlertDatabase::class.java,
-                "alertLogs")
-                .build()
-                .alertDAO()
-            var data: AlertData
-            for (i in 0..10) {
-                data = AlertData(
-                    "sdafasdfa",
-                    5,
-                    i,
-                    "Error : sdfkjasdlkfjASdfasd",
-                    1,
-                    false
-                )
-            dao.insertData(data)
-            }
-        }
+//    suspend fun addData() =
+//        withContext(Dispatchers.IO) {
+//            var dao = Room.databaseBuilder(requireActivity().application!!,
+//                AlertDatabase::class.java,
+//                "alertLogs")
+//                .build()
+//                .alertDAO()
+//            var data: AlertData
+//            for (i in 0..10) {
+//                data = AlertData(
+//                    "sdafasdfa",
+//                    5,
+//                    i,
+//                    "Error : sdfkjasdlkfjASdfasd",
+//                    1,
+//                    false
+//                )
+//            dao.insertData(data)
+//            }
+//        }
 
 
     private fun initRecycler() {
