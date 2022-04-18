@@ -500,6 +500,7 @@ class MainActivity : AppCompatActivity() {
 
     var isTabletAlert = false
     val exData = HashMap<Int, Boolean>()
+    val exLastErorr = HashMap<Int, String>()
 
     private fun littleEndianConversion(bytes: ByteArray): Int {
         var result = 0
@@ -531,15 +532,20 @@ class MainActivity : AppCompatActivity() {
                         val port = aqInfo[1]
 
                         val ledkey = littleEndianConversion(byteArrayOf(model, id)).toShort()
+
                         // 경고 로그 DB저장
-                        addLogs(
-                            value.time,
-                            value.model,
-                            value.id,
-                            value.content,
-                            value.port,
-                            value.isAlert
-                        )
+                        if (!exLastErorr[key].equals(value.content)) {
+                            exLastErorr[key] = value.content
+                            addLogs(
+                                value.time,
+                                value.model,
+                                value.id,
+                                value.content,
+                                value.port,
+                                value.isAlert
+                            )
+                        }
+
                         //isAlert 1개 해결된것을 제외
                         if (!value.isAlert) {
                             if (mainViewModel.portAlertMapLed.size == 0)
