@@ -488,22 +488,26 @@ class MainActivity : AppCompatActivity() {
 
     var mediaPlayer: android.media.MediaPlayer? = null
     fun tabletSoundAlertOn() {
-        alertTask = kotlin.concurrent.timer(period = 2000) {
-            if (mediaPlayer == null)
-                mediaPlayer =
-                    android.media.MediaPlayer.create(
-                        this@MainActivity,
-                        R.raw.tada)
-            if (mainViewModel.isSoundAlert)
-                mediaPlayer?.let {
-                    if (!it.isPlaying)
-                        it.start()
-                }
+        if (alertTask == null) {
+            alertTask = kotlin.concurrent.timer(period = 2000) {
+                if (mediaPlayer == null)
+                    mediaPlayer =
+                        android.media.MediaPlayer.create(
+                            this@MainActivity,
+                            R.raw.tada
+                        )
+                if (mainViewModel.isSoundAlert)
+                    mediaPlayer?.let {
+                        if (!it.isPlaying)
+                            it.start()
+                    }
 
+            }
         }
     }
 
     fun tabletSoundAlertOff() {
+
         alertTask?.cancel()
     }
 
@@ -613,7 +617,7 @@ class MainActivity : AppCompatActivity() {
                             val model = aqInfo[1]
                             val id = aqInfo[0]
 
-                            tabletSoundAlertOff()
+//                            tabletSoundAlertOff()
                             for (cnt in 0..2) {
                                 protocol.buzzer_Off(model, id)
                                 serialService?.sendData(protocol.mProtocol.clone())
@@ -626,6 +630,16 @@ class MainActivity : AppCompatActivity() {
                             mainViewModel.portAlertMapLed.remove(tmp)
                         }
                         isAnotherJob = false
+                    }
+
+                    val targets = java.util.HashMap<Int, Int>()
+                    for (t in mainViewModel.alertMap.values) {
+                        if (t.isAlert && !targets.containsKey(t.model)) {
+                            targets[t.model] = t.model
+                        }
+                    }
+                    if (targets.size == 0) {
+                        tabletSoundAlertOff()
                     }
                 }
 //                Log.d(mainTAG, "measureTimeMillis : $elapsed")
