@@ -319,7 +319,7 @@ class MainFragment : Fragment() {
         }else{
             mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
         }
-
+        invalidateView()
         if (!shared.loadHashMap().isNullOrEmpty()) {
             shared.loadHashMap().forEach { (key, value) ->
                 viewmodel.modelMap[key] = value
