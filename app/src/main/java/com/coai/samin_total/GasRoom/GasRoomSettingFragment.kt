@@ -332,7 +332,7 @@ class GasRoomSettingFragment : Fragment() {
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-                    Toast.makeText(context, "센서 타입을 선택해주세요.", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "센서 컬러을 선택해주세요.", Toast.LENGTH_SHORT)
                         .show()
                 }
             }

@@ -46,6 +46,8 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
     var selected_SensorType = ""
     var selected_GasType = ""
     var selected_ViewType:Int = 0
+    var mSelectedGas_Et:EditText
+    var mSelectedGasColor_sp:Spinner
 
     private fun initSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
@@ -149,6 +151,8 @@ class GasStorageBoardSettingView constructor(context: Context, attrs: AttributeS
         btn_single = findViewById<RadioButton>(R.id.btn_single)
         btn_dual = findViewById<RadioButton>(R.id.btn_dual)
         btn_autoChanger = findViewById<RadioButton>(R.id.btn_autoChanger)
+        mSelectedGas_Et = findViewById(R.id.et_selectedGas)
+        mSelectedGasColor_sp = findViewById(R.id.sp_selectedGasColor)
         initSensorTypeSpinner()
         initGasTypeSpinner()
         initIsSensor()
