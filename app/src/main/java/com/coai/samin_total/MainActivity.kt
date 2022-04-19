@@ -18,6 +18,7 @@ import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
 import com.coai.libsaminmodbus.model.ModelMonitorValues
 import com.coai.libsaminmodbus.model.ObserveModelMonitorValues
+import com.coai.libsaminmodbus.service.InputRegister
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.ScanDialogFragment
 import com.coai.samin_total.Dialog.SetAlertData
@@ -701,52 +702,53 @@ class MainActivity : AppCompatActivity() {
         thUIError?.start()
     }
 
-    private var modbusService: SaminModbusService? = null
+//    private var modbusService: SaminModbusService? = null
     var mHandler: MyHandler? = null
-    var mObserveModelMonitorValues: ObserveModelMonitorValues? = null
-    var mModelMonitorValues: ModelMonitorValues = ModelMonitorValues()
+
+//    var mModelMonitorValues: ModelMonitorValues = ModelMonitorValues()
 
     private val svcConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(arg0: ComponentName, arg1: IBinder) {
-            modbusService = (arg1 as SaminModbusService.SaminModbusServiceBinder).getService()
-            mHandler?.let { modbusService?.setHandler(it) }
+            mainViewModel.modbusService = (arg1 as SaminModbusService.SaminModbusServiceBinder).getService()
+            mHandler?.let { mainViewModel.modbusService?.setHandler(it) }
 
-            modbusService?.svcHandler?.let {
-//                val msg2 = it.obtainMessage(SaminModbusService.SETTING_SLAVE_ID, 2)
-//                it.sendMessage(msg2)
-//
-//                val msg7 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_DATA, InputData(0, true))
-//                it.sendMessage(msg7)
-//                val msg8 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_DATA, InputData(1, true))
-//                it.sendMessage(msg8)
-//                val msg9 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_DATA, InputData(3, true))
-//                it.sendMessage(msg9)
-//                val msg10 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(100, 1000))
-//                it.sendMessage(msg10)
-//                val msg11 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(1100, 1000))
-//                it.sendMessage(msg11)
-//                val msg12 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(2100, 1000))
-//                it.sendMessage(msg12)
-//                val msg13 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(3100, 1000))
-//                it.sendMessage(msg13)
-            }
+//            mainViewModel.modbusService?.svcHandler?.let {
+////                val msg2 = it.obtainMessage(SaminModbusService.SETTING_SLAVE_ID, 2)
+////                it.sendMessage(msg2)
+////
+////                val msg7 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_DATA, InputData(0, true))
+////                it.sendMessage(msg7)
+////                val msg8 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_DATA, InputData(1, true))
+////                it.sendMessage(msg8)
+////                val msg9 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_DATA, InputData(3, true))
+////                it.sendMessage(msg9)
+////                val msg10 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(100, 1000))
+////                it.sendMessage(msg10)
+////                val msg11 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(1100, 1000))
+////                it.sendMessage(msg11)
+////                val msg12 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(2100, 1000))
+////                it.sendMessage(msg12)
+////                val msg13 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(3100, 1000))
+////                it.sendMessage(msg13)
+//            }
 
-            modbusService?.setSlaveID(mainViewModel.controlData.modbusRTUID)
+            mainViewModel.modbusService?.setSlaveID(mainViewModel.controlData.modbusRTUID)
 
             if (mainViewModel.controlData.useModbusRTU)
-                modbusService?.setSerialPort(
+                mainViewModel.modbusService?.setSerialPort(
                     mainViewModel.controlData.modbusBaudrate.value,
                     8,
                     1,
                     0)
 
-            mObserveModelMonitorValues =
-                ObserveModelMonitorValues(modbusService!!, mModelMonitorValues)
-            modbusService?.startModbusService()
+//            mainViewModel.mObserveModelMonitorValues =
+//                ObserveModelMonitorValues(mainViewModel.modbusService!!, mainViewModel.mModelMonitorValues)
+            mainViewModel.modbusService?.startModbusService()
+            mainViewModel.refreshModbusModels()
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
-            modbusService = null
+            mainViewModel.modbusService = null
         }
     }
 

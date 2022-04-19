@@ -1,12 +1,12 @@
 package com.coai.samin_total
 
 import android.util.Log
+import com.coai.libsaminmodbus.model.KeyUtils
 import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.GasRoom.TimePSI
 import com.coai.samin_total.Logic.AnalyticUtils
-import com.coai.samin_total.Logic.PortAlertState
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Steamer.SetSteamerViewData
@@ -321,6 +321,58 @@ class AQDataParser(viewModel: MainViewModel) {
         bro.pressureRight = tmp.pressureRight
         bro.isAlertLeft = tmp.isAlertLeft
         bro.isAlertRight = tmp.isAlertRight
+
+//        // 모드 버스 모델 변경
+//        if (viewModel.isProcessingMonitor && tmp.usable) {
+//            if (tmp.ViewType == 0) {
+//                val idx = KeyUtils.getIndex(
+//                    tmp.modelByte.toInt(),
+//                    tmp.id.toByte(),
+//                    tmp.port.toByte()
+//                )
+//                viewModel.mModelMonitorValues.setErrorsStorage(
+//                    idx,
+//                    tmp.isAlert == true
+//                )
+//                tmp.pressure?.let {
+//                    viewModel.mModelMonitorValues.setStoragePressurePSI(
+//                        idx,
+//                        it.toInt().toShort()
+//                    )
+//                }
+//            } else {
+//                val idx1 = KeyUtils.getIndex(
+//                    tmp.modelByte.toInt(),
+//                    tmp.id.toByte(),
+//                    tmp.port.toByte()
+//                )
+//                val idx2 = KeyUtils.getIndex(
+//                    tmp.modelByte.toInt(),
+//                    tmp.id.toByte(),
+//                    (tmp.port + 1).toByte()
+//                )
+//                viewModel.mModelMonitorValues.setErrorsStorage(
+//                    idx1,
+//                    tmp.isAlertLeft == true
+//                )
+//                viewModel.mModelMonitorValues.setErrorsStorage(
+//                    idx2,
+//                    tmp.isAlertRight == true
+//                )
+//                tmp.pressureLeft?.let {
+//                    viewModel.mModelMonitorValues.setStoragePressurePSI(
+//                        idx1,
+//                        it.toInt().toShort()
+//                    )
+//                }
+//                tmp.pressureRight?.let {
+//                    viewModel.mModelMonitorValues.setStoragePressurePSI(
+//                        idx2,
+//                        it.toInt().toShort()
+//                    )
+//                }
+//            }
+//        }
     }
 
     private fun ProcessSingleGasStorage(id: Int, data: Int) {
@@ -389,6 +441,30 @@ class AQDataParser(viewModel: MainViewModel) {
         val bro = setAQport[id] as SetGasStorageViewData
         bro.isAlert = tmp.isAlert
         bro.pressure = tmp.pressure
+
+        if (viewModel.isProcessingMonitor) {
+            if (tmp.usable) {
+                val idx = KeyUtils.getIndex(
+                    tmp.modelByte.toInt(),
+                    tmp.id.toByte(),
+                    tmp.port.toByte()
+                )
+                viewModel.mModelMonitorValues.setWarningsStorage(
+                    idx,
+                    tmp.isAlert == true
+                )
+                viewModel.mModelMonitorValues.setErrorsStorage(
+                    idx,
+                    false
+                )
+                tmp.pressure?.let {
+                    viewModel.mModelMonitorValues.setStoragePressurePSI(
+                        idx,
+                        it.toInt().toShort()
+                    )
+                }
+            }
+        }
     }
 
 
@@ -517,6 +593,42 @@ class AQDataParser(viewModel: MainViewModel) {
         bro.pressureRight = tmp.pressureRight
         bro.isAlertLeft = tmp.isAlertLeft
         bro.isAlertRight = tmp.isAlertRight
+
+        // 모드버스
+        if (viewModel.isProcessingMonitor) {
+            if (viewModel.isProcessingMonitor && tmp.usable) {
+                val idx1 = KeyUtils.getIndex(
+                    tmp.modelByte.toInt(),
+                    tmp.id.toByte(),
+                    tmp.port.toByte()
+                )
+                val idx2 = KeyUtils.getIndex(
+                    tmp.modelByte.toInt(),
+                    tmp.id.toByte(),
+                    (tmp.port + 1).toByte()
+                )
+                viewModel.mModelMonitorValues.setWarningsStorage(
+                    idx1,
+                    tmp.isAlertLeft == true
+                )
+                viewModel.mModelMonitorValues.setWarningsStorage(
+                    idx2,
+                    tmp.isAlertRight == true
+                )
+                tmp.pressureLeft?.let {
+                    viewModel.mModelMonitorValues.setStoragePressurePSI(
+                        idx1,
+                        it.toInt().toShort()
+                    )
+                }
+                tmp.pressureRight?.let {
+                    viewModel.mModelMonitorValues.setStoragePressurePSI(
+                        idx2,
+                        it.toInt().toShort()
+                    )
+                }
+            }
+        }
     }
 
 
@@ -630,6 +742,26 @@ class AQDataParser(viewModel: MainViewModel) {
         val bro = setAQport[id] as SetGasRoomViewData
         bro.isAlert = tmp.isAlert
         bro.pressure = tmp.pressure
+
+        if (viewModel.isProcessingMonitor) {
+            if (tmp.usable) {
+                val idx = KeyUtils.getIndex(
+                    tmp.modelByte.toInt(),
+                    tmp.id.toByte(),
+                    tmp.port.toByte()
+                )
+                viewModel.mModelMonitorValues.setWarningsRoom(
+                    idx,
+                    tmp.isAlert == true
+                )
+                tmp.pressure?.let {
+                    viewModel.mModelMonitorValues.setRoomPressurePSI(
+                        idx,
+                        it.toInt().toShort()
+                    )
+                }
+            }
+        }
     }
 
     private fun ProcessWasteLiquor(id: Int, data: Int) {
@@ -686,6 +818,20 @@ class AQDataParser(viewModel: MainViewModel) {
         }
         val bro = setAQport[id] as SetWasteLiquorViewData
         bro.isAlert = tmp.isAlert
+
+        if (viewModel.isProcessingMonitor) {
+            if (tmp.usable) {
+                val idx = KeyUtils.getIndex(
+                    tmp.modelByte.toInt(),
+                    tmp.id.toByte(),
+                    tmp.port.toByte()
+                )
+                viewModel.mModelMonitorValues.setWarningsWaste(
+                    idx,
+                    tmp.isAlert == true
+                )
+            }
+        }
     }
 
     private fun ProcessOxygen(id: Int, data: Int) {
@@ -776,6 +922,24 @@ class AQDataParser(viewModel: MainViewModel) {
         val bro = setAQport[id] as SetOxygenViewData
         bro.setValue = tmp.setValue
         bro.isAlert = tmp.isAlert
+
+        if (viewModel.isProcessingMonitor) {
+            if (tmp.usable) {
+                val idx = KeyUtils.getIndex(
+                    tmp.modelByte.toInt(),
+                    tmp.id.toByte(),
+                    tmp.port.toByte()
+                )
+                viewModel.mModelMonitorValues.setWarningsOxygen(
+                    idx,
+                    tmp.isAlert == true
+                )
+                viewModel.mModelMonitorValues.setOxygen(
+                    idx,
+                    tmp.setValue.toShort()
+                )
+            }
+        }
     }
 
     private fun ProcessSteamer(id: Int, temp: Int, level: Int) {
@@ -876,6 +1040,24 @@ class AQDataParser(viewModel: MainViewModel) {
         bro.isAlertTemp = tmp.isAlertTemp
         bro.isAlertLow = tmp.isAlertLow
         bro.isTemp = tmp.isTemp
+
+        if (viewModel.isProcessingMonitor) {
+            if (tmp.usable) {
+                val idx = KeyUtils.getIndex(
+                    tmp.modelByte.toInt(),
+                    tmp.id.toByte(),
+                    tmp.port.toByte()
+                )
+                viewModel.mModelMonitorValues.setWarningsSteam(
+                    idx,
+                    tmp.isAlertLow or tmp.isAlertTemp
+                )
+                viewModel.mModelMonitorValues.setSteamTemps(
+                    idx,
+                    tmp.isTemp.toShort()
+                )
+            }
+        }
     }
 
     /**
@@ -1101,6 +1283,37 @@ class AQDataParser(viewModel: MainViewModel) {
                     true
                 )
             )
+            if (viewModel.isProcessingMonitor) {
+                val idx = KeyUtils.getIndex(
+                    model,
+                    id.toByte(),
+                    port.toByte()
+                )
+
+                when(model) {
+                    1 -> viewModel.mModelMonitorValues.setErrorsStorage(
+                        idx,
+                        true
+                    )
+                    2 -> viewModel.mModelMonitorValues.setErrorsRoom(
+                        idx,
+                        true
+                    )
+                    3 -> viewModel.mModelMonitorValues.setErrorsWaste(
+                        idx,
+                        true
+                    )
+                    4 -> viewModel.mModelMonitorValues.setErrorsOxygen(
+                        idx,
+                        true
+                    )
+                    5 -> viewModel.mModelMonitorValues.setErrorsSteam(
+                        idx,
+                        true
+                    )
+                }
+
+            }
 
             lostConnectAQs[tmp.key] = true
         }
@@ -1143,6 +1356,14 @@ class AQDataParser(viewModel: MainViewModel) {
                     false
                 )
             )
+
+            if (viewModel.isProcessingMonitor) {
+                val idx = KeyUtils.getIndex(
+                    model,
+                    id.toByte(),
+                    port.toByte()
+                )
+            }
         }
     }
 
