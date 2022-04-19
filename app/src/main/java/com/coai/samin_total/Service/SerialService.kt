@@ -65,8 +65,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 val granted: Boolean =
                     intent?.getExtras()!!.getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED)
                 if (granted) {
-                    findUSBSerialDevice()
-                    serialPortConnect()
+                    findUSBSerialDevice(true)
                     val grantedIntent = Intent(ACTION_USB_PERMISSION_GRANTED)
                     context?.sendBroadcast(grantedIntent)
                 } else {
@@ -150,7 +149,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         registerReceiver(broadcastReceiver, filter)
     }
 
-    private fun findUSBSerialDevice() {
+    private fun findUSBSerialDevice(hasPermission: Boolean = false) {
         usbManager = getSystemService(Context.USB_SERVICE) as UsbManager
         if (usbManager.deviceList.isEmpty()) {
             mHandler.postDelayed({
@@ -171,9 +170,14 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         if(usbDrivers!!.count() > 0){
             usbDriver = getFirstDevice(usbDrivers!!)
             device = usbDriver.device
-            val intent: PendingIntent =
-                PendingIntent.getBroadcast(this, 0, Intent(INTENT_ACTION_GRANT_USB), 0)
-            usbManager.requestPermission(device, intent)
+
+            if (!hasPermission) {
+                val intent: PendingIntent =
+                    PendingIntent.getBroadcast(this, 0, Intent(INTENT_ACTION_GRANT_USB), 0)
+                usbManager.requestPermission(device, intent)
+            } else {
+                serialPortConnect()
+            }
         }
 //        for (i in usbDrivers!!) {
 //            usbDriver = i

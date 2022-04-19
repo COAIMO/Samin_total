@@ -87,54 +87,55 @@ class MainFragment : Fragment() {
         }
     }
 
-    lateinit var thUIError : Thread
+    lateinit var thUIError: Thread
     var isrunthUIError = true
     override fun onResume() {
         super.onResume()
-        isrunthUIError = true
-        viewmodel.steamerAlert.value = false
-        thUIError = Thread {
-            try {
-                while (isrunthUIError) {
-                    // 메인화면 경고 유무 변화
-                    val targets = HashMap<Int, Int>()
-                    for (t in viewmodel.alertMap.values) {
-                        if (t.isAlert && !targets.containsKey(t.model)) {
-                            targets[t.model] = t.model
-                        }
-                    }
-
-
-                    activity?.runOnUiThread {
-                        try {
-                            viewmodel.gasStorageAlert.value = targets.containsKey(1)
-                        } catch (ex: Exception) {
-                        }
-                        try {
-                            viewmodel.gasRoomAlert.value = targets.containsKey(2)
-                        } catch (ex: Exception) {
-                        }
-                        try {
-                            viewmodel.wasteAlert.value = targets.containsKey(3)
-                        } catch (ex: Exception) {
-                        }
-                        try {
-                            viewmodel.oxyenAlert.value = targets.containsKey(4)
-                        } catch (ex: Exception) {
-                        }
-                        try {
-                            viewmodel.steamerAlert.value = targets.containsKey(5)
-                        } catch (ex: Exception) {
-                        }
-                    }
-
-                    Thread.sleep(100)
-                }
-            } catch (e : Exception) {
-
-            }
-        }
-        thUIError?.start()
+        uiError()
+//        isrunthUIError = true
+//        viewmodel.steamerAlert.value = false
+//        thUIError = Thread {
+//            try {
+//                while (isrunthUIError) {
+//                    // 메인화면 경고 유무 변화
+//                    val targets = HashMap<Int, Int>()
+//                    for (t in viewmodel.alertMap.values) {
+//                        if (t.isAlert && !targets.containsKey(t.model)) {
+//                            targets[t.model] = t.model
+//                        }
+//                    }
+//
+//
+//                    activity?.runOnUiThread {
+//                        try {
+//                            viewmodel.gasStorageAlert.value = targets.containsKey(1)
+//                        } catch (ex: Exception) {
+//                        }
+//                        try {
+//                            viewmodel.gasRoomAlert.value = targets.containsKey(2)
+//                        } catch (ex: Exception) {
+//                        }
+//                        try {
+//                            viewmodel.wasteAlert.value = targets.containsKey(3)
+//                        } catch (ex: Exception) {
+//                        }
+//                        try {
+//                            viewmodel.oxyenAlert.value = targets.containsKey(4)
+//                        } catch (ex: Exception) {
+//                        }
+//                        try {
+//                            viewmodel.steamerAlert.value = targets.containsKey(5)
+//                        } catch (ex: Exception) {
+//                        }
+//                    }
+//
+//                    Thread.sleep(100)
+//                }
+//            } catch (e : Exception) {
+//
+//            }
+//        }
+//        thUIError?.start()
     }
 
     override fun onPause() {
@@ -159,7 +160,7 @@ class MainFragment : Fragment() {
             initView()
         }
         mainLayoutIconVisibility()
-        udateAlert()
+        updateAlert()
 
 
         mBinding.labIDTextView.setOnClickListener {
@@ -169,7 +170,11 @@ class MainFragment : Fragment() {
             shared.removeBoardSetData(SaminSharedPreference.OXYGEN)
             shared.removeBoardSetData(SaminSharedPreference.STEAMER)
         }
-
+        if (viewmodel.isSoundAlert) {
+            mBinding.btnSound.setImageResource(R.drawable.sound_ic)
+        } else {
+            mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
+        }
         return mBinding.root
     }
 
@@ -253,11 +258,9 @@ class MainFragment : Fragment() {
             }
             mBinding.btnSound -> {
                 if (viewmodel.isSoundAlert) {
-                    btn_Count++
                     mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
                     viewmodel.isSoundAlert = false
                 } else {
-                    btn_Count++
                     mBinding.btnSound.setImageResource(R.drawable.sound_ic)
                     viewmodel.isSoundAlert = true
                 }
@@ -317,11 +320,11 @@ class MainFragment : Fragment() {
         mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
         mBinding.oxygenMainStatusLayout.visibility = View.GONE
         mBinding.steamerMainStatusLayout.visibility = View.GONE
-        if (viewmodel.isSoundAlert){
-            mBinding.btnSound.setImageResource(R.drawable.sound_ic)
-        }else{
-            mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
-        }
+//        if (viewmodel.isSoundAlert){
+//            mBinding.btnSound.setImageResource(R.drawable.sound_ic)
+//        }else{
+//            mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
+//        }
         invalidateView()
         if (!shared.loadHashMap().isNullOrEmpty()) {
             shared.loadHashMap().forEach { (key, value) ->
@@ -357,25 +360,28 @@ class MainFragment : Fragment() {
             }
 
             viewmodel.OxygenDataLiveList.clear(true)
-            val oxygenDataSet = shared.loadBoardSetData(SaminSharedPreference.OXYGEN) as MutableList<SetOxygenViewData>
-            if (oxygenDataSet.isNotEmpty()){
-                for (i in oxygenDataSet){
+            val oxygenDataSet =
+                shared.loadBoardSetData(SaminSharedPreference.OXYGEN) as MutableList<SetOxygenViewData>
+            if (oxygenDataSet.isNotEmpty()) {
+                for (i in oxygenDataSet) {
                     viewmodel.OxygenDataLiveList.add(i)
                 }
             }
 
             viewmodel.SteamerDataLiveList.clear(true)
-            val steamerDataSet = shared.loadBoardSetData(SaminSharedPreference.STEAMER) as MutableList<SetSteamerViewData>
-            if (steamerDataSet.isNotEmpty()){
-                for (i in steamerDataSet){
+            val steamerDataSet =
+                shared.loadBoardSetData(SaminSharedPreference.STEAMER) as MutableList<SetSteamerViewData>
+            if (steamerDataSet.isNotEmpty()) {
+                for (i in steamerDataSet) {
                     viewmodel.SteamerDataLiveList.add(i)
                 }
             }
 
             viewmodel.WasteLiquorDataLiveList.clear(true)
-            val wasteDataSet = shared.loadBoardSetData(SaminSharedPreference.WASTELIQUOR) as MutableList<SetWasteLiquorViewData>
-            if (wasteDataSet.isNotEmpty()){
-                for (i in wasteDataSet){
+            val wasteDataSet =
+                shared.loadBoardSetData(SaminSharedPreference.WASTELIQUOR) as MutableList<SetWasteLiquorViewData>
+            if (wasteDataSet.isNotEmpty()) {
+                for (i in wasteDataSet) {
                     viewmodel.WasteLiquorDataLiveList.add(i)
                 }
             }
@@ -412,7 +418,7 @@ class MainFragment : Fragment() {
         invalidateView()
     }
 
-    fun invalidateView(){
+    fun invalidateView() {
         Thread.sleep(100)
         mBinding.gasDockMainStatusLayout.invalidate()
         mBinding.gasRoomMainStatusLayout.invalidate()
@@ -470,56 +476,72 @@ class MainFragment : Fragment() {
         }
     }
 
-    fun udateAlert() {
+    fun updateAlert() {
         viewmodel.wasteAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.wasteLiquorMainStatus.setAlert(true)
-                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
                 mBinding.wasteLiquorMainStatus.setAlert(false)
-                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
-
             }
         }
         viewmodel.oxyenAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.oxygenMainStatus.setAlert(true)
-                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
                 mBinding.oxygenMainStatus.setAlert(false)
-                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
 
             }
         }
         viewmodel.gasStorageAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.gasDockMainStatus.setAlert(true)
-                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
                 mBinding.gasDockMainStatus.setAlert(false)
-                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }
         viewmodel.steamerAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.steamerMainStatus.setAlert(true)
-                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
                 mBinding.steamerMainStatus.setAlert(false)
-                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }
         viewmodel.gasRoomAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.gasRoomMainStatus.setAlert(true)
-                mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
                 mBinding.gasRoomMainStatus.setAlert(false)
-                mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
-
             }
         }
 
     }
+
+    private fun uiError() {
+        isrunthUIError = true
+        thUIError = Thread {
+            try {
+                while (isrunthUIError) {
+                    // 메인화면 경고 유무 변화
+                    val targets = HashMap<Int, Int>()
+                    for (t in viewmodel.alertMap.values) {
+                        if (t.isAlert && !targets.containsKey(t.model)) {
+                            targets[t.model] = t.model
+                        }
+                    }
+
+                    if (targets.isNotEmpty()) {
+                        mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+                    } else {
+                        mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
+                    }
+                    Thread.sleep(100)
+                }
+            } catch (e: Exception) {
+
+            }
+        }
+        thUIError?.start()
+    }
+
 
 }

@@ -80,8 +80,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var shared: SaminSharedPreference
     lateinit var tmp: AQDataParser
 
-    lateinit var viewModel : PageViewModel
-    private lateinit var pageListAdapter : PageListAdapter
+    lateinit var viewModel: PageViewModel
+    private lateinit var pageListAdapter: PageListAdapter
 
     private var protocolBuffers = ConcurrentHashMap<Short, ByteArray>()
 
@@ -268,6 +268,7 @@ class MainActivity : AppCompatActivity() {
         bindSerialService()
 //        GlobalUiTimer.getInstance().activity = this
         startModbusService(SaminModbusService::class.java, svcConnection, null)
+        uiError()
         super.onResume()
     }
 
@@ -420,9 +421,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     Thread.sleep(50)
-                }
-                catch (e : Exception)
-                {
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
@@ -654,6 +653,54 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+    lateinit var thUIError: Thread
+    var isrunthUIError = true
+    private fun uiError() {
+        thUIError = Thread {
+            try {
+                while (isrunthUIError) {
+                    // 메인화면 경고 유무 변화
+                    val targets = java.util.HashMap<Int, Int>()
+                    for (t in mainViewModel.alertMap.values) {
+                        if (t.isAlert && !targets.containsKey(t.model)) {
+                            targets[t.model] = t.model
+                        }
+                    }
+
+
+                    runOnUiThread {
+                        try {
+                            mainViewModel.gasStorageAlert.value = targets.containsKey(1)
+                        } catch (ex: Exception) {
+                        }
+                        try {
+                            mainViewModel.gasRoomAlert.value = targets.containsKey(2)
+                        } catch (ex: Exception) {
+                        }
+                        try {
+                            mainViewModel.wasteAlert.value = targets.containsKey(3)
+                        } catch (ex: Exception) {
+                        }
+                        try {
+                            mainViewModel.oxyenAlert.value = targets.containsKey(4)
+                        } catch (ex: Exception) {
+                        }
+                        try {
+                            mainViewModel.steamerAlert.value = targets.containsKey(5)
+                        } catch (ex: Exception) {
+                        }
+                    }
+
+                    Thread.sleep(100)
+                }
+            } catch (e: Exception) {
+
+            }
+        }
+        thUIError?.start()
+    }
+
     private var modbusService: SaminModbusService? = null
     var mHandler: MyHandler? = null
     var mObserveModelMonitorValues: ObserveModelMonitorValues? = null
@@ -750,12 +797,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     // 알람 로그 생성
-    suspend fun addAlertLogs(time: String, model: Int, id: Int, content: String, port: Int, isAlert: Boolean) {
+    suspend fun addAlertLogs(
+        time: String,
+        model: Int,
+        id: Int,
+        content: String,
+        port: Int,
+        isAlert: Boolean
+    ) {
         withContext(Dispatchers.IO) {
             var dao = Room.databaseBuilder(
                 application,
                 AlertDatabase::class.java,
-                "alertLogs")
+                "alertLogs"
+            )
                 .build()
                 .alertDAO()
             var data: AlertData = AlertData(

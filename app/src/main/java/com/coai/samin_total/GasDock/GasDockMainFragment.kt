@@ -76,6 +76,8 @@ class GasDockMainFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
     }
+    lateinit var thUIError : Thread
+    var isrunthUIError = true
 
     override fun onResume() {
         super.onResume()
@@ -99,6 +101,49 @@ class GasDockMainFragment : Fragment() {
             }
         }
         taskRefresh?.start()
+
+//        thUIError = Thread {
+//            try {
+//                while (isrunthUIError) {
+//                    // 메인화면 경고 유무 변화
+//                    val targets = HashMap<Int, Int>()
+//                    for (t in mainViewModel.alertMap.values) {
+//                        if (t.isAlert && !targets.containsKey(t.model)) {
+//                            targets[t.model] = t.model
+//                        }
+//                    }
+//
+//
+//                    activity?.runOnUiThread {
+//                        try {
+//                            mainViewModel.gasStorageAlert.value = targets.containsKey(1)
+//                        } catch (ex: Exception) {
+//                        }
+//                        try {
+//                            mainViewModel.gasRoomAlert.value = targets.containsKey(2)
+//                        } catch (ex: Exception) {
+//                        }
+//                        try {
+//                            mainViewModel.wasteAlert.value = targets.containsKey(3)
+//                        } catch (ex: Exception) {
+//                        }
+//                        try {
+//                            mainViewModel.oxyenAlert.value = targets.containsKey(4)
+//                        } catch (ex: Exception) {
+//                        }
+//                        try {
+//                            mainViewModel.steamerAlert.value = targets.containsKey(5)
+//                        } catch (ex: Exception) {
+//                        }
+//                    }
+//
+//                    Thread.sleep(100)
+//                }
+//            } catch (e : Exception) {
+//
+//            }
+//        }
+//        thUIError?.start()
     }
 
     override fun onPause() {
@@ -155,7 +200,7 @@ class GasDockMainFragment : Fragment() {
             ).withIndex()) {
                 data.unit++
                 mainViewModel.GasStorageDataLiveList.value!!.set(index, data)
-                if (data.unit == 4) data.unit = 0
+                if (data.unit == 5) data.unit = 0
             }
         }
         mBinding.btnAlert.setOnClickListener {

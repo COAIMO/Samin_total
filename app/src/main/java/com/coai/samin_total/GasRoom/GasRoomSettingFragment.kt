@@ -68,7 +68,11 @@ class GasRoomSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.zeroPoint = s.toString().toFloat()
+                try {
+                    selectedSensor.zeroPoint = s.toString().toFloat()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
 
         }
@@ -83,7 +87,12 @@ class GasRoomSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.rewardValue = s.toString().toFloat()
+                try {
+                    selectedSensor.rewardValue = s.toString().toFloat()
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
 
         }
@@ -98,7 +107,11 @@ class GasRoomSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.slopeValue = s.toString().toFloat()
+                try {
+                    selectedSensor.slopeValue = s.toString().toFloat()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
 
         }
