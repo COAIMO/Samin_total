@@ -25,7 +25,8 @@ class AQDataParser(viewModel: MainViewModel) {
 
     // 최종 숫신시간
     val hmapLastedDate = HashMap<Int, Long>()
-//    var hmapIDLastedDate = HashMap<Short, Long>()
+
+    //    var hmapIDLastedDate = HashMap<Short, Long>()
     val hmapPsis = HashMap<Int, ArrayList<TimePSI>>()
 
     val alertBase = HashMap<Int, Float>()
@@ -131,6 +132,9 @@ class AQDataParser(viewModel: MainViewModel) {
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
         }
+
+        //todo 셋팅 후 알람및 데이터 클리어 필요(scan 기능에 영향)
+//        viewModel.removeModelMap()
     }
 
     private fun calcSensor(
@@ -153,11 +157,6 @@ class AQDataParser(viewModel: MainViewModel) {
     private fun calcPSI2000(analog: Float, rewardvalue: Float, zeroPoint: Float): Float {
         return (rewardvalue * (analog * 2.4414 - 249.66)).toFloat() + zeroPoint
     }
-
-    /**
-     * 가스 룸 로직
-     * Todo: 에러 체크 기능 필요. 정상화 체크 필요.
-     */
 
     private fun ProcessGasStorage(id: Int, data: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
@@ -225,9 +224,9 @@ class AQDataParser(viewModel: MainViewModel) {
                 }
             }
         } else if (tmp.ViewType == 1 || tmp.ViewType == 2) {
-            if (tmp.port == 1 || tmp.port == 3){
+            if (tmp.port == 1 || tmp.port == 3) {
                 tmp.pressureLeft = value
-            }else{
+            } else {
                 tmp.pressureRight = value
             }
 
@@ -450,8 +449,8 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         } else if (tmp.pressure_Min!! < tmp.pressureLeft!!) {
+            tmp.isAlertLeft = false
             if (alertMap.containsKey(id)) {
-                tmp.isAlertLeft = false
 //                viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
                     id,
@@ -491,8 +490,8 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         } else if (tmp.pressure_Min!! < tmp.pressureRight!!) {
+            tmp.isAlertRight = false
             if (alertMap2.containsKey(id)) {
-                tmp.isAlertRight = false
 //                viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
                     id + 65536,
@@ -639,6 +638,8 @@ class AQDataParser(viewModel: MainViewModel) {
         tmp.isAlert = data == 0
 
         if (!tmp.usable) {
+            //todo 알람상태일때
+//            viewModel.alertMap.remove(id)
             return
         }
         val key =
@@ -842,7 +843,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id ,
+                        tmp.id,
                         "수위 레벨 하한 값",
                         tmp.port + 2,
                         true
@@ -859,7 +860,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id ,
+                        tmp.id,
                         "수위 레벨 정상",
                         tmp.port + 2,
                         false
@@ -1055,7 +1056,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
 
     fun timeoutAQCheckStep() {
-        val baseTime = System.currentTimeMillis() - 1000 * 60
+        val baseTime = System.currentTimeMillis() - 1000 * 10
         val oldDatas = hmapLastedDate.filter { it.value < baseTime }
 
         val lastaqs = lostConnectAQs.keys.toMutableList()
@@ -1070,17 +1071,13 @@ class AQDataParser(viewModel: MainViewModel) {
 
             if (current is SetGasStorageViewData) {
                 (current as SetGasStorageViewData).isAlert = true
-            }
-            else if (current is SetGasRoomViewData) {
+            } else if (current is SetGasRoomViewData) {
                 (current as SetGasRoomViewData).isAlert = true
-            }
-            else if (current is SetWasteLiquorViewData) {
+            } else if (current is SetWasteLiquorViewData) {
                 (current as SetWasteLiquorViewData).isAlert = true
-            }
-            else if (current is SetOxygenViewData) {
+            } else if (current is SetOxygenViewData) {
                 (current as SetOxygenViewData).isAlert = true
-            }
-            else if (current is SetSteamerViewData) {
+            } else if (current is SetSteamerViewData) {
                 (current as SetSteamerViewData).isAlertLow = true
                 (current as SetSteamerViewData).isAlertTemp = true
             }

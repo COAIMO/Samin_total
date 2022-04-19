@@ -184,6 +184,8 @@ class MainViewModel : ViewModel() {
         modelMapInt.remove(3)
         modelMapInt.remove(4)
         modelMapInt.remove(5)
+
+        alertMap.clear()
     }
 
 

@@ -278,11 +278,11 @@ class MainFragment : Fragment() {
     }
 
     private fun scanModel() {
-        activity?.feedBackThreadInterrupt()
-        activity?.deleteExDataSet()
         getProgressShow()
         sendThread = Thread {
             try {
+                activity?.deleteExDataSet()
+                activity?.feedBackThreadInterrupt()
                 for (model in 1..5) {
                     for (id in 0..7) {
                         for (count in 0..2) {

@@ -330,10 +330,6 @@ class GasStorageSettingFragment : Fragment() {
                     )
                 )
 
-//
-
-
-
                 mBinding.gasStorageBoardSettingView.mGasType_Sp.setSelection(
                     viewmodel.gasType.indexOf(
                         selectedSensor.gasName
