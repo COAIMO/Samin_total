@@ -842,10 +842,10 @@ class AQDataParser(viewModel: MainViewModel) {
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id + 65536 * 2,
+                        tmp.id ,
                         "수위 레벨 하한 값",
                         tmp.port + 2,
-                        false
+                        true
                     )
                 )
             }
@@ -859,7 +859,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id + 65536 * 2,
+                        tmp.id ,
                         "수위 레벨 정상",
                         tmp.port + 2,
                         false

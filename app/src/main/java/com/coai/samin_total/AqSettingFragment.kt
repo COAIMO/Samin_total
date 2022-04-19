@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.ThreadSynchronied
 import com.coai.samin_total.databinding.FragmentAqSettingBinding
 
@@ -89,17 +90,17 @@ class AqSettingFragment : Fragment() {
     }
 
 
-
     private fun onClick(view: View) {
         when (view) {
             mBinding.saveBtn -> {
-                viewmodel.labName = mBinding.etNewName.text.toString()
+                val labName = mBinding.etNewName.text.toString()
+                activity?.shared?.labNameSave(SaminSharedPreference.LABNAME, labName)
                 activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
             }
-            mBinding.cancelBtn ->{
+            mBinding.cancelBtn -> {
                 activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
             }
-            mBinding.btnBack ->{
+            mBinding.btnBack -> {
                 activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
             }
         }

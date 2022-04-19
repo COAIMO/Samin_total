@@ -73,8 +73,6 @@ class MainViewModel : ViewModel() {
 
     var isSoundAlert = true
 
-    var labName:String = "Lab - 015"
-
     val modelMap = HashMap<String, ByteArray>()
     val modelMapInt = HashMap<Int, ByteArray>()
 

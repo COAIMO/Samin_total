@@ -26,8 +26,10 @@ class SaminSharedPreference(context: Context) {
         const val OXYGEN = "Oxygen"
         const val STEAMER = "Steamer"
         const val CONTROL = "Control"
+        const val LABNAME = "LAB"
     }
 
+    val labName = "Lab - 015"
     private val boardSetDataSharedPreference =
         context.getSharedPreferences("aa", Context.MODE_PRIVATE)
 
@@ -175,24 +177,28 @@ class SaminSharedPreference(context: Context) {
         return setdata
     }
 
-    fun removeBoardSetData(key: String){
+    fun removeBoardSetData(key: String) {
         boardSetDataSharedPreference.edit().apply {
             remove(key)
             apply()
         }
     }
 
+    fun labNameSave(key: String, data: String) {
+        val listString = Gson().toJson(data)
+        boardSetDataSharedPreference.edit().apply {
+            putString(key, listString)
+            apply()
+        }
+    }
 
-
-
-//    fun checkPassLockSet(password: String): Boolean {
-//        return sharedPref.getString("AdminLock", initPassword) == password
-//    }
-//
-//    fun isPassLockSet(): Boolean {
-//        if (sharedPref.contains("AdminLock")) {
-//            return true
-//        }
-//        return false
-//    }
+    fun loadLabNameData(): String {
+        val data = boardSetDataSharedPreference.getString(LABNAME, "")!!
+        val token = object : TypeToken<String>() {}.type
+        var name = String()
+        if (data.isNotEmpty()) {
+           name =  Gson().fromJson(data, token)
+        }
+        return name
+    }
 }

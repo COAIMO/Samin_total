@@ -27,6 +27,4 @@ data class SetGasStorageViewData(
     var unit:Int = 0,
     val modelByte: Byte = 1,
     var heartbeatCount : UByte = 0u
-
-
 )

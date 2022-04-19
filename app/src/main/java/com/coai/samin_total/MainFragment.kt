@@ -162,6 +162,9 @@ class MainFragment : Fragment() {
         mainLayoutIconVisibility()
         updateAlert()
 
+        if (!shared.loadLabNameData().isEmpty()) {
+            mBinding.labIDTextView.text = shared.loadLabNameData()
+        }
 
         mBinding.labIDTextView.setOnClickListener {
             shared.removeBoardSetData(SaminSharedPreference.GASSTORAGE)
@@ -314,7 +317,6 @@ class MainFragment : Fragment() {
     }
 
     private fun initView() {
-        mBinding.labIDTextView.text = viewmodel.labName
         mBinding.gasDockMainStatusLayout.visibility = View.GONE
         mBinding.gasRoomMainStatusLayout.visibility = View.GONE
         mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
@@ -425,6 +427,8 @@ class MainFragment : Fragment() {
         mBinding.wasteLiquorMainStatusLayout.invalidate()
         mBinding.oxygenMainStatusLayout.invalidate()
         mBinding.steamerMainStatusLayout.invalidate()
+
+
     }
 
     private fun getProgressShow() {
