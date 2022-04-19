@@ -43,4 +43,8 @@
     <string name="text_sensor_usable">센서사용여부</string>
     <string name="text_layout">화면배치</string>
     <string name="text_PasswordChange">변경</string>
+    <string name="text_use_modbus_tcp">MODBUS TCP 연동</string>
+    <string name="text_use_modbus_udp">MODBUS UDP 연동</string>
+    <string name="text_use_modbus_tcp_port">MODBUS TCP 포트</string>
+    <string name="text_use_modbus_udp_port">MODBUS UDP 포트</string>
 </resources>

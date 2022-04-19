@@ -6,6 +6,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.room.Room
+import com.coai.libmodbus.service.SaminModbusService
+import com.coai.libsaminmodbus.model.KeyUtils
+import com.coai.libsaminmodbus.model.ModelMonitorValues
+import com.coai.libsaminmodbus.model.ObserveModelMonitorValues
 import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
@@ -220,6 +224,154 @@ class MainViewModel : ViewModel() {
      *  관제 설정 데이터
      */
     var controlData : ControlData = ControlData()
+
+    /**
+     * 모드버스 플래그 객체
+     */
+    var mModelMonitorValues: ModelMonitorValues = ModelMonitorValues()
+    var mObserveModelMonitorValues: ObserveModelMonitorValues? = null
+    var modbusService: SaminModbusService? = null
+
+    /**
+     *  모드 버스 모니터링 여부
+     */
+    var isProcessingMonitor : Boolean = false
+
+    // 모드버스용 가스 구분 코드 변환
+    private fun getModbusGASNum(arg: String): Short {
+        var ret:Short = 0
+
+        ret = when(arg) {
+            gasType[0] -> 1
+            gasType[1] -> 2
+            gasType[2] -> 3
+
+            gasType[3] -> 4
+            gasType[4] -> 5
+            gasType[5] -> 6
+            gasType[6] -> 7
+            gasType[7] -> 8
+            gasType[8] -> 9
+            gasType[9] -> 10
+            else -> 11
+        }
+
+        return ret
+    }
+    /**
+     * 모드버스 초기화
+     * 설정 변경 시 호출 필요
+     */
+    fun refreshModbusModels() {
+        isProcessingMonitor = false
+        // 미처리 데이터 대기
+        Thread.sleep(100)
+        mModelMonitorValues = ModelMonitorValues()
+
+        modbusService?.let {
+            mObserveModelMonitorValues =
+                ObserveModelMonitorValues(it, mModelMonitorValues)
+        }
+
+
+        var cntGasStorage = 0
+        GasStorageDataLiveList.value?.let {
+            for (tmp in it){
+                if (tmp.usable) {
+                    if (tmp.ViewType == 0) {
+                        // 싱글
+                        val idx = KeyUtils.getIndex(
+                            tmp.modelByte.toInt(),
+                            tmp.id.toByte(),
+                            tmp.port.toByte()
+                        )
+                        cntGasStorage++
+                        mModelMonitorValues.setStorageKinds(idx, getModbusGASNum(tmp.gasName))
+                    } else {
+                        // 듀얼, 오토체인저
+                        val idx1 = KeyUtils.getIndex(
+                            tmp.modelByte.toInt(),
+                            tmp.id.toByte(),
+                            tmp.port.toByte()
+                        )
+                        val idx2 = KeyUtils.getIndex(
+                            tmp.modelByte.toInt(),
+                            tmp.id.toByte(),
+                            (tmp.port + 1).toByte()
+                        )
+                        cntGasStorage++
+                        mModelMonitorValues.setStorageKinds(idx1, getModbusGASNum(tmp.gasName))
+                        cntGasStorage++
+                        mModelMonitorValues.setStorageKinds(idx2, getModbusGASNum(tmp.gasName))
+                    }
+                }
+            }
+        }
+        mModelMonitorValues.setCountStorage(cntGasStorage.toShort())
+
+        var cntGasRoom = 0
+        GasRoomDataLiveList.value?.let {
+            for (tmp in it){
+                if (tmp.usable) {
+                    val idx = KeyUtils.getIndex(
+                        tmp.modelByte.toInt(),
+                        tmp.id.toByte(),
+                        tmp.port.toByte()
+                    )
+                    cntGasRoom++
+                    mModelMonitorValues.setStorageKinds(idx, getModbusGASNum(tmp.gasName))
+                }
+            }
+        }
+        mModelMonitorValues.setCountRoom(cntGasRoom.toShort())
+
+        var cntWaste = 0
+        WasteLiquorDataLiveList.value?.let {
+            for (tmp in it){
+                if (tmp.usable) {
+                    val idx = KeyUtils.getIndex(
+                        tmp.modelByte.toInt(),
+                        tmp.id.toByte(),
+                        tmp.port.toByte()
+                    )
+                    cntWaste++
+                }
+            }
+        }
+        mModelMonitorValues.setCountWaste(cntWaste.toShort())
+
+        var cntOxygen = 0
+        OxygenDataLiveList.value?.let {
+            for (tmp in it){
+                if (tmp.usable) {
+                    val idx = KeyUtils.getIndex(
+                        tmp.modelByte.toInt(),
+                        tmp.id.toByte(),
+                        tmp.port.toByte()
+                    )
+                    cntOxygen++
+                }
+            }
+        }
+        mModelMonitorValues.setCountOxygen(cntOxygen.toShort())
+
+        var cntSteamer = 0
+        SteamerDataLiveList.value?.let {
+            for (tmp in it){
+                if (tmp.usable) {
+                    val idx = KeyUtils.getIndex(
+                        tmp.modelByte.toInt(),
+                        tmp.id.toByte(),
+                        tmp.port.toByte()
+                    )
+                    cntSteamer++
+                }
+            }
+        }
+        mModelMonitorValues.setCountSteam(cntSteamer.toShort())
+
+        isProcessingMonitor = true
+    }
 
 }
 

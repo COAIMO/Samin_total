@@ -3,6 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/activity_main.xml" value="0.17924917491749176" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/fragment_connect_test.xml" value="0.21403242147923" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/fragment_control.xml" value="0.1" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/gas_room_board_setting_view.xml" value="0.10130970724191063" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/gas_storage_board_setting_view.xml" value="0.14603960396039603" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/gas_storage_single_view.xml" value="0.10130970724191063" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/layouttest.xml" value="0.20598958333333334" />
         <entry key="..\:/Users/negai/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_dock_main.xml" value="0.125" />
         <entry key="..\:/Users/negai/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_room_main.xml" value="0.125" />
         <entry key="..\:/Users/negai/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_oxygen_main.xml" value="0.125" />
@@ -91,7 +98,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_room_view.xml" value="0.184375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_setting_view.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_autochanger_view.xml" value="0.199375" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_board_setting_view.xml" value="0.33" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_board_setting_view.xml" value="0.5" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_dual_view.xml" value="0.199375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_single_view.xml" value="0.184375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gasdockview.xml" value="0.155625" />
