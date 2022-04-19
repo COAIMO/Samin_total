@@ -131,6 +131,8 @@ class AQDataParser(viewModel: MainViewModel) {
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
         }
+
+        viewModel.refreshModbusModels()
     }
 
     private fun calcSensor(
