@@ -53,7 +53,7 @@ class OxygenSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.setMinValue = s.toString().toInt()
+                selectedSensor.setMinValue = s.toString().toFloat()
             }
         }
         override fun afterTextChanged(s: Editable?) {

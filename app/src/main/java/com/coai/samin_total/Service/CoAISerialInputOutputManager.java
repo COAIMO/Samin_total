@@ -192,6 +192,7 @@ public class CoAISerialInputOutputManager implements Runnable {
                     break;
                 }
                 step();
+                Thread.sleep(5);
             }
         } catch (Exception e) {
             Log.w(TAG, "Run ending due to exception: " + e.getMessage(), e);
@@ -236,7 +237,7 @@ public class CoAISerialInputOutputManager implements Runnable {
 
                     mSerialPort.write(tmp.array(), mWriteTimeout);
                     tmp.clear();
-                    Thread.sleep(5);
+                    Thread.sleep(0);
 
                 } catch (Exception ex) {
                     ex.printStackTrace();

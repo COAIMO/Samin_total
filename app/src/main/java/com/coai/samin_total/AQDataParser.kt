@@ -1,6 +1,7 @@
 package com.coai.samin_total
 
 import android.util.Log
+import com.coai.libsaminmodbus.model.KeyUtils
 import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
@@ -389,6 +390,21 @@ class AQDataParser(viewModel: MainViewModel) {
         val bro = setAQport[id] as SetGasStorageViewData
         bro.isAlert = tmp.isAlert
         bro.pressure = tmp.pressure
+
+        val idx = KeyUtils.getIndex(
+            tmp.modelByte.toInt(),
+            tmp.id.toByte(),
+            tmp.port.toByte()
+        )
+
+        viewModel.mModelMonitorValues.setStoragePressurePSI(
+            idx,
+            (tmp.pressure ?: 0f).toInt().toShort()
+        )
+        viewModel.mModelMonitorValues.setWarningsStorage(
+            idx,
+            tmp.isAlert!!
+        )
     }
 
 
@@ -517,6 +533,35 @@ class AQDataParser(viewModel: MainViewModel) {
         bro.pressureRight = tmp.pressureRight
         bro.isAlertLeft = tmp.isAlertLeft
         bro.isAlertRight = tmp.isAlertRight
+
+        val idx1 = KeyUtils.getIndex(
+            tmp.modelByte.toInt(),
+            tmp.id.toByte(),
+            tmp.port.toByte()
+        )
+        val idx2 = KeyUtils.getIndex(
+            tmp.modelByte.toInt(),
+            tmp.id.toByte(),
+            (tmp.port + 1).toByte()
+        )
+
+        viewModel.mModelMonitorValues.setStoragePressurePSI(
+            idx1,
+            (tmp.pressureLeft ?: 0f).toInt().toShort()
+        )
+        viewModel.mModelMonitorValues.setWarningsStorage(
+            idx1,
+            tmp.isAlertLeft!!
+        )
+
+        viewModel.mModelMonitorValues.setStoragePressurePSI(
+            idx2,
+            (tmp.pressureRight ?: 0f).toInt().toShort()
+        )
+        viewModel.mModelMonitorValues.setWarningsStorage(
+            idx2,
+            tmp.isAlertRight!!
+        )
     }
 
 
@@ -630,6 +675,21 @@ class AQDataParser(viewModel: MainViewModel) {
         val bro = setAQport[id] as SetGasRoomViewData
         bro.isAlert = tmp.isAlert
         bro.pressure = tmp.pressure
+
+        val idx = KeyUtils.getIndex(
+            tmp.modelByte.toInt(),
+            tmp.id.toByte(),
+            tmp.port.toByte()
+        )
+
+        viewModel.mModelMonitorValues.setRoomPressurePSI(
+            idx,
+            (tmp.pressure ?: 0f).toInt().toShort()
+        )
+        viewModel.mModelMonitorValues.setWarningsRoom(
+            idx,
+            tmp.isAlert!!
+        )
     }
 
     private fun ProcessWasteLiquor(id: Int, data: Int) {
@@ -686,12 +746,23 @@ class AQDataParser(viewModel: MainViewModel) {
         }
         val bro = setAQport[id] as SetWasteLiquorViewData
         bro.isAlert = tmp.isAlert
+
+        val idx = KeyUtils.getIndex(
+            tmp.modelByte.toInt(),
+            tmp.id.toByte(),
+            tmp.port.toByte()
+        )
+
+        viewModel.mModelMonitorValues.setWarningsWaste(
+            idx,
+            tmp.isAlert!!
+        )
     }
 
     private fun ProcessOxygen(id: Int, data: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetOxygenViewData)
-        val oxygenValue = data / 100
+        val oxygenValue = data / 100f
         tmp.setValue = oxygenValue
 
         if (!tmp.usable) {
@@ -776,6 +847,22 @@ class AQDataParser(viewModel: MainViewModel) {
         val bro = setAQport[id] as SetOxygenViewData
         bro.setValue = tmp.setValue
         bro.isAlert = tmp.isAlert
+
+        val idx = KeyUtils.getIndex(
+            tmp.modelByte.toInt(),
+            tmp.id.toByte(),
+            tmp.port.toByte()
+        )
+
+        viewModel.mModelMonitorValues.setWarningsOxygen(
+            idx,
+            tmp.isAlert!!
+        )
+
+        viewModel.mModelMonitorValues.setOxygen(
+            idx,
+            tmp.setValue.toInt().toShort()
+        )
     }
 
     private fun ProcessSteamer(id: Int, temp: Int, level: Int) {

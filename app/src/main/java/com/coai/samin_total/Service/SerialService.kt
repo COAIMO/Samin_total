@@ -102,7 +102,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     //SerialInputOutputManager.Listener
     override fun onNewData(data: ByteArray?) {
-        Log.d("로그", "onNewData : ${HexDump.dumpHexString(data)}")
+//        Log.d("로그", "onNewData : ${HexDump.dumpHexString(data)}")
         if (data != null) {
             parseReceiveData(data)
         }
@@ -220,7 +220,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //            }.start()
 //
             usbIoManager = CoAISerialInputOutputManager(usbSerialPort, this)
-            usbIoManager!!.readTimeout = 35
+            usbIoManager!!.readTimeout = 10
 //            usbIoManager!!.writeTimeout = 200
 //            usbIoManager!!.readBufferSize = 1000
             usbIoManager!!.start()

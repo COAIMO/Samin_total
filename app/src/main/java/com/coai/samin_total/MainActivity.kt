@@ -6,7 +6,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.net.Uri
 import android.os.*
+import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
@@ -103,6 +105,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        val intent = Intent()
+        intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+        if (powerManager.isIgnoringBatteryOptimizations(packageName)) {
+            intent.action = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+        } else {
+            intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+            intent.data = Uri.parse("package:$packageName")
+            startActivity(intent)
+        }
+
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
         db = SaminDataBase.getIstance(applicationContext)!!
@@ -206,7 +219,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
             }
-            Log.d(mainTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
+//            Log.d(mainTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
             val receiveParser = SaminProtocol()
             receiveParser.parse(msg.obj as ByteArray)
 
@@ -447,33 +460,41 @@ class MainActivity : AppCompatActivity() {
                     }
 
 //                    for ((model, ids) in mainViewModel.modelMap) {
-                    for ((md, ids) in mainViewModel.modelMapInt) {
-                        for (index in ids.indices) {
-                            if (isAnotherJob) {
-                                while (isAnotherJob) {
-                                    Thread.sleep(10)
+                    val processMils = measureTimeMillis {
+                        for ((md, ids) in mainViewModel.modelMapInt) {
+                            for (index in ids.indices) {
+                                if (isAnotherJob) {
+                                    while (isAnotherJob) {
+                                        Thread.sleep(10)
+                                    }
                                 }
+
+                                val model = md.toByte()
+                                val elapsed: Long = measureTimeMillis {
+                                    val id = ids.get(index)
+                                    val key =
+                                        littleEndianConversion(byteArrayOf(model, id)).toShort()
+
+                                    if (!protocolBuffers.containsKey(key)) {
+                                        protocol.feedBack(model, id)
+                                        protocolBuffers[key] = protocol.mProtocol.clone()
+                                    }
+                                    protocolBuffers[key]?.let {
+                                        serialService?.sendData(it)
+                                    }
+                                }
+//                            Log.d(mainTAG, "${System.currentTimeMillis()} measureTimeMillis : $elapsed " )
+
+                                Thread.sleep(20)
+                                if (model == 4.toByte())
+                                    Thread.sleep(15)
+//                            Log.d(mainTAG, "sleep ============= " )
                             }
-
-                            val model = md.toByte()
-                            val elapsed: Long = measureTimeMillis {
-                                val id = ids.get(index)
-                                val key = littleEndianConversion(byteArrayOf(model, id)).toShort()
-
-                                if (!protocolBuffers.containsKey(key)) {
-                                    protocol.feedBack(model, id)
-                                    protocolBuffers[key] = protocol.mProtocol.clone()
-                                }
-                                protocolBuffers[key]?.let {
-                                    serialService?.sendData(it)
-                                }
-                            }
-//                            Log.d(mainTAG, "measureTimeMillis : $elapsed")
-
-                            Thread.sleep(20)
-                            if (model == 4.toByte())
-                                Thread.sleep(15)
                         }
+                    }
+                    val sleeptime = 333 - processMils
+                    if (sleeptime < 333 && sleeptime > 0) {
+                        Thread.sleep(sleeptime)
                     }
                 } catch (e: Exception) {
 
