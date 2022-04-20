@@ -26,7 +26,8 @@ class AQDataParser(viewModel: MainViewModel) {
 
     // 최종 숫신시간
     val hmapLastedDate = HashMap<Int, Long>()
-//    var hmapIDLastedDate = HashMap<Short, Long>()
+
+    //    var hmapIDLastedDate = HashMap<Short, Long>()
     val hmapPsis = HashMap<Int, ArrayList<TimePSI>>()
 
     val alertBase = HashMap<Int, Float>()
@@ -132,6 +133,18 @@ class AQDataParser(viewModel: MainViewModel) {
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
         }
+
+        val tmp = viewModel.oxygenMasterData
+//        val key = littleEndianConversion(
+//            byteArrayOf(
+//                tmp.modelByte,
+//                tmp.id.toByte(),
+//                tmp.port.toByte()
+//            )
+//        )
+//        hmapAQPortSettings[key] = tmp.copy()
+//        setAQport[key] = tmp
+//        hmapLastedDate[key] = System.currentTimeMillis()
     }
 
     private fun calcSensor(
@@ -226,9 +239,9 @@ class AQDataParser(viewModel: MainViewModel) {
                 }
             }
         } else if (tmp.ViewType == 1 || tmp.ViewType == 2) {
-            if (tmp.port == 1 || tmp.port == 3){
+            if (tmp.port == 1 || tmp.port == 3) {
                 tmp.pressureLeft = value
-            }else{
+            } else {
                 tmp.pressureRight = value
             }
 
@@ -824,31 +837,87 @@ class AQDataParser(viewModel: MainViewModel) {
                     }
                 }
             }
-
-//            if (alertMap.containsKey(id)) {
-//                tmp.isAlert = false
-////                viewModel.oxyenAlert.value = false
-//                viewModel.addAlertInfo(
-//                    id,
-//                    SetAlertData(
-//                        getLatest_time(hmapLastedDate[id]!!),
-//                        tmp.modelByte.toInt(),
-//                        tmp.id,
-//                        "산소농도 정상",
-//                        tmp.port,
-//                        false
-//                    )
-//                )
-//                if (alertMap.containsKey(id)) {
-//                    alertMap.remove(id)
-//                }
-//            }
         }
-
 
         val bro = setAQport[id] as SetOxygenViewData
         bro.setValue = tmp.setValue
         bro.isAlert = tmp.isAlert
+
+        val oxygenAQ = setAQport.filter {
+            HexDump.toByteArray(it.key).get(3) == 4.toByte()
+        }
+
+        val masterKey = littleEndianConversion(
+            byteArrayOf(
+                4.toByte(),
+                11.toByte(),
+                11.toByte()
+            )
+        )
+        val oxygenLastValueList = mutableListOf<Float>()
+        for ((key, value) in oxygenAQ) {
+//            val aqInfo = HexDump.toByteArray(key)
+//            val model = aqInfo[3].toInt()
+//            val oxyid = aqInfo[2].toInt()
+//            val port = aqInfo[1].toInt()
+            val oxydata = (value as SetOxygenViewData)
+            oxygenLastValueList.add(oxydata.setValue)
+        }
+
+        viewModel.oxygenMasterData.setValue = oxygenLastValueList.average().toFloat()
+        if (viewModel.oxygenMasterData.setMinValue > viewModel.oxygenMasterData.setValue ) {
+            viewModel.oxygenMasterData.isAlert = true
+            if (alertMap[masterKey] == null) {
+                viewModel.addAlertInfo(
+                    masterKey,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        4,
+                        11,
+                        "산소농도 하한 값",
+                        11,
+                        true
+                    )
+                )
+            }
+        } else {
+            if (viewModel.oxygenMasterData.setMaxValue < viewModel.oxygenMasterData.setValue ) {
+                viewModel.oxygenMasterData.isAlert = true
+                if (alertMap[masterKey] == null) {
+                    alertMap.put(masterKey, true)
+                    viewModel.addAlertInfo(
+                        masterKey,
+                        SetAlertData(
+                            getLatest_time(hmapLastedDate[masterKey]!!),
+                            4,
+                            11,
+                            "산소농도 상한 값",
+                            11,
+                            true
+                        )
+                    )
+                }
+            } else {
+                if (alertMap.containsKey(masterKey)) {
+                    viewModel.oxygenMasterData.isAlert = false
+                    viewModel.addAlertInfo(
+                        masterKey,
+                        SetAlertData(
+                            getLatest_time(hmapLastedDate[masterKey]!!),
+                            4,
+                            11,
+                            "산소농도 정상",
+                            11,
+                            false
+                        )
+                    )
+                    if (alertMap.containsKey(masterKey)) {
+                        alertMap.remove(masterKey)
+                    }
+                }
+            }
+        }
+
 
         val idx = KeyUtils.getIndex(
             tmp.modelByte.toInt(),
@@ -931,7 +1000,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id ,
+                        tmp.id,
                         "수위 레벨 하한 값",
                         tmp.port + 2,
                         true
@@ -948,7 +1017,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id ,
+                        tmp.id,
                         "수위 레벨 정상",
                         tmp.port + 2,
                         false
@@ -1095,6 +1164,9 @@ class AQDataParser(viewModel: MainViewModel) {
                         val key = littleEndianConversion(byteArrayOf(model, id.toByte(), port))
                         hmapLastedDate[key] = time
                         ProcessOxygen(key, datas[0])
+//                        val masterPort = 11.toByte()
+//                        val masterKey = littleEndianConversion(byteArrayOf(model, id.toByte(), masterPort))
+//                        ProcessAvgOxygen(key, datas[0])
                     }
                     0x05.toByte() -> {
                         for (loop in 1..2) {
@@ -1165,17 +1237,13 @@ class AQDataParser(viewModel: MainViewModel) {
 
             if (current is SetGasStorageViewData) {
                 (current as SetGasStorageViewData).isAlert = true
-            }
-            else if (current is SetGasRoomViewData) {
+            } else if (current is SetGasRoomViewData) {
                 (current as SetGasRoomViewData).isAlert = true
-            }
-            else if (current is SetWasteLiquorViewData) {
+            } else if (current is SetWasteLiquorViewData) {
                 (current as SetWasteLiquorViewData).isAlert = true
-            }
-            else if (current is SetOxygenViewData) {
+            } else if (current is SetOxygenViewData) {
                 (current as SetOxygenViewData).isAlert = true
-            }
-            else if (current is SetSteamerViewData) {
+            } else if (current is SetSteamerViewData) {
                 (current as SetSteamerViewData).isAlertLow = true
                 (current as SetSteamerViewData).isAlertTemp = true
             }

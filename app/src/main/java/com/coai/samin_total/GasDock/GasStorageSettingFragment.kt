@@ -41,7 +41,8 @@ class GasStorageSettingFragment : Fragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var recycleAdapter: GasStorageSetting_RecycleAdapter
     private val setGasSensorInfo = mutableListOf<SetGasStorageViewData>()
-    var selectedSensor = SetGasStorageViewData("0", 0, 0)
+//    var selectedSensor = SetGasStorageViewData("0", 0, 0)
+    lateinit var selectedSensor: SetGasStorageViewData
     lateinit var shared: SaminSharedPreference
     private val mCapaAlerttextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -524,6 +525,7 @@ class GasStorageSettingFragment : Fragment() {
 
 
     private fun initView() {
+        selectedSensor = SetGasStorageViewData("0",0,0)
         setGasSensorInfo.removeAll(setGasSensorInfo)
 //        viewmodel.GasStorageDataLiveList.clear(true)
 
@@ -687,6 +689,7 @@ class GasStorageSettingFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
+
                     selectedSensor.gasColor =
                         viewmodel.gasColorMap[viewmodel.gasType[position]]!!
 
