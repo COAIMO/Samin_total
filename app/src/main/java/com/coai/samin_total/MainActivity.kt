@@ -39,6 +39,7 @@ import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
 import com.coai.samin_total.database.*
 import com.coai.samin_total.databinding.ActivityMainBinding
+import com.coai.uikit.GlobalUiTimer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -133,6 +134,8 @@ class MainActivity : AppCompatActivity() {
 
         setFragment()
         sendAlert()
+
+
 //        alertAQThread = Thread {
 //            while (true) {
 //                try {
@@ -145,6 +148,7 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        }
 //        alertAQThread?.start()
+        Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler())
     }
 
     fun bindSerialService() {
@@ -280,8 +284,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         hideNavigationBar()
         bindSerialService()
-//        GlobalUiTimer.getInstance().activity = this
-        startModbusService(SaminModbusService::class.java, svcConnection, null)
+        GlobalUiTimer.getInstance().activity = this
+        if (mainViewModel.controlData.useModbusRTU)
+            startModbusService(SaminModbusService::class.java, svcConnection, null)
+
         uiError()
         super.onResume()
     }
@@ -846,6 +852,14 @@ class MainActivity : AppCompatActivity() {
             )
             dao.insertData(data)
         }
+    }
+    inner class ExceptionHandler: Thread.UncaughtExceptionHandler {
+        override fun uncaughtException(t: Thread, e: Throwable) {
+            e.printStackTrace()
+            android.os.Process.killProcess(android.os.Process.myPid())
+            System.exit(10)
+        }
+
     }
 }
 

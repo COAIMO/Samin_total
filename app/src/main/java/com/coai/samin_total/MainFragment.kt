@@ -54,7 +54,10 @@ class MainFragment : Fragment() {
     lateinit var shared: SaminSharedPreference
     private lateinit var onBackPressed: OnBackPressedCallback
     var backKeyPressedTime: Long = 0
+    private var taskRefresh: Thread? = null
     private var btn_Count = 0
+    private var isOnTaskRefesh: Boolean = true
+    var heartbeatCount: UByte = 0u
     //    lateinit var db: SaminDataBase
 
     override fun onAttach(context: Context) {
@@ -92,6 +95,26 @@ class MainFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         uiError()
+        isOnTaskRefesh = true
+        taskRefresh = Thread() {
+            try {
+                while (isOnTaskRefesh) {
+                    heartbeatCount++
+                    activity?.runOnUiThread() {
+                        mBinding.gasDockMainStatus.heartBeat(heartbeatCount)
+                        mBinding.gasRoomMainStatus.heartBeat(heartbeatCount)
+                        mBinding.oxygenMainStatus.heartBeat(heartbeatCount)
+                        mBinding.steamerMainStatus.heartBeat(heartbeatCount)
+                        mBinding.wasteLiquorMainStatus.heartBeat(heartbeatCount)
+                    }
+                    Thread.sleep(50)
+                }
+
+            } catch (e: Exception) {
+//                e.printStackTrace()
+            }
+        }
+        taskRefresh?.start()
 //        isrunthUIError = true
 //        viewmodel.steamerAlert.value = false
 //        thUIError = Thread {
@@ -143,6 +166,10 @@ class MainFragment : Fragment() {
         isrunthUIError = false
         thUIError?.interrupt()
         thUIError?.join()
+
+        isOnTaskRefesh = false
+        taskRefresh?.interrupt()
+        taskRefresh?.join()
     }
 
     var isFirst = true
@@ -178,6 +205,7 @@ class MainFragment : Fragment() {
         } else {
             mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
         }
+
         return mBinding.root
     }
 
