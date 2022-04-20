@@ -703,10 +703,10 @@ class AQDataParser(viewModel: MainViewModel) {
         }
         val key =
             littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
-        Log.d(
-            "ProcessWasteLiquor",
-            "Model:${tmp.model} ID: ${tmp.id} Port:${tmp.port}}// data:${data}"
-        )
+//        Log.d(
+//            "ProcessWasteLiquor",
+//            "Model:${tmp.model} ID: ${tmp.id} Port:${tmp.port}}// data:${data}"
+//        )
         if (data == 0) {
             tmp.isAlert = true
             if (alertMap[id] == null) {
@@ -787,63 +787,65 @@ class AQDataParser(viewModel: MainViewModel) {
                 )
             }
         } else {
-            if (alertMap.containsKey(id)) {
-                tmp.isAlert = false
-//                viewModel.oxyenAlert.value = false
-                viewModel.addAlertInfo(
-                    id,
-                    SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "산소농도 정상",
-                        tmp.port,
-                        false
+            if (tmp.setMaxValue < oxygenValue) {
+                tmp.isAlert = true
+                if (alertMap[id] == null) {
+                    alertMap.put(id, true)
+//                viewModel.oxyenAlert.value = true
+                    viewModel.addAlertInfo(
+                        id,
+                        SetAlertData(
+                            getLatest_time(hmapLastedDate[id]!!),
+                            tmp.modelByte.toInt(),
+                            tmp.id,
+                            "산소농도 상한 값",
+                            tmp.port,
+                            true
+                        )
                     )
-                )
+                }
+            } else {
                 if (alertMap.containsKey(id)) {
-                    alertMap.remove(id)
+                    tmp.isAlert = false
+//                viewModel.oxyenAlert.value = false
+                    viewModel.addAlertInfo(
+                        id,
+                        SetAlertData(
+                            getLatest_time(hmapLastedDate[id]!!),
+                            tmp.modelByte.toInt(),
+                            tmp.id,
+                            "산소농도 정상",
+                            tmp.port,
+                            false
+                        )
+                    )
+                    if (alertMap.containsKey(id)) {
+                        alertMap.remove(id)
+                    }
                 }
             }
+
+//            if (alertMap.containsKey(id)) {
+//                tmp.isAlert = false
+////                viewModel.oxyenAlert.value = false
+//                viewModel.addAlertInfo(
+//                    id,
+//                    SetAlertData(
+//                        getLatest_time(hmapLastedDate[id]!!),
+//                        tmp.modelByte.toInt(),
+//                        tmp.id,
+//                        "산소농도 정상",
+//                        tmp.port,
+//                        false
+//                    )
+//                )
+//                if (alertMap.containsKey(id)) {
+//                    alertMap.remove(id)
+//                }
+//            }
         }
 
-        if (tmp.setMaxValue < oxygenValue) {
-            tmp.isAlert = true
-            if (alertMap[id] == null) {
-                alertMap.put(id, true)
-//                viewModel.oxyenAlert.value = true
-                viewModel.addAlertInfo(
-                    id,
-                    SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "산소농도 상한 값",
-                        tmp.port,
-                        false
-                    )
-                )
-            }
-        } else {
-            if (alertMap.containsKey(id)) {
-                tmp.isAlert = false
-//                viewModel.oxyenAlert.value = false
-                viewModel.addAlertInfo(
-                    id,
-                    SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "산소농도 정상",
-                        tmp.port,
-                        false
-                    )
-                )
-                if (alertMap.containsKey(id)) {
-                    alertMap.remove(id)
-                }
-            }
-        }
+
         val bro = setAQport[id] as SetOxygenViewData
         bro.setValue = tmp.setValue
         bro.isAlert = tmp.isAlert
@@ -982,16 +984,18 @@ class AQDataParser(viewModel: MainViewModel) {
                 datas.add(littleEndianConversion(arg.slice(11..12).toByteArray()))
                 datas.add(littleEndianConversion(arg.slice(13..14).toByteArray()))
 
-                for (t in 0..3) {
-                    datas[t] = getLPF(
-                        datas[t], littleEndianConversion(
-                            byteArrayOf(
-                                model,
-                                id.toByte(),
-                                (t + 1).toByte()
+                if (model == 1.toByte() || model == 2.toByte() || model == 5.toByte()) {
+                    for (t in 0..3) {
+                        datas[t] = getLPF(
+                            datas[t], littleEndianConversion(
+                                byteArrayOf(
+                                    model,
+                                    id.toByte(),
+                                    (t + 1).toByte()
+                                )
                             )
                         )
-                    )
+                    }
                 }
 
                 when (model) {
@@ -1127,14 +1131,18 @@ class AQDataParser(viewModel: MainViewModel) {
 
     //들어온값이 이상하게 들어오는거 방지
     fun getLPF(x: Int, key: Int): Int {
-
+        var tmpx = x
+        if (x > 1023) {
+            Log.d("ERROR", "이상한 데이터 : $x")
+            tmpx = exSensorData[key] ?: 0
+        }
         if (!exSensorData.containsKey(key)) {
-            exSensorData.put(key, x)
-            return x
+            exSensorData.put(key, tmpx)
+            return tmpx
         }
 
         val prev = exSensorData[key]
-        val ret = alphavalue * prev!! + (1 - alphavalue) * x
+        val ret = alphavalue * prev!! + (1 - alphavalue) * tmpx
         return ret.toInt()
     }
 
