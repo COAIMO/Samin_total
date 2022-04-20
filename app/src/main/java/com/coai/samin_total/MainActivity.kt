@@ -123,7 +123,8 @@ class MainActivity : AppCompatActivity() {
         callbackThread = Thread()
         shared = SaminSharedPreference(this)
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        mainViewModel.controlData = shared.loadBoardSetData(SaminSharedPreference.CONTROL) as ControlData
+        mainViewModel.controlData =
+            shared.loadBoardSetData(SaminSharedPreference.CONTROL) as ControlData
         tmp = AQDataParser(mainViewModel)
 
         this.viewModel = ViewModelProvider(
@@ -273,6 +274,8 @@ class MainActivity : AppCompatActivity() {
 
             } else if (receiveParser.packetName == "RequestFeedBackPing") {
                 if (receiveParser.mProtocol.size >= 14) {
+                    Log.d(mainTAG, "RequestFeedBackPing : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
+
                     tmp.Parser(receiveParser.mProtocol)
                 }
             }
@@ -729,14 +732,15 @@ class MainActivity : AppCompatActivity() {
         thUIError?.start()
     }
 
-//    private var modbusService: SaminModbusService? = null
+    //    private var modbusService: SaminModbusService? = null
     var mHandler: MyHandler? = null
 
 //    var mModelMonitorValues: ModelMonitorValues = ModelMonitorValues()
 
     private val svcConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(arg0: ComponentName, arg1: IBinder) {
-            mainViewModel.modbusService = (arg1 as SaminModbusService.SaminModbusServiceBinder).getService()
+            mainViewModel.modbusService =
+                (arg1 as SaminModbusService.SaminModbusServiceBinder).getService()
             mHandler?.let { mainViewModel.modbusService?.setHandler(it) }
 
 //            mainViewModel.modbusService?.svcHandler?.let {
@@ -766,7 +770,8 @@ class MainActivity : AppCompatActivity() {
                     mainViewModel.controlData.modbusBaudrate.value,
                     8,
                     1,
-                    0)
+                    0
+                )
 
 //            mainViewModel.mObserveModelMonitorValues =
 //                ObserveModelMonitorValues(mainViewModel.modbusService!!, mainViewModel.mModelMonitorValues)

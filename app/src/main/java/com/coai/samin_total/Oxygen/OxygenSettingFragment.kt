@@ -36,7 +36,6 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class OxygenSettingFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var mBinding: FragmentOxygenSettingBinding
@@ -54,8 +53,12 @@ class OxygenSettingFragment : Fragment() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
                 selectedSensor.setMinValue = s.toString().toFloat()
+                for (i in setOxygenInfo) {
+                    i.setMinValue = selectedSensor.setMinValue
+                }
             }
         }
+
         override fun afterTextChanged(s: Editable?) {
         }
     }
@@ -65,9 +68,13 @@ class OxygenSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.setMaxValue = s.toString().toInt()
+                selectedSensor.setMaxValue = s.toString().toFloat()
+                for (i in setOxygenInfo) {
+                    i.setMaxValue = selectedSensor.setMaxValue
+                }
             }
         }
+
         override fun afterTextChanged(s: Editable?) {
         }
     }
@@ -138,19 +145,25 @@ class OxygenSettingFragment : Fragment() {
             }
         }
         //이전 저장된 설정 데이터 불러와서 적용.
-        val exData =shared.loadBoardSetData(SaminSharedPreference.OXYGEN) as MutableList<SetOxygenViewData>
-        if (exData.isNotEmpty()){
-            for ((index, value) in exData.withIndex()){
+        val exData =
+            shared.loadBoardSetData(SaminSharedPreference.OXYGEN) as MutableList<SetOxygenViewData>
+        if (exData.isNotEmpty()) {
+            for ((index, value) in exData.withIndex()) {
                 setOxygenInfo.set(index, value)
             }
         }
+
         recycleAdapter.submitList(setOxygenInfo)
 
         mBinding.oxygenBoardSettingView.mSensorUsable_Sw.setOnClickListener {
             selectedSensor.usable = mBinding.oxygenBoardSettingView.mSensorUsable_Sw.isChecked
         }
-        mBinding.oxygenBoardSettingView.mOxygen_minValue_et.addTextChangedListener(mOxygen_minValueWatcher)
-        mBinding.oxygenBoardSettingView.mOxygen_maxValue_et.addTextChangedListener(mOxygen_maxValueWatcher)
+        mBinding.oxygenBoardSettingView.mOxygen_minValue_et.addTextChangedListener(
+            mOxygen_minValueWatcher
+        )
+        mBinding.oxygenBoardSettingView.mOxygen_maxValue_et.addTextChangedListener(
+            mOxygen_maxValueWatcher
+        )
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.OXYGENMAINFRAGMENT)
         }
@@ -177,6 +190,7 @@ class OxygenSettingFragment : Fragment() {
         }
 
     }
+
     private fun setSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
             requireContext(),
@@ -194,6 +208,7 @@ class OxygenSettingFragment : Fragment() {
                 ) {
                     selectedSensor.sensorType = viewmodel.oxygenSensorType[position]
                 }
+
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     Toast.makeText(context, "센서 타입을 선택해주세요.", Toast.LENGTH_SHORT)
                         .show()
@@ -207,7 +222,7 @@ class OxygenSettingFragment : Fragment() {
         while (iter.hasNext()) {
             iter.forEach {
 //                if (it.usable){
-                    viewmodel.OxygenDataLiveList.add(it)
+                viewmodel.OxygenDataLiveList.add(it)
 //                }else iter.remove()
             }
         }
@@ -216,6 +231,23 @@ class OxygenSettingFragment : Fragment() {
         for (i in viewmodel.OxygenDataLiveList.value!!) {
             buff.add(i)
         }
+        //마스터
+        viewmodel.oxygenMasterData = SetOxygenViewData("0",0,0)
+        val oxygenMaxValueAvg = setOxygenInfo.map {
+            it.setMaxValue
+        }.average().toFloat()
+        val oxygenMinValueAvg = setOxygenInfo.map {
+            it.setMinValue
+        }.average().toFloat()
+        viewmodel.oxygenMasterData =
+            SetOxygenViewData(
+                "MasterOxyen",
+                11,
+                11,
+                setMinValue = oxygenMinValueAvg,
+                setMaxValue = oxygenMaxValueAvg
+            )
+
         shared.saveBoardSetData(SaminSharedPreference.OXYGEN, buff)
         activity?.tmp?.LoadSetting()
         activity?.onFragmentChange(MainViewModel.OXYGENMAINFRAGMENT)
@@ -240,6 +272,7 @@ class OxygenSettingFragment : Fragment() {
                 }
             }
     }
+
     private fun hideKeyboard() {
         if (getActivity() != null && requireActivity().currentFocus != null) {
             // 프래그먼트기 때문에 getActivity() 사용

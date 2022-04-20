@@ -88,13 +88,31 @@ class OxygenMainFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         isOnTaskRefesh = true
+//        taskRefresh = Thread() {
+//            try {
+//                while (isOnTaskRefesh) {
+//                    heartbeatCount++
+//                    for (tmp in viewmodel.OxygenDataLiveList.value!!.iterator()) {
+//                        tmp.heartbeatCount = heartbeatCount
+//                    }
+//                    synchronized(lockobj) {
+//                        activity?.runOnUiThread() {
+//                            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+//                        }
+//                    }
+//                    Thread.sleep(50)
+//                }
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
+//        taskRefresh?.start()
+
         taskRefresh = Thread() {
             try {
                 while (isOnTaskRefesh) {
                     heartbeatCount++
-                    for (tmp in viewmodel.OxygenDataLiveList.value!!.iterator()) {
-                        tmp.heartbeatCount = heartbeatCount
-                    }
+                    viewmodel.oxygenMasterData.heartbeatCount = heartbeatCount
                     synchronized(lockobj) {
                         activity?.runOnUiThread() {
                             recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
@@ -147,7 +165,7 @@ class OxygenMainFragment : Fragment() {
                 synchronized(lockobj) {
                     mBinding.oxygenRecyclerView.apply {
                         itemSpace.changeSpace(
-                            100, 800, 100, 800
+                            220, 800, 200, 800
                         )
                     }
                 }
@@ -175,13 +193,13 @@ class OxygenMainFragment : Fragment() {
                 layoutManager =
                     GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
                 itemSpace.changeSpace(
-                    100, 800, 100, 800
+                    220, 800, 200, 800
                 )
             } else {
                 layoutManager =
                     GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
                 itemSpace.changeSpace(
-                    50, 650, 50, 650
+                    80, 650, 80, 650
                 )
             }
             addItemDecoration(itemSpace)
@@ -195,21 +213,15 @@ class OxygenMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-//        viewmodel.OxygenDataLiveList.clear(true)
-//        val oxygenDataSet = shared.loadBoardSetData(SaminSharedPreference.OXYGEN) as MutableList<SetOxygenViewData>
-//        if (oxygenDataSet.isNotEmpty()){
-//            for (i in oxygenDataSet){
-//                viewmodel.OxygenDataLiveList.add(i)
-//            }
-//        }
-        val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
-        recycleAdapter.submitList(mm)
-//        recycleAdapter.notifyDataSetChanged()
-//        activity?.tmp?.LoadSetting()
+
+//        val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
+//        recycleAdapter.submitList(mm)
+
+        recycleAdapter.setData(viewmodel.oxygenMasterData)
 
         if (viewmodel.oxygenViewZoomState) {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
-        }else{
+        } else {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
     }
