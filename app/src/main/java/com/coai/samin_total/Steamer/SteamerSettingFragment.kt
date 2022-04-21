@@ -53,6 +53,7 @@ class SteamerSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
+                if (selectedSensor == null) return
                 selectedSensor?.isTempMin = s.toString().toInt()
             }
 

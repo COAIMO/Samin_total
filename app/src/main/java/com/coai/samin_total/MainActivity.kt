@@ -273,8 +273,13 @@ class MainActivity : AppCompatActivity() {
 
             } else if (receiveParser.packetName == "RequestFeedBackPing") {
                 if (receiveParser.mProtocol.size >= 14) {
-                    Log.d(mainTAG, "RequestFeedBackPing${HexDump.dumpHexString(msg.obj as ByteArray)}")
+                    if (receiveParser.mProtocol[2] == 3.toByte()) {
+                        Log.d(
+                            mainTAG,
+                            "RequestFeedBackPing${HexDump.dumpHexString(msg.obj as ByteArray)}"
+                        )
 
+                    }
                     tmp.Parser(receiveParser.mProtocol)
                 }
             }
@@ -300,11 +305,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendMultipartSend(model: Byte, data: ByteArray) {
         var idx = 0
-        val chunked = data.asSequence().chunked(20){
+        val chunked = data.asSequence().chunked(20) {
             it.toByteArray()
         }
         val protocol = SaminProtocol()
-        for (tmp in chunked){
+        for (tmp in chunked) {
             protocol.BuildProtocoOld(SaminModel.Setting.byte.toByte(), model, idx.toByte(), tmp)
             sendProtocolToSerial(protocol.mProtocol.clone())
             println(HexDump.dumpHexString(protocol.mProtocol))
@@ -326,7 +331,7 @@ class MainActivity : AppCompatActivity() {
         sendMultipartSend(1.toByte(), bytes)
         val obj = ProtoBuf.decodeFromByteArray<List<SetGasStorageViewData>>(bytes)
         println(obj)
-        
+
         isAnotherJob = false
     }
 
@@ -597,10 +602,11 @@ class MainActivity : AppCompatActivity() {
     var alertThread: Thread? = null
     lateinit var alertAQThread: Thread
 
-    private fun sendProtocolToSerial(data: ByteArray){
+    private fun sendProtocolToSerial(data: ByteArray) {
         if (!mainViewModel.controlData.isMirrorMode)
             serialService?.sendData(data)
     }
+
     private fun sendAlert() {
 
 //        alertSoundTask = kotlin.concurrent.timer(period = 100) {
@@ -912,7 +918,8 @@ class MainActivity : AppCompatActivity() {
             dao.insertData(data)
         }
     }
-    inner class ExceptionHandler: Thread.UncaughtExceptionHandler {
+
+    inner class ExceptionHandler : Thread.UncaughtExceptionHandler {
         override fun uncaughtException(t: Thread, e: Throwable) {
             e.printStackTrace()
             android.os.Process.killProcess(android.os.Process.myPid())

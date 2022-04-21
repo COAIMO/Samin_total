@@ -51,6 +51,7 @@ class GasStorageSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
+                if (selectedSensor == null) return
                 if (selectedSensor?.ViewType == 1 || selectedSensor?.ViewType == 2) {
                     selectedSensor?.pressure_Min = s.toString().toFloat()
 
@@ -97,6 +98,7 @@ class GasStorageSettingFragment : Fragment() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
 //                selectedSensor.pressure_Max = s.toString().toFloat()
+                if (selectedSensor == null) return
                 if (selectedSensor?.ViewType == 1 || selectedSensor?.ViewType == 2) {
                     selectedSensor?.pressure_Max = s.toString().toFloat()
 
@@ -144,6 +146,7 @@ class GasStorageSettingFragment : Fragment() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
 //                selectedSensor.zeroPoint = s.toString().toFloat()
+                if (selectedSensor == null) return
                 try {
                     if (selectedSensor?.ViewType == 1 || selectedSensor?.ViewType == 2) {
                         selectedSensor?.zeroPoint = s.toString().toFloat()
@@ -194,6 +197,7 @@ class GasStorageSettingFragment : Fragment() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
 //                selectedSensor.rewardValue = s.toString().toFloat()
+                if (selectedSensor == null) return
                 try {
                     if (selectedSensor?.ViewType == 1 || selectedSensor?.ViewType == 2) {
                         selectedSensor?.rewardValue = s.toString().toFloat()
@@ -244,6 +248,7 @@ class GasStorageSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
+                if (selectedSensor == null) return
                 selectedSensor?.gasName = s.toString()
                 if (selectedSensor?.ViewType == 1 || selectedSensor?.ViewType == 2) {
                     if (selectedSensor?.port == 1) {

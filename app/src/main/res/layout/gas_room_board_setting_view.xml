@@ -210,7 +210,6 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="numberDecimal|numberSigned"
-        android:maxLength="4"
         android:text="-10"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"

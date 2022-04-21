@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -35,7 +36,6 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class GasRoomSettingFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var mBinding: FragmentGasRoomSettingBinding
@@ -44,7 +44,7 @@ class GasRoomSettingFragment : Fragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var recycleAdapter: GasRoomSetting_RecycleAdapter
     private val setGasSensorInfo = mutableListOf<SetGasRoomViewData>()
-    var selectedSensor:SetGasRoomViewData? = null
+    var selectedSensor: SetGasRoomViewData? = null
     lateinit var shared: SaminSharedPreference
 
     private val mMaxCapatextWatcher = object : TextWatcher {
@@ -53,6 +53,7 @@ class GasRoomSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
+                if (selectedSensor == null) return
                 selectedSensor?.pressure_Max = s.toString().toFloat()
             }
 
@@ -69,6 +70,7 @@ class GasRoomSettingFragment : Fragment() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
                 try {
+                    if (selectedSensor == null) return
                     selectedSensor?.zeroPoint = s.toString().toFloat()
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -83,13 +85,14 @@ class GasRoomSettingFragment : Fragment() {
     }
     private val mRewardValuetextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
                 try {
+                    if (selectedSensor == null) return
                     selectedSensor?.rewardValue = s.toString().toFloat()
-
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -100,6 +103,7 @@ class GasRoomSettingFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
         }
 
+
     }
     private val mSlopeValuetextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -108,6 +112,7 @@ class GasRoomSettingFragment : Fragment() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
                 try {
+                    if (selectedSensor == null) return
                     selectedSensor?.slopeValue = s.toString().toFloat()
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -126,6 +131,7 @@ class GasRoomSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
+                if (selectedSensor == null) return
                 selectedSensor?.gasName = s.toString()
             }
 
@@ -153,6 +159,8 @@ class GasRoomSettingFragment : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
+//        getActivity()?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+
     }
 
     override fun onDetach() {
@@ -251,6 +259,21 @@ class GasRoomSettingFragment : Fragment() {
         mBinding.gasRoomSettingLayout.setOnClickListener {
             hideKeyboard()
         }
+//        mBinding.gasRoomBoardSettingView.mRewardValue_Et.setOnFocusChangeListener { v, hasFocus ->
+//            if (!hasFocus) {
+//                selectedSensor?.rewardValue =  mBinding.gasRoomBoardSettingView.mRewardValue_Et.text.toString().toFloat()
+//            }
+//        }
+//        mBinding.gasRoomBoardSettingView.mSlopeValue_Et.setOnFocusChangeListener { v, hasFocus ->
+//            if (!hasFocus) {
+//                selectedSensor?.slopeValue =  mBinding.gasRoomBoardSettingView.mSlopeValue_Et.text.toString().toFloat()
+//            }
+//        }
+//        mBinding.gasRoomBoardSettingView.mZeroPoint_Et.setOnFocusChangeListener { v, hasFocus ->
+//            if (!hasFocus) {
+//                selectedSensor?.zeroPoint =  mBinding.gasRoomBoardSettingView.mZeroPoint_Et.text.toString().toFloat()
+//            }
+//        }
     }
 
     private fun initRecycler() {
@@ -403,5 +426,9 @@ class GasRoomSettingFragment : Fragment() {
                 InputMethodManager.HIDE_NOT_ALWAYS
             )
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 }

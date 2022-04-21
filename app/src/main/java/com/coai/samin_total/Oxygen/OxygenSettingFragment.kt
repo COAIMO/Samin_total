@@ -52,6 +52,7 @@ class OxygenSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
+                if (selectedSensor == null) return
                 selectedSensor?.setMinValue = s.toString().toFloat()
                 for (i in setOxygenInfo) {
                     i.setMinValue = selectedSensor!!.setMinValue
@@ -68,6 +69,7 @@ class OxygenSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
+                if (selectedSensor == null) return
                 selectedSensor?.setMaxValue = s.toString().toFloat()
                 for (i in setOxygenInfo) {
                     i.setMaxValue = selectedSensor!!.setMaxValue
