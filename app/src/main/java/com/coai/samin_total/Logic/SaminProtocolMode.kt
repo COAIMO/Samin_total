@@ -6,7 +6,8 @@ enum class SaminProtocolMode(val byte: Byte) {
     SetBuzzer(0xA2.toByte()),
     SetLED(0xA2.toByte()),
     CheckProductPing(0x00.toByte()),
-    RequestFeedBackPing(0x01.toByte());
+    RequestFeedBackPing(0x01.toByte()),
+    SettingShare(0xB0.toByte());
     companion object : EnumCodesMap<SaminProtocolMode, Byte> by EnumCodesMap({ it.byte })
 
 }

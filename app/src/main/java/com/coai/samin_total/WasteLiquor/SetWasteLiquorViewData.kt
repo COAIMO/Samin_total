@@ -1,5 +1,8 @@
 package com.coai.samin_total.WasteLiquor
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class SetWasteLiquorViewData(
     val model: String,
     val id:Int,

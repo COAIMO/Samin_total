@@ -1,7 +1,9 @@
 package com.coai.samin_total.GasRoom
 
 import android.graphics.Color
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class SetGasRoomViewData(
     val model: String,
     val id: Int,

@@ -310,7 +310,7 @@ class MainFragment : Fragment() {
             activity?.serialService?.sendData(data)
     }
 
-    private fun scanModel() {
+    private fun  scanModel() {
         getProgressShow()
         sendThread = Thread {
             try {

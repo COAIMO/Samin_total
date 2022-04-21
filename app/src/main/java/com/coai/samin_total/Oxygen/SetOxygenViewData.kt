@@ -1,5 +1,8 @@
 package com.coai.samin_total.Oxygen
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class SetOxygenViewData(
     val model: String,
     var id: Int = 0,

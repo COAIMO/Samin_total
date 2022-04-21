@@ -1,5 +1,8 @@
 package com.coai.samin_total.Steamer
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class SetSteamerViewData(
     val model: String,
     val id: Int,

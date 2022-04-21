@@ -10,6 +10,7 @@ class SaminProtocol {
     lateinit var mProtocol: ByteArray
     var modelName: String? = null
     var packetName: String? = null
+    var packet : Byte = 0
     /**
      * model (저장고, 룸, 폐액통...)
      * id 대상 ID
@@ -48,7 +49,7 @@ class SaminProtocol {
         mProtocol[4] = (2 + data.size).toByte()
         mProtocol[6] = mode
 
-        data.copyInto(mProtocol!!, 6, 0, data.size)
+        data.copyInto(mProtocol!!, 7, 0, data.size)
         mProtocol!![5] = checkSum()
     }
 
@@ -152,6 +153,7 @@ class SaminProtocol {
             if (mProtocol[4] + 4 + 1 > data.size)
                 return ret
 
+            packet = mProtocol[6]
             packetName = SaminProtocolMode.codesMap[mProtocol[6]].toString()
             val chksum = checkSum()
             //이후 아래 2줄삭제

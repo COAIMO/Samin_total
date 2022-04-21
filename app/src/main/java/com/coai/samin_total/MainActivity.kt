@@ -1,10 +1,8 @@
 package com.coai.samin_total
 
 import android.annotation.SuppressLint
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.app.ProgressDialog
+import android.content.*
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
@@ -24,13 +22,17 @@ import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
 import com.coai.samin_total.GasRoom.GasRoomSettingFragment
+import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.*
 import com.coai.samin_total.Oxygen.OxygenMainFragment
 import com.coai.samin_total.Oxygen.OxygenSettingFragment
+import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Service.SerialService
+import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerMainFragment
 import com.coai.samin_total.Steamer.SteamerSettingFragment
+import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
 import com.coai.samin_total.database.*
@@ -87,6 +89,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pageListAdapter: PageListAdapter
 
     private var protocolBuffers = ConcurrentHashMap<Short, ByteArray>()
+    
+    // 설정 수신 버퍼
+    private val recvGasStorageBuffers = HashMap<Int, ByteArray>()
+    private val recvGasRoomBuffers = HashMap<Int, ByteArray>()
+    private val recvWasteBuffers = HashMap<Int, ByteArray>()
+    private val recvOxygenBuffers = HashMap<Int, ByteArray>()
+    private val recvSteamerBuffers = HashMap<Int, ByteArray>()
+    private val recvOxygenMSTBuffers = HashMap<Int, ByteArray>()
+    private val recvModemapBuffers = HashMap<Int, ByteArray>()
 
     companion object {
         var SERVICE_CONNECTED = false
@@ -178,6 +189,8 @@ class MainActivity : AppCompatActivity() {
             //핸들러 연결
             serialService!!.setHandler(datahandler)
             isSerialSevice = true
+
+            sendSettingValues()
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -202,6 +215,19 @@ class MainActivity : AppCompatActivity() {
         protocolBuffers.clear()
     }
 
+    private fun sortMapByKey(map: Map<Int, ByteArray>): LinkedHashMap<Int, ByteArray> {
+        val entries = LinkedList(map.entries)
+
+        entries.sortBy { it.key }
+
+        val result = LinkedHashMap<Int, ByteArray>()
+        for(entry in entries) {
+            result[entry.key] = entry.value
+        }
+
+        return result
+    }
+
     @ExperimentalUnsignedTypes
     val datahandler = object : Handler(Looper.getMainLooper()) {
         @SuppressLint("SimpleDateFormat")
@@ -223,62 +249,260 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
             }
-//            Log.d(mainTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
-            val receiveParser = SaminProtocol()
-            receiveParser.parse(msg.obj as ByteArray)
 
-            if (receiveParser.packetName == "CheckProductPing") {
-                val model = receiveParser.modelName
-                val input_id = receiveParser.mProtocol.get(3)
-                when (model) {
-                    "GasDock" -> {
-                        val id = receiveParser.mProtocol.get(3)
-                        gasdock_ids_list.add(id)
-                        val ids = gasdock_ids_list.distinct().toByteArray()
-                        mainViewModel.modelMap[model] = ids
-                        mainViewModel.modelMapInt[1] = ids
-                    }
-                    "GasRoom" -> {
-                        val id = receiveParser.mProtocol.get(3)
-                        gasroom_ids_list.add(id)
-                        val ids = gasroom_ids_list.distinct().toByteArray()
-                        mainViewModel.modelMap[model] = ids
-                        mainViewModel.modelMapInt[2] = ids
-                    }
-                    "WasteLiquor" -> {
-                        val id = receiveParser.mProtocol.get(3)
-                        wasteLiquor_ids_list.add(id)
-                        val ids = wasteLiquor_ids_list.distinct().toByteArray()
-                        mainViewModel.modelMap[model] = ids
-                        mainViewModel.modelMapInt[3] = ids
-                    }
-                    "Oxygen" -> {
-                        val id = receiveParser.mProtocol.get(3)
-                        oxygen_ids_list.add(id)
-                        val ids = oxygen_ids_list.distinct().toByteArray()
-                        mainViewModel.modelMap[model] = ids
-                        mainViewModel.modelMapInt[4] = ids
-                    }
-                    "Steamer" -> {
-                        val id = receiveParser.mProtocol.get(3)
-                        steamer_ids_list.add(id)
-                        val ids = steamer_ids_list.distinct().toByteArray()
-                        mainViewModel.modelMap[model] = ids
-                        mainViewModel.modelMapInt[5] = ids
-                    }
-                    "Temp_Hum" -> {
+            try {
+//                Log.d(mainTAG, "datahandler : \n${HexDump.dumpHexString(msg.obj as ByteArray)}")
+                val receiveParser = SaminProtocol()
+                receiveParser.parse(msg.obj as ByteArray)
 
+//            Log.d(mainTAG, "receiveParser.packetName : ${receiveParser.packetName}")
+//            if (receiveParser.packetName == "CheckProductPing") {
+                if (receiveParser.packet == SaminProtocolMode.CheckProductPing.byte) {
+                    val model = receiveParser.modelName
+                    val input_id = receiveParser.mProtocol.get(3)
+                    when (model) {
+                        "GasDock" -> {
+                            val id = receiveParser.mProtocol.get(3)
+                            gasdock_ids_list.add(id)
+                            val ids = gasdock_ids_list.distinct().toByteArray()
+                            mainViewModel.modelMap[model] = ids
+                            mainViewModel.modelMapInt[1] = ids
+                        }
+                        "GasRoom" -> {
+                            val id = receiveParser.mProtocol.get(3)
+                            gasroom_ids_list.add(id)
+                            val ids = gasroom_ids_list.distinct().toByteArray()
+                            mainViewModel.modelMap[model] = ids
+                            mainViewModel.modelMapInt[2] = ids
+                        }
+                        "WasteLiquor" -> {
+                            val id = receiveParser.mProtocol.get(3)
+                            wasteLiquor_ids_list.add(id)
+                            val ids = wasteLiquor_ids_list.distinct().toByteArray()
+                            mainViewModel.modelMap[model] = ids
+                            mainViewModel.modelMapInt[3] = ids
+                        }
+                        "Oxygen" -> {
+                            val id = receiveParser.mProtocol.get(3)
+                            oxygen_ids_list.add(id)
+                            val ids = oxygen_ids_list.distinct().toByteArray()
+                            mainViewModel.modelMap[model] = ids
+                            mainViewModel.modelMapInt[4] = ids
+                        }
+                        "Steamer" -> {
+                            val id = receiveParser.mProtocol.get(3)
+                            steamer_ids_list.add(id)
+                            val ids = steamer_ids_list.distinct().toByteArray()
+                            mainViewModel.modelMap[model] = ids
+                            mainViewModel.modelMapInt[5] = ids
+                        }
+                        "Temp_Hum" -> {
+
+                        }
+                    }
+
+//            } else if (receiveParser.packetName == "RequestFeedBackPing") {
+                } else if (receiveParser.packet == SaminProtocolMode.RequestFeedBackPing.byte) {
+                    if (receiveParser.mProtocol.size >= 14) {
+                        Log.d(
+                            mainTAG,
+                            "RequestFeedBackPing${HexDump.dumpHexString(msg.obj as ByteArray)}"
+                        )
+
+                        tmp.Parser(receiveParser.mProtocol)
+                    }
+                } else if (receiveParser.packet == SaminProtocolMode.SettingShare.byte) {
+//                    Log.d(mainTAG, "receiveParser.packetName : ${receiveParser.packetName}")
+                    Log.d(mainTAG, "datahandler : \n${HexDump.dumpHexString(receiveParser.mProtocol)}")
+                    when(receiveParser.mProtocol.get(2)) {
+                        0x11.toByte() -> {
+                            // 가스 독
+                            recvGasStorageBuffers[receiveParser.mProtocol.get(7).toInt()] = receiveParser.mProtocol.clone()
+                        }
+                        0x12.toByte() -> {
+                            // 가스 룸
+                            recvGasRoomBuffers[receiveParser.mProtocol.get(7).toInt()] = receiveParser.mProtocol.clone()
+                        }
+                        0x13.toByte() -> {
+                            // 폐액통
+                            recvWasteBuffers[receiveParser.mProtocol.get(7).toInt()] = receiveParser.mProtocol.clone()
+                        }
+                        0x14.toByte() -> {
+                            // 산소농도
+                            recvOxygenBuffers[receiveParser.mProtocol.get(7).toInt()] = receiveParser.mProtocol.clone()
+                        }
+                        0x15.toByte() -> {
+                            // 스팀기
+                            recvSteamerBuffers[receiveParser.mProtocol.get(7).toInt()] = receiveParser.mProtocol.clone()
+                        }
+                        0x16.toByte() -> {
+                            // 산소농도 대표
+                            recvOxygenMSTBuffers[receiveParser.mProtocol.get(7).toInt()] = receiveParser.mProtocol.clone()
+                        }
+                        0x17.toByte() -> {
+                            recvModemapBuffers[receiveParser.mProtocol.get(7).toInt()] = receiveParser.mProtocol.clone()
+                        }
+                        0x20.toByte() -> {
+                            // 설정 데이터 전송 완료
+                            Log.d(mainTAG, "설정 데이터 전송 완료 ================")
+
+                            // 가스독 설정 복원
+                            var tmpgas = ByteArray(0)
+                            val sortGas = sortMapByKey(recvGasStorageBuffers)
+                            for (t in sortGas.values){
+                                tmpgas = tmpgas.plus(t.sliceArray(8..t.size-1))
+                            }
+//                            Log.d(mainTAG, "tmpgas : ${HexDump.dumpHexString(tmpgas)}")
+                            try {
+                                val objgas =
+                                    ProtoBuf.decodeFromByteArray<List<SetGasStorageViewData>>(tmpgas)
+                                mainViewModel.GasStorageDataLiveList.clear(true)
+                                for(t in objgas) {
+                                    mainViewModel.GasStorageDataLiveList.add(t)
+                                }
+                                val buff = mutableListOf<SetGasStorageViewData>()
+                                for (i in mainViewModel.GasStorageDataLiveList.value!!) {
+                                    buff.add(i)
+                                }
+                                shared.saveBoardSetData(SaminSharedPreference.GASSTORAGE, buff)
+                            } catch(e : Exception) {
+                                e.printStackTrace()
+                            }
+
+                            // 가스룸 설정 복원
+                            var tmpgasroom = ByteArray(0)
+                            val sortGasroom = sortMapByKey(recvGasRoomBuffers)
+                            for (t in sortGasroom.values){
+                                tmpgasroom = tmpgasroom.plus(t.sliceArray(8..t.size-1))
+                            }
+//                            Log.d(mainTAG, "tmpgasroom : ${HexDump.dumpHexString(tmpgasroom)}")
+                            try {
+                                val objgas =
+                                    ProtoBuf.decodeFromByteArray<List<SetGasRoomViewData>>(tmpgasroom)
+                                mainViewModel.GasRoomDataLiveList.clear(true)
+                                for(t in objgas) {
+                                    mainViewModel.GasRoomDataLiveList.add(t)
+                                }
+                                val buff = mutableListOf<SetGasRoomViewData>()
+                                for (i in mainViewModel.GasRoomDataLiveList.value!!) {
+                                    buff.add(i)
+                                }
+                                shared.saveBoardSetData(SaminSharedPreference.GASROOM, buff)
+                            } catch(e : Exception) {
+                                e.printStackTrace()
+                            }
+
+                            // 폐액통 설정 복원
+                            var tmpwaste= ByteArray(0)
+                            val sortWaste = sortMapByKey(recvWasteBuffers)
+                            for (t in sortWaste.values){
+                                tmpwaste = tmpwaste.plus(t.sliceArray(8..t.size-1))
+                            }
+                            Log.d(mainTAG, "tmpwaste : ${HexDump.dumpHexString(tmpwaste)}")
+                            try {
+                                val objgas =
+                                    ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(tmpwaste)
+                                mainViewModel.WasteLiquorDataLiveList.clear(true)
+                                for(t in objgas) {
+                                    mainViewModel.WasteLiquorDataLiveList.add(t)
+                                }
+                                val buff = mutableListOf<SetWasteLiquorViewData>()
+                                for (i in mainViewModel.WasteLiquorDataLiveList.value!!) {
+                                    buff.add(i)
+                                }
+                                shared.saveBoardSetData(SaminSharedPreference.WASTELIQUOR, buff)
+                            } catch(e : Exception) {
+                                e.printStackTrace()
+                            }
+
+                            // 산소농도 설정 복원
+                            var tmpOxygen= ByteArray(0)
+                            val sortOxygen = sortMapByKey(recvOxygenBuffers)
+                            for (t in sortOxygen.values){
+                                tmpOxygen = tmpOxygen.plus(t.sliceArray(8..t.size-1))
+                            }
+//                            Log.d(mainTAG, "tmpOxygen : ${HexDump.dumpHexString(tmpOxygen)}")
+                            try {
+                                val objgas =
+                                    ProtoBuf.decodeFromByteArray<List<SetOxygenViewData>>(tmpOxygen)
+                                mainViewModel.OxygenDataLiveList.clear(true)
+                                for(t in objgas) {
+                                    mainViewModel.OxygenDataLiveList.add(t)
+                                }
+                                val buff = mutableListOf<SetOxygenViewData>()
+                                for (i in mainViewModel.OxygenDataLiveList.value!!) {
+                                    buff.add(i)
+                                }
+                                shared.saveBoardSetData(SaminSharedPreference.OXYGEN, buff)
+                            } catch(e : Exception) {
+                                e.printStackTrace()
+                            }
+
+                            // 스팀기 설정 복원
+                            var tmpSteamer = ByteArray(0)
+                            var sortSteamer = sortMapByKey(recvSteamerBuffers)
+                            for (t in sortSteamer.values){
+                                tmpSteamer = tmpSteamer.plus(t.sliceArray(8..t.size-1))
+                            }
+//                            Log.d(mainTAG, "tmpSteamer : ${HexDump.dumpHexString(tmpSteamer)}")
+                            try {
+                                val objgas =
+                                    ProtoBuf.decodeFromByteArray<List<SetSteamerViewData>>(tmpSteamer)
+                                mainViewModel.SteamerDataLiveList.clear(true)
+                                for(t in objgas) {
+                                    mainViewModel.SteamerDataLiveList.add(t)
+                                }
+                                val buff = mutableListOf<SetSteamerViewData>()
+                                for (i in mainViewModel.SteamerDataLiveList.value!!) {
+                                    buff.add(i)
+                                }
+                                shared.saveBoardSetData(SaminSharedPreference.STEAMER, buff)
+                            } catch(e : Exception) {
+                                e.printStackTrace()
+                            }
+
+                            // 산소농도 대표 설정 복원
+                            var tmpOxyMST = ByteArray(0)
+                            var sortOxymst = sortMapByKey(recvOxygenMSTBuffers)
+                            for (t in sortOxymst.values){
+                                tmpOxyMST = tmpOxyMST.plus(t.sliceArray(8..t.size-1))
+                            }
+//                            Log.d(mainTAG, "tmpOxyMST : ${HexDump.dumpHexString(tmpOxyMST)}")
+                            try {
+                                val objgas =
+                                    ProtoBuf.decodeFromByteArray<SetOxygenViewData>(tmpOxyMST)
+                                mainViewModel.oxygenMasterData = objgas
+                                shared.saveBoardSetData(SaminSharedPreference.MASTEROXYGEN, mainViewModel.oxygenMasterData!!)
+                            } catch(e : Exception) {
+                                e.printStackTrace()
+                            }
+
+                            var tmpModemap = ByteArray(0)
+                            var sortModemap = sortMapByKey(recvModemapBuffers)
+                            for (t in sortModemap.values){
+                                tmpModemap = tmpModemap.plus(t.sliceArray(8..t.size-1))
+                            }
+                            mainViewModel.modelMap.clear()
+                            try {
+                                val objgas =
+                                    ProtoBuf.decodeFromByteArray<HashMap<String, ByteArray>>(tmpModemap)
+                                for (t in objgas) {
+                                    mainViewModel.modelMap[t.key] = t.value
+                                }
+                                shared.saveHashMap(mainViewModel.modelMap)
+                            } catch(e : Exception) {
+                                e.printStackTrace()
+                            }
+
+                            tmp.LoadSetting()
+                            onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
+                        }
                     }
                 }
-
-            } else if (receiveParser.packetName == "RequestFeedBackPing") {
-                if (receiveParser.mProtocol.size >= 14) {
-                    Log.d(mainTAG, "RequestFeedBackPing${HexDump.dumpHexString(msg.obj as ByteArray)}")
-
-                    tmp.Parser(receiveParser.mProtocol)
-                }
+//            super.handleMessage(msg)iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+            } catch (Ex: Exception) {
+                Ex.printStackTrace()
             }
-            super.handleMessage(msg)
         }
     }
 
@@ -291,24 +515,28 @@ class MainActivity : AppCompatActivity() {
             startModbusService(SaminModbusService::class.java, svcConnection, null)
 
 //        if (mainViewModel.controlData.useSettingShare)
-        sendSettingValues()
 
         uiError()
         super.onResume()
     }
 
 
-    private fun sendMultipartSend(model: Byte, data: ByteArray) {
-        var idx = 0
-        val chunked = data.asSequence().chunked(20){
-            it.toByteArray()
-        }
+    private fun sendMultipartSend(model: Byte, data: ByteArray? = null) {
         val protocol = SaminProtocol()
-        for (tmp in chunked){
-            protocol.BuildProtocoOld(SaminModel.Setting.byte.toByte(), model, idx.toByte(), tmp)
+
+        if (data != null) {
+            val chunked = data!!.asSequence().chunked(40){ t ->
+                t.toByteArray()
+            }
+            var idx = 0
+            for (tmp in chunked){
+                protocol.BuildProtocoOld(model, chunked.count().toByte(), SaminProtocolMode.SettingShare.byte,byteArrayOf(idx.toByte()) + tmp)
+                sendProtocolToSerial(protocol.mProtocol.clone())
+                idx++
+            }
+        } else {
+            protocol.buildProtocol(model, 0.toByte(), SaminProtocolMode.SettingShare.byte,null)
             sendProtocolToSerial(protocol.mProtocol.clone())
-            println(HexDump.dumpHexString(protocol.mProtocol))
-            idx++
         }
     }
 
@@ -317,17 +545,97 @@ class MainActivity : AppCompatActivity() {
      * RS485 라인을 이용해서 설정 전달
      */
     private fun sendSettingValues() {
-        isAnotherJob = true
-        Thread.sleep(100)
+        if (!mainViewModel.controlData.useSettingShare)
+            return
 
-        val data = mainViewModel.GasStorageDataLiveList.value?.toList()
-        val bytes = ProtoBuf.encodeToByteArray(data)
-//        println(HexDump.dumpHexString(bytes))
-        sendMultipartSend(1.toByte(), bytes)
-        val obj = ProtoBuf.decodeFromByteArray<List<SetGasStorageViewData>>(bytes)
-        println(obj)
-        
-        isAnotherJob = false
+        Thread {
+            isAnotherJob = true
+            Thread.sleep(100)
+
+            var bytes: ByteArray? = null
+            var byteRoom: ByteArray? = null
+            var byteWaste: ByteArray? = null
+            var byteOxyzen: ByteArray? = null
+            var byteSteamer: ByteArray? = null
+            var byteOxyzenMst: ByteArray? = null
+            var byteModelmap: ByteArray? = null
+
+            byteModelmap = ProtoBuf.encodeToByteArray(mainViewModel.modelMap)
+
+
+            mainViewModel.GasStorageDataLiveList.value?.let {
+                bytes = ProtoBuf.encodeToByteArray(it.toList())
+            }
+
+            mainViewModel.GasRoomDataLiveList.value?.let {
+                byteRoom = ProtoBuf.encodeToByteArray(it.toList())
+            }
+
+            mainViewModel.WasteLiquorDataLiveList.value?.let {
+                byteWaste = ProtoBuf.encodeToByteArray(it.toList())
+//                var ttt = ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(byteWaste!!)
+//                println(ttt)
+            }
+
+            mainViewModel.OxygenDataLiveList.value?.let {
+                byteOxyzen = ProtoBuf.encodeToByteArray(it.toList())
+            }
+
+            mainViewModel.SteamerDataLiveList.value?.let {
+                byteSteamer = ProtoBuf.encodeToByteArray(it.toList())
+            }
+
+            mainViewModel.oxygenMasterData?.let {
+                byteOxyzenMst = ProtoBuf.encodeToByteArray(it)
+            }
+
+            for (i in 0..2) {
+                // 가스 스토리지
+                bytes?.let {
+                    sendMultipartSend((16 + 1).toByte(), it)
+                    Thread.sleep(40)
+                }
+
+                // 가스 룸
+                byteRoom?.let {
+                    sendMultipartSend((16 + 2).toByte(), it)
+                    Thread.sleep(40)
+                }
+
+                // 폐액통
+                byteWaste?.let {
+                    sendMultipartSend((16 + 3).toByte(), it)
+                    Thread.sleep(40)
+                }
+
+                // 산소
+                byteOxyzen?.let {
+                    sendMultipartSend((16 + 4).toByte(), it)
+                    if (mainViewModel.oxygenMasterData != null) {
+                        byteOxyzenMst?.let {
+                            sendMultipartSend((16 + 6).toByte(), it)
+                            Thread.sleep(40)
+                        }
+                    }
+                }
+
+                // 스팀
+                byteSteamer?.let {
+                    sendMultipartSend((16 + 5).toByte(), it)
+                    Thread.sleep(40)
+                }
+
+                byteModelmap?.let {
+                    sendMultipartSend((16 + 7).toByte(), it)
+                    Thread.sleep(40)
+                }
+
+                sendMultipartSend(32.toByte())
+                Thread.sleep(40)
+            }
+
+            isAnotherJob = false
+        }.start()
     }
 
     override fun onPause() {
