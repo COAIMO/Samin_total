@@ -15,7 +15,7 @@ class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AutoUpdatableAdapter {
 
     var setOxygenViewData = listOf<SetOxygenViewData>()
-    lateinit var masterOxygenData : SetOxygenViewData
+    var masterOxygenData: SetOxygenViewData? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return oxygenViewHodler(
@@ -27,7 +27,11 @@ class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     }
 
     override fun getItemCount(): Int {
-        return 1
+        var count = -1
+        if (masterOxygenData == null) {
+            count = 0
+        }else count =1
+        return count
     }
 
 
@@ -38,12 +42,12 @@ class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
         this.setOxygenViewData = tmp
     }
 
-    fun setData(viewData: SetOxygenViewData){
+    fun setData(viewData: SetOxygenViewData) {
         masterOxygenData = viewData
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as oxygenViewHodler).bind(masterOxygenData)
+        (holder as oxygenViewHodler).bind(masterOxygenData!!)
         holder.setIsRecyclable(false)
     }
 

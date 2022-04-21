@@ -3,13 +3,6 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/activity_main.xml" value="0.17924917491749176" />
-        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/fragment_connect_test.xml" value="0.21403242147923" />
-        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/fragment_control.xml" value="0.1" />
-        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/gas_room_board_setting_view.xml" value="0.10130970724191063" />
-        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/gas_storage_board_setting_view.xml" value="0.14603960396039603" />
-        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/gas_storage_single_view.xml" value="0.10130970724191063" />
-        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total_share/app/src/main/res/layout/layouttest.xml" value="0.20598958333333334" />
         <entry key="..\:/Users/negai/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_dock_main.xml" value="0.125" />
         <entry key="..\:/Users/negai/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_room_main.xml" value="0.125" />
         <entry key="..\:/Users/negai/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_oxygen_main.xml" value="0.125" />
@@ -65,7 +58,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/activity_password.xml" value="0.147265625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/activity_setting.xml" value="0.26484375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/activity_version.xml" value="0.147265625" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/alert_content_view.xml" value="0.1" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/alert_content_view.xml" value="0.33" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/alertlog_view.xml" value="0.155" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/board_info.xml" value="0.405859375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_admin.xml" value="0.25" />
@@ -82,6 +75,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_layout.xml" value="0.244921875" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_main.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_main_setting.xml" value="0.22" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_oxygen_dialog.xml" value="0.5" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_oxygen_main.xml" value="0.24140625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_oxygen_setting.xml" value="0.224609375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/fragment_password.xml" value="0.25" />
@@ -98,7 +92,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_room_view.xml" value="0.184375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_setting_view.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_autochanger_view.xml" value="0.199375" />
-        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_board_setting_view.xml" value="0.5" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_board_setting_view.xml" value="0.33" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_dual_view.xml" value="0.199375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gas_storage_single_view.xml" value="0.184375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/gasdockview.xml" value="0.155625" />
@@ -106,6 +100,7 @@
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/itempage_layout.xml" value="0.218359375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/oxygen_board_setting_view.xml" value="0.247265625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/oxygen_view.xml" value="0.105" />
+        <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/oxygenalert_content_view.xml" value="1.0" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/progressbar_view.xml" value="0.405859375" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/recylce_ex.xml" value="0.141015625" />
         <entry key="..\:/Users/nuri0/Samin_total/app/src/main/res/layout/recylce_ex2.xml" value="0.141015625" />

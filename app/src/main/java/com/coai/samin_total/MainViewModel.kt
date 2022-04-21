@@ -64,7 +64,9 @@ class MainViewModel : ViewModel() {
     val WasteLiquorDataLiveList = MutableListLiveData<SetWasteLiquorViewData>()
     val OxygenDataLiveList = MutableListLiveData<SetOxygenViewData>()
     val SteamerDataLiveList = MutableListLiveData<SetSteamerViewData>()
-    var oxygenMasterData = SetOxygenViewData("0",0,0)
+//    var oxygenMasterData = SetOxygenViewData("0",0,0)
+    var oxygenMasterData:SetOxygenViewData? = null
+    val oxygensData = HashMap<Int, SetOxygenViewData>()
 
     val alertInfo = MutableListLiveData<SetAlertData>()
     val alertMap = ConcurrentHashMap<Int, SetAlertData>()

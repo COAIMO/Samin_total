@@ -15,7 +15,7 @@ data class SetGasStorageViewData(
     var sensorType: String = "WIKAI 160BAR",
     var gasName: String = "Air",
     var gasColor: Int? = Color.parseColor("#6599CD"),
-    var pressure_Min: Float? = 145f,
+    var pressure_Min: Float? = 232f,
     var pressure_Max: Float? = 2320.6f,
     var gasIndex: Int? = null,
     var isAlert: Boolean? = false,

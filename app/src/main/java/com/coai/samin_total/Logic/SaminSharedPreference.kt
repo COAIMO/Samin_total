@@ -27,6 +27,7 @@ class SaminSharedPreference(context: Context) {
         const val STEAMER = "Steamer"
         const val CONTROL = "Control"
         const val LABNAME = "LAB"
+        const val MASTEROXYGEN ="MasterOxygen"
     }
 
     val labName = "Lab - 015"
@@ -113,6 +114,13 @@ class SaminSharedPreference(context: Context) {
                     apply()
                 }
             }
+            "MasterOxygen" -> {
+                val listString = Gson().toJson(data)
+                boardSetDataSharedPreference.edit().apply {
+                    putString(key, listString)
+                    apply()
+                }
+            }
         }
     }
 
@@ -165,6 +173,15 @@ class SaminSharedPreference(context: Context) {
                 setdata = setDataList
             }
             "Control" -> {
+                val data = boardSetDataSharedPreference.getString(key, "")!!
+                var setDataList = ControlData()
+                val token = object : TypeToken<ControlData>() {}.type
+                if (data.isNotEmpty()) {
+                    setDataList = Gson().fromJson(data, token)
+                }
+                setdata = setDataList
+            }
+            "MasterOxygen" -> {
                 val data = boardSetDataSharedPreference.getString(key, "")!!
                 var setDataList = ControlData()
                 val token = object : TypeToken<ControlData>() {}.type
