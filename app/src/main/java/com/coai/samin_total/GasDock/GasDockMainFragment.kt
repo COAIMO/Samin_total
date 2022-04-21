@@ -39,10 +39,8 @@ class GasDockMainFragment : Fragment() {
     private lateinit var onBackPressed: OnBackPressedCallback
     var sending = false
     private val mainViewModel by activityViewModels<MainViewModel>()
-    private var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
-    private var timerTaskRefresh: Timer? = null
     var heartbeatCount: UByte = 0u
     val lockobj = object {}
     lateinit var itemSpace: SpacesItemDecoration
