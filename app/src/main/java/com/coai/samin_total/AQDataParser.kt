@@ -861,7 +861,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
             viewModel.oxygensData.put(key, oxydata)
             if (oxydata.setValue == 0f) {
-                return
+                continue
             } else {
                 oxygenLastValueList.add(oxydata.setValue)
             }
@@ -871,6 +871,7 @@ class AQDataParser(viewModel: MainViewModel) {
         if (viewModel.oxygenMasterData!!.setMinValue > viewModel.oxygenMasterData!!.setValue) {
             viewModel.oxygenMasterData!!.isAlert = true
             if (alertMap[masterKey] == null) {
+                alertMap.put(masterKey, true)
                 viewModel.addAlertInfo(
                     masterKey,
                     SetAlertData(
@@ -891,7 +892,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     viewModel.addAlertInfo(
                         masterKey,
                         SetAlertData(
-                            getLatest_time(hmapLastedDate[masterKey]!!),
+                            getLatest_time(hmapLastedDate[id]!!),
                             4,
                             11,
                             "산소농도 상한 값",
@@ -906,7 +907,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     viewModel.addAlertInfo(
                         masterKey,
                         SetAlertData(
-                            getLatest_time(hmapLastedDate[masterKey]!!),
+                            getLatest_time(hmapLastedDate[id]!!),
                             4,
                             11,
                             "산소농도 정상",

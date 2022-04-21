@@ -273,7 +273,7 @@ class MainActivity : AppCompatActivity() {
 
             } else if (receiveParser.packetName == "RequestFeedBackPing") {
                 if (receiveParser.mProtocol.size >= 14) {
-                    Log.d(mainTAG, "RequestFeedBackPing : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
+                    Log.d(mainTAG, "RequestFeedBackPing${HexDump.dumpHexString(msg.obj as ByteArray)}")
 
                     tmp.Parser(receiveParser.mProtocol)
                 }
@@ -656,6 +656,10 @@ class MainActivity : AppCompatActivity() {
 
                         tmpBits = tmpBits or (1 shl (port - 1)).toByte()
 
+                        mainViewModel.portAlertMapLed[ledkey] = tmpBits
+                        if (id == 11.toByte())
+                            continue
+
                         isAnotherJob = true
                         Thread.sleep(100)
 
@@ -666,7 +670,6 @@ class MainActivity : AppCompatActivity() {
                             sendProtocolToSerial(protocol.mProtocol.clone())
                             Thread.sleep(35)
                         }
-                        Log.d("Test", "tmpBit: $tmpBits")
 
                         if (!tmpBits.equals(tmplast)) {
                             // 경고음 처리전
@@ -680,12 +683,12 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                         }
-                        mainViewModel.portAlertMapLed[ledkey] = tmpBits
 
                         isAnotherJob = false
                     }
                     // 에러가 사라진 AQ 찾기
                     if (diffkeys.size > 0) {
+
                         isAnotherJob = true
                         Thread.sleep(100)
 
@@ -694,19 +697,21 @@ class MainActivity : AppCompatActivity() {
                             val model = aqInfo[1]
                             val id = aqInfo[0]
 
+                            mainViewModel.portAlertMapLed.remove(tmp)
+                            if (id == 11.toByte())
+                                continue
 //                            tabletSoundAlertOff()
                             for (cnt in 0..2) {
                                 protocol.buzzer_Off(model, id)
 //                                serialService?.sendData(protocol.mProtocol.clone())
                                 sendProtocolToSerial(protocol.mProtocol.clone())
-                                Thread.sleep(35)
+//                                Thread.sleep(35)
 
                                 protocol.led_AlertStateByte(model, id, 0.toByte())
 //                                serialService?.sendData(protocol.mProtocol.clone())
                                 sendProtocolToSerial(protocol.mProtocol.clone())
-                                Thread.sleep(35)
+                                Thread.sleep(100)
                             }
-                            mainViewModel.portAlertMapLed.remove(tmp)
                         }
                         isAnotherJob = false
                     }
