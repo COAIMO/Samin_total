@@ -462,10 +462,12 @@ class MainActivity : AppCompatActivity() {
             val protocol = SaminProtocol()
             while (isSending) {
                 try {
-                    if (isAnotherJob) {
-                        while (isAnotherJob) {
-                            Thread.sleep(10)
-                        }
+                    while (mainViewModel.controlData.isMirrorMode) {
+                        Thread.sleep(10)
+                    }
+
+                    while (isAnotherJob) {
+                        Thread.sleep(10)
                     }
 
 //                    for ((model, ids) in mainViewModel.modelMap) {
@@ -489,7 +491,8 @@ class MainActivity : AppCompatActivity() {
                                         protocolBuffers[key] = protocol.mProtocol.clone()
                                     }
                                     protocolBuffers[key]?.let {
-                                        serialService?.sendData(it)
+//                                        serialService?.sendData(it)
+                                        sendAlertProtocol(it)
                                     }
                                 }
 //                            Log.d(mainTAG, "${System.currentTimeMillis()} measureTimeMillis : $elapsed " )
@@ -556,6 +559,11 @@ class MainActivity : AppCompatActivity() {
 
     var alertThread: Thread? = null
     lateinit var alertAQThread: Thread
+
+    private fun sendAlertProtocol(data: ByteArray){
+        if (!mainViewModel.controlData.isMirrorMode)
+            serialService?.sendData(data)
+    }
     private fun sendAlert() {
 
 //        alertSoundTask = kotlin.concurrent.timer(period = 100) {
@@ -618,7 +626,8 @@ class MainActivity : AppCompatActivity() {
                         // LED 경고 상태를 전달.
                         for (cnt in 0..2) {
                             protocol.led_AlertStateByte(model, id, tmpBits)
-                            serialService?.sendData(protocol.mProtocol.clone())
+//                            serialService?.sendData(protocol.mProtocol.clone())
+                            sendAlertProtocol(protocol.mProtocol.clone())
                             Thread.sleep(35)
                         }
                         Log.d("Test", "tmpBit: $tmpBits")
@@ -629,7 +638,8 @@ class MainActivity : AppCompatActivity() {
                                 tabletSoundAlertOn()
                                 protocol.buzzer_On(model, id)
                                 for (cnt in 0..2) {
-                                    serialService?.sendData(protocol.mProtocol.clone())
+//                                    serialService?.sendData(protocol.mProtocol.clone())
+                                    sendAlertProtocol(protocol.mProtocol.clone())
                                     Thread.sleep(35)
                                 }
                             }
@@ -651,11 +661,13 @@ class MainActivity : AppCompatActivity() {
 //                            tabletSoundAlertOff()
                             for (cnt in 0..2) {
                                 protocol.buzzer_Off(model, id)
-                                serialService?.sendData(protocol.mProtocol.clone())
+//                                serialService?.sendData(protocol.mProtocol.clone())
+                                sendAlertProtocol(protocol.mProtocol.clone())
                                 Thread.sleep(35)
 
                                 protocol.led_AlertStateByte(model, id, 0.toByte())
-                                serialService?.sendData(protocol.mProtocol.clone())
+//                                serialService?.sendData(protocol.mProtocol.clone())
+                                sendAlertProtocol(protocol.mProtocol.clone())
                                 Thread.sleep(35)
                             }
                             mainViewModel.portAlertMapLed.remove(tmp)

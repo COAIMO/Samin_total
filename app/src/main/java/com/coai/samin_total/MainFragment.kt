@@ -305,6 +305,11 @@ class MainFragment : Fragment() {
         }
     }
 
+    private fun sendAlertProtocol(data: ByteArray){
+        if (!viewmodel.controlData.isMirrorMode)
+            activity?.serialService?.sendData(data)
+    }
+
     private fun scanModel() {
         getProgressShow()
         sendThread = Thread {
@@ -316,7 +321,8 @@ class MainFragment : Fragment() {
                         for (count in 0..2) {
                             val protocol = SaminProtocol()
                             protocol.checkModel(model.toByte(), id.toByte())
-                            activity?.serialService?.sendData(protocol.mProtocol)
+//                            activity?.serialService?.sendData(protocol.mProtocol)
+                            sendAlertProtocol(protocol.mProtocol)
                             Thread.sleep(40)
                         }
                     }
