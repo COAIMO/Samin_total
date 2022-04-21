@@ -183,12 +183,10 @@ class SaminSharedPreference(context: Context) {
             }
             "MasterOxygen" -> {
                 val data = boardSetDataSharedPreference.getString(key, "")!!
-                var setDataList = ControlData()
-                val token = object : TypeToken<ControlData>() {}.type
+                val token = object : TypeToken<SetOxygenViewData>() {}.type
                 if (data.isNotEmpty()) {
-                    setDataList = Gson().fromJson(data, token)
+                    setdata = Gson().fromJson(data, token)
                 }
-                setdata = setDataList
             }
         }
         return setdata

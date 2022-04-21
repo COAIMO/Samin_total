@@ -422,6 +422,11 @@ class MainFragment : Fragment() {
                 }
             }
 
+            viewmodel.oxygenMasterData = null
+            val oxygenMasterDataSet =
+                (shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)) as SetOxygenViewData
+            viewmodel.oxygenMasterData = oxygenMasterDataSet
+
             activity?.isSending = true
             activity?.tmp?.LoadSetting()
             activity?.callFeedback()

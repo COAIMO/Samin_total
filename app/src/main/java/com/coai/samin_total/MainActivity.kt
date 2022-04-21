@@ -457,6 +457,7 @@ class MainActivity : AppCompatActivity() {
         shared.removeBoardSetData(SaminSharedPreference.WASTELIQUOR)
         shared.removeBoardSetData(SaminSharedPreference.OXYGEN)
         shared.removeBoardSetData(SaminSharedPreference.STEAMER)
+        shared.removeBoardSetData(SaminSharedPreference.MASTEROXYGEN)
         mainViewModel.removeModelMap()
         idsListClear()
     }
