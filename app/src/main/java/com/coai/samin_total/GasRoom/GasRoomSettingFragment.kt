@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -35,7 +36,6 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class GasRoomSettingFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var mBinding: FragmentGasRoomSettingBinding
@@ -44,7 +44,7 @@ class GasRoomSettingFragment : Fragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var recycleAdapter: GasRoomSetting_RecycleAdapter
     private val setGasSensorInfo = mutableListOf<SetGasRoomViewData>()
-    var selectedSensor = SetGasRoomViewData("adsfsd", 0, 0)
+    var selectedSensor: SetGasRoomViewData? = null
     lateinit var shared: SaminSharedPreference
 
     private val mMaxCapatextWatcher = object : TextWatcher {
@@ -53,7 +53,8 @@ class GasRoomSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.pressure_Max = s.toString().toFloat()
+                if (selectedSensor == null) return
+                selectedSensor?.pressure_Max = s.toString().toFloat()
             }
 
         }
@@ -69,7 +70,8 @@ class GasRoomSettingFragment : Fragment() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
                 try {
-                    selectedSensor.zeroPoint = s.toString().toFloat()
+                    if (selectedSensor == null) return
+                    selectedSensor?.zeroPoint = s.toString().toFloat()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -83,13 +85,14 @@ class GasRoomSettingFragment : Fragment() {
     }
     private val mRewardValuetextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
                 try {
-                    selectedSensor.rewardValue = s.toString().toFloat()
-
+                    if (selectedSensor == null) return
+                    selectedSensor?.rewardValue = s.toString().toFloat()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -100,6 +103,7 @@ class GasRoomSettingFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
         }
 
+
     }
     private val mSlopeValuetextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -108,7 +112,8 @@ class GasRoomSettingFragment : Fragment() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
                 try {
-                    selectedSensor.slopeValue = s.toString().toFloat()
+                    if (selectedSensor == null) return
+                    selectedSensor?.slopeValue = s.toString().toFloat()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -126,7 +131,8 @@ class GasRoomSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.gasName = s.toString()
+                if (selectedSensor == null) return
+                selectedSensor?.gasName = s.toString()
             }
 
         }
@@ -153,12 +159,15 @@ class GasRoomSettingFragment : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
+//        getActivity()?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+
     }
 
     override fun onDetach() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+        selectedSensor = null
     }
 
     override fun onCreateView(
@@ -177,26 +186,26 @@ class GasRoomSettingFragment : Fragment() {
             override fun onClick(v: View, position: Int) {
                 selectedSensor = setGasSensorInfo[position]
                 mBinding.gasRoomBoardSettingView.mSensorUsable_Sw.isChecked =
-                    selectedSensor.usable
+                    selectedSensor!!.usable
 
                 mBinding.gasRoomBoardSettingView.mSensorType_Sp.setSelection(
                     viewmodel.gasSensorType.indexOf(
-                        selectedSensor.sensorType
+                        selectedSensor!!.sensorType
                     )
                 )
                 mBinding.gasRoomBoardSettingView.mGasType_Sp.setSelection(
                     viewmodel.gasType.indexOf(
-                        selectedSensor.gasName
+                        selectedSensor!!.gasName
                     )
                 )
-                mBinding.gasRoomBoardSettingView.mMaxCapa_Et.setText(selectedSensor.pressure_Max.toString())
-                mBinding.gasRoomBoardSettingView.mRewardValue_Et.setText(selectedSensor.rewardValue.toString())
-                mBinding.gasRoomBoardSettingView.mZeroPoint_Et.setText(selectedSensor.zeroPoint.toString())
-                mBinding.gasRoomBoardSettingView.mSlopeValue_Et.setText(selectedSensor.slopeValue.toString())
-                mBinding.gasRoomBoardSettingView.mSelectedGas_Et.setText(selectedSensor.gasName.toString())
+                mBinding.gasRoomBoardSettingView.mMaxCapa_Et.setText(selectedSensor?.pressure_Max.toString())
+                mBinding.gasRoomBoardSettingView.mRewardValue_Et.setText(selectedSensor?.rewardValue.toString())
+                mBinding.gasRoomBoardSettingView.mZeroPoint_Et.setText(selectedSensor?.zeroPoint.toString())
+                mBinding.gasRoomBoardSettingView.mSlopeValue_Et.setText(selectedSensor?.slopeValue.toString())
+                mBinding.gasRoomBoardSettingView.mSelectedGas_Et.setText(selectedSensor?.gasName.toString())
 
                 mBinding.gasRoomBoardSettingView.mSelectedGasColor_sp.setSelection(
-                    viewmodel.gasColorValue.indexOf(selectedSensor.gasColor)
+                    viewmodel.gasColorValue.indexOf(selectedSensor?.gasColor)
                 )
             }
         })
@@ -226,7 +235,7 @@ class GasRoomSettingFragment : Fragment() {
         recycleAdapter.submitList(setGasSensorInfo)
 
         mBinding.gasRoomBoardSettingView.mSensorUsable_Sw.setOnClickListener {
-            selectedSensor.usable = mBinding.gasRoomBoardSettingView.mSensorUsable_Sw.isChecked
+            selectedSensor?.usable = mBinding.gasRoomBoardSettingView.mSensorUsable_Sw.isChecked
         }
         mBinding.gasRoomBoardSettingView.mMaxCapa_Et.addTextChangedListener(mMaxCapatextWatcher)
         mBinding.gasRoomBoardSettingView.mZeroPoint_Et.addTextChangedListener(
@@ -250,6 +259,21 @@ class GasRoomSettingFragment : Fragment() {
         mBinding.gasRoomSettingLayout.setOnClickListener {
             hideKeyboard()
         }
+//        mBinding.gasRoomBoardSettingView.mRewardValue_Et.setOnFocusChangeListener { v, hasFocus ->
+//            if (!hasFocus) {
+//                selectedSensor?.rewardValue =  mBinding.gasRoomBoardSettingView.mRewardValue_Et.text.toString().toFloat()
+//            }
+//        }
+//        mBinding.gasRoomBoardSettingView.mSlopeValue_Et.setOnFocusChangeListener { v, hasFocus ->
+//            if (!hasFocus) {
+//                selectedSensor?.slopeValue =  mBinding.gasRoomBoardSettingView.mSlopeValue_Et.text.toString().toFloat()
+//            }
+//        }
+//        mBinding.gasRoomBoardSettingView.mZeroPoint_Et.setOnFocusChangeListener { v, hasFocus ->
+//            if (!hasFocus) {
+//                selectedSensor?.zeroPoint =  mBinding.gasRoomBoardSettingView.mZeroPoint_Et.text.toString().toFloat()
+//            }
+//        }
     }
 
     private fun initRecycler() {
@@ -312,10 +336,10 @@ class GasRoomSettingFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
-                    selectedSensor.sensorType = viewmodel.gasSensorType[position]
-                    mBinding.gasRoomBoardSettingView.mMaxCapa_Et.setText(viewmodel.maxPressureMap[selectedSensor.sensorType].toString())
-                    selectedSensor.pressure_Max =
-                        viewmodel.maxPressureMap[selectedSensor.sensorType]!!
+                    selectedSensor?.sensorType = viewmodel.gasSensorType[position]
+                    mBinding.gasRoomBoardSettingView.mMaxCapa_Et.setText(viewmodel.maxPressureMap[selectedSensor?.sensorType].toString())
+                    selectedSensor?.pressure_Max =
+                        viewmodel.maxPressureMap[selectedSensor?.sensorType]!!
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -340,7 +364,7 @@ class GasRoomSettingFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
-                    selectedSensor.gasColor =
+                    selectedSensor?.gasColor =
                         viewmodel.gasColorMap[viewmodel.gasType[position]]!!
                 }
 
@@ -402,5 +426,9 @@ class GasRoomSettingFragment : Fragment() {
                 InputMethodManager.HIDE_NOT_ALWAYS
             )
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 }

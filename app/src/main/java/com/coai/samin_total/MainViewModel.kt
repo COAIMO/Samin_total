@@ -82,7 +82,7 @@ class MainViewModel : ViewModel() {
 
     val modelMap = HashMap<String, ByteArray>()
     val modelMapInt = HashMap<Int, ByteArray>()
-
+    val hasKey = HashMap<Int, Int>()
     val gasColorMap = hashMapOf<String, Int>(
         "Air" to Color.parseColor("#6599CD"),
         "Ar" to Color.parseColor("#333333"),

@@ -44,7 +44,7 @@ class OxygenSettingFragment : Fragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var recycleAdapter: OxygenSetting_RecyclerAdapter
     private val setOxygenInfo = mutableListOf<SetOxygenViewData>()
-    var selectedSensor = SetOxygenViewData("adsfsd", 0, 0)
+    var selectedSensor: SetOxygenViewData? = null
     lateinit var shared: SaminSharedPreference
     private val mOxygen_minValueWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -52,9 +52,10 @@ class OxygenSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.setMinValue = s.toString().toFloat()
+                if (selectedSensor == null) return
+                selectedSensor?.setMinValue = s.toString().toFloat()
                 for (i in setOxygenInfo) {
-                    i.setMinValue = selectedSensor.setMinValue
+                    i.setMinValue = selectedSensor!!.setMinValue
                 }
             }
         }
@@ -68,9 +69,10 @@ class OxygenSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.setMaxValue = s.toString().toFloat()
+                if (selectedSensor == null) return
+                selectedSensor?.setMaxValue = s.toString().toFloat()
                 for (i in setOxygenInfo) {
-                    i.setMaxValue = selectedSensor.setMaxValue
+                    i.setMaxValue = selectedSensor!!.setMaxValue
                 }
             }
         }
@@ -102,6 +104,7 @@ class OxygenSettingFragment : Fragment() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+        selectedSensor = null
     }
 
     override fun onCreateView(
@@ -119,15 +122,15 @@ class OxygenSettingFragment : Fragment() {
             override fun onClick(v: View, position: Int) {
                 selectedSensor = setOxygenInfo[position]
                 mBinding.oxygenBoardSettingView.mSensorUsable_Sw.isChecked =
-                    selectedSensor.usable
+                    selectedSensor!!.usable
 
                 mBinding.oxygenBoardSettingView.mSensorType_Sp.setSelection(
                     viewmodel.oxygenSensorType.indexOf(
-                        selectedSensor.sensorType
+                        selectedSensor!!.sensorType
                     )
                 )
-                mBinding.oxygenBoardSettingView.mOxygen_minValue_et.setText(selectedSensor.setMinValue.toString())
-                mBinding.oxygenBoardSettingView.mOxygen_maxValue_et.setText(selectedSensor.setMaxValue.toString())
+                mBinding.oxygenBoardSettingView.mOxygen_minValue_et.setText(selectedSensor?.setMinValue.toString())
+                mBinding.oxygenBoardSettingView.mOxygen_maxValue_et.setText(selectedSensor?.setMaxValue.toString())
             }
         })
 
@@ -156,7 +159,7 @@ class OxygenSettingFragment : Fragment() {
         recycleAdapter.submitList(setOxygenInfo)
 
         mBinding.oxygenBoardSettingView.mSensorUsable_Sw.setOnClickListener {
-            selectedSensor.usable = mBinding.oxygenBoardSettingView.mSensorUsable_Sw.isChecked
+            selectedSensor?.usable = mBinding.oxygenBoardSettingView.mSensorUsable_Sw.isChecked
         }
         mBinding.oxygenBoardSettingView.mOxygen_minValue_et.addTextChangedListener(
             mOxygen_minValueWatcher
@@ -206,7 +209,7 @@ class OxygenSettingFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
-                    selectedSensor.sensorType = viewmodel.oxygenSensorType[position]
+                    selectedSensor?.sensorType = viewmodel.oxygenSensorType[position]
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {

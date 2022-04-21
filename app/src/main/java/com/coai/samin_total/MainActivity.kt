@@ -1,8 +1,10 @@
 package com.coai.samin_total
 
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
-import android.content.*
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
@@ -89,7 +91,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pageListAdapter: PageListAdapter
 
     private var protocolBuffers = ConcurrentHashMap<Short, ByteArray>()
-    
+
     // 설정 수신 버퍼
     private val recvGasStorageBuffers = HashMap<Int, ByteArray>()
     private val recvGasRoomBuffers = HashMap<Int, ByteArray>()
@@ -304,11 +306,13 @@ class MainActivity : AppCompatActivity() {
 //            } else if (receiveParser.packetName == "RequestFeedBackPing") {
                 } else if (receiveParser.packet == SaminProtocolMode.RequestFeedBackPing.byte) {
                     if (receiveParser.mProtocol.size >= 14) {
-                        Log.d(
-                            mainTAG,
-                            "RequestFeedBackPing${HexDump.dumpHexString(msg.obj as ByteArray)}"
-                        )
+                        if (receiveParser.mProtocol[2] == 3.toByte()) {
+                            Log.d(
+                                mainTAG,
+                                "RequestFeedBackPing${HexDump.dumpHexString(msg.obj as ByteArray)}"
+                            )
 
+                        }
                         tmp.Parser(receiveParser.mProtocol)
                     }
                 } else if (receiveParser.packet == SaminProtocolMode.SettingShare.byte) {
@@ -515,6 +519,7 @@ class MainActivity : AppCompatActivity() {
             startModbusService(SaminModbusService::class.java, svcConnection, null)
 
 //        if (mainViewModel.controlData.useSettingShare)
+        sendSettingValues()
 
         uiError()
         super.onResume()
@@ -885,8 +890,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun tabletSoundAlertOff() {
-
         alertTask?.cancel()
+        alertTask = null
+        mediaPlayer = null
     }
 
     var isTabletAlert = false
@@ -904,7 +910,7 @@ class MainActivity : AppCompatActivity() {
     var alertThread: Thread? = null
     lateinit var alertAQThread: Thread
 
-    private fun sendProtocolToSerial(data: ByteArray){
+    private fun sendProtocolToSerial(data: ByteArray) {
         if (!mainViewModel.controlData.isMirrorMode)
             serialService?.sendData(data)
     }

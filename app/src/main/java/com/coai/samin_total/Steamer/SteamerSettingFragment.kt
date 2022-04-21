@@ -45,7 +45,7 @@ class SteamerSettingFragment : Fragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var recycleAdapter: SteamerSetting_RecyclerAdapter
     private val setSteamerInfo = mutableListOf<SetSteamerViewData>()
-    var selectedSensor = SetSteamerViewData("adsfsd", 0, 0)
+    var selectedSensor: SetSteamerViewData? = null
     lateinit var shared: SaminSharedPreference
     private val mTemp_minValueWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -53,7 +53,8 @@ class SteamerSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.isTempMin = s.toString().toInt()
+                if (selectedSensor == null) return
+                selectedSensor?.isTempMin = s.toString().toInt()
             }
 
         }
@@ -86,6 +87,7 @@ class SteamerSettingFragment : Fragment() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+        selectedSensor = null
     }
 
     override fun onCreateView(
@@ -104,19 +106,19 @@ class SteamerSettingFragment : Fragment() {
             override fun onClick(v: View, position: Int) {
                 selectedSensor = setSteamerInfo[position]
                 mBinding.steamerBoardSettingView.mSensorUsable_Sw.isChecked =
-                    selectedSensor.usable
+                    selectedSensor!!.usable
 
                 mBinding.steamerBoardSettingView.mTempSensorType_Sp.setSelection(
                     viewmodel.tempSensorType.indexOf(
-                        selectedSensor.temp_SensorType
+                        selectedSensor!!.temp_SensorType
                     )
                 )
                 mBinding.steamerBoardSettingView.mLevelSensorType_Sp.setSelection(
                     viewmodel.levelSensorType.indexOf(
-                        selectedSensor.level_SensorType
+                        selectedSensor!!.level_SensorType
                     )
                 )
-                mBinding.steamerBoardSettingView.mTemp_minValue_et.setText(selectedSensor.isTempMin.toString())
+                mBinding.steamerBoardSettingView.mTemp_minValue_et.setText(selectedSensor?.isTempMin.toString())
             }
         })
 
@@ -161,7 +163,7 @@ class SteamerSettingFragment : Fragment() {
         recycleAdapter.submitList(setSteamerInfo)
 
         mBinding.steamerBoardSettingView.mSensorUsable_Sw.setOnClickListener {
-            selectedSensor.usable = mBinding.steamerBoardSettingView.mSensorUsable_Sw.isChecked
+            selectedSensor?.usable = mBinding.steamerBoardSettingView.mSensorUsable_Sw.isChecked
         }
         mBinding.steamerBoardSettingView.mTemp_minValue_et.addTextChangedListener(
             mTemp_minValueWatcher
@@ -213,7 +215,7 @@ class SteamerSettingFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
-                    selectedSensor.temp_SensorType = viewmodel.tempSensorType[position]
+                    selectedSensor?.temp_SensorType = viewmodel.tempSensorType[position]
                 }
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     Toast.makeText(context, "센서 타입을 선택해주세요.", Toast.LENGTH_SHORT)
@@ -236,7 +238,7 @@ class SteamerSettingFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
-                    selectedSensor.level_SensorType = viewmodel.waterSensorType[position]
+                    selectedSensor?.level_SensorType = viewmodel.waterSensorType[position]
                 }
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     Toast.makeText(context, "센서 타입을 선택해주세요.", Toast.LENGTH_SHORT)

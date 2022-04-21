@@ -41,7 +41,7 @@ class WasteWaterSettingFragment : Fragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var recycleAdapter: WasteLiquorSetting_RecyclerAdapter
     private val setWasteLiquorInfo = mutableListOf<SetWasteLiquorViewData>()
-    var selectedSensor = SetWasteLiquorViewData("adsfsd", 0, 0)
+    var selectedSensor: SetWasteLiquorViewData? = null
     lateinit var shared: SaminSharedPreference
     private val mWasteNameWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -49,7 +49,8 @@ class WasteWaterSettingFragment : Fragment() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
-                selectedSensor.liquidName = s.toString()
+                if (selectedSensor == null) return
+                selectedSensor?.liquidName = s.toString()
             }
 
         }
@@ -82,6 +83,7 @@ class WasteWaterSettingFragment : Fragment() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+        selectedSensor = null
     }
 
     override fun onCreateView(
@@ -99,14 +101,14 @@ class WasteWaterSettingFragment : Fragment() {
             override fun onClick(v: View, position: Int) {
                 selectedSensor = setWasteLiquorInfo[position]
                 mBinding.wasteLiquorBoardSettingView.mSensorUsable_Sw.isChecked =
-                    selectedSensor.usable
+                    selectedSensor!!.usable
 
                 mBinding.wasteLiquorBoardSettingView.mSensorType_Sp.setSelection(
                     viewmodel.tempSensorType.indexOf(
-                        selectedSensor.level_SensorType
+                        selectedSensor?.level_SensorType
                     )
                 )
-                mBinding.wasteLiquorBoardSettingView.mWasteName_Et.setText(selectedSensor.liquidName)
+                mBinding.wasteLiquorBoardSettingView.mWasteName_Et.setText(selectedSensor?.liquidName)
             }
         })
 
@@ -159,7 +161,7 @@ class WasteWaterSettingFragment : Fragment() {
         recycleAdapter.submitList(setWasteLiquorInfo)
 
         mBinding.wasteLiquorBoardSettingView.mSensorUsable_Sw.setOnClickListener {
-            selectedSensor.usable = mBinding.wasteLiquorBoardSettingView.mSensorUsable_Sw.isChecked
+            selectedSensor!!.usable = mBinding.wasteLiquorBoardSettingView.mSensorUsable_Sw.isChecked
         }
         mBinding.wasteLiquorBoardSettingView.mWasteName_Et.addTextChangedListener(
             mWasteNameWatcher
@@ -181,7 +183,7 @@ class WasteWaterSettingFragment : Fragment() {
         while (iter.hasNext()) {
             iter.forEach {
 //                if (it.usable) {
-                    viewmodel.WasteLiquorDataLiveList.add(it)
+                viewmodel.WasteLiquorDataLiveList.add(it)
 //                } else iter.remove()
             }
         }
@@ -214,6 +216,7 @@ class WasteWaterSettingFragment : Fragment() {
                 }
             }
     }
+
     private fun hideKeyboard() {
         if (getActivity() != null && requireActivity().currentFocus != null) {
             // 프래그먼트기 때문에 getActivity() 사용

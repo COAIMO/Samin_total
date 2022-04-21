@@ -338,12 +338,13 @@ class MainFragment : Fragment() {
                 }
                 initView()
             }
-            getProgressHidden()
+            createHasKey()
             if (!activity?.isSending!!) {
                 activity?.callFeedback()
                 activity?.isSending = true
             }
             shared.saveHashMap(viewmodel.modelMap)
+            getProgressHidden()
 
         }
         sendThread.start()
@@ -576,10 +577,12 @@ class MainFragment : Fragment() {
                         }
                     }
 
-                    if (targets.isNotEmpty()) {
-                        mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-                    } else {
-                        mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
+                    activity?.runOnUiThread {
+                        if (targets.isNotEmpty()) {
+                            mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+                        } else {
+                            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
+                        }
                     }
                     Thread.sleep(100)
                 }
@@ -590,5 +593,54 @@ class MainFragment : Fragment() {
         thUIError?.start()
     }
 
-
+    private fun createHasKey(){
+        for ((key, value) in viewmodel.modelMapInt) {
+            val model = key.toByte()
+            for (i in value) {
+                val id = i
+                if (key == 1 || key == 2 || key == 3) {
+                    for (port in 1..4) {
+                        val createkey =
+                            littleEndianConversion(
+                                byteArrayOf(
+                                    model,
+                                    id,
+                                    port.toByte()
+                                )
+                            )
+                        viewmodel.hasKey.put(key, createkey)
+                    }
+                } else if (key == 4) {
+                    val createkey =
+                        littleEndianConversion(
+                            byteArrayOf(
+                                model,
+                                id,
+                                1.toByte()
+                            )
+                        )
+                    viewmodel.hasKey.put(key, createkey)
+                } else if (key == 5) {
+                    for (port in 1..2) {
+                        val createkey =
+                            littleEndianConversion(
+                                byteArrayOf(
+                                    model,
+                                    id,
+                                    port.toByte()
+                                )
+                            )
+                        viewmodel.hasKey.put(key, createkey)
+                    }
+                }
+            }
+        }
+    }
+    private fun littleEndianConversion(bytes: ByteArray): Int {
+        var result = 0
+        for (i in bytes.indices) {
+            result = result or (bytes[i].toUByte().toInt() shl 8 * i)
+        }
+        return result
+    }
 }

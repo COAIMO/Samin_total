@@ -479,8 +479,8 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         } else if (tmp.pressure_Min!! < tmp.pressureLeft!!) {
+            tmp.isAlertLeft = false
             if (alertMap.containsKey(id)) {
-                tmp.isAlertLeft = false
 //                viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
                     id,
@@ -502,7 +502,6 @@ class AQDataParser(viewModel: MainViewModel) {
 
         if (tmp.pressure_Min!! > tmp.pressureRight!!) {
             tmp.isAlertRight = true
-
             if (alertMap2[id] == null) {
                 alertMap2.put(id, true)
 //                viewModel.gasStorageAlert.value = true
@@ -520,8 +519,8 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         } else if (tmp.pressure_Min!! < tmp.pressureRight!!) {
+            tmp.isAlertRight = false
             if (alertMap2.containsKey(id)) {
-                tmp.isAlertRight = false
 //                viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
                     id + 65536,
@@ -1228,6 +1227,14 @@ class AQDataParser(viewModel: MainViewModel) {
     fun timeoutAQCheckStep() {
         val baseTime = System.currentTimeMillis() - 1000 * 60
         val oldDatas = hmapLastedDate.filter { it.value < baseTime }
+
+        //기존의 가지고있던 키와 다른 키가 들어올경우 삭제(가비지 데이터땜에)
+        for (i in viewModel.hasKey.values) {
+            if (!hmapLastedDate.containsKey(i)){
+                hmapLastedDate.remove(i)
+            }
+        }
+
 
         val lastaqs = lostConnectAQs.keys.toMutableList()
         for (tmp in oldDatas) {
