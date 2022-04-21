@@ -38,6 +38,20 @@ class SaminProtocol {
         mProtocol[5] = checkSum()
     }
 
+    fun BuildProtocoOld(model: Byte, id: Byte, mode: Byte, data: ByteArray) {
+        val protocolSize: Int = 7 + data.size
+        mProtocol = ByteArray(protocolSize)
+        mProtocol[0] = 0xFF.toByte()
+        mProtocol[1] = 0xFE.toByte()
+        mProtocol[2] = model
+        mProtocol[3] = id
+        mProtocol[4] = (2 + data.size).toByte()
+        mProtocol[6] = mode
+
+        data.copyInto(mProtocol!!, 6, 0, data.size)
+        mProtocol!![5] = checkSum()
+    }
+
     @OptIn(ExperimentalUnsignedTypes::class)
     fun checkSum(): Byte {
         //if()

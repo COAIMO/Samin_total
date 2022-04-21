@@ -7,7 +7,8 @@ enum class SaminModel(val byte: UByte) {
     WasteLiquor(0x03.toUByte()),
     Oxygen(0x04.toUByte()),
     Steamer(0x05.toUByte()),
-    Temp_Hum(0x06.toUByte());
+    Temp_Hum(0x06.toUByte()),
+    Setting(0xA0.toUByte());
     companion object : EnumCodesMap<SaminModel, UByte> by EnumCodesMap({ it.byte })
 }
 inline fun <reified E : Enum<E>, K> EnumCodesMap(crossinline getKey: (E) -> K) = object : EnumCodesMap<E, K> {

@@ -1,7 +1,6 @@
 package com.coai.samin_total
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -15,17 +14,14 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
-import com.coai.libsaminmodbus.model.ModelMonitorValues
-import com.coai.libsaminmodbus.model.ObserveModelMonitorValues
-import com.coai.libsaminmodbus.service.InputRegister
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.ScanDialogFragment
 import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.GasDockMainFragment
 import com.coai.samin_total.GasDock.GasStorageSettingFragment
+import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
 import com.coai.samin_total.GasRoom.GasRoomSettingFragment
 import com.coai.samin_total.Logic.*
@@ -44,6 +40,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromByteArray
+import kotlinx.serialization.encodeToByteArray
+import kotlinx.serialization.protobuf.ProtoBuf
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
@@ -291,8 +290,44 @@ class MainActivity : AppCompatActivity() {
         if (mainViewModel.controlData.useModbusRTU)
             startModbusService(SaminModbusService::class.java, svcConnection, null)
 
+//        if (mainViewModel.controlData.useSettingShare)
+        sendSettingValues()
+
         uiError()
         super.onResume()
+    }
+
+
+    private fun sendMultipartSend(model: Byte, data: ByteArray) {
+        var idx = 0
+        val chunked = data.asSequence().chunked(20){
+            it.toByteArray()
+        }
+        val protocol = SaminProtocol()
+        for (tmp in chunked){
+            protocol.BuildProtocoOld(SaminModel.Setting.byte.toByte(), model, idx.toByte(), tmp)
+            sendProtocolToSerial(protocol.mProtocol.clone())
+            println(HexDump.dumpHexString(protocol.mProtocol))
+            idx++
+        }
+    }
+
+    /**
+     * 설정 동기화
+     * RS485 라인을 이용해서 설정 전달
+     */
+    private fun sendSettingValues() {
+        isAnotherJob = true
+        Thread.sleep(100)
+
+        val data = mainViewModel.GasStorageDataLiveList.value?.toList()
+        val bytes = ProtoBuf.encodeToByteArray(data)
+//        println(HexDump.dumpHexString(bytes))
+        sendMultipartSend(1.toByte(), bytes)
+        val obj = ProtoBuf.decodeFromByteArray<List<SetGasStorageViewData>>(bytes)
+        println(obj)
+        
+        isAnotherJob = false
     }
 
     override fun onPause() {
@@ -492,7 +527,7 @@ class MainActivity : AppCompatActivity() {
                                     }
                                     protocolBuffers[key]?.let {
 //                                        serialService?.sendData(it)
-                                        sendAlertProtocol(it)
+                                        sendProtocolToSerial(it)
                                     }
                                 }
 //                            Log.d(mainTAG, "${System.currentTimeMillis()} measureTimeMillis : $elapsed " )
@@ -560,7 +595,7 @@ class MainActivity : AppCompatActivity() {
     var alertThread: Thread? = null
     lateinit var alertAQThread: Thread
 
-    private fun sendAlertProtocol(data: ByteArray){
+    private fun sendProtocolToSerial(data: ByteArray){
         if (!mainViewModel.controlData.isMirrorMode)
             serialService?.sendData(data)
     }
@@ -627,7 +662,7 @@ class MainActivity : AppCompatActivity() {
                         for (cnt in 0..2) {
                             protocol.led_AlertStateByte(model, id, tmpBits)
 //                            serialService?.sendData(protocol.mProtocol.clone())
-                            sendAlertProtocol(protocol.mProtocol.clone())
+                            sendProtocolToSerial(protocol.mProtocol.clone())
                             Thread.sleep(35)
                         }
                         Log.d("Test", "tmpBit: $tmpBits")
@@ -639,7 +674,7 @@ class MainActivity : AppCompatActivity() {
                                 protocol.buzzer_On(model, id)
                                 for (cnt in 0..2) {
 //                                    serialService?.sendData(protocol.mProtocol.clone())
-                                    sendAlertProtocol(protocol.mProtocol.clone())
+                                    sendProtocolToSerial(protocol.mProtocol.clone())
                                     Thread.sleep(35)
                                 }
                             }
@@ -662,12 +697,12 @@ class MainActivity : AppCompatActivity() {
                             for (cnt in 0..2) {
                                 protocol.buzzer_Off(model, id)
 //                                serialService?.sendData(protocol.mProtocol.clone())
-                                sendAlertProtocol(protocol.mProtocol.clone())
+                                sendProtocolToSerial(protocol.mProtocol.clone())
                                 Thread.sleep(35)
 
                                 protocol.led_AlertStateByte(model, id, 0.toByte())
 //                                serialService?.sendData(protocol.mProtocol.clone())
-                                sendAlertProtocol(protocol.mProtocol.clone())
+                                sendProtocolToSerial(protocol.mProtocol.clone())
                                 Thread.sleep(35)
                             }
                             mainViewModel.portAlertMapLed.remove(tmp)
