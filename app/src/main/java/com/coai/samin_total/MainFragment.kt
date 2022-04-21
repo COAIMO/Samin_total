@@ -576,10 +576,12 @@ class MainFragment : Fragment() {
                         }
                     }
 
-                    if (targets.isNotEmpty()) {
-                        mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-                    } else {
-                        mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
+                    activity?.runOnUiThread {
+                        if (targets.isNotEmpty()) {
+                            mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+                        } else {
+                            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
+                        }
                     }
                     Thread.sleep(100)
                 }

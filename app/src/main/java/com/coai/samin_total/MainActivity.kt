@@ -577,8 +577,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun tabletSoundAlertOff() {
-
         alertTask?.cancel()
+        alertTask = null
+        mediaPlayer = null
     }
 
     var isTabletAlert = false
