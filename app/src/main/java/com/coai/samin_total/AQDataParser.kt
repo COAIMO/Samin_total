@@ -1197,7 +1197,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
     fun getLatest_time(time: Long): String {
         val dateformat: SimpleDateFormat =
-            SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale("ko", "KR"))
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("ko", "KR"))
         val date: Date = Date(time)
         return dateformat.format(date)
     }

@@ -97,7 +97,9 @@ class ControlFragment : Fragment() {
         tmp.useSettingShare = mBinding.swConnectSetting.isChecked
         shared.saveBoardSetData(SaminSharedPreference.CONTROL, tmp)
         Thread.sleep(500)
-        exitProcess(-1)
+        android.os.Process.killProcess(android.os.Process.myPid())
+        System.exit(10)
+
     }
 
     override fun onCreateView(
