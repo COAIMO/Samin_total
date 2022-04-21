@@ -134,7 +134,7 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapLastedDate[key] = System.currentTimeMillis()
         }
 
-        val tmp = viewModel.oxygenMasterData
+//        val tmp = viewModel.oxygenMasterData
 //        val key = littleEndianConversion(
 //            byteArrayOf(
 //                tmp.modelByte,
@@ -786,7 +786,6 @@ class AQDataParser(viewModel: MainViewModel) {
             tmp.isAlert = true
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
-//                viewModel.oxyenAlert.value = true
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -804,7 +803,6 @@ class AQDataParser(viewModel: MainViewModel) {
                 tmp.isAlert = true
                 if (alertMap[id] == null) {
                     alertMap.put(id, true)
-//                viewModel.oxyenAlert.value = true
                     viewModel.addAlertInfo(
                         id,
                         SetAlertData(
@@ -820,7 +818,6 @@ class AQDataParser(viewModel: MainViewModel) {
             } else {
                 if (alertMap.containsKey(id)) {
                     tmp.isAlert = false
-//                viewModel.oxyenAlert.value = false
                     viewModel.addAlertInfo(
                         id,
                         SetAlertData(
@@ -861,12 +858,18 @@ class AQDataParser(viewModel: MainViewModel) {
 //            val oxyid = aqInfo[2].toInt()
 //            val port = aqInfo[1].toInt()
             val oxydata = (value as SetOxygenViewData)
-            oxygenLastValueList.add(oxydata.setValue)
+
+            viewModel.oxygensData.put(key, oxydata)
+            if (oxydata.setValue == 0f) {
+                return
+            } else {
+                oxygenLastValueList.add(oxydata.setValue)
+            }
         }
 
-        viewModel.oxygenMasterData.setValue = oxygenLastValueList.average().toFloat()
-        if (viewModel.oxygenMasterData.setMinValue > viewModel.oxygenMasterData.setValue ) {
-            viewModel.oxygenMasterData.isAlert = true
+        viewModel.oxygenMasterData!!.setValue = oxygenLastValueList.average().toFloat()
+        if (viewModel.oxygenMasterData!!.setMinValue > viewModel.oxygenMasterData!!.setValue) {
+            viewModel.oxygenMasterData!!.isAlert = true
             if (alertMap[masterKey] == null) {
                 viewModel.addAlertInfo(
                     masterKey,
@@ -881,8 +884,8 @@ class AQDataParser(viewModel: MainViewModel) {
                 )
             }
         } else {
-            if (viewModel.oxygenMasterData.setMaxValue < viewModel.oxygenMasterData.setValue ) {
-                viewModel.oxygenMasterData.isAlert = true
+            if (viewModel.oxygenMasterData!!.setMaxValue < viewModel.oxygenMasterData!!.setValue) {
+                viewModel.oxygenMasterData!!.isAlert = true
                 if (alertMap[masterKey] == null) {
                     alertMap.put(masterKey, true)
                     viewModel.addAlertInfo(
@@ -898,8 +901,8 @@ class AQDataParser(viewModel: MainViewModel) {
                     )
                 }
             } else {
+                viewModel.oxygenMasterData!!.isAlert = false
                 if (alertMap.containsKey(masterKey)) {
-                    viewModel.oxygenMasterData.isAlert = false
                     viewModel.addAlertInfo(
                         masterKey,
                         SetAlertData(

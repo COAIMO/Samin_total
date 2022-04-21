@@ -217,6 +217,7 @@ class OxygenSettingFragment : Fragment() {
     }
 
     private fun setSaveData() {
+        viewmodel.oxygenMasterData = null
         viewmodel.OxygenDataLiveList.clear(true)
         val iter = setOxygenInfo.iterator()
         while (iter.hasNext()) {
@@ -241,13 +242,13 @@ class OxygenSettingFragment : Fragment() {
         }.average().toFloat()
         viewmodel.oxygenMasterData =
             SetOxygenViewData(
-                "MasterOxyen",
+                "MasterOxygen",
                 11,
                 11,
                 setMinValue = oxygenMinValueAvg,
                 setMaxValue = oxygenMaxValueAvg
             )
-
+        shared.saveBoardSetData(SaminSharedPreference.MASTEROXYGEN, viewmodel.oxygenMasterData!!)
         shared.saveBoardSetData(SaminSharedPreference.OXYGEN, buff)
         activity?.tmp?.LoadSetting()
         activity?.onFragmentChange(MainViewModel.OXYGENMAINFRAGMENT)

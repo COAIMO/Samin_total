@@ -11,7 +11,7 @@ import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.R
 import com.coai.uikit.samin.status.GasRoomView
 
-class AlertDialog_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()  {
+class AlertDialog_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var alertData = listOf<SetAlertData>()
 
@@ -20,7 +20,6 @@ class AlertDialog_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder
             LayoutInflater.from(parent.context)
                 .inflate(R.layout.alert_content_view, parent, false)
         )
-
     }
 
     override fun getItemCount(): Int {

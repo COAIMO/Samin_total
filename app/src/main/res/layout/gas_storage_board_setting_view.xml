@@ -202,7 +202,7 @@
         android:layout_marginHorizontal="10dp"
         android:imeOptions="actionDone"
         android:inputType="number"
-        android:text="0"
+        android:text="232"
         android:textSize="20sp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout

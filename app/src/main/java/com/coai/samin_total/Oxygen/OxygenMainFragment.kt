@@ -88,31 +88,11 @@ class OxygenMainFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         isOnTaskRefesh = true
-//        taskRefresh = Thread() {
-//            try {
-//                while (isOnTaskRefesh) {
-//                    heartbeatCount++
-//                    for (tmp in viewmodel.OxygenDataLiveList.value!!.iterator()) {
-//                        tmp.heartbeatCount = heartbeatCount
-//                    }
-//                    synchronized(lockobj) {
-//                        activity?.runOnUiThread() {
-//                            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-//                        }
-//                    }
-//                    Thread.sleep(50)
-//                }
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
-//        taskRefresh?.start()
-
         taskRefresh = Thread() {
             try {
                 while (isOnTaskRefesh) {
                     heartbeatCount++
-                    viewmodel.oxygenMasterData.heartbeatCount = heartbeatCount
+                    viewmodel.oxygenMasterData?.heartbeatCount = heartbeatCount
                     synchronized(lockobj) {
                         activity?.runOnUiThread() {
                             recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
@@ -217,7 +197,9 @@ class OxygenMainFragment : Fragment() {
 //        val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
 //        recycleAdapter.submitList(mm)
 
-        recycleAdapter.setData(viewmodel.oxygenMasterData)
+        if (viewmodel.oxygenMasterData != null) {
+            recycleAdapter.setData(viewmodel.oxygenMasterData!!)
+        }
 
         if (viewmodel.oxygenViewZoomState) {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
