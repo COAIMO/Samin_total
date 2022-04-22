@@ -101,6 +101,9 @@ class MainActivity : AppCompatActivity() {
     private val recvOxygenMSTBuffers = HashMap<Int, ByteArray>()
     private val recvModemapBuffers = HashMap<Int, ByteArray>()
 
+    // 보드별 최종 전송시간
+    private val alertsendLastTime = HashMap<Int, Long>()
+
     companion object {
         var SERVICE_CONNECTED = false
 
@@ -974,18 +977,19 @@ class MainActivity : AppCompatActivity() {
                         if (id == 11.toByte())
                             continue
 
-                        isAnotherJob = true
-                        Thread.sleep(100)
 
-                        // LED 경고 상태를 전달.
-                        for (cnt in 0..2) {
-                            protocol.led_AlertStateByte(model, id, tmpBits)
-//                            serialService?.sendData(protocol.mProtocol.clone())
-                            sendProtocolToSerial(protocol.mProtocol.clone())
-                            Thread.sleep(35)
-                        }
+//                        if (alertsendLastTime[key] == null || alertsendLastTime[key]!! < (System.currentTimeMillis() - 1000 * 5)) {
+                        isAnotherJob = true
+                        Thread.sleep(20)
 
                         if (!tmpBits.equals(tmplast)) {
+                            // LED 경고 상태를 전달.
+                            for (cnt in 0..2) {
+                                protocol.led_AlertStateByte(model, id, tmpBits)
+                                sendProtocolToSerial(protocol.mProtocol.clone())
+                                Thread.sleep(5)
+                            }
+
                             // 경고음 처리전
                             if (mainViewModel.isSoundAlert) {
                                 tabletSoundAlertOn()
@@ -993,9 +997,17 @@ class MainActivity : AppCompatActivity() {
                                 for (cnt in 0..2) {
 //                                    serialService?.sendData(protocol.mProtocol.clone())
                                     sendProtocolToSerial(protocol.mProtocol.clone())
-                                    Thread.sleep(35)
+                                    Thread.sleep(5)
                                 }
                             }
+                        } else if(alertsendLastTime[key] == null || alertsendLastTime[key]!! < (System.currentTimeMillis() - 1000 * 60))  {
+                            for (cnt in 0..2) {
+                                protocol.led_AlertStateByte(model, id, tmpBits)
+                                sendProtocolToSerial(protocol.mProtocol.clone())
+                                Thread.sleep(5)
+                            }
+
+                            alertsendLastTime[key] = System.currentTimeMillis()
                         }
 
                         isAnotherJob = false
@@ -1003,8 +1015,9 @@ class MainActivity : AppCompatActivity() {
                     // 에러가 사라진 AQ 찾기
                     if (diffkeys.size > 0) {
 
+
                         isAnotherJob = true
-                        Thread.sleep(100)
+                        Thread.sleep(20)
 
                         for (tmp in diffkeys) {
                             val aqInfo = HexDump.toByteArray(tmp)
@@ -1024,7 +1037,7 @@ class MainActivity : AppCompatActivity() {
                                 protocol.led_AlertStateByte(model, id, 0.toByte())
 //                                serialService?.sendData(protocol.mProtocol.clone())
                                 sendProtocolToSerial(protocol.mProtocol.clone())
-                                Thread.sleep(100)
+                                Thread.sleep(10)
                             }
                         }
                         isAnotherJob = false
