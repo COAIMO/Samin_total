@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
@@ -233,6 +234,7 @@ class MainActivity : AppCompatActivity() {
         return result
     }
 
+    var countSettingRecive = 0
     @ExperimentalUnsignedTypes
     val datahandler = object : Handler(Looper.getMainLooper()) {
         @SuppressLint("SimpleDateFormat")
@@ -502,7 +504,13 @@ class MainActivity : AppCompatActivity() {
                             }
 
                             tmp.LoadSetting()
-                            onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
+                            if (countSettingRecive++ > 1)
+                            {
+                                finishAffinity()
+                                System.exit(0)
+                            }
+
+//                            onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
                         }
                     }
                 }

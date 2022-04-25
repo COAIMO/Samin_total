@@ -1,6 +1,8 @@
 package com.coai.samin_total
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,6 +13,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.Logic.ControlData
 import com.coai.samin_total.Logic.ModbusBaudrate
@@ -97,8 +100,10 @@ class ControlFragment : Fragment() {
         tmp.useSettingShare = mBinding.swConnectSetting.isChecked
         shared.saveBoardSetData(SaminSharedPreference.CONTROL, tmp)
         Thread.sleep(500)
-        android.os.Process.killProcess(android.os.Process.myPid())
-        System.exit(10)
+
+//        android.os.Process.killProcess(android.os.Process.myPid())
+        getActivity()?.let { finishAffinity(it) }
+        System.exit(0)
 
     }
 
