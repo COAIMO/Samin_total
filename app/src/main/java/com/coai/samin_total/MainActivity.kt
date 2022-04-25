@@ -221,6 +221,8 @@ class MainActivity : AppCompatActivity() {
         protocolBuffers.clear()
     }
 
+
+
     private fun sortMapByKey(map: Map<Int, ByteArray>): LinkedHashMap<Int, ByteArray> {
         val entries = LinkedList(map.entries)
 
@@ -657,6 +659,9 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
 //        GlobalUiTimer.getInstance().activity = this
+        isrunthUIError = false
+        thUIError.interrupt()
+        thUIError.join()
     }
 
     private fun setFragment() {
@@ -1076,6 +1081,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var thUIError: Thread
     var isrunthUIError = true
     private fun uiError() {
+        isrunthUIError = true
         thUIError = Thread {
             try {
                 while (isrunthUIError) {

@@ -338,7 +338,7 @@ class MainFragment : Fragment() {
                 }
                 initView()
             }
-            createHasKey()
+//            createHasKey()
             if (!activity?.isSending!!) {
                 activity?.callFeedback()
                 activity?.isSending = true
@@ -350,6 +350,8 @@ class MainFragment : Fragment() {
         sendThread.start()
 
     }
+
+
 
     private fun initView() {
         mBinding.gasDockMainStatusLayout.visibility = View.GONE
@@ -438,6 +440,8 @@ class MainFragment : Fragment() {
             activity?.callTimemout()
 
         }
+
+        createHasKey()
         mainLayoutIconVisibility()
     }
 
