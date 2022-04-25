@@ -612,7 +612,7 @@ class MainFragment : Fragment() {
                                     port.toByte()
                                 )
                             )
-                        viewmodel.hasKey.put(key, createkey)
+                        viewmodel.hasKey.put(createkey, createkey)
                     }
                 } else if (key == 4) {
                     val createkey =
@@ -623,7 +623,7 @@ class MainFragment : Fragment() {
                                 1.toByte()
                             )
                         )
-                    viewmodel.hasKey.put(key, createkey)
+                    viewmodel.hasKey.put(createkey, createkey)
                 } else if (key == 5) {
                     for (port in 1..2) {
                         val createkey =
@@ -634,7 +634,7 @@ class MainFragment : Fragment() {
                                     port.toByte()
                                 )
                             )
-                        viewmodel.hasKey.put(key, createkey)
+                        viewmodel.hasKey.put(createkey, createkey)
                     }
                 }
             }

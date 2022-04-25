@@ -1226,14 +1226,13 @@ class AQDataParser(viewModel: MainViewModel) {
 
     fun timeoutAQCheckStep() {
         val baseTime = System.currentTimeMillis() - 1000 * 60
-        val oldDatas = hmapLastedDate.filter { it.value < baseTime }
-
         //기존의 가지고있던 키와 다른 키가 들어올경우 삭제(가비지 데이터땜에)
-        for (i in viewModel.hasKey.values) {
-            if (!hmapLastedDate.containsKey(i)){
-                hmapLastedDate.remove(i)
+        for (i in hmapLastedDate) {
+            if (!viewModel.hasKey.containsKey(i.key)) {
+                hmapLastedDate.remove(i.key)
             }
         }
+        val oldDatas = hmapLastedDate.filter { it.value < baseTime }
 
 
         val lastaqs = lostConnectAQs.keys.toMutableList()
