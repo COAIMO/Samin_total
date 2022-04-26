@@ -1069,6 +1069,13 @@ class AQDataParser(viewModel: MainViewModel) {
                         )
                     }
                 }
+                else if (model == 3.toByte()) {
+                    for (t in 0..3) {1
+                        if (datas[t] != 0 && datas[t] != 1 ) {
+                            return
+                        }
+                    }
+                }
 
                 when (model) {
                     0x01.toByte() -> {
