@@ -102,8 +102,8 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     //SerialInputOutputManager.Listener
     override fun onNewData(data: ByteArray?) {
-//        Log.d("로그", "onNewData : ${HexDump.dumpHexString(data)}")
-        Log.d("로그", "onNewData recived ======")
+        Log.d("로그", "onNewData : ${HexDump.dumpHexString(data)}")
+//        Log.d("로그", "onNewData recived ======")
         if (data != null) {
             parseReceiveData(data)
         }

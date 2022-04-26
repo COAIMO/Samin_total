@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.net.Uri
+import android.nfc.Tag
 import android.os.*
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
@@ -313,13 +314,13 @@ class MainActivity : AppCompatActivity() {
 //            } else if (receiveParser.packetName == "RequestFeedBackPing") {
                 } else if (receiveParser.packet == SaminProtocolMode.RequestFeedBackPing.byte) {
                     if (receiveParser.mProtocol.size >= 14) {
-                        if (receiveParser.mProtocol[2] == 3.toByte()) {
-                            Log.d(
-                                mainTAG,
-                                "RequestFeedBackPing${HexDump.dumpHexString(msg.obj as ByteArray)}"
-                            )
-
-                        }
+//                        if (receiveParser.mProtocol[2] == 3.toByte()) {
+//                            Log.d(
+//                                mainTAG,
+//                                "RequestFeedBackPing${HexDump.dumpHexString(msg.obj as ByteArray)}"
+//                            )
+//
+//                        }
                         tmp.Parser(receiveParser.mProtocol)
                     }
                 } else if (receiveParser.packet == SaminProtocolMode.SettingShare.byte) {
@@ -837,6 +838,11 @@ class MainActivity : AppCompatActivity() {
 
 //                    for ((model, ids) in mainViewModel.modelMap) {
                     val processMils = measureTimeMillis {
+//                        val tmpkeys = mainViewModel.modelMapInt.keys.toList().sortedByDescending { it }
+//                        val tmpkeys = mainViewModel.modelMapInt.keys.toList()
+//                        Log.d("callFeedback", tmpkeys.toString())
+//                        for (md in tmpkeys) {
+//                            val ids = mainViewModel.modelMapInt[md]!!
                         for ((md, ids) in mainViewModel.modelMapInt) {
                             for (index in ids.indices) {
                                 if (isAnotherJob) {
@@ -844,6 +850,9 @@ class MainActivity : AppCompatActivity() {
                                         Thread.sleep(10)
                                     }
                                 }
+
+//                                sendProtocolToSerial(byteArrayOf(0.toByte()))
+//                                Thread.sleep(20)
 
                                 val model = md.toByte()
                                 val elapsed: Long = measureTimeMillis {
@@ -858,6 +867,9 @@ class MainActivity : AppCompatActivity() {
                                     protocolBuffers[key]?.let {
 //                                        serialService?.sendData(it)
                                         sendProtocolToSerial(it)
+//                                        if( model == 1u.toByte()) {
+//                                            sendProtocolToSerial(it)
+//                                        }
                                     }
                                 }
 //                            Log.d(mainTAG, "${System.currentTimeMillis()} measureTimeMillis : $elapsed " )
@@ -873,8 +885,10 @@ class MainActivity : AppCompatActivity() {
                     if (sleeptime < 333 && sleeptime > 0) {
                         Thread.sleep(sleeptime)
                     }
-                } catch (e: Exception) {
 
+//                    sendProtocolToSerial(byteArrayOf(0.toByte()))
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         }
@@ -997,7 +1011,9 @@ class MainActivity : AppCompatActivity() {
 
                         if (!tmpBits.equals(tmplast)) {
                             // LED 경고 상태를 전달.
-                            for (cnt in 0..2) {
+//                            sendProtocolToSerial(byteArrayOf(0.toByte()))
+
+                            for (cnt in 0..1) {
                                 protocol.led_AlertStateByte(model, id, tmpBits)
                                 sendProtocolToSerial(protocol.mProtocol.clone())
                                 Thread.sleep(5)
@@ -1007,14 +1023,16 @@ class MainActivity : AppCompatActivity() {
                             if (mainViewModel.isSoundAlert) {
                                 tabletSoundAlertOn()
                                 protocol.buzzer_On(model, id)
-                                for (cnt in 0..2) {
+//                                sendProtocolToSerial(byteArrayOf(0.toByte()))
+                                for (cnt in 0..1) {
 //                                    serialService?.sendData(protocol.mProtocol.clone())
                                     sendProtocolToSerial(protocol.mProtocol.clone())
                                     Thread.sleep(5)
                                 }
                             }
                         } else if(alertsendLastTime[key] == null || alertsendLastTime[key]!! < (System.currentTimeMillis() - 1000 * 60))  {
-                            for (cnt in 0..2) {
+//                            sendProtocolToSerial(byteArrayOf(0.toByte()))
+                            for (cnt in 0..1) {
                                 protocol.led_AlertStateByte(model, id, tmpBits)
                                 sendProtocolToSerial(protocol.mProtocol.clone())
                                 Thread.sleep(5)
@@ -1032,6 +1050,7 @@ class MainActivity : AppCompatActivity() {
                         isAnotherJob = true
                         Thread.sleep(20)
 
+
                         for (tmp in diffkeys) {
                             val aqInfo = HexDump.toByteArray(tmp)
                             val model = aqInfo[1]
@@ -1041,12 +1060,16 @@ class MainActivity : AppCompatActivity() {
                             if (id == 11.toByte())
                                 continue
 //                            tabletSoundAlertOff()
+//                            sendProtocolToSerial(byteArrayOf(0.toByte()))
                             for (cnt in 0..2) {
                                 protocol.buzzer_Off(model, id)
 //                                serialService?.sendData(protocol.mProtocol.clone())
                                 sendProtocolToSerial(protocol.mProtocol.clone())
 //                                Thread.sleep(35)
+                            }
 
+//                            sendProtocolToSerial(byteArrayOf(0.toByte()))
+                            for (cnt in 0..1) {
                                 protocol.led_AlertStateByte(model, id, 0.toByte())
 //                                serialService?.sendData(protocol.mProtocol.clone())
                                 sendProtocolToSerial(protocol.mProtocol.clone())
