@@ -1046,7 +1046,7 @@ class AQDataParser(viewModel: MainViewModel) {
         synchronized(this) {
             try {
                 val id = arg[3]
-                val model = arg[2]
+                 val model = arg[2]
                 val time = System.currentTimeMillis()
                 val datas = ArrayList<Int>()
 
@@ -1066,6 +1066,13 @@ class AQDataParser(viewModel: MainViewModel) {
                                 )
                             )
                         )
+                    }
+                }
+                else if (model == 3.toByte()) {
+                    for (t in 0..3) {1
+                        if (datas[t] != 0 && datas[t] != 1 ) {
+                            return
+                        }
                     }
                 }
 
@@ -1217,6 +1224,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
         val prev = exSensorData[key]
         val ret = alphavalue * prev!! + (1 - alphavalue) * tmpx
+        exSensorData[key] = ret.toInt()
         return ret.toInt()
     }
 
