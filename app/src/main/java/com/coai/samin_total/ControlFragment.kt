@@ -1,7 +1,9 @@
 package com.coai.samin_total
 
 import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -15,10 +17,10 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.fragment.app.activityViewModels
-import com.coai.samin_total.Logic.ControlData
-import com.coai.samin_total.Logic.ModbusBaudrate
-import com.coai.samin_total.Logic.SaminSharedPreference
+import com.coai.samin_total.Logic.*
 import com.coai.samin_total.databinding.FragmentControlBinding
+import kotlinx.serialization.encodeToByteArray
+import kotlinx.serialization.protobuf.ProtoBuf
 import kotlin.system.exitProcess
 
 // TODO: Rename parameter arguments, choose names that match
@@ -40,6 +42,8 @@ class ControlFragment : Fragment() {
     private lateinit var onBackPressed: OnBackPressedCallback
     lateinit var shared: SaminSharedPreference
     private val viewmodel by activityViewModels<MainViewModel>()
+    var sendThread: Thread? = null
+    lateinit var progress_Dialog: ProgressDialog
     val buadrate = arrayListOf<String>(
         "9600",
         "19200",
@@ -97,7 +101,7 @@ class ControlFragment : Fragment() {
         tmp.modbusBaudrate = ModbusBaudrate.codesMap.get(selected_buadrate)!!
         tmp.modbusRTUID = selected_Id
         tmp.useModbusRTU = mBinding.swConnectModbus.isChecked
-        tmp.useSettingShare = mBinding.swConnectSetting.isChecked
+//        tmp.useSettingShare = mBinding.swConnectSetting.isChecked
         shared.saveBoardSetData(SaminSharedPreference.CONTROL, tmp)
         Thread.sleep(500)
 
@@ -122,7 +126,12 @@ class ControlFragment : Fragment() {
         val baudidx = buadrate.indexOf(viewmodel.controlData.modbusBaudrate.value.toString())
         mBinding.spModbusBuadrate.setSelection(baudidx)
         mBinding.swConnectModbus.isChecked = viewmodel.controlData.useModbusRTU
-        mBinding.swConnectSetting.isChecked = viewmodel.controlData.useSettingShare
+//        mBinding.swConnectSetting.isChecked = viewmodel.controlData.useSettingShare
+
+        mBinding.btnSettingSend.setOnClickListener{
+            if (!mBinding.swMirror.isChecked)
+                sendSettingValues()
+        }
 
         mBinding.saveBtn.setOnClickListener{
             setSaveData()
@@ -182,6 +191,176 @@ class ControlFragment : Fragment() {
                 Toast.makeText(context, "통신속도를 선택해주세요.", Toast.LENGTH_SHORT)
                     .show()
             }
+        }
+    }
+
+    private fun sendProtocolToSerial(data: ByteArray) {
+        if (!viewmodel.controlData.isMirrorMode)
+            activity?.serialService?.sendData(data)
+    }
+
+    private fun sendMultipartSend(model: Byte, data: ByteArray? = null) {
+        val protocol = SaminProtocol()
+
+        if (data != null) {
+            val chunked = data!!.asSequence().chunked(40){ t ->
+                t.toByteArray()
+            }
+            var idx = 0
+            for (tmp in chunked){
+                protocol.BuildProtocoOld(model, chunked.count().toByte(), SaminProtocolMode.SettingShare.byte,byteArrayOf(idx.toByte()) + tmp)
+                sendProtocolToSerial(protocol.mProtocol.clone())
+                idx++
+            }
+        } else {
+            protocol.buildProtocol(model, 0.toByte(), SaminProtocolMode.SettingShare.byte,null)
+            sendProtocolToSerial(protocol.mProtocol.clone())
+        }
+    }
+
+    private fun sendSettingValues() {
+        getProgressShow()
+        sendThread = Thread {
+            activity?.isAnotherJob = true
+            Thread.sleep(100)
+            try {
+                var bytes: ByteArray? = null
+                var byteRoom: ByteArray? = null
+                var byteWaste: ByteArray? = null
+                var byteOxyzen: ByteArray? = null
+                var byteSteamer: ByteArray? = null
+                var byteOxyzenMst: ByteArray? = null
+                var byteModelmap: ByteArray? = null
+
+                byteModelmap = ProtoBuf.encodeToByteArray(viewmodel.modelMap)
+
+                viewmodel.GasStorageDataLiveList.value?.let {
+                    bytes = ProtoBuf.encodeToByteArray(it.toList())
+                }
+
+                viewmodel.GasRoomDataLiveList.value?.let {
+                    byteRoom = ProtoBuf.encodeToByteArray(it.toList())
+                }
+
+                viewmodel.WasteLiquorDataLiveList.value?.let {
+                    byteWaste = ProtoBuf.encodeToByteArray(it.toList())
+    //                var ttt = ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(byteWaste!!)
+    //                println(ttt)
+                }
+
+                viewmodel.OxygenDataLiveList.value?.let {
+                    byteOxyzen = ProtoBuf.encodeToByteArray(it.toList())
+                }
+
+                viewmodel.SteamerDataLiveList.value?.let {
+                    byteSteamer = ProtoBuf.encodeToByteArray(it.toList())
+                }
+
+                viewmodel.oxygenMasterData?.let {
+                    byteOxyzenMst = ProtoBuf.encodeToByteArray(it)
+                }
+
+                for (i in 0..1) {
+                    // 가스 스토리지
+                    bytes?.let {
+                        sendMultipartSend((16 + 1).toByte(), it)
+                        Thread.sleep(40)
+                    }
+
+                    // 가스 룸
+                    byteRoom?.let {
+                        sendMultipartSend((16 + 2).toByte(), it)
+                        Thread.sleep(40)
+                    }
+
+                    // 폐액통
+                    byteWaste?.let {
+                        sendMultipartSend((16 + 3).toByte(), it)
+                        Thread.sleep(40)
+                    }
+
+                    // 산소
+                    byteOxyzen?.let {
+                        sendMultipartSend((16 + 4).toByte(), it)
+                        if (viewmodel.oxygenMasterData != null) {
+                            byteOxyzenMst?.let {
+                                sendMultipartSend((16 + 6).toByte(), it)
+                                Thread.sleep(40)
+                            }
+                        }
+                    }
+
+                    // 스팀
+                    byteSteamer?.let {
+                        sendMultipartSend((16 + 5).toByte(), it)
+                        Thread.sleep(40)
+                    }
+
+                    byteModelmap?.let {
+                        sendMultipartSend((16 + 7).toByte(), it)
+                        Thread.sleep(40)
+                    }
+
+                    sendMultipartSend(32.toByte())
+                    Thread.sleep(40)
+                }
+            } catch (e: Exception){
+                e.printStackTrace()
+            }
+
+
+            activity?.isAnotherJob = false
+            getProgressHidden()
+        }
+
+        sendThread?.start()
+    }
+
+    private fun getProgressShow() {
+        try {
+            val str_tittle = "Please Wait ..."
+            val str_message = "잠시만 기다려주세요 ...\n진행 중입니다 ..."
+            val str_buttonOK = "종료"
+            val str_buttonNO = "취소"
+
+            progress_Dialog = ProgressDialog(context)
+            progress_Dialog.setTitle(str_tittle) //팝업창 타이틀 지정
+            progress_Dialog.setIcon(R.mipmap.samin_launcher_ic) //팝업창 아이콘 지정
+            progress_Dialog.setMessage(str_message) //팝업창 내용 지정
+            progress_Dialog.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
+            progress_Dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER) //프로그레스 원형 표시 설정
+            progress_Dialog.setButton(
+                DialogInterface.BUTTON_POSITIVE,
+                str_buttonOK,
+                DialogInterface.OnClickListener { dialog, which ->
+                    try {
+                        sendThread?.interrupt()
+                        getProgressHidden()
+                    } catch (e: Exception) {
+                    }
+                })
+//            progress_Dialog.setButton(
+//                DialogInterface.BUTTON_NEGATIVE,
+//                str_buttonNO,
+//                DialogInterface.OnClickListener { dialog, which ->
+//                    getProgressHidden()
+//                })
+            try {
+                progress_Dialog.show()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun getProgressHidden() {
+        try {
+            progress_Dialog.dismiss()
+            progress_Dialog.cancel()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

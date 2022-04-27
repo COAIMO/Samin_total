@@ -4,7 +4,7 @@ package com.coai.samin_total.Logic
  * 관제
  */
 data class ControlData(
-    var useSettingShare: Boolean = false,
+//    var useSettingShare: Boolean = false,
     var isMirrorMode: Boolean = false,
     var useModbusRTU: Boolean = false,
     var modbusBaudrate: ModbusBaudrate = ModbusBaudrate.BPS_9600,

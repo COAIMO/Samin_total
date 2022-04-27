@@ -197,7 +197,7 @@ class MainActivity : AppCompatActivity() {
             serialService!!.setHandler(datahandler)
             isSerialSevice = true
 
-            sendSettingValues()
+//            sendSettingValues()
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -370,6 +370,13 @@ class MainActivity : AppCompatActivity() {
                                     ProtoBuf.decodeFromByteArray<List<SetGasStorageViewData>>(tmpgas)
                                 mainViewModel.GasStorageDataLiveList.clear(true)
                                 for(t in objgas) {
+                                    t.pressureLeft = 0f
+                                    t.pressure = 0f
+                                    t.pressureRight = 0f
+                                    t.isAlert = false
+                                    t.isAlertLeft = false
+                                    t.isAlertRight = false
+                                    t.heartbeatCount = 0u
                                     mainViewModel.GasStorageDataLiveList.add(t)
                                 }
                                 val buff = mutableListOf<SetGasStorageViewData>()
@@ -377,6 +384,7 @@ class MainActivity : AppCompatActivity() {
                                     buff.add(i)
                                 }
                                 shared.saveBoardSetData(SaminSharedPreference.GASSTORAGE, buff)
+
                             } catch(e : Exception) {
                                 e.printStackTrace()
                             }
@@ -393,6 +401,9 @@ class MainActivity : AppCompatActivity() {
                                     ProtoBuf.decodeFromByteArray<List<SetGasRoomViewData>>(tmpgasroom)
                                 mainViewModel.GasRoomDataLiveList.clear(true)
                                 for(t in objgas) {
+                                    t.pressure = 0f
+                                    t.isAlert = false
+                                    t.heartbeatCount = 0u
                                     mainViewModel.GasRoomDataLiveList.add(t)
                                 }
                                 val buff = mutableListOf<SetGasRoomViewData>()
@@ -416,6 +427,8 @@ class MainActivity : AppCompatActivity() {
                                     ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(tmpwaste)
                                 mainViewModel.WasteLiquorDataLiveList.clear(true)
                                 for(t in objgas) {
+                                    t.isAlert = false
+                                    t.heartbeatCount = 0u
                                     mainViewModel.WasteLiquorDataLiveList.add(t)
                                 }
                                 val buff = mutableListOf<SetWasteLiquorViewData>()
@@ -439,6 +452,9 @@ class MainActivity : AppCompatActivity() {
                                     ProtoBuf.decodeFromByteArray<List<SetOxygenViewData>>(tmpOxygen)
                                 mainViewModel.OxygenDataLiveList.clear(true)
                                 for(t in objgas) {
+                                    t.isAlert = false
+                                    t.setValue = 0f
+                                    t.heartbeatCount = 0u
                                     mainViewModel.OxygenDataLiveList.add(t)
                                 }
                                 val buff = mutableListOf<SetOxygenViewData>()
@@ -462,6 +478,10 @@ class MainActivity : AppCompatActivity() {
                                     ProtoBuf.decodeFromByteArray<List<SetSteamerViewData>>(tmpSteamer)
                                 mainViewModel.SteamerDataLiveList.clear(true)
                                 for(t in objgas) {
+                                    t.isAlertLow = false
+                                    t.isAlertTemp = false
+                                    t.isTemp = 0
+                                    t.heartbeatCount = 0u
                                     mainViewModel.SteamerDataLiveList.add(t)
                                 }
                                 val buff = mutableListOf<SetSteamerViewData>()
@@ -483,6 +503,9 @@ class MainActivity : AppCompatActivity() {
                             try {
                                 val objgas =
                                     ProtoBuf.decodeFromByteArray<SetOxygenViewData>(tmpOxyMST)
+                                objgas.setValue = 0f
+                                objgas.isAlert = false
+                                objgas.heartbeatCount = 0u
                                 mainViewModel.oxygenMasterData = objgas
                                 shared.saveBoardSetData(SaminSharedPreference.MASTEROXYGEN, mainViewModel.oxygenMasterData!!)
                             } catch(e : Exception) {
@@ -500,18 +523,38 @@ class MainActivity : AppCompatActivity() {
                                     ProtoBuf.decodeFromByteArray<HashMap<String, ByteArray>>(tmpModemap)
                                 for (t in objgas) {
                                     mainViewModel.modelMap[t.key] = t.value
+                                    var id = when {
+                                        t.key.equals("GasDock") -> 1
+                                        t.key.equals("GasRoom") -> 2
+                                        t.key.equals("WasteLiquor") -> 3
+                                        t.key.equals("Oxygen") -> 4
+                                        t.key.equals("Steamer") -> 5
+                                        else -> 1
+                                    }
+
+                                    mainViewModel.modelMapInt[id] = t.value.clone()
                                 }
                                 shared.saveHashMap(mainViewModel.modelMap)
                             } catch(e : Exception) {
                                 e.printStackTrace()
                             }
 
+                            discallFeedback()
+                            discallTimemout()
+
                             tmp.LoadSetting()
-                            if (countSettingRecive++ > 1)
-                            {
-                                finishAffinity()
-                                System.exit(0)
+                            tmp.hmapLastedDate.keys.forEach{
+                                mainViewModel.hasKey.put(it, it)
                             }
+
+                            callFeedback()
+                            callTimemout()
+                            onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
+//                            if (countSettingRecive++ > 1)
+//                            {
+//                                finishAffinity()
+//                                System.exit(0)
+//                            }
 
 //                            onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
                         }
@@ -528,12 +571,12 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         hideNavigationBar()
         bindSerialService()
-        GlobalUiTimer.getInstance().activity = this
+//        GlobalUiTimer.getInstance().activity = this
         if (mainViewModel.controlData.useModbusRTU)
             startModbusService(SaminModbusService::class.java, svcConnection, null)
 
 //        if (mainViewModel.controlData.useSettingShare)
-        sendSettingValues()
+//        sendSettingValues()
 
         uiError()
         super.onResume()
@@ -559,103 +602,103 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * 설정 동기화
-     * RS485 라인을 이용해서 설정 전달
-     */
-    private fun sendSettingValues() {
-        if (!mainViewModel.controlData.useSettingShare)
-            return
-
-        Thread {
-            isAnotherJob = true
-            Thread.sleep(100)
-
-            var bytes: ByteArray? = null
-            var byteRoom: ByteArray? = null
-            var byteWaste: ByteArray? = null
-            var byteOxyzen: ByteArray? = null
-            var byteSteamer: ByteArray? = null
-            var byteOxyzenMst: ByteArray? = null
-            var byteModelmap: ByteArray? = null
-
-            byteModelmap = ProtoBuf.encodeToByteArray(mainViewModel.modelMap)
-
-
-            mainViewModel.GasStorageDataLiveList.value?.let {
-                bytes = ProtoBuf.encodeToByteArray(it.toList())
-            }
-
-            mainViewModel.GasRoomDataLiveList.value?.let {
-                byteRoom = ProtoBuf.encodeToByteArray(it.toList())
-            }
-
-            mainViewModel.WasteLiquorDataLiveList.value?.let {
-                byteWaste = ProtoBuf.encodeToByteArray(it.toList())
-//                var ttt = ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(byteWaste!!)
-//                println(ttt)
-            }
-
-            mainViewModel.OxygenDataLiveList.value?.let {
-                byteOxyzen = ProtoBuf.encodeToByteArray(it.toList())
-            }
-
-            mainViewModel.SteamerDataLiveList.value?.let {
-                byteSteamer = ProtoBuf.encodeToByteArray(it.toList())
-            }
-
-            mainViewModel.oxygenMasterData?.let {
-                byteOxyzenMst = ProtoBuf.encodeToByteArray(it)
-            }
-
-            for (i in 0..2) {
-                // 가스 스토리지
-                bytes?.let {
-                    sendMultipartSend((16 + 1).toByte(), it)
-                    Thread.sleep(40)
-                }
-
-                // 가스 룸
-                byteRoom?.let {
-                    sendMultipartSend((16 + 2).toByte(), it)
-                    Thread.sleep(40)
-                }
-
-                // 폐액통
-                byteWaste?.let {
-                    sendMultipartSend((16 + 3).toByte(), it)
-                    Thread.sleep(40)
-                }
-
-                // 산소
-                byteOxyzen?.let {
-                    sendMultipartSend((16 + 4).toByte(), it)
-                    if (mainViewModel.oxygenMasterData != null) {
-                        byteOxyzenMst?.let {
-                            sendMultipartSend((16 + 6).toByte(), it)
-                            Thread.sleep(40)
-                        }
-                    }
-                }
-
-                // 스팀
-                byteSteamer?.let {
-                    sendMultipartSend((16 + 5).toByte(), it)
-                    Thread.sleep(40)
-                }
-
-                byteModelmap?.let {
-                    sendMultipartSend((16 + 7).toByte(), it)
-                    Thread.sleep(40)
-                }
-
-                sendMultipartSend(32.toByte())
-                Thread.sleep(40)
-            }
-
-            isAnotherJob = false
-        }.start()
-    }
+//    /**
+//     * 설정 동기화
+//     * RS485 라인을 이용해서 설정 전달
+//     */
+//    private fun sendSettingValues() {
+////        if (!mainViewModel.controlData.useSettingShare)
+////            return
+//
+//        Thread {
+//            isAnotherJob = true
+//            Thread.sleep(100)
+//
+//            var bytes: ByteArray? = null
+//            var byteRoom: ByteArray? = null
+//            var byteWaste: ByteArray? = null
+//            var byteOxyzen: ByteArray? = null
+//            var byteSteamer: ByteArray? = null
+//            var byteOxyzenMst: ByteArray? = null
+//            var byteModelmap: ByteArray? = null
+//
+//            byteModelmap = ProtoBuf.encodeToByteArray(mainViewModel.modelMap)
+//
+//
+//            mainViewModel.GasStorageDataLiveList.value?.let {
+//                bytes = ProtoBuf.encodeToByteArray(it.toList())
+//            }
+//
+//            mainViewModel.GasRoomDataLiveList.value?.let {
+//                byteRoom = ProtoBuf.encodeToByteArray(it.toList())
+//            }
+//
+//            mainViewModel.WasteLiquorDataLiveList.value?.let {
+//                byteWaste = ProtoBuf.encodeToByteArray(it.toList())
+////                var ttt = ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(byteWaste!!)
+////                println(ttt)
+//            }
+//
+//            mainViewModel.OxygenDataLiveList.value?.let {
+//                byteOxyzen = ProtoBuf.encodeToByteArray(it.toList())
+//            }
+//
+//            mainViewModel.SteamerDataLiveList.value?.let {
+//                byteSteamer = ProtoBuf.encodeToByteArray(it.toList())
+//            }
+//
+//            mainViewModel.oxygenMasterData?.let {
+//                byteOxyzenMst = ProtoBuf.encodeToByteArray(it)
+//            }
+//
+//            for (i in 0..2) {
+//                // 가스 스토리지
+//                bytes?.let {
+//                    sendMultipartSend((16 + 1).toByte(), it)
+//                    Thread.sleep(40)
+//                }
+//
+//                // 가스 룸
+//                byteRoom?.let {
+//                    sendMultipartSend((16 + 2).toByte(), it)
+//                    Thread.sleep(40)
+//                }
+//
+//                // 폐액통
+//                byteWaste?.let {
+//                    sendMultipartSend((16 + 3).toByte(), it)
+//                    Thread.sleep(40)
+//                }
+//
+//                // 산소
+//                byteOxyzen?.let {
+//                    sendMultipartSend((16 + 4).toByte(), it)
+//                    if (mainViewModel.oxygenMasterData != null) {
+//                        byteOxyzenMst?.let {
+//                            sendMultipartSend((16 + 6).toByte(), it)
+//                            Thread.sleep(40)
+//                        }
+//                    }
+//                }
+//
+//                // 스팀
+//                byteSteamer?.let {
+//                    sendMultipartSend((16 + 5).toByte(), it)
+//                    Thread.sleep(40)
+//                }
+//
+//                byteModelmap?.let {
+//                    sendMultipartSend((16 + 7).toByte(), it)
+//                    Thread.sleep(40)
+//                }
+//
+//                sendMultipartSend(32.toByte())
+//                Thread.sleep(40)
+//            }
+//
+//            isAnotherJob = false
+//        }.start()
+//    }
 
     override fun onPause() {
         super.onPause()
@@ -796,6 +839,12 @@ class MainActivity : AppCompatActivity() {
      * 에러 유무 확인
      */
     var isCallTimeout = true
+
+    private fun discallTimemout() {
+        isCallTimeout = false
+        callTimeoutThread?.interrupt()
+        callTimeoutThread?.join()
+    }
     fun callTimemout() {
         isCallTimeout = false
         callTimeoutThread?.interrupt()
@@ -816,6 +865,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
         callTimeoutThread?.start()
+    }
+
+    private fun discallFeedback() {
+        isSending = false
+        callbackThread?.interrupt()
+        callbackThread?.join()
     }
 
     fun callFeedback() {

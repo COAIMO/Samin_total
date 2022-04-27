@@ -355,8 +355,8 @@ class MainFragment : Fragment() {
 
     private fun initView() {
         mBinding.gasDockMainStatusLayout.visibility = View.GONE
-        mBinding.gasRoomMainStatusLayout.visibility = View.GONE
-        mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
+         mBinding.gasRoomMainStatusLayout.visibility = View.GONE
+           mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
         mBinding.oxygenMainStatusLayout.visibility = View.GONE
         mBinding.steamerMainStatusLayout.visibility = View.GONE
 //        if (viewmodel.isSoundAlert){

@@ -1240,8 +1240,20 @@ class AQDataParser(viewModel: MainViewModel) {
                 hmapLastedDate.remove(i.key)
             }
         }
+//        val starttime = System.currentTimeMillis()
         val oldDatas = hmapLastedDate.filter { it.value < baseTime }
+//        val measuretime =  System.currentTimeMillis() - starttime
+//        Log.d("hmapLastedDate", "hmapLastedDate filter : $measuretime")
 
+//        val starttime1 = System.currentTimeMillis()
+////        val lsttmp = ArrayList<Map.Entry<Int, Long>>()
+////        val oldDatas2 = hmapLastedDate.filter { it.value < baseTime }
+//        val tmps = hmapLastedDate.forEach{
+//            if (it.value < baseTime) it
+//        }
+//        val measuretime1 =  System.currentTimeMillis() - starttime1
+//        Log.d("hmapLastedDate", "hmapLastedDate foreach : $measuretime1")
+//
 
         val lastaqs = lostConnectAQs.keys.toMutableList()
         for (tmp in oldDatas) {
