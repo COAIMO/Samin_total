@@ -7,7 +7,6 @@ import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.GasRoom.TimePSI
 import com.coai.samin_total.Logic.AnalyticUtils
-import com.coai.samin_total.Logic.PortAlertState
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Steamer.SetSteamerViewData
@@ -949,7 +948,7 @@ class AQDataParser(viewModel: MainViewModel) {
             return
         }
         //설정 온도보다 현재 온도가 낮을경우 알람
-        if (tmp.isTempMin > tmp.isTemp) {
+        if (tmp.tempMax < tmp.isTemp) {
             tmp.isAlertTemp = true
 
             if (alertMap[id] == null) {
@@ -961,7 +960,7 @@ class AQDataParser(viewModel: MainViewModel) {
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
-                        "온도 하한 값",
+                        "온도 상한 값",
                         tmp.port,
                         true
                     )

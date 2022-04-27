@@ -46,7 +46,7 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         fun bind(setSteamerViewData: SetSteamerViewData) {
             val elapsed: Long = measureTimeMillis {
                 steamerView.setAlertLow(setSteamerViewData.isAlertLow)
-                steamerView.setTempMin(setSteamerViewData.isTempMin)
+                steamerView.setTempMin(setSteamerViewData.tempMax)
                 steamerView.setTemp(setSteamerViewData.isTemp)
                 steamerView.setTempUnit(setSteamerViewData.unit)
                 steamerView.setAlertTemp(setSteamerViewData.isAlertTemp)

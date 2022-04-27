@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,11 +16,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
-import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
-import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.R
 import com.coai.samin_total.databinding.FragmentSteamerSettingBinding
 
@@ -54,7 +51,7 @@ class SteamerSettingFragment : Fragment() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             if (s != null && !s.toString().equals("")) {
                 if (selectedSensor == null) return
-                selectedSensor?.isTempMin = s.toString().toInt()
+                selectedSensor?.tempMax = s.toString().toInt()
             }
 
         }
@@ -118,7 +115,7 @@ class SteamerSettingFragment : Fragment() {
                         selectedSensor!!.level_SensorType
                     )
                 )
-                mBinding.steamerBoardSettingView.mTemp_minValue_et.setText(selectedSensor?.isTempMin.toString())
+                mBinding.steamerBoardSettingView.mTemp_minValue_et.setText(selectedSensor?.tempMax.toString())
             }
         })
 
