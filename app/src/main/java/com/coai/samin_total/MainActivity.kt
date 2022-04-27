@@ -874,9 +874,9 @@ class MainActivity : AppCompatActivity() {
                                 }
 //                            Log.d(mainTAG, "${System.currentTimeMillis()} measureTimeMillis : $elapsed " )
 
-                                Thread.sleep(30)
+                                Thread.sleep(25)
                                 if (model == 4.toByte())
-                                    Thread.sleep(20)
+                                    Thread.sleep(10)
 //                            Log.d(mainTAG, "sleep ============= " )
                             }
                         }
