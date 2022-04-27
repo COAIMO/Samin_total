@@ -26,7 +26,6 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class PasswordDialogFragment : DialogFragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var mBinding: FragmentPasswordDialogBinding
@@ -63,10 +62,15 @@ class PasswordDialogFragment : DialogFragment() {
         mBinding.btnOkay.setOnClickListener {
             val inputPassword = mBinding.etPassword.text.toString()
             val adminLock = context?.let { it1 -> AdminLock(it1) }
-            if (adminLock?.checkPassLockSet(inputPassword)!!) {
+
+            if (adminLock?.checkPassLockSet(AdminLock.PERSONAL_KEY,inputPassword)!!) {
                 activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
                 dialog?.dismiss()
-            }else{
+            } else if (adminLock.checkPassLockSet(AdminLock.MASTER_KEY,inputPassword)){
+                activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
+                dialog?.dismiss()
+            }
+            else{
                 Toast.makeText(context, "잘못된 비밀번호 입니다.", Toast.LENGTH_SHORT).show()
                 dialog?.dismiss()
             }

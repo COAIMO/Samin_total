@@ -5,22 +5,21 @@ import android.os.Binder
 
 class AdminLock(context: Context) {
 
-    companion object{
-        const val ENABLE_PASSLOCK = 1
-        const val DISABLE_PASSLOCK = 2
-        const val CHANGE_PASSWORD = 3
-        const val UNLOCK_PASSWORD = 4
+    companion object {
+        const val MASTER_KEY = "1"
+        const val PERSONAL_KEY = "2"
     }
-    private val initPassword = "8940"
+
+    private val masterPassword = "8940"
     private var sharedPref = context.getSharedPreferences("AdminLock", Context.MODE_PRIVATE)
 
-    //
-    fun setPassLock(password: String) {
+    fun setPassLock(key: String, password: String) {
         sharedPref.edit().apply {
-            putString("AdminLock", password)
+            putString(key, password)
             apply()
         }
     }
+
 
     fun removePassLock() {
         sharedPref.edit().apply {
@@ -29,8 +28,8 @@ class AdminLock(context: Context) {
         }
     }
 
-    fun checkPassLockSet(password: String): Boolean {
-        return sharedPref.getString("AdminLock", initPassword) == password
+    fun checkPassLockSet(key: String, password: String): Boolean {
+        return sharedPref.getString(key, masterPassword) == password
     }
 
     fun isPassLockSet(): Boolean {
@@ -38,6 +37,9 @@ class AdminLock(context: Context) {
             return true
         }
         return false
+    }
+    init {
+        setPassLock(AdminLock.MASTER_KEY, masterPassword)
     }
 
 }
