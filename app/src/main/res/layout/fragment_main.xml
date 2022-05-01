@@ -42,7 +42,7 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <com.coai.uikit.samin.status.TopStatusPathView
+            <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/gasDock_MainStatus"
                 android:layout_width="190dp"
                 android:layout_height="190dp"
@@ -68,7 +68,7 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <com.coai.uikit.samin.status.TopStatusPathView
+            <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/gasRoom_MainStatus"
                 android:layout_width="190dp"
                 android:layout_height="190dp"
@@ -94,7 +94,7 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <com.coai.uikit.samin.status.TopStatusPathView
+            <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/wasteLiquor_MainStatus"
                 android:layout_width="190dp"
                 android:layout_height="190dp"
@@ -120,7 +120,7 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <com.coai.uikit.samin.status.TopStatusPathView
+            <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/oxygen_MainStatus"
                 android:layout_width="190dp"
                 android:layout_height="190dp"
@@ -146,7 +146,7 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <com.coai.uikit.samin.status.TopStatusPathView
+            <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/steamer_MainStatus"
                 android:layout_width="193dp"
                 android:layout_height="193dp"

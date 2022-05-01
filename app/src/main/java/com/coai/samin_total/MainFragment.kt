@@ -90,25 +90,26 @@ class MainFragment : Fragment() {
         super.onResume()
         uiError()
         isOnTaskRefesh = true
-        taskRefresh = Thread() {
-            try {
-                while (isOnTaskRefesh) {
-                    heartbeatCount++
-                    activity?.runOnUiThread() {
-                        mBinding.gasDockMainStatus.heartBeat(heartbeatCount)
-                        mBinding.gasRoomMainStatus.heartBeat(heartbeatCount)
-                        mBinding.oxygenMainStatus.heartBeat(heartbeatCount)
-                        mBinding.steamerMainStatus.heartBeat(heartbeatCount)
-                        mBinding.wasteLiquorMainStatus.heartBeat(heartbeatCount)
-                    }
-                    Thread.sleep(50)
-                }
+//        taskRefresh = Thread() {
+//            try {
+//                while (isOnTaskRefesh) {
+//                    heartbeatCount++
+//                    activity?.runOnUiThread() {
+//                        mBinding.gasDockMainStatus.heartBeat(heartbeatCount)
+//                        mBinding.gasRoomMainStatus.heartBeat(heartbeatCount)
+//                        mBinding.oxygenMainStatus.heartBeat(heartbeatCount)
+//                        mBinding.steamerMainStatus.heartBeat(heartbeatCount)
+//                        mBinding.wasteLiquorMainStatus.heartBeat(heartbeatCount)
+//                    }
+//                    Thread.sleep(50)
+//                }
+//
+//            } catch (e: Exception) {
+////                e.printStackTrace()
+//            }
+//        }
+//        taskRefresh?.start()
 
-            } catch (e: Exception) {
-//                e.printStackTrace()
-            }
-        }
-        taskRefresh?.start()
 //        isrunthUIError = true
 //        viewmodel.steamerAlert.value = false
 //        thUIError = Thread {
@@ -162,8 +163,8 @@ class MainFragment : Fragment() {
         thUIError?.join()
 
         isOnTaskRefesh = false
-        taskRefresh?.interrupt()
-        taskRefresh?.join()
+//        taskRefresh?.interrupt()
+//        taskRefresh?.join()
     }
 
     var isFirst = true
