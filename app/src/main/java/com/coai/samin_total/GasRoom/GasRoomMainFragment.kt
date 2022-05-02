@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
@@ -182,8 +183,9 @@ class GasRoomMainFragment : Fragment() {
             recycleAdapter = GasRoom_RecycleAdapter()
             adapter = recycleAdapter
         }
-        mBinding.gasRoomRecyclerView.itemAnimator = null
-        mBinding.gasRoomRecyclerView.animation = null
+//        mBinding.gasRoomRecyclerView.itemAnimator = null
+//        mBinding.gasRoomRecyclerView.animation = null
+        (mBinding.gasRoomRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
     }
 
     private var timerTaskRefresh: Timer? = null

@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.coai.samin_total.*
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
@@ -294,8 +295,9 @@ class GasDockMainFragment : Fragment() {
             recycleAdapter.submitList(gasStorageViewData)
             adapter = recycleAdapter
         }
-        mBinding.gasStorageRecyclerView.itemAnimator = null
-        mBinding.gasStorageRecyclerView.animation = null
+//        mBinding.gasStorageRecyclerView.itemAnimator = null
+//        mBinding.gasStorageRecyclerView.animation = null
+        (mBinding.gasStorageRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
     }
 
     private fun updateAlert() {
