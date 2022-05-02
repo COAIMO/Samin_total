@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
@@ -190,8 +191,9 @@ class WasteLiquorMainFragment : Fragment() {
             recycleAdapter = WasteLiquor_RecycleAdapter()
             adapter = recycleAdapter
         }
-        mBinding.wasteLiquorRecyclerView.itemAnimator = null
-        mBinding.wasteLiquorRecyclerView.animation = null
+//        mBinding.wasteLiquorRecyclerView.itemAnimator = null
+//        mBinding.wasteLiquorRecyclerView.animation = null
+        (mBinding.wasteLiquorRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
     }
 
     @SuppressLint("NotifyDataSetChanged")

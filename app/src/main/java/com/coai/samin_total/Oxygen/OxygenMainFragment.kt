@@ -11,6 +11,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
@@ -187,8 +188,9 @@ class OxygenMainFragment : Fragment() {
             recycleAdapter = Oxygen_RecycleAdapter()
             adapter = recycleAdapter
         }
-        mBinding.oxygenRecyclerView.itemAnimator = null
-        mBinding.oxygenRecyclerView.animation = null
+//        mBinding.oxygenRecyclerView.itemAnimator = null
+//        mBinding.oxygenRecyclerView.animation = null
+        (mBinding.oxygenRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
     }
 
     @SuppressLint("NotifyDataSetChanged")
