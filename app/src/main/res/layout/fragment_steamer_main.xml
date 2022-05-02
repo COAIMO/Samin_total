@@ -35,10 +35,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
         android:fontFamily="@font/nexon_font"
         android:text="01"
         android:textColor="@color/PageNumberTextColor"
-
         android:textSize="35sp"
         app:flow_horizontalAlign="center"
         app:layout_constraintBottom_toBottomOf="@id/top_layer"
