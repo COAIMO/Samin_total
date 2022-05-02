@@ -1046,7 +1046,7 @@ class AQDataParser(viewModel: MainViewModel) {
         synchronized(this) {
             try {
                 val id = arg[3]
-                 val model = arg[2]
+                val model = arg[2]
                 val time = System.currentTimeMillis()
                 val datas = ArrayList<Int>()
 
@@ -1067,10 +1067,10 @@ class AQDataParser(viewModel: MainViewModel) {
                             )
                         )
                     }
-                }
-                else if (model == 3.toByte()) {
-                    for (t in 0..3) {1
-                        if (datas[t] != 0 && datas[t] != 1 ) {
+                } else if (model == 3.toByte()) {
+                    for (t in 0..3) {
+                        1
+                        if (datas[t] != 0 && datas[t] != 1) {
                             return
                         }
                     }
@@ -1266,12 +1266,15 @@ class AQDataParser(viewModel: MainViewModel) {
 
             if (current is SetGasStorageViewData) {
                 (current as SetGasStorageViewData).isAlert = true
+                current.isAlertRight = true
+                current.isAlertLeft = true
             } else if (current is SetGasRoomViewData) {
                 (current as SetGasRoomViewData).isAlert = true
             } else if (current is SetWasteLiquorViewData) {
                 (current as SetWasteLiquorViewData).isAlert = true
             } else if (current is SetOxygenViewData) {
                 (current as SetOxygenViewData).isAlert = true
+                viewModel.oxygenMasterData!!.isAlert = true
             } else if (current is SetSteamerViewData) {
                 (current as SetSteamerViewData).isAlertLow = true
                 (current as SetSteamerViewData).isAlertTemp = true
@@ -1305,15 +1308,19 @@ class AQDataParser(viewModel: MainViewModel) {
 
             val alertinfo = viewModel.alertMap[tmp]
             if (alertinfo == alertinfo || !alertinfo!!.isAlert) {
-                if (current is SetGasStorageViewData)
+                if (current is SetGasStorageViewData){
                     (current as SetGasStorageViewData).isAlert = false
+                    current.isAlertRight = false
+                    current.isAlertLeft = false
+                }
                 else if (current is SetGasRoomViewData)
                     (current as SetGasRoomViewData).isAlert = false
                 else if (current is SetWasteLiquorViewData)
                     (current as SetWasteLiquorViewData).isAlert = false
-                else if (current is SetOxygenViewData)
+                else if (current is SetOxygenViewData) {
                     (current as SetOxygenViewData).isAlert = false
-                else if (current is SetSteamerViewData) {
+                    viewModel.oxygenMasterData!!.isAlert = false
+                } else if (current is SetSteamerViewData) {
                     (current as SetSteamerViewData).isAlertLow = false
                     (current as SetSteamerViewData).isAlertTemp = false
                 }

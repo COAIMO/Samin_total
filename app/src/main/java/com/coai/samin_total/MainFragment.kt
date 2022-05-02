@@ -14,6 +14,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
+import androidx.core.view.marginStart
 import androidx.fragment.app.activityViewModels
 import com.coai.libmodbus.service.SaminModbusService
 import com.coai.libsaminmodbus.model.ModelMonitorValues
@@ -463,6 +465,28 @@ class MainFragment : Fragment() {
                 "Steamer" -> {
                     mBinding.steamerMainStatusLayout.visibility = View.VISIBLE
                 }
+            }
+        }
+        val visibleChlidren = mBinding.mainIconContainerLayout.children.filter {
+            it.visibility == View.VISIBLE
+        }
+        when (visibleChlidren.count()){
+            1->{
+
+            }
+            2->{
+                for (i in visibleChlidren){
+
+                }
+            }
+            3->{
+
+            }
+            4->{
+
+            }
+            5->{
+
             }
         }
         invalidateView()
