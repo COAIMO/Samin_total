@@ -1,23 +1,19 @@
 package com.coai.samin_total
 
 import android.app.ProgressDialog
-import android.content.*
+import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
-import android.os.Handler
-import android.os.IBinder
-import android.os.Message
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.coai.libmodbus.service.SaminModbusService
-import com.coai.libsaminmodbus.model.ModelMonitorValues
-import com.coai.libsaminmodbus.model.ObserveModelMonitorValues
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
@@ -27,9 +23,7 @@ import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentMainBinding
-import java.lang.ref.WeakReference
-import java.util.*
-import kotlin.concurrent.thread
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -465,6 +459,52 @@ class MainFragment : Fragment() {
                     mBinding.steamerMainStatusLayout.visibility = View.VISIBLE
                 }
             }
+        }
+        val visibleChlidren = mBinding.mainIconContainerLayout.children.filter {
+            it.visibility == View.VISIBLE
+        }
+        when(visibleChlidren.count()){
+            2->{
+                for (i in visibleChlidren) {
+                    val params = LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                    params.setMargins(170, 0, 170, 0)
+                    i.layoutParams = params
+                }
+            }
+            3 ->{
+                for (i in visibleChlidren) {
+                    val params = LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                    params.setMargins(120, 0, 120, 0)
+                    i.layoutParams = params
+                }
+            }
+            4 ->{
+                for (i in visibleChlidren) {
+                    val params = LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                    params.setMargins(50, 0, 50, 0)
+                    i.layoutParams = params
+                }
+            }
+            5->{
+                for (i in visibleChlidren) {
+                    val params = LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                    params.setMargins(15, 0, 15, 0)
+                    i.layoutParams = params
+                }
+            }
+            else ->{}
         }
         invalidateView()
     }

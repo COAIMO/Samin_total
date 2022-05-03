@@ -96,8 +96,8 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
             setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
             setGasStorageViewData.isAlert?.let { gasDcokView.setAlert(it) }
-            setGasStorageViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
-            setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
+//            setGasStorageViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
+//            setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
             setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
             gasDcokView.setGasUnit(setGasStorageViewData.unit)
             gasDcokView.heartBeat(setGasStorageViewData.heartbeatCount)

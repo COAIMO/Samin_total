@@ -15,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toTopOf="@id/bottom_logo">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -61,7 +61,7 @@
             android:id="@+id/btn_buzzer_on"
             android:layout_marginTop="20dp"
             android:layout_width="480dp"
-            android:layout_height="80dp"
+            android:layout_height="60dp"
             android:text="알람 켜기"
             android:background="@color/SaveButtonBack"
             android:textColor="@color/white"
@@ -74,7 +74,7 @@
             android:id="@+id/btn_buzzer_off"
             android:layout_marginTop="10dp"
             android:layout_width="480dp"
-            android:layout_height="80dp"
+            android:layout_height="60dp"
             android:text="알람 끄기"
             android:background="@color/black"
             android:textColor="@color/white"
@@ -87,7 +87,7 @@
             android:id="@+id/btn_led_alert"
             android:layout_marginTop="30dp"
             android:layout_width="480dp"
-            android:layout_height="80dp"
+            android:layout_height="60dp"
             android:text="LED 경고"
             android:background="@color/SaveButtonBack"
             android:textColor="@color/white"
@@ -100,9 +100,22 @@
             android:id="@+id/btn_led_nomarl"
             android:layout_marginTop="10dp"
             android:layout_width="480dp"
-            android:layout_height="80dp"
+            android:layout_height="60dp"
             android:text="LED 정상"
             android:background="@color/black"
+            android:textColor="@color/white"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:gravity="center"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_checkVersion"
+            android:layout_marginTop="30dp"
+            android:layout_width="480dp"
+            android:layout_height="60dp"
+            android:text="펌웨어 버전 확인"
+            android:background="@color/AnotherButtonBack"
             android:textColor="@color/white"
             android:textSize="30sp"
             android:textStyle="bold"
@@ -112,6 +125,7 @@
 
 
     <ImageView
+        android:id="@+id/bottom_logo"
         android:layout_width="80dp"
         android:layout_height="60dp"
         android:layout_marginBottom="50dp"

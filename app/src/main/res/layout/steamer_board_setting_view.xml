@@ -63,7 +63,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="알람 온도설정"
+        android:text="상한온도 알람설정"
         android:textSize="15sp" />
 
     <EditText

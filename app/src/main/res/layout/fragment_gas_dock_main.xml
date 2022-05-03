@@ -20,10 +20,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/nexon_font"
         android:text="@string/title_gas_lab"
         android:textColor="@color/TitleTextColor"
-        android:textFontWeight="1000"
-        android:textSize="30sp"
+        android:textSize="35sp"
         app:flow_horizontalAlign="center"
         app:flow_horizontalBias="0.5"
         app:layout_constraintBottom_toBottomOf="@id/top_layer"
@@ -34,10 +35,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/nexon_font"
         android:text="01"
         android:textColor="@color/PageNumberTextColor"
-        android:textFontWeight="1000"
-        android:textSize="30sp"
+        android:textSize="35sp"
         app:flow_horizontalAlign="center"
         app:layout_constraintBottom_toBottomOf="@id/top_layer"
         app:layout_constraintStart_toEndOf="@id/title_tv"
@@ -83,15 +85,15 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:fadeScrollbars="false"
         android:orientation="vertical"
+        android:scrollbarSize="10dp"
+        android:scrollbarStyle="outsideInset"
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/top_layer"
-        android:fadeScrollbars="false"
-        android:scrollbarSize="10dp"
-        android:scrollbarStyle="outsideInset">
+        app:layout_constraintTop_toBottomOf="@+id/top_layer">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/gasStorageRecyclerView"
@@ -99,27 +101,27 @@
             android:layout_height="match_parent"
             android:orientation="vertical" />
     </androidx.core.widget.NestedScrollView>
-<!--    <FrameLayout-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:orientation="vertical"-->
-<!--        android:scrollbars="vertical"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/top_layer">-->
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/gasStorageRecyclerView-->
-<!--"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:scrollbars="vertical"-->
-<!--            android:fadeScrollbars="false"-->
-<!--            android:scrollbarThumbVertical="@color/design_default_color_primary"-->
-<!--            android:scrollbarSize="18dp"-->
-<!--            android:scrollbarStyle="outsideInset"-->
-<!--            android:orientation="vertical"/>-->
-<!--    </FrameLayout>-->
+    <!--    <FrameLayout-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="0dp"-->
+    <!--        android:orientation="vertical"-->
+    <!--        android:scrollbars="vertical"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/top_layer">-->
+    <!--        <androidx.recyclerview.widget.RecyclerView-->
+    <!--            android:id="@+id/gasStorageRecyclerView-->
+    <!--"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="match_parent"-->
+    <!--            android:scrollbars="vertical"-->
+    <!--            android:fadeScrollbars="false"-->
+    <!--            android:scrollbarThumbVertical="@color/design_default_color_primary"-->
+    <!--            android:scrollbarSize="18dp"-->
+    <!--            android:scrollbarStyle="outsideInset"-->
+    <!--            android:orientation="vertical"/>-->
+    <!--    </FrameLayout>-->
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btn_back"
         android:layout_width="50dp"
