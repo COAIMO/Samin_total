@@ -53,7 +53,7 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:isScrollContainer="true"
-            android:windowSoftInputMode="adjustPan|stateHidden"
+            android:windowSoftInputMode="adjustPan"
             android:screenOrientation="landscape">
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->

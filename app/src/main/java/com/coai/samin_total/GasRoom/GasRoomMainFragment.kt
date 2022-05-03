@@ -183,9 +183,9 @@ class GasRoomMainFragment : Fragment() {
             recycleAdapter = GasRoom_RecycleAdapter()
             adapter = recycleAdapter
         }
-//        mBinding.gasRoomRecyclerView.itemAnimator = null
-//        mBinding.gasRoomRecyclerView.animation = null
-        (mBinding.gasRoomRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
+//        (mBinding.gasRoomRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
+        mBinding.gasRoomRecyclerView.itemAnimator = null
+        mBinding.gasRoomRecyclerView.animation = null
     }
 
     private var timerTaskRefresh: Timer? = null
