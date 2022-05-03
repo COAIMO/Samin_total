@@ -1,5 +1,6 @@
 package com.coai.samin_total
 
+import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface
@@ -11,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.app.ActivityCompat
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -64,7 +66,8 @@ class MainFragment : Fragment() {
                     return
                 }
                 if (System.currentTimeMillis() <= backKeyPressedTime + 2500) {
-                    activity?.finishAffinity()
+                    ActivityCompat.finishAffinity(activity!!)
+                    System.exit(0)
                 }
             }
         }
