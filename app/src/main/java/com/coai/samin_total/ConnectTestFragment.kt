@@ -142,6 +142,21 @@ class ConnectTestFragment : Fragment() {
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
         }
+
+        mBinding.btnCheckVersion.setOnClickListener {
+            activity?.isAnotherJob = true
+            Thread.sleep(100)
+            for (i in 0..1){
+                val protocol = SaminProtocol()
+                protocol.checkVersoin(
+                    selected_Model.toInt().toByte(),
+                    selected_ID.toInt().toByte()
+                )
+                activity?.serialService?.sendData(protocol.mProtocol)
+                Thread.sleep(30)
+            }
+            activity?.isAnotherJob = false
+        }
         return mBinding.root
     }
 

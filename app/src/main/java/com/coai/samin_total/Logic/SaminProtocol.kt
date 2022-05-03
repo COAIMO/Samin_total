@@ -141,6 +141,13 @@ class SaminProtocol {
         buildProtocol(model, id, 0xA3.toByte(), alertData)
     }
 
+    /**
+     * Tab.송신 - 펌웨어 버전 확인
+     */
+    fun checkVersoin(model: Byte, id: Byte){
+        buildProtocol(model, id, 0xCD.toByte(),null)
+    }
+
     @ExperimentalUnsignedTypes
     fun parse(data: ByteArray): Boolean {
         var ret = false

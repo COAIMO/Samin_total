@@ -311,20 +311,13 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-//            } else if (receiveParser.packetName == "RequestFeedBackPing") {
                 } else if (receiveParser.packet == SaminProtocolMode.RequestFeedBackPing.byte) {
+
                     if (receiveParser.mProtocol.size >= 14) {
-//                        if (receiveParser.mProtocol[2] == 3.toByte()) {
-//                            Log.d(
-//                                mainTAG,
-//                                "RequestFeedBackPing${HexDump.dumpHexString(msg.obj as ByteArray)}"
-//                            )
-//
-//                        }
                         tmp.Parser(receiveParser.mProtocol)
                     }
                 } else if (receiveParser.packet == SaminProtocolMode.SettingShare.byte) {
-//                    Log.d(mainTAG, "receiveParser.packetName : ${receiveParser.packetName}")
+
                     Log.d(mainTAG, "datahandler : \n${HexDump.dumpHexString(receiveParser.mProtocol)}")
                     when(receiveParser.mProtocol.get(2)) {
                         0x11.toByte() -> {
@@ -559,6 +552,9 @@ class MainActivity : AppCompatActivity() {
 //                            onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
                         }
                     }
+                } else if (receiveParser.packet == SaminProtocolMode.CheckVersion.byte){
+                    val version = receiveParser.mProtocol.get(7).toInt()
+                    Toast.makeText(this@MainActivity, "펌웨어 버전 : $version",Toast.LENGTH_SHORT).show()
                 }
 //            super.handleMessage(msg)iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
             } catch (Ex: Exception) {
