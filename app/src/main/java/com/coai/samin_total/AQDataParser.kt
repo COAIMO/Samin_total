@@ -33,6 +33,12 @@ class AQDataParser(viewModel: MainViewModel) {
     val alertMap = HashMap<Int, Boolean>()
     val alertMap2 = HashMap<Int, Boolean>()
 
+    private fun alertMapClear(){
+        alertBase.clear()
+        alertMap.clear()
+        alertMap2.clear()
+    }
+
     /**
      * 바이트배열 Int 변환
      */
@@ -297,7 +303,7 @@ class AQDataParser(viewModel: MainViewModel) {
                             SetAlertData(
                                 getLatest_time(hmapLastedDate[id]!!),
                                 tmp.modelByte.toInt(),
-                                tmp.id + 65536,
+                                tmp.id,
                                 "가스 압력 하한 값",
                                 tmp.port + 1,
                                 true
@@ -314,7 +320,7 @@ class AQDataParser(viewModel: MainViewModel) {
                             SetAlertData(
                                 getLatest_time(hmapLastedDate[id]!!),
                                 tmp.modelByte.toInt(),
-                                tmp.id + 65536,
+                                tmp.id,
                                 "가스 압력 정상",
                                 tmp.port + 1,
                                 false
@@ -512,7 +518,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id + 65536,
+                        tmp.id,
                         "가스 압력 하한 값",
                         tmp.port + 1,
                         true
@@ -529,7 +535,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
-                        tmp.id + 65536,
+                        tmp.id,
                         "가스 압력 정상",
                         tmp.port + 1,
                         false
@@ -1299,7 +1305,6 @@ class AQDataParser(viewModel: MainViewModel) {
                     true
                 )
             )
-
             lostConnectAQs[tmp.key] = true
         }
 
@@ -1328,6 +1333,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     (current as SetSteamerViewData).isAlertTemp = false
                 }
             }
+            alertMapClear()
 
             val aqInfo = HexDump.toByteArray(tmp)
             val model = aqInfo[3].toInt()
