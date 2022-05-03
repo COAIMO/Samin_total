@@ -295,9 +295,9 @@ class GasDockMainFragment : Fragment() {
             recycleAdapter.submitList(gasStorageViewData)
             adapter = recycleAdapter
         }
-//        mBinding.gasStorageRecyclerView.itemAnimator = null
-//        mBinding.gasStorageRecyclerView.animation = null
-        (mBinding.gasStorageRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
+//        (mBinding.gasStorageRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
+        mBinding.gasStorageRecyclerView.itemAnimator = null
+        mBinding.gasStorageRecyclerView.animation = null
     }
 
     private fun updateAlert() {

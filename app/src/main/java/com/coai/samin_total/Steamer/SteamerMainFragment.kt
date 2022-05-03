@@ -211,9 +211,9 @@ class SteamerMainFragment : Fragment() {
             recycleAdapter = Steamer_RecycleAdapter()
             adapter = recycleAdapter
         }
-        (mBinding.steamerRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
-//        mBinding.steamerRecyclerView.itemAnimator = null
-//        mBinding.steamerRecyclerView.animation = null
+//        (mBinding.steamerRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
+        mBinding.steamerRecyclerView.itemAnimator = null
+        mBinding.steamerRecyclerView.animation = null
     }
 
     @SuppressLint("NotifyDataSetChanged")

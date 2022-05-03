@@ -146,9 +146,9 @@ class WasteLiquorMainFragment : Fragment() {
                     }
                 }
             } else {
+                viewmodel.wasteViewZoomState = false
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
                 synchronized(lockobj) {
-                    viewmodel.wasteViewZoomState = false
-                    mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
                     mBinding.wasteLiquorRecyclerView.apply {
                         (layoutManager as GridLayoutManager).let {
                             it.spanCount = 4
@@ -191,9 +191,9 @@ class WasteLiquorMainFragment : Fragment() {
             recycleAdapter = WasteLiquor_RecycleAdapter()
             adapter = recycleAdapter
         }
-//        mBinding.wasteLiquorRecyclerView.itemAnimator = null
-//        mBinding.wasteLiquorRecyclerView.animation = null
-        (mBinding.wasteLiquorRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
+        mBinding.wasteLiquorRecyclerView.itemAnimator = null
+        mBinding.wasteLiquorRecyclerView.animation = null
+//        (mBinding.wasteLiquorRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
     }
 
     @SuppressLint("NotifyDataSetChanged")
