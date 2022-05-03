@@ -35,6 +35,7 @@ class LoadingActivity : AppCompatActivity() {
 
                     val next = Intent(this@LoadingActivity, MainActivity::class.java)
                     startActivity(next)
+                    finish();
 
                 }
                 SerialService.ACTION_USB_PERMISSION_NOT_GRANTED -> Toast.makeText(
@@ -145,6 +146,16 @@ class LoadingActivity : AppCompatActivity() {
             hideNavigationBar()
         }
         super.onWindowFocusChanged(hasFocus)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unbindService(serialServiceConnection)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
     }
 
     fun hideNavigationBar() {

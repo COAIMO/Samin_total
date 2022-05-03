@@ -78,10 +78,8 @@ class GasDockMainFragment : Fragment() {
     lateinit var thUIError : Thread
     var isrunthUIError = true
 
-    override fun onResume() {
-        super.onResume()
-        isOnTaskRefesh = true
-        taskRefresh = Thread() {
+    inner class ThreadRefresh : Thread() {
+        override fun run() {
             try {
                 while (isOnTaskRefesh) {
                     heartbeatCount++
@@ -93,56 +91,19 @@ class GasDockMainFragment : Fragment() {
                             recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                         }
                     }
-                    Thread.sleep(50)
+                    Thread.sleep(100)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-        taskRefresh?.start()
+    }
 
-//        thUIError = Thread {
-//            try {
-//                while (isrunthUIError) {
-//                    // 메인화면 경고 유무 변화
-//                    val targets = HashMap<Int, Int>()
-//                    for (t in mainViewModel.alertMap.values) {
-//                        if (t.isAlert && !targets.containsKey(t.model)) {
-//                            targets[t.model] = t.model
-//                        }
-//                    }
-//
-//
-//                    activity?.runOnUiThread {
-//                        try {
-//                            mainViewModel.gasStorageAlert.value = targets.containsKey(1)
-//                        } catch (ex: Exception) {
-//                        }
-//                        try {
-//                            mainViewModel.gasRoomAlert.value = targets.containsKey(2)
-//                        } catch (ex: Exception) {
-//                        }
-//                        try {
-//                            mainViewModel.wasteAlert.value = targets.containsKey(3)
-//                        } catch (ex: Exception) {
-//                        }
-//                        try {
-//                            mainViewModel.oxyenAlert.value = targets.containsKey(4)
-//                        } catch (ex: Exception) {
-//                        }
-//                        try {
-//                            mainViewModel.steamerAlert.value = targets.containsKey(5)
-//                        } catch (ex: Exception) {
-//                        }
-//                    }
-//
-//                    Thread.sleep(100)
-//                }
-//            } catch (e : Exception) {
-//
-//            }
-//        }
-//        thUIError?.start()
+    override fun onResume() {
+        super.onResume()
+        isOnTaskRefesh = true
+        taskRefresh = ThreadRefresh()
+        taskRefresh?.start()
     }
 
     override fun onPause() {
