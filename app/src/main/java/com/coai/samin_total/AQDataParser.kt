@@ -52,6 +52,9 @@ class AQDataParser(viewModel: MainViewModel) {
             hmapAQPortSettings.clear()
             setAQport.clear()
             hmapLastedDate.clear()
+            alertBase.clear()
+            alertMap.clear()
+            alertMap2.clear()
 
             for (t in hmapPsis.values)
                 t.clear()
