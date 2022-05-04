@@ -9,16 +9,12 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
-import android.os.Binder
-import android.os.Handler
-import android.os.IBinder
-import android.os.Process
+import android.os.*
 import android.util.Log
-import android.widget.Toast
 import com.coai.samin_total.BuildConfig
+import com.coai.samin_total.Logic.ParsingData
 import com.coai.samin_total.Logic.SaminProtocol
-import com.coai.samin_total.MainActivity
-import com.coai.samin_total.serviceTAG
+import com.coai.samin_total.Logic.SaminProtocolMode
 import com.hoho.android.usbserial.driver.UsbSerialDriver
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
@@ -28,9 +24,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.lang.Exception
-import kotlin.concurrent.thread
-import kotlin.concurrent.timer
 
 class SerialService : Service(), SerialInputOutputManager.Listener {
 //    SerialInputOutputManager.Listener
@@ -44,8 +37,90 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         private const val READ_WAIT_MILLIS = 2000
         var SERVICE_CONNECTED = false
         val RECEIVED_SERERIAL_DATA = 1
+        const val MSG_BIND_CLIENT = 2
+        const val MSG_UNBIND_CLIENT = 3
+        const val MSG_SERIAL_CONNECT = 4
+        const val MSG_SERIAL_SEND = 5
+        const val MSG_SERIAL_RECV = 6
+        const val MSG_SERIAL_DISCONNECT = 7
+        const val MSG_NO_SERIAL = 8
+        const val MSG_CHECK_PING = 9
+        const val MSG_CHECK_VERSION = 10
+        const val MSG_SHARE_SETTING = 11
+        const val MSG_GASDOCK = 12
+        const val MSG_GASROOM = 13
+        const val MSG_WASTE = 14
+        const val MSG_OXYGEN = 15
+        const val MSG_STEMER = 16
     }
 
+    private lateinit var messenger: Messenger
+
+    inner class IncomingHandler(service: Service, private val context: Context = service.applicationContext) :
+        Handler(Looper.getMainLooper()) {
+
+        private val clients = mutableListOf<Messenger>()
+
+        override fun handleMessage(msg: Message) {
+            when (msg.what) {
+                MSG_BIND_CLIENT -> clients.add(msg.replyTo)
+                MSG_UNBIND_CLIENT -> clients.remove(msg.replyTo)
+                MSG_SERIAL_SEND-> {
+                    msg.data.getByteArray("")?.let { sendData(it) }
+                }
+                else -> super.handleMessage(msg)
+            }
+        }
+
+        fun sendConnected() {
+            val message = Message.obtain(null, MSG_SERIAL_CONNECT, null)
+            clients.forEach {
+                it.send(message)
+            }
+        }
+
+        fun sendUIDATA(data: ByteArray) {
+            val message = Message.obtain(null, MSG_SERIAL_RECV)
+            val bundle = Bundle()
+            bundle.putByteArray("", data)
+            message.data = bundle
+            clients.forEach {
+                it.send(message)
+            }
+        }
+
+        fun sendSettingDATA(data: ByteArray) {
+            val message = Message.obtain(null, MSG_SHARE_SETTING)
+            val bundle = Bundle()
+            bundle.putByteArray("", data)
+            message.data = bundle
+            clients.forEach {
+                it.send(message)
+            }
+        }
+
+        fun sendMSG_SERIAL_DISCONNECT() {
+            val message = Message.obtain(null, MSG_SERIAL_DISCONNECT)
+            clients.forEach {
+                it.send(message)
+            }
+        }
+
+        fun sendMSG_NO_SERIAL() {
+            val message = Message.obtain(null, MSG_NO_SERIAL)
+            clients.forEach {
+                it.send(message)
+            }
+        }
+
+        fun sendMSG(msg : Message){
+            clients.forEach {
+                it.send(msg)
+            }
+        }
+    }
+
+    var incomingHandler : IncomingHandler? = null
 
     val binder = SerialServiceBinder()
     private var usbSerialPort: UsbSerialPort? = null
@@ -83,9 +158,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                     usbSerialPort?.close()
                     serialPortConnected = false
                 }
-                mHandler.obtainMessage(
-                    2,
-                )
+                incomingHandler?.sendMSG_SERIAL_DISCONNECT()
             }
         }
     }
@@ -96,13 +169,19 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         }
     }
 
+//    override fun onBind(intent: Intent): IBinder {
+//        return binder
+//    }
     override fun onBind(intent: Intent): IBinder {
-        return binder
+        if (incomingHandler == null)
+            incomingHandler = IncomingHandler(this)
+        messenger = Messenger(incomingHandler)
+        return messenger.binder
     }
 
     //SerialInputOutputManager.Listener
     override fun onNewData(data: ByteArray?) {
-        Log.d("로그", "onNewData : ${HexDump.dumpHexString(data)}")
+//        Log.d("로그", "onNewData : ${HexDump.dumpHexString(data)}")
 //        Log.d("로그", "onNewData recived ======")
         if (data != null) {
             parseReceiveData(data)
@@ -117,6 +196,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     }
 
     override fun onCreate() {
+//        Log.d(serviceTAG, "SerialService : onCreate")
         GlobalScope.launch {
             delay(1000L)
             findUSBSerialDevice()
@@ -135,10 +215,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         super.onDestroy()
     }
 
-    //activity랑 연결해줄 핸들러 셋 fun
-    fun setHandler(mHandler: Handler) {
-        this.mHandler = mHandler
-    }
+//    //activity랑 연결해줄 핸들러 셋 fun
+//    fun setHandler(mHandler: Handler) {
+//        this.mHandler = mHandler
+//    }
 
     private fun setFilter() {
         val filter = IntentFilter()
@@ -153,19 +233,12 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     private fun findUSBSerialDevice(hasPermission: Boolean = false) {
         usbManager = getSystemService(Context.USB_SERVICE) as UsbManager
         if (usbManager.deviceList.isEmpty()) {
-            mHandler.postDelayed({
-                Toast.makeText(this, "connection failed: device not found", Toast.LENGTH_SHORT)
-                    .show()
-            }, 0)
+            incomingHandler?.sendMSG_NO_SERIAL()
             return
         }
         usbDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
         if (usbDrivers == null) {
-//            Log.d(serviceTAG, "connection failed: no driver for device")
-            mHandler.postDelayed({
-                Toast.makeText(this, "connection failed: no driver for device", Toast.LENGTH_SHORT)
-                    .show()
-            }, 0)
+            incomingHandler?.sendMSG_NO_SERIAL()
             return
         }
         if(usbDrivers!!.count() > 0){
@@ -178,16 +251,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 usbManager.requestPermission(device, intent)
             } else {
                 serialPortConnect()
+                incomingHandler?.sendConnected()
             }
         }
-//        for (i in usbDrivers!!) {
-//            usbDriver = i
-//            device = i.device
-//            val intent: PendingIntent =
-//                PendingIntent.getBroadcast(this, 0, Intent(INTENT_ACTION_GRANT_USB), 0)
-//            usbManager.requestPermission(device, intent)
-//            Log.d(serviceTAG, "${i.device}")
-//        }
     }
     private fun getFirstDevice(lst : List<UsbSerialDriver>): UsbSerialDriver {
         val sortList = lst.sortedBy { it.device.deviceName}
@@ -208,17 +274,6 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             )
             usbSerialPort!!.dtr = true
             usbSerialPort!!.rts = true
-//            Thread {
-//
-//                val buff = ByteArray(30)
-//                while (true){
-//                    val size = usbSerialPort!!.read(buff, READ_WAIT_MILLIS)
-//                    if (size > 0) {
-//                        Log.d("태그", "recieved data: ${HexDump.dumpHexString(buff)}")
-//                    }
-//                }
-//
-//            }.start()
 //
             usbIoManager = CoAISerialInputOutputManager(usbSerialPort, this)
             usbIoManager!!.readTimeout = 10
@@ -244,11 +299,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         usbSerialPort = null
     }
 
-    fun sendData(data: ByteArray) {
+    private fun sendData(data: ByteArray) {
 //        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
         usbIoManager?.writeAsync(data)
-
-        Log.d("태그", "send data : \n${HexDump.dumpHexString(data)}")
+//        Log.d("태그", "send data : \n${HexDump.dumpHexString(data)}")
     }
 
     fun checkModelandID() {
@@ -262,6 +316,129 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     private var lastRecvTime: Long = System.currentTimeMillis()
     private var bufferIndex: Int = 0
     private var recvBuffer: ByteArray = ByteArray(1024)
+
+    private fun littleEndianConversion(bytes: ByteArray): Int {
+        var result = 0
+        for (i in bytes.indices) {
+            result = result or (bytes[i].toUByte().toInt() shl 8 * i)
+        }
+        return result
+    }
+
+    val exSensorData = HashMap<Int, Int>()
+    val alphavalue = 0.25
+
+    private fun getLPF(x: Int, key: Int): Int {
+        var tmpx = x
+        if (x > 1023) {
+            Log.d("ERROR", "이상한 데이터 : $x")
+            tmpx = exSensorData[key] ?: 0
+        }
+        if (!exSensorData.containsKey(key)) {
+            exSensorData.put(key, tmpx)
+            return tmpx
+        }
+
+        val prev = exSensorData[key]
+        val ret = alphavalue * prev!! + (1 - alphavalue) * tmpx
+        exSensorData[key] = ret.toInt()
+        return ret.toInt()
+    }
+
+    private fun preprocessParser(arg: ByteArray) {
+        try {
+            val id = arg[3]
+            val model = arg[2]
+            val time = System.currentTimeMillis()
+            val datas = ArrayList<Int>()
+
+            datas.add(littleEndianConversion(arg.slice(7..8).toByteArray()))
+            datas.add(littleEndianConversion(arg.slice(9..10).toByteArray()))
+            datas.add(littleEndianConversion(arg.slice(11..12).toByteArray()))
+            datas.add(littleEndianConversion(arg.slice(13..14).toByteArray()))
+
+            if (model == 1.toByte() || model == 2.toByte() || model == 5.toByte()) {
+                for (t in 0..3) {
+                    datas[t] = getLPF(
+                        datas[t], littleEndianConversion(
+                            byteArrayOf(
+                                model,
+                                id.toByte(),
+                                (t + 1).toByte()
+                            )
+                        )
+                    )
+                }
+            } else if (model == 3.toByte()) {
+                for (t in 0..3) {
+                    1
+                    if (datas[t] != 0 && datas[t] != 1) {
+                        return
+                    }
+                }
+            }
+            val tmp: ParsingData = ParsingData(
+                id,
+                model,
+                time,
+                datas
+            )
+            val bundle = Bundle()
+            bundle.putSerializable("", tmp)
+
+            when(model){
+                0x01.toByte() -> {
+                    val message = Message.obtain(null, MSG_GASDOCK)
+                    message.data = bundle
+                    incomingHandler?.sendMSG(message)
+                }
+                0x02.toByte() -> {
+                    val message = Message.obtain(null, MSG_GASROOM)
+                    message.data = bundle
+                    incomingHandler?.sendMSG(message)
+                }
+                0x03.toByte() -> {
+                    val message = Message.obtain(null, MSG_WASTE)
+                    message.data = bundle
+                    incomingHandler?.sendMSG(message)
+                }
+                0x04.toByte() -> {
+                    val message = Message.obtain(null, MSG_OXYGEN)
+                    message.data = bundle
+                    incomingHandler?.sendMSG(message)
+                }
+                0x05.toByte() -> {
+                    val message = Message.obtain(null, MSG_STEMER)
+                    message.data = bundle
+                    incomingHandler?.sendMSG(message)
+                }
+            }
+
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
+    }
+
+    private fun recvData(data: ByteArray) {
+        val receiveParser = SaminProtocol()
+        receiveParser.parse(data)
+        when(receiveParser.packet) {
+            SaminProtocolMode.CheckProductPing.byte -> {
+                val message = Message.obtain(null, MSG_CHECK_PING, receiveParser.mProtocol.get(2).toInt(), receiveParser.mProtocol.get(3).toInt())
+                incomingHandler?.sendMSG(message)
+            }
+            SaminProtocolMode.RequestFeedBackPing.byte -> {
+                preprocessParser(data)
+            }
+            SaminProtocolMode.SettingShare.byte -> {
+                incomingHandler?.sendSettingDATA(data)
+            }
+            SaminProtocolMode.CheckVersion.byte -> {
+                val message = Message.obtain(null, MSG_CHECK_VERSION, receiveParser.mProtocol.get(7).toInt(), 0)
+                incomingHandler?.sendMSG(message)
+            }
+        }
+    }
 
     fun parseReceiveData(data: ByteArray) {
         lastRecvTime = System.currentTimeMillis()
@@ -298,8 +475,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                             val focusdata: ByteArray =
                                 tmpdata.drop(chkPos).toByteArray()
                             //todo
-                            mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, focusdata)
-                                .sendToTarget()
+//                            mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, focusdata)
+//                                .sendToTarget()
+                            recvData(focusdata)
 
                             bufferIndex = 0;
 
@@ -322,8 +500,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                         val focusdata: ByteArray =
                             tmpdata.drop(chkPos).take(scndpos - chkPos).toByteArray()
 
-                        mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, focusdata).sendToTarget()
+//                        mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, focusdata).sendToTarget()
                         // 두번째 헤더 부분을 idx
+                        recvData(focusdata)
                         idx = scndpos
                     }
                 } else {
