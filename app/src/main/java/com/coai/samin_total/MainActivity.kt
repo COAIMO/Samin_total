@@ -1,5 +1,6 @@
 package com.coai.samin_total
 
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.ComponentName
 import android.content.Context
@@ -13,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
@@ -1205,6 +1206,10 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
+
+
+    lateinit var dao: AlertDAO
+
 
     // 알람 로그 생성
     suspend fun addAlertLogs(
