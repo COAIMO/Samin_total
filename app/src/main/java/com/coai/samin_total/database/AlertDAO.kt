@@ -11,4 +11,10 @@ interface  AlertDAO {
 
     @Insert
     fun insertData(data : AlertData)
+
+    @Query("DELETE FROM AlertData")
+    fun deleteAllData()
+
+    @Query("SELECT * from AlertData")
+    fun getAll():List<AlertData>
 }
