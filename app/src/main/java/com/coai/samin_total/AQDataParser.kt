@@ -345,7 +345,7 @@ class AQDataParser(viewModel: MainViewModel) {
         bro.isAlertRight = tmp.isAlertRight
     }
 
-    private fun ProcessSingleGasStorage(id: Int, data: Int) {
+    fun ProcessSingleGasStorage(id: Int, data: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetGasStorageViewData)
         if (!tmp.usable) {
@@ -429,7 +429,7 @@ class AQDataParser(viewModel: MainViewModel) {
     }
 
 
-    private fun ProcessDualGasStorage(id: Int, left_value: Int, right_value: Int) {
+    fun ProcessDualGasStorage(id: Int, left_value: Int, right_value: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetGasStorageViewData)
         if (!tmp.usable) {
@@ -585,7 +585,7 @@ class AQDataParser(viewModel: MainViewModel) {
     }
 
 
-    private fun ProcessGasRoom(id: Int, data: Int) {
+    fun ProcessGasRoom(id: Int, data: Int) {
         // 설정이 존재하는지 확인
         // val tmp = (hmapAQPortSettings[id] as SetGasRoomViewData) ?: return
         val tmp1 = hmapAQPortSettings[id] ?: return
@@ -712,7 +712,7 @@ class AQDataParser(viewModel: MainViewModel) {
         )
     }
 
-    private fun ProcessWasteLiquor(id: Int, data: Int) {
+    fun ProcessWasteLiquor(id: Int, data: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetWasteLiquorViewData)
         // 수위 초과일때 0 아니면 1
@@ -779,7 +779,7 @@ class AQDataParser(viewModel: MainViewModel) {
         )
     }
 
-    private fun ProcessOxygen(id: Int, data: Int) {
+    fun ProcessOxygen(id: Int, data: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetOxygenViewData)
         val oxygenValue = data / 100f
@@ -947,7 +947,7 @@ class AQDataParser(viewModel: MainViewModel) {
         )
     }
 
-    private fun ProcessSteamer(id: Int, temp: Int, level: Int) {
+    fun ProcessSteamer(id: Int, temp: Int, level: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetSteamerViewData)
         tmp.isTemp = ((0.0019 * temp * temp) + (0.0796 * temp - 186.76)).toInt()
@@ -1135,23 +1135,6 @@ class AQDataParser(viewModel: MainViewModel) {
                                     }
                                 }
                         }
-
-//                        var loop = 1
-//                        for (tmp in datas) {
-//                            //아이디 1개당 포트 4개 추가
-//                            val port = loop++.toByte()
-//                            //키는 아이디 포트
-//                            val key = littleEndianConversion(
-//                                byteArrayOf(
-//                                    model,
-//                                    id.toByte(),
-//                                    port
-//                                )
-//                            )
-//                            hmapLastedDate[key] = time
-//                            ProcessGasStorage(key, tmp)
-//                        }
-
                     }
                     0x02.toByte() -> {
                         var loop = 1
@@ -1182,9 +1165,6 @@ class AQDataParser(viewModel: MainViewModel) {
                         val key = littleEndianConversion(byteArrayOf(model, id.toByte(), port))
                         hmapLastedDate[key] = time
                         ProcessOxygen(key, datas[0])
-//                        val masterPort = 11.toByte()
-//                        val masterKey = littleEndianConversion(byteArrayOf(model, id.toByte(), masterPort))
-//                        ProcessAvgOxygen(key, datas[0])
                     }
                     0x05.toByte() -> {
                         for (loop in 1..2) {

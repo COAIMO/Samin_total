@@ -195,8 +195,7 @@ class ControlFragment : Fragment() {
     }
 
     private fun sendProtocolToSerial(data: ByteArray) {
-        if (!viewmodel.controlData.isMirrorMode)
-            activity?.serialService?.sendData(data)
+        activity?.sendProtocolToSerial(data)
     }
 
     private fun sendMultipartSend(model: Byte, data: ByteArray? = null) {

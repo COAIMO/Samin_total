@@ -90,7 +90,7 @@ class ConnectTestFragment : Fragment() {
             for (i in 0..1) {
                 val protocol = SaminProtocol()
                 protocol.buzzer_On(selected_Model.toInt().toByte(), selected_ID.toInt().toByte())
-                activity?.serialService?.sendData(protocol.mProtocol)
+                activity?.sendProtocolToSerial(protocol.mProtocol)
                 Thread.sleep(30)
             }
             activity?.isAnotherJob = false
@@ -102,7 +102,7 @@ class ConnectTestFragment : Fragment() {
             for (i in 0..1) {
                 val protocol = SaminProtocol()
                 protocol.buzzer_Off(selected_Model.toInt().toByte(), selected_ID.toInt().toByte())
-                activity?.serialService?.sendData(protocol.mProtocol)
+                activity?.sendProtocolToSerial(protocol.mProtocol)
                 Thread.sleep(30)
             }
             activity?.isAnotherJob = false
@@ -120,7 +120,7 @@ class ConnectTestFragment : Fragment() {
                     true,
                     true
                 )
-                activity?.serialService?.sendData(protocol.mProtocol)
+                activity?.sendProtocolToSerial(protocol.mProtocol)
                 Thread.sleep(30)
             }
             activity?.isAnotherJob = false
@@ -134,7 +134,7 @@ class ConnectTestFragment : Fragment() {
                     selected_Model.toInt().toByte(),
                     selected_ID.toInt().toByte()
                 )
-                activity?.serialService?.sendData(protocol.mProtocol)
+                activity?.sendProtocolToSerial(protocol.mProtocol)
                 Thread.sleep(30)
             }
             activity?.isAnotherJob = false
@@ -152,7 +152,7 @@ class ConnectTestFragment : Fragment() {
                     selected_Model.toInt().toByte(),
                     selected_ID.toInt().toByte()
                 )
-                activity?.serialService?.sendData(protocol.mProtocol)
+                activity?.sendProtocolToSerial(protocol.mProtocol)
                 Thread.sleep(30)
             }
             activity?.isAnotherJob = false

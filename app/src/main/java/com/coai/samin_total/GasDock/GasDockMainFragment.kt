@@ -3,18 +3,15 @@ package com.coai.samin_total.GasDock
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.SimpleItemAnimator
 import com.coai.samin_total.*
 import com.coai.samin_total.Dialog.AlertDialogFragment
-import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
 import com.coai.samin_total.databinding.FragmentGasDockMainBinding
@@ -89,9 +86,15 @@ class GasDockMainFragment : Fragment() {
                     synchronized(lockobj) {
                         activity?.runOnUiThread() {
                             recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+//                            val firstVisiblePosition: Int =
+//                                (mBinding.gasStorageRecyclerView.layoutManager as GridLayoutManager).findFirstVisibleItemPosition()
+//                            val lastVisiblePosition: Int =
+//                                (mBinding.gasStorageRecyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
+//                            recycleAdapter.notifyItemRangeChanged(firstVisiblePosition, lastVisiblePosition - firstVisiblePosition)
+//                            recycleAdapter.notifyItemChanged()
                         }
                     }
-                    Thread.sleep(100)
+                    Thread.sleep(50)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

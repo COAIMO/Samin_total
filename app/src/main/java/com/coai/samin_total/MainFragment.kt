@@ -304,8 +304,7 @@ class MainFragment : Fragment() {
     }
 
     private fun sendAlertProtocol(data: ByteArray){
-        if (!viewmodel.controlData.isMirrorMode)
-            activity?.serialService?.sendData(data)
+        activity?.sendProtocolToSerial(data)
     }
 
     private fun  scanModel() {

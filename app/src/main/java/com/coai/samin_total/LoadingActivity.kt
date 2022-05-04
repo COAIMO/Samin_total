@@ -1,5 +1,6 @@
 package com.coai.samin_total
 
+import android.app.Service
 import android.content.*
 import android.os.*
 import android.util.Log
@@ -20,125 +21,85 @@ val serviceTAG = "서비스 태그"
 class LoadingActivity : AppCompatActivity() {
 
     lateinit var mBinding: ActivityLoadingBinding
-    var serialService: SerialService? = null
-    var isSerialSevice = false
+//    var serialService: SerialService? = null
 
-    val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            when (intent?.action) {
-                SerialService.ACTION_USB_PERMISSION_GRANTED -> {
-                    Toast.makeText(
-                        context,
-                        "시리얼 포트가 정상 연결되었습니다.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                    val next = Intent(this@LoadingActivity, MainActivity::class.java)
-                    startActivity(next)
-                    finish();
-
-                }
-                SerialService.ACTION_USB_PERMISSION_NOT_GRANTED -> Toast.makeText(
-                    context,
-                    "USB Permission Not granted",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    private fun setFilters() {
-        val filter = IntentFilter()
-        filter.addAction(SerialService.ACTION_USB_PERMISSION_GRANTED)
-        filter.addAction(SerialService.ACTION_USB_PERMISSION_NOT_GRANTED)
-        registerReceiver(broadcastReceiver, filter)
-    }
-
-    val serialServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = service as SerialService.SerialServiceBinder
-            serialService = binder.getService()
-            //핸들러 연결
-            serialService!!.setHandler(datahandler)
-            isSerialSevice = true
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            isSerialSevice = false
-            Toast.makeText(this@LoadingActivity, "서비스 연결 해제", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    val datahandler = object : Handler(Looper.getMainLooper()) {
-        override fun handleMessage(msg: Message) {
-//            Log.d(loadingTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
-
-            super.handleMessage(msg)
-        }
-    }
-
-    fun bindSerialService() {
-//        if (!UsbSerialService.SERVICE_CONNECTED){
-//            val startSerialService = Intent(this, UsbSerialService::class.java)
-//            startService(startSerialService)
+//    val broadcastReceiver = object : BroadcastReceiver() {
+//        override fun onReceive(context: Context?, intent: Intent?) {
+//            when (intent?.action) {
+//                SerialService.ACTION_USB_PERMISSION_GRANTED -> {
+//                    Toast.makeText(
+//                        context,
+//                        "시리얼 포트가 정상 연결되었습니다.",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
 //
+//                    val next = Intent(this@LoadingActivity, MainActivity::class.java)
+//                    startActivity(next)
+//                    finish();
+//
+//                }
+//                SerialService.ACTION_USB_PERMISSION_NOT_GRANTED -> Toast.makeText(
+//                    context,
+//                    "USB Permission Not granted",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
 //        }
-//        Log.d(loadingTAG, "바인드 시작")
-        val usbSerialServiceIntent = Intent(this, SerialService::class.java)
-        bindService(usbSerialServiceIntent, serialServiceConnection, Context.BIND_AUTO_CREATE)
-    }
+//    }
+//
+//    private fun setFilters() {
+//        val filter = IntentFilter()
+//        filter.addAction(SerialService.ACTION_USB_PERMISSION_GRANTED)
+//        filter.addAction(SerialService.ACTION_USB_PERMISSION_NOT_GRANTED)
+//        registerReceiver(broadcastReceiver, filter)
+//    }
+
+//    val serialServiceConnection = object : ServiceConnection {
+//        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+//            val binder = service as SerialService.SerialServiceBinder
+//            serialService = binder.getService()
+//            //핸들러 연결
+//            serialService!!.setHandler(datahandler)
+//            isSerialSevice = true
+//        }
+//
+//        override fun onServiceDisconnected(name: ComponentName?) {
+//            isSerialSevice = false
+//            Toast.makeText(this@LoadingActivity, "서비스 연결 해제", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+
+//    val datahandler = object : Handler(Looper.getMainLooper()) {
+//        override fun handleMessage(msg: Message) {
+////            Log.d(loadingTAG, "datahandler : ${HexDump.dumpHexString(msg.obj as ByteArray)}")
+//
+//            super.handleMessage(msg)
+//        }
+//    }
+
+//    fun bindSerialService() {
+////        if (!UsbSerialService.SERVICE_CONNECTED){
+////            val startSerialService = Intent(this, UsbSerialService::class.java)
+////            startService(startSerialService)
+////
+////        }
+////        Log.d(loadingTAG, "바인드 시작")
+//        val usbSerialServiceIntent = Intent(this, SerialService::class.java)
+//        bindService(usbSerialServiceIntent, serialServiceConnection, Context.BIND_AUTO_CREATE)
+//    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mBinding = ActivityLoadingBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(mBinding.root)
-
-//        val mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-//        val lst = ArrayList<SetGasRoomViewData>()
-//        lst.add(SetGasRoomViewData(
-//            model = "GasRoom",
-//            id = 1,
-//            port = 1
-//        ))
-//        lst.add(SetGasRoomViewData(
-//            model = "GasRoom",
-//            id = 1,
-//            port = 2
-//        ))
-//        mainViewModel.GasRoomDataLiveList.addAll(lst)
-//        val tmp = AQDataParser(mainViewModel)
-//        var start = 0x04
-//        for(t in 1..10) {
-//            tmp.Parser(
-//                byteArrayOf(
-//                    0xff.toByte(),
-//                    0xfe.toByte(),
-//                    0x02.toByte(),
-//                    0x01.toByte(),
-//                    0x00.toByte(), // Length
-//                    0x00.toByte(), // checksum
-//                    0x00.toByte(), // protocol mode
-//                    0x00.toByte(), // 7
-//                    start.toByte(), // 8
-//                    0xf0.toByte(), // 9
-//                    0x00.toByte(), // 10
-//                    0x00.toByte(), // 11
-//                    0xf0.toByte(), // 12
-//                    0x00.toByte(), // 13
-//                    0xf0.toByte() // 14
-//                )
-//            )
-//            start -= 1
-//            Thread.sleep(500)
-//        }
     }
 
     override fun onResume() {
-        setFilters()
         hideNavigationBar()
-        bindSerialService()
+//        bindSerialService()
         super.onResume()
+        bindMessengerService()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -150,7 +111,8 @@ class LoadingActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        unbindService(serialServiceConnection)
+//        unbindService(serialServiceConnection)
+        unbindMessengerService()
     }
 
     override fun onDestroy() {
@@ -173,6 +135,47 @@ class LoadingActivity : AppCompatActivity() {
 
         }
 //        window.navigationBarColor = Color.parseColor("#FF0000")
+    }
+
+    private val serialSVCIPCHandler = object : Handler(Looper.getMainLooper()) {
+        override fun handleMessage(msg: Message) {
+            when (msg.what) {
+                SerialService.MSG_SERIAL_CONNECT -> {
+                    val next = Intent(this@LoadingActivity, MainActivity::class.java)
+                    startActivity(next)
+                    finish();
+                }
+                else -> super.handleMessage(msg)
+            }
+        }
+    }
+    private val serialSVCIPCClient = Messenger(serialSVCIPCHandler)
+    private var serialSVCIPCService: Messenger? = null
+    private val serialSVCIPCServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            serialSVCIPCService = Messenger(service).apply {
+                send(Message.obtain(null, SerialService.MSG_BIND_CLIENT, 0, 0).apply {
+                    replyTo = serialSVCIPCClient
+                })
+            }
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            serialSVCIPCService = null
+        }
+    }
+
+    private fun bindMessengerService() {
+        Intent(this, SerialService::class.java).run {
+            bindService(this, serialSVCIPCServiceConnection, Service.BIND_AUTO_CREATE)
+        }
+    }
+
+    private fun unbindMessengerService() {
+        serialSVCIPCService?.send(Message.obtain(null, SerialService.MSG_UNBIND_CLIENT, 0, 0).apply {
+            replyTo = serialSVCIPCClient
+        })
+        unbindService(serialSVCIPCServiceConnection)
     }
 
 }
