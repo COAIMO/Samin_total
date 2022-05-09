@@ -303,11 +303,11 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun sendAlertProtocol(data: ByteArray){
+    private fun sendAlertProtocol(data: ByteArray) {
         activity?.sendProtocolToSerial(data)
     }
 
-    private fun  scanModel() {
+    private fun scanModel() {
         getProgressShow()
         sendThread = Thread {
             try {
@@ -349,11 +349,10 @@ class MainFragment : Fragment() {
     }
 
 
-
     private fun initView() {
         mBinding.gasDockMainStatusLayout.visibility = View.GONE
-         mBinding.gasRoomMainStatusLayout.visibility = View.GONE
-           mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
+        mBinding.gasRoomMainStatusLayout.visibility = View.GONE
+        mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
         mBinding.oxygenMainStatusLayout.visibility = View.GONE
         mBinding.steamerMainStatusLayout.visibility = View.GONE
 //        if (viewmodel.isSoundAlert){
@@ -423,6 +422,7 @@ class MainFragment : Fragment() {
             }
 
             viewmodel.oxygenMasterData = null
+            viewmodel.oxygensData.clear()
 //            val oxygenMasterDataSet =
 //                (shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)) as SetOxygenViewData
             val tmpobj =
@@ -465,8 +465,8 @@ class MainFragment : Fragment() {
         val visibleChlidren = mBinding.mainIconContainerLayout.children.filter {
             it.visibility == View.VISIBLE
         }
-        when(visibleChlidren.count()){
-            2->{
+        when (visibleChlidren.count()) {
+            2 -> {
                 for (i in visibleChlidren) {
                     val params = LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -476,7 +476,7 @@ class MainFragment : Fragment() {
                     i.layoutParams = params
                 }
             }
-            3 ->{
+            3 -> {
                 for (i in visibleChlidren) {
                     val params = LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -486,7 +486,7 @@ class MainFragment : Fragment() {
                     i.layoutParams = params
                 }
             }
-            4 ->{
+            4 -> {
                 for (i in visibleChlidren) {
                     val params = LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -496,7 +496,7 @@ class MainFragment : Fragment() {
                     i.layoutParams = params
                 }
             }
-            5->{
+            5 -> {
                 for (i in visibleChlidren) {
                     val params = LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -506,7 +506,7 @@ class MainFragment : Fragment() {
                     i.layoutParams = params
                 }
             }
-            else ->{}
+            else -> {}
         }
         invalidateView()
     }
@@ -640,7 +640,7 @@ class MainFragment : Fragment() {
         thUIError?.start()
     }
 
-    private fun createHasKey(){
+    private fun createHasKey() {
         for ((key, value) in viewmodel.modelMapInt) {
             val model = key.toByte()
             for (i in value) {
@@ -683,6 +683,7 @@ class MainFragment : Fragment() {
             }
         }
     }
+
     private fun littleEndianConversion(bytes: ByteArray): Int {
         var result = 0
         for (i in bytes.indices) {

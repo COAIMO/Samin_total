@@ -221,6 +221,7 @@ class OxygenSettingFragment : Fragment() {
 
     private fun setSaveData() {
         viewmodel.oxygenMasterData = null
+        viewmodel.oxygensData.clear()
         viewmodel.OxygenDataLiveList.clear(true)
         val iter = setOxygenInfo.iterator()
         while (iter.hasNext()) {
