@@ -579,6 +579,9 @@ class MainActivity : AppCompatActivity() {
 //        GlobalUiTimer.getInstance().activity = this
 //        if (mainViewModel.controlData.useSettingShare)
 //        sendSettingValues()
+        if (BuildConfig.DEBUG) {
+            mainViewModel.isSoundAlert = false
+        }
 
         uiError()
         super.onResume()
