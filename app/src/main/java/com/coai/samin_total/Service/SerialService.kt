@@ -421,9 +421,12 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     private fun recvData(data: ByteArray) {
         val receiveParser = SaminProtocol()
-        receiveParser.parse(data)
+        if(!receiveParser.parse(data))
+            return
+
         when(receiveParser.packet) {
             SaminProtocolMode.CheckProductPing.byte -> {
+                Log.d("SerialService", "CheckProductPing data : \n${HexDump.dumpHexString(data)}")
                 val message = Message.obtain(null, MSG_CHECK_PING, receiveParser.mProtocol.get(2).toInt(), receiveParser.mProtocol.get(3).toInt())
                 incomingHandler?.sendMSG(message)
             }
