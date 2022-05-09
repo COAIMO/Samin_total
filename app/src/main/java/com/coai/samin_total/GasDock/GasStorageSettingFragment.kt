@@ -319,7 +319,14 @@ class GasStorageSettingFragment : Fragment() {
         mBinding = FragmentGasStorageSettingBinding.inflate(inflater, container, false)
         shared = SaminSharedPreference(requireContext())
         initRecycler()
-        initView()
+        while (true) {
+            try {
+                initView()
+                break
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+            }
+        }
         setGasTypeSpinner()
         setSensorTypeSpinner()
         setGasColorSpinner()

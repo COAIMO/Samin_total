@@ -619,6 +619,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+//        unbindMessengerService()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         unbindMessengerService()
     }
 

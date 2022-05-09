@@ -94,6 +94,7 @@ class GasDockMainFragment : Fragment() {
 //                            recycleAdapter.notifyItemChanged()
                         }
                     }
+
                     Thread.sleep(50)
                 }
             } catch (e: Exception) {

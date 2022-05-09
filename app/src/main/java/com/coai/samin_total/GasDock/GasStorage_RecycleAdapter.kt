@@ -78,7 +78,6 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
                 holder.setIsRecyclable(false)
             }
         }
-
     }
 
     override fun getItemViewType(position: Int): Int {
