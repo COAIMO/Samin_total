@@ -51,7 +51,7 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
-        android:inputType="number"
+        android:inputType="numberDecimal"
         android:text="23"
         android:textSize="20sp" />
 

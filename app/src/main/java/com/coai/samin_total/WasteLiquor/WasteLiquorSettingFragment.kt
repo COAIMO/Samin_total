@@ -18,6 +18,7 @@ import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
+import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.databinding.FragmentWasteLiquorSettingBinding
 
@@ -178,6 +179,13 @@ class WasteWaterSettingFragment : Fragment() {
     }
 
     private fun setSaveData() {
+        for (i in viewmodel.alertMap) {
+            val aqInfo = HexDump.toByteArray(i.key)
+            val model = aqInfo[3].toInt()
+            if (model == 3) {
+                viewmodel.alertMap.remove(i.key)
+            }
+        }
         viewmodel.WasteLiquorDataLiveList.clear(true)
         val iter = setWasteLiquorInfo.iterator()
         while (iter.hasNext()) {

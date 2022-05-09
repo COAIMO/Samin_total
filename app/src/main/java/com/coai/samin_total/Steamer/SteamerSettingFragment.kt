@@ -20,6 +20,7 @@ import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
+import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentSteamerSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -177,6 +178,13 @@ class SteamerSettingFragment : Fragment() {
     }
 
     private fun setSaveData() {
+        for (i in viewmodel.alertMap) {
+            val aqInfo = HexDump.toByteArray(i.key)
+            val model = aqInfo[3].toInt()
+            if (model == 5) {
+                viewmodel.alertMap.remove(i.key)
+            }
+        }
         viewmodel.SteamerDataLiveList.clear(true)
         val iter = setSteamerInfo.iterator()
         while (iter.hasNext()) {

@@ -33,7 +33,7 @@ class AQDataParser(viewModel: MainViewModel) {
     val alertMap = HashMap<Int, Boolean>()
     val alertMap2 = HashMap<Int, Boolean>()
 
-    private fun alertMapClear(){
+    private fun alertMapClear() {
         alertBase.clear()
         alertMap.clear()
         alertMap2.clear()
@@ -389,8 +389,8 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         } else {
+            tmp.isAlert = false
             if (alertMap.containsKey(id)) {
-                tmp.isAlert = false
 //                viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
                     id,
@@ -745,8 +745,8 @@ class AQDataParser(viewModel: MainViewModel) {
                 )
             }
         } else {
+            tmp.isAlert = false
             if (alertMap.containsKey(id)) {
-                tmp.isAlert = false
 //                viewModel.wasteAlert.value = false
                 viewModel.addAlertInfo(
                     id,
@@ -823,8 +823,8 @@ class AQDataParser(viewModel: MainViewModel) {
                     )
                 }
             } else {
+                tmp.isAlert = false
                 if (alertMap.containsKey(id)) {
-                    tmp.isAlert = false
                     viewModel.addAlertInfo(
                         id,
                         SetAlertData(
@@ -866,8 +866,7 @@ class AQDataParser(viewModel: MainViewModel) {
 //            val port = aqInfo[1].toInt()
             val oxydata = (value as SetOxygenViewData)
 
-            viewModel.
-            oxygensData.put(key, oxydata)
+            viewModel.oxygensData.put(key, oxydata)
             if (oxydata.setValue == 0f) {
                 continue
             } else {
@@ -885,9 +884,9 @@ class AQDataParser(viewModel: MainViewModel) {
                     SetAlertData(
                         getLatest_time(hmapLastedDate[id]!!),
                         4,
-                        11,
-                        "산소농도 하한 값",
-                        11,
+                        8,
+                        "[평균]산소농도 하한 값",
+                        8,
                         true
                     )
                 )
@@ -902,9 +901,9 @@ class AQDataParser(viewModel: MainViewModel) {
                         SetAlertData(
                             getLatest_time(hmapLastedDate[id]!!),
                             4,
-                            11,
-                            "산소농도 상한 값",
-                            11,
+                            8,
+                            "[평균]산소농도 상한 값",
+                            8,
                             true
                         )
                     )
@@ -917,9 +916,9 @@ class AQDataParser(viewModel: MainViewModel) {
                         SetAlertData(
                             getLatest_time(hmapLastedDate[id]!!),
                             4,
-                            11,
-                            "산소농도 정상",
-                            11,
+                            8,
+                            "[평균]산소농도 정상",
+                            8,
                             false
                         )
                     )
@@ -978,9 +977,9 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         } else {
+            tmp.isAlertTemp = false
             if (alertMap.containsKey(id)) {
 //                viewModel.steamerAlert.value = false
-                tmp.isAlertTemp = false
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -1021,9 +1020,9 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         } else {
+            tmp.isAlertTemp = false
             if (alertMap2.containsKey(id)) {
 //                viewModel.steamerAlert.value = false
-                tmp.isAlertTemp = false
                 viewModel.addAlertInfo(
                     id + 65536 * 2,
                     SetAlertData(
@@ -1297,12 +1296,11 @@ class AQDataParser(viewModel: MainViewModel) {
 
             val alertinfo = viewModel.alertMap[tmp]
             if (alertinfo == alertinfo || !alertinfo!!.isAlert) {
-                if (current is SetGasStorageViewData){
+                if (current is SetGasStorageViewData) {
                     (current as SetGasStorageViewData).isAlert = false
                     current.isAlertRight = false
                     current.isAlertLeft = false
-                }
-                else if (current is SetGasRoomViewData)
+                } else if (current is SetGasRoomViewData)
                     (current as SetGasRoomViewData).isAlert = false
                 else if (current is SetWasteLiquorViewData)
                     (current as SetWasteLiquorViewData).isAlert = false
