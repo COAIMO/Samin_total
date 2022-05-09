@@ -37,9 +37,9 @@ class SteamerSetting_RecyclerAdapter: RecyclerView.Adapter<RecyclerView.ViewHold
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as SteamerSettingViewHodler).bind(steamerInfo[position])
         holder.setIsRecyclable(true)
-
+        val tmpPositon = position
         //색변경
-        if (selectedPosition == position){
+        if (selectedPosition == tmpPositon){
             holder.itemView.setBackgroundColor(Color.parseColor("#ff9800"))
         }else{
             holder.itemView.setBackgroundColor(Color.parseColor("#ffffff"))
@@ -48,9 +48,9 @@ class SteamerSetting_RecyclerAdapter: RecyclerView.Adapter<RecyclerView.ViewHold
 
         // (1) 리스트 내 항목 클릭 시 onClick() 호출
         holder.itemView.setOnClickListener {
-            itemClickListener.onClick(it, position)
+            itemClickListener.onClick(it, tmpPositon)
             oldPosition = selectedPosition
-            selectedPosition = position
+            selectedPosition = tmpPositon
 
             notifyItemChanged(oldPosition)
             notifyItemChanged(selectedPosition)

@@ -153,6 +153,7 @@ class AlertDialogFragment : DialogFragment() {
                 // 디스플레이용 리스트 만들고
                 val tmpList = ArrayList<SetAlertData>()
                 // 디스플레이용 현재 데이터 생성
+
                 for ((key, value) in viewmodel.oxygensData) {
                     val aqInfo = HexDump.toByteArray(key)
                     val model = aqInfo[3].toInt()

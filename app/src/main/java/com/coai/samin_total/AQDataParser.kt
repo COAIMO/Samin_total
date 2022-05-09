@@ -866,7 +866,8 @@ class AQDataParser(viewModel: MainViewModel) {
 //            val port = aqInfo[1].toInt()
             val oxydata = (value as SetOxygenViewData)
 
-            viewModel.oxygensData.put(key, oxydata)
+            viewModel.
+            oxygensData.put(key, oxydata)
             if (oxydata.setValue == 0f) {
                 continue
             } else {

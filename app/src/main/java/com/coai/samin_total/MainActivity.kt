@@ -751,6 +751,7 @@ class MainActivity : AppCompatActivity() {
         shared.removeBoardSetData(SaminSharedPreference.STEAMER)
         shared.removeBoardSetData(SaminSharedPreference.MASTEROXYGEN)
         mainViewModel.removeModelMap()
+        mainViewModel.oxygensData.clear()
         idsListClear()
     }
 
