@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
+import com.coai.samin_total.Logic.Utils
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
@@ -48,6 +49,8 @@ class SteamerMainFragment : Fragment() {
     var btn_Count = 0
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
+    private val steamerViewData = arrayListOf<SetSteamerViewData>()
+    private val newsteamerViewData = arrayListOf<SetSteamerViewData>()
 
     //    private var timerTaskRefresh: Timer? = null
     private var taskRefresh: Thread? = null
@@ -94,29 +97,49 @@ class SteamerMainFragment : Fragment() {
         isOnTaskRefesh = true
         taskRefresh = Thread() {
             try {
+                val lstvalue = mutableListOf<Int>()
                 while (isOnTaskRefesh) {
-                    try {
-                        val elapsed: Long = measureTimeMillis {
-                            heartbeatCount++
-                            for (tmp in viewmodel.SteamerDataLiveList.value!!.iterator()) {
-                                tmp.heartbeatCount = heartbeatCount
+                    lstvalue.clear()
+                    heartbeatCount++
+
+                    for (t in newsteamerViewData) {
+                        val idx = newsteamerViewData.indexOf(t)
+                        if (idx > -1) {
+                            if (steamerViewData[idx].unit != t.unit ||
+                                    steamerViewData[idx].isAlertTemp != t.isAlertTemp ||
+                                    steamerViewData[idx].isAlertLow != t.isAlertLow ||
+                                    steamerViewData[idx].isTemp != t.isTemp){
+                                lstvalue.add(idx)
                             }
 
-                            synchronized(lockobj) {
-                                activity?.runOnUiThread() {
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
+                                if (t.isAlertTemp || t.isAlertLow) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                }
+                            }
+
+                            t.heartbeatCount = heartbeatCount
+                            steamerViewData[idx] = t.copy()
+                        }
+                    }
+
+                    val rlist = Utils.ToIntRange(lstvalue, steamerViewData.size)
+                    if (rlist != null) {
+                        Log.d("debug", "${rlist.size}")
+                        synchronized(lockobj) {
+                            activity?.runOnUiThread() {
+                                rlist.forEach {
                                     recycleAdapter.notifyItemRangeChanged(
-                                        0,
-                                        recycleAdapter.itemCount
+                                        it.lower,
+                                        1 + it.upper - it.lower
                                     )
                                 }
                             }
                         }
-//                        Log.d("SteamerMainFragment", "taskRefresh measureTimeMillis : $elapsed")
-
-                        Thread.sleep(50)
-                    } catch (ex: Exception) {
-                        ex.printStackTrace()
                     }
+
+                    Thread.sleep(50)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -163,6 +186,11 @@ class SteamerMainFragment : Fragment() {
                         }
                         itemSpace.changeSpace(90, 50, 90, 50)
                     }
+                }
+            }
+            synchronized(lockobj) {
+                activity?.runOnUiThread {
+                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                 }
             }
         }
@@ -218,22 +246,26 @@ class SteamerMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-//        viewmodel.SteamerDataLiveList.clear(true)
-//        val steamerDataSet = shared.loadBoardSetData(SaminSharedPreference.STEAMER) as MutableList<SetSteamerViewData>
-//        if (steamerDataSet.isNotEmpty()){
-//            for (i in steamerDataSet){
-//                viewmodel.SteamerDataLiveList.add(i)
-//            }
-//        }
-
         val mm = viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
-        recycleAdapter.submitList(mm)
-//        recycleAdapter.notifyDataSetChanged()
-//        activity?.tmp?.LoadSetting()
+        newsteamerViewData.clear()
+        for (tmp in mm)
+            newsteamerViewData.add(tmp)
+
+        steamerViewData.clear()
+        for (t in newsteamerViewData)
+            steamerViewData.add(t.copy())
+        recycleAdapter.submitList(newsteamerViewData)
+
         if (viewmodel.steamerViewZoomState) {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
         }else{
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+        }
+
+        synchronized(lockobj) {
+            activity?.runOnUiThread {
+                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+            }
         }
     }
 

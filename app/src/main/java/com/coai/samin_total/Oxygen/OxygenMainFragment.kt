@@ -40,7 +40,9 @@ class OxygenMainFragment : Fragment() {
     private lateinit var mBinding: FragmentOxygenMainBinding
     private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var recycleAdapter: Oxygen_RecycleAdapter
-    private val oxygenViewData = mutableListOf<SetOxygenViewData>()
+//    private val oxygenViewData = mutableListOf<SetOxygenViewData>()
+    private var oxygenViewData:SetOxygenViewData? = null
+
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
     private lateinit var sendThread: Thread
@@ -91,14 +93,32 @@ class OxygenMainFragment : Fragment() {
         isOnTaskRefesh = true
         taskRefresh = Thread() {
             try {
+                var chk: Boolean = false
                 while (isOnTaskRefesh) {
+                    chk = false
                     heartbeatCount++
-                    viewmodel.oxygenMasterData?.heartbeatCount = heartbeatCount
-                    synchronized(lockobj) {
-                        activity?.runOnUiThread() {
-                            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+
+                    if (viewmodel.oxygenMasterData?.isAlert != oxygenViewData?.isAlert ||
+                        viewmodel.oxygenMasterData?.setValue != oxygenViewData?.setValue)
+                            chk = true
+
+                    if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
+                        if (viewmodel.oxygenMasterData?.isAlert == true) {
+                            chk = true
                         }
                     }
+                    viewmodel.oxygenMasterData?.heartbeatCount = heartbeatCount
+                    oxygenViewData = viewmodel.oxygenMasterData?.copy()
+
+
+                    if(chk) {
+                        synchronized(lockobj) {
+                            activity?.runOnUiThread() {
+                                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                            }
+                        }
+                    }
+
                     Thread.sleep(50)
                 }
             } catch (e: Exception) {
@@ -151,6 +171,11 @@ class OxygenMainFragment : Fragment() {
                     }
                 }
             }
+            synchronized(lockobj) {
+                activity?.runOnUiThread {
+                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                }
+            }
         }
 
         mBinding.btnAlert.setOnClickListener {
@@ -200,6 +225,7 @@ class OxygenMainFragment : Fragment() {
 //        recycleAdapter.submitList(mm)
 
         if (viewmodel.oxygenMasterData != null) {
+            oxygenViewData = viewmodel.oxygenMasterData?.copy()
             recycleAdapter.setData(viewmodel.oxygenMasterData!!)
         }
 

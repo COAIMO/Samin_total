@@ -3,6 +3,7 @@ package com.coai.samin_total.WasteLiquor
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
+import com.coai.samin_total.Logic.Utils
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
@@ -37,7 +39,9 @@ class WasteLiquorMainFragment : Fragment() {
     private var param2: String? = null
     private lateinit var mBinding: FragmentWasteLiquorMainBinding
     private lateinit var recycleAdapter: WasteLiquor_RecycleAdapter
-    private val wasteLiquorViewData = mutableListOf<SetWasteLiquorViewData>()
+    private val wasteLiquorViewData = arrayListOf<SetWasteLiquorViewData>()
+    private val newwasteLiquorViewData = arrayListOf<SetWasteLiquorViewData>()
+
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
     private val viewmodel by activityViewModels<MainViewModel>()
@@ -81,25 +85,42 @@ class WasteLiquorMainFragment : Fragment() {
         isOnTaskRefesh = true
         taskRefresh = Thread() {
             try {
+                val lstvalue = mutableListOf<Int>()
                 while (isOnTaskRefesh) {
+                    lstvalue.clear()
                     heartbeatCount++
-                    for (tmp in viewmodel.WasteLiquorDataLiveList.value!!.iterator()) {
-                        tmp.heartbeatCount = heartbeatCount
-                    }
 
-                    synchronized(lockobj) {
-//                        val tmp =
-//                            (mBinding.wasteLiquorRecyclerView.layoutManager as GridLayoutManager)
-                        activity?.runOnUiThread() {
-//                            try {
-//                                val start = tmp.findFirstVisibleItemPosition()
-//                                val end = tmp.findLastVisibleItemPosition()
-//                                recycleAdapter.notifyItemRangeChanged(start, end - start + 1)
-//                            } catch (ex: Exception) {
-//                            }
-                            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                    for (t in newwasteLiquorViewData) {
+                        val idx = newwasteLiquorViewData.indexOf(t)
+                        if (idx > -1) {
+                            if (wasteLiquorViewData[idx].isAlert != t.isAlert)
+                                lstvalue.add(idx)
+
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
+                                if (t.isAlert)
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                            }
+                            t.heartbeatCount = heartbeatCount
+                            wasteLiquorViewData[idx] = t.copy()
                         }
                     }
+
+                    val rlist = Utils.ToIntRange(lstvalue, wasteLiquorViewData.size)
+                    if (rlist != null) {
+                        Log.d("debug", "${rlist.size}")
+                        synchronized(lockobj) {
+                            activity?.runOnUiThread() {
+                                rlist.forEach {
+                                    recycleAdapter.notifyItemRangeChanged(
+                                        it.lower,
+                                        1 + it.upper - it.lower
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     Thread.sleep(50)
 
                 }
@@ -157,6 +178,12 @@ class WasteLiquorMainFragment : Fragment() {
                     }
                 }
             }
+
+            synchronized(lockobj) {
+                activity?.runOnUiThread {
+                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                }
+            }
         }
 
         mBinding.btnAlert.setOnClickListener {
@@ -198,21 +225,28 @@ class WasteLiquorMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-//        viewmodel.WasteLiquorDataLiveList.clear(true)
-//        val wasteDataSet = shared.loadBoardSetData(SaminSharedPreference.WASTELIQUOR) as MutableList<SetWasteLiquorViewData>
-//        if (wasteDataSet.isNotEmpty()){
-//            for (i in wasteDataSet){
-//                viewmodel.WasteLiquorDataLiveList.add(i)
-//            }
-//        }
         val mm =
             viewmodel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
-        recycleAdapter.submitList(mm)
+        newwasteLiquorViewData.clear()
+        for(tmp in mm)
+            newwasteLiquorViewData.add(tmp)
+
+        wasteLiquorViewData.clear()
+        for(t in newwasteLiquorViewData)
+            wasteLiquorViewData.add(t.copy())
+
+        recycleAdapter.submitList(newwasteLiquorViewData)
 
         if (viewmodel.wasteViewZoomState) {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
         }else{
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+        }
+
+        synchronized(lockobj) {
+            activity?.runOnUiThread {
+                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+            }
         }
     }
 

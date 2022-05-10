@@ -3,17 +3,20 @@ package com.coai.samin_total.GasDock
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.*
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
+import com.coai.samin_total.Logic.Utils
 import com.coai.samin_total.databinding.FragmentGasDockMainBinding
 import java.util.*
 
@@ -32,7 +35,8 @@ class GasDockMainFragment : Fragment() {
     private var param2: String? = null
     lateinit private var mBinding: FragmentGasDockMainBinding
     private var activity: MainActivity? = null
-    private val gasStorageViewData = mutableListOf<SetGasStorageViewData>()
+    private val newgasStorageViewData = arrayListOf<SetGasStorageViewData>()
+    private val gasStorageViewData = arrayListOf<SetGasStorageViewData>()
     private lateinit var recycleAdapter: GasStorage_RecycleAdapter
     private lateinit var onBackPressed: OnBackPressedCallback
     var sending = false
@@ -78,20 +82,50 @@ class GasDockMainFragment : Fragment() {
     inner class ThreadRefresh : Thread() {
         override fun run() {
             try {
+                val lstvalue = mutableListOf<Int>()
                 while (isOnTaskRefesh) {
+                    lstvalue.clear()
                     heartbeatCount++
-                    for (tmp in mainViewModel.GasStorageDataLiveList.value!!.iterator()) {
-                        tmp.heartbeatCount = heartbeatCount
+
+                    for (t in newgasStorageViewData) {
+                        val idx = newgasStorageViewData.indexOf(t)
+                        if (idx > -1) {
+                            if (gasStorageViewData[idx].pressure != t.pressure ||
+                                gasStorageViewData[idx].pressureLeft != t.pressureLeft ||
+                                gasStorageViewData[idx].pressureRight != t.pressureRight ||
+                                gasStorageViewData[idx].isAlert != t.isAlert ||
+                                gasStorageViewData[idx].isAlertRight != t.isAlertRight ||
+                                gasStorageViewData[idx].isAlertLeft != t.isAlertLeft ||
+                                gasStorageViewData[idx].unit != t.unit    )
+                            {
+                                lstvalue.add(idx)
+                            }
+
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
+                                if (t.isAlert == true ||
+                                    t.isAlertLeft == true ||
+                                    t.isAlertRight == true) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                }
+                            }
+                            t.heartbeatCount = heartbeatCount
+                            gasStorageViewData[idx] = t.copy()
+                        }
                     }
-                    synchronized(lockobj) {
-                        activity?.runOnUiThread() {
-                            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-//                            val firstVisiblePosition: Int =
-//                                (mBinding.gasStorageRecyclerView.layoutManager as GridLayoutManager).findFirstVisibleItemPosition()
-//                            val lastVisiblePosition: Int =
-//                                (mBinding.gasStorageRecyclerView.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
-//                            recycleAdapter.notifyItemRangeChanged(firstVisiblePosition, lastVisiblePosition - firstVisiblePosition)
-//                            recycleAdapter.notifyItemChanged()
+
+                    val rlist = Utils.ToIntRange(lstvalue, gasStorageViewData.size)
+                    if (rlist != null) {
+                        Log.d("debug", "${rlist.size}")
+                        synchronized(lockobj) {
+                            activity?.runOnUiThread() {
+                                rlist.forEach {
+                                    recycleAdapter.notifyItemRangeChanged(
+                                        it.lower,
+                                        1 + it.upper - it.lower
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -155,6 +189,11 @@ class GasDockMainFragment : Fragment() {
                     }
                 }
             }
+            synchronized(lockobj) {
+                activity?.runOnUiThread {
+                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                }
+            }
         }
         mBinding.btnUnit.setOnClickListener {
             for ((index, data) in mainViewModel.GasStorageDataLiveList.value!!.sortedWith(
@@ -189,25 +228,33 @@ class GasDockMainFragment : Fragment() {
 
     private fun initView() {
         //셋팅 데이터 불러와서 뷰추가 할것!!!
-//        val storgeDataSet =
-//            shared.loadBoardSetData(SaminSharedPreference.GASSTORAGE) as MutableList<SetGasStorageViewData>
-//        mainViewModel.GasStorageDataLiveList.clear(true)
-//        if (storgeDataSet.isNotEmpty()) {
-//            for (i in storgeDataSet) {
-//                mainViewModel.GasStorageDataLiveList.add(i)
-//            }
-//        }
-
         val mm = mainViewModel.GasStorageDataLiveList.value!!.sortedWith(
             compareBy({ it.id },
                 { it.port })
         )
-        recycleAdapter.submitList(mm)
+
+        newgasStorageViewData.clear()
+        for(tmp in mm) {
+            newgasStorageViewData.add(tmp)
+        }
+//        newgasStorageViewData.addAll(mm)
+        gasStorageViewData.clear()
+        for(t in newgasStorageViewData) {
+            gasStorageViewData.add(t.copy())
+        }
+
+        recycleAdapter.submitList(newgasStorageViewData)
 
         if (mainViewModel.storageViewZoomState) {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
         }else{
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+        }
+
+        synchronized(lockobj) {
+            activity?.runOnUiThread {
+                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+            }
         }
 
     }
@@ -257,7 +304,7 @@ class GasDockMainFragment : Fragment() {
 
             }
             addItemDecoration(itemSpace)
-            recycleAdapter.submitList(gasStorageViewData)
+//            recycleAdapter.submitList(gasStorageViewData)
             adapter = recycleAdapter
         }
 //        (mBinding.gasStorageRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false

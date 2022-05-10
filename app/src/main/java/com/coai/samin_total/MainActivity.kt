@@ -767,11 +767,13 @@ class MainActivity : AppCompatActivity() {
         isCallTimeout = false
         callTimeoutThread?.interrupt()
         callTimeoutThread?.join()
+        callTimeoutThread = null
     }
     fun callTimemout() {
         isCallTimeout = false
         callTimeoutThread?.interrupt()
         callTimeoutThread?.join()
+
         isCallTimeout = true
 
         callTimeoutThread = Thread {

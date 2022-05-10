@@ -1,9 +1,7 @@
 package com.coai.samin_total.GasDock
 
 import android.graphics.Color
-import com.coai.samin_total.MainViewModel
 import kotlinx.serialization.Serializable
-import java.sql.Struct
 
 @Serializable
 data class SetGasStorageViewData(
