@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -136,9 +137,9 @@ class AlertLogFragment : Fragment() {
         mBinding.btnClear.setOnClickListener {
             GlobalScope.launch {
                 activity?.dao?.deleteAllData()
-
             }
-            initRecycler()
+            activity?.onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
+            Toast.makeText(requireContext(), "알람 로그가 클리어 되었습니다.", Toast.LENGTH_SHORT).show()
         }
         return mBinding.root
     }

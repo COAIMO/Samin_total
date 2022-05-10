@@ -1,6 +1,7 @@
 package com.coai.samin_total
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -61,9 +62,21 @@ class VersionFragment : Fragment() {
             activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
         }
 
+
         return mBinding.root
     }
 
+    fun GetAppVersion(context: Context): String {
+        var version = ""
+        try {
+            val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            version = pInfo.versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+
+        return version
+    }
     companion object {
         /**
          * Use this factory method to create a new instance of
