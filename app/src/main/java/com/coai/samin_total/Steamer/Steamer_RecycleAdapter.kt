@@ -51,8 +51,8 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
                 steamerView.setTempUnit(setSteamerViewData.unit)
                 steamerView.setAlertTemp(setSteamerViewData.isAlertTemp)
                 steamerView.heartBeat(setSteamerViewData.heartbeatCount)
+                steamerView.setName(setSteamerViewData.name)
             }
-            Log.d("steamerViewHodler", "bind measureTimeMillis : $elapsed")
         }
     }
 

@@ -62,6 +62,23 @@ class SteamerSettingFragment : Fragment() {
 
     }
 
+    private val steamerNameWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s != null && !s.toString().equals("")) {
+                if (selectedSensor == null) return
+                selectedSensor?.name = s.toString()
+            }
+
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -117,6 +134,7 @@ class SteamerSettingFragment : Fragment() {
                     )
                 )
                 mBinding.steamerBoardSettingView.mTemp_minValue_et.setText(selectedSensor?.tempMax.toString())
+                mBinding.steamerBoardSettingView.mSteamer_name_et.setText(selectedSensor?.name)
             }
         })
 
@@ -152,9 +170,10 @@ class SteamerSettingFragment : Fragment() {
             }
         }
         //이전 저장된 설정 데이터 불러와서 적용.
-        val exData =shared.loadBoardSetData(SaminSharedPreference.STEAMER) as MutableList<SetSteamerViewData>
-        if (exData.isNotEmpty()){
-            for ((index, value) in exData.withIndex()){
+        val exData =
+            shared.loadBoardSetData(SaminSharedPreference.STEAMER) as MutableList<SetSteamerViewData>
+        if (exData.isNotEmpty()) {
+            for ((index, value) in exData.withIndex()) {
                 setSteamerInfo.set(index, value)
             }
         }
@@ -166,6 +185,7 @@ class SteamerSettingFragment : Fragment() {
         mBinding.steamerBoardSettingView.mTemp_minValue_et.addTextChangedListener(
             mTemp_minValueWatcher
         )
+        mBinding.steamerBoardSettingView.mSteamer_name_et.addTextChangedListener(steamerNameWatcher)
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.STEAMERMAINFRAGMENT)
         }
@@ -190,7 +210,7 @@ class SteamerSettingFragment : Fragment() {
         while (iter.hasNext()) {
             iter.forEach {
 //                if (it.usable){
-                    viewmodel.SteamerDataLiveList.add(it)
+                viewmodel.SteamerDataLiveList.add(it)
 //                }else iter.remove()
             }
         }
@@ -222,12 +242,14 @@ class SteamerSettingFragment : Fragment() {
                 ) {
                     selectedSensor?.temp_SensorType = viewmodel.tempSensorType[position]
                 }
+
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     Toast.makeText(context, "센서 타입을 선택해주세요.", Toast.LENGTH_SHORT)
                         .show()
                 }
             }
     }
+
     private fun setWaterSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
             requireContext(),
@@ -245,6 +267,7 @@ class SteamerSettingFragment : Fragment() {
                 ) {
                     selectedSensor?.level_SensorType = viewmodel.waterSensorType[position]
                 }
+
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     Toast.makeText(context, "센서 타입을 선택해주세요.", Toast.LENGTH_SHORT)
                         .show()
@@ -271,6 +294,7 @@ class SteamerSettingFragment : Fragment() {
                 }
             }
     }
+
     private fun hideKeyboard() {
         if (getActivity() != null && requireActivity().currentFocus != null) {
             // 프래그먼트기 때문에 getActivity() 사용

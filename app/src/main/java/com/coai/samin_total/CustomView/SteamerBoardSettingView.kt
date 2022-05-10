@@ -14,6 +14,7 @@ class SteamerBoardSettingView constructor(context: Context, attrs: AttributeSet?
     var mLevelSensorType_Sp: Spinner
     var mTempSensorType_Sp: Spinner
     var mTemp_minValue_et: EditText
+    var mSteamer_name_et: EditText
     val levelsensorType = arrayListOf<String>(
         "BS1"
     )
@@ -83,6 +84,7 @@ class SteamerBoardSettingView constructor(context: Context, attrs: AttributeSet?
         mLevelSensorType_Sp = findViewById(R.id.sp_level_sensor_type)
         mTempSensorType_Sp = findViewById(R.id.sp_temp_sensor_type)
         mTemp_minValue_et = findViewById(R.id.et_temp_alert)
+        mSteamer_name_et = findViewById(R.id.et_steamer_name)
 
         setLevelSensorTypeSpinner()
         setTempSensorTypeSpinner()
