@@ -82,6 +82,7 @@ class GasDockMainFragment : Fragment() {
     inner class ThreadRefresh : Thread() {
         override fun run() {
             try {
+                var lastupdate: Long = System.currentTimeMillis()
                 val lstvalue = mutableListOf<Int>()
                 while (isOnTaskRefesh) {
                     lstvalue.clear()
@@ -116,7 +117,7 @@ class GasDockMainFragment : Fragment() {
 
                     val rlist = Utils.ToIntRange(lstvalue, gasStorageViewData.size)
                     if (rlist != null) {
-                        Log.d("debug", "${rlist.size}")
+                        Log.d("debug", "${lstvalue.size}")
                         synchronized(lockobj) {
                             activity?.runOnUiThread() {
                                 rlist.forEach {
@@ -124,6 +125,22 @@ class GasDockMainFragment : Fragment() {
                                         it.lower,
                                         1 + it.upper - it.lower
                                     )
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        val baseTime = System.currentTimeMillis() - 1000 * 5
+                        if (lastupdate < baseTime) {
+                            lastupdate = System.currentTimeMillis()
+                            for (t in newgasStorageViewData) {
+                                val idx = newgasStorageViewData.indexOf(t)
+                                gasStorageViewData[idx] = t.copy()
+                            }
+
+                            synchronized(lockobj) {
+                                activity?.runOnUiThread {
+                                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                                 }
                             }
                         }
