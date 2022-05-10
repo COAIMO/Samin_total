@@ -85,6 +85,7 @@ class WasteLiquorMainFragment : Fragment() {
         isOnTaskRefesh = true
         taskRefresh = Thread() {
             try {
+                var lastupdate: Long = System.currentTimeMillis()
                 val lstvalue = mutableListOf<Int>()
                 while (isOnTaskRefesh) {
                     lstvalue.clear()
@@ -116,6 +117,22 @@ class WasteLiquorMainFragment : Fragment() {
                                         it.lower,
                                         1 + it.upper - it.lower
                                     )
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        val baseTime = System.currentTimeMillis() - 1000 * 5
+                        if (lastupdate < baseTime) {
+                            lastupdate = System.currentTimeMillis()
+                            for (t in newwasteLiquorViewData) {
+                                val idx = newwasteLiquorViewData.indexOf(t)
+                                wasteLiquorViewData[idx] = t.copy()
+                            }
+
+                            synchronized(lockobj) {
+                                activity?.runOnUiThread {
+                                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                                 }
                             }
                         }

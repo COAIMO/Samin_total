@@ -81,6 +81,7 @@ class GasRoomMainFragment : Fragment() {
         isOnTaskRefesh = true
         taskRefresh = Thread() {
             try {
+                var lastupdate: Long = System.currentTimeMillis()
                 val lstvalue = mutableListOf<Int>()
                 while (isOnTaskRefesh) {
                     lstvalue.clear()
@@ -109,7 +110,7 @@ class GasRoomMainFragment : Fragment() {
 
                     val rlist = Utils.ToIntRange(lstvalue, gasRoomViewData.size)
                     if (rlist != null) {
-                        Log.d("debug", "${rlist.size}")
+                        Log.d("debug", "${lstvalue.size}")
                         synchronized(lockobj) {
                             activity?.runOnUiThread() {
                                 rlist.forEach {
@@ -117,6 +118,22 @@ class GasRoomMainFragment : Fragment() {
                                         it.lower,
                                         1 + it.upper - it.lower
                                     )
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        val baseTime = System.currentTimeMillis() - 1000 * 5
+                        if (lastupdate < baseTime) {
+                            lastupdate = System.currentTimeMillis()
+                            for (t in newgasRoomViewData) {
+                                val idx = newgasRoomViewData.indexOf(t)
+                                gasRoomViewData[idx] = t.copy()
+                            }
+
+                            synchronized(lockobj) {
+                                activity?.runOnUiThread {
+                                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                                 }
                             }
                         }

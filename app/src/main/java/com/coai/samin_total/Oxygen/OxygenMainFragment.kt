@@ -93,6 +93,7 @@ class OxygenMainFragment : Fragment() {
         isOnTaskRefesh = true
         taskRefresh = Thread() {
             try {
+                var lastupdate: Long = System.currentTimeMillis()
                 var chk: Boolean = false
                 while (isOnTaskRefesh) {
                     chk = false
@@ -115,6 +116,17 @@ class OxygenMainFragment : Fragment() {
                         synchronized(lockobj) {
                             activity?.runOnUiThread() {
                                 recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                            }
+                        }
+                    }
+                    else {
+                        val baseTime = System.currentTimeMillis() - 1000 * 5
+                        if (lastupdate < baseTime) {
+                            lastupdate = System.currentTimeMillis()
+                            synchronized(lockobj) {
+                                activity?.runOnUiThread {
+                                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                                }
                             }
                         }
                     }
