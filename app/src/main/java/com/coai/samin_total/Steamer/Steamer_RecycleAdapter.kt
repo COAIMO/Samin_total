@@ -51,7 +51,7 @@ class Steamer_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
                 steamerView.setTempUnit(setSteamerViewData.unit)
                 steamerView.setAlertTemp(setSteamerViewData.isAlertTemp)
                 steamerView.heartBeat(setSteamerViewData.heartbeatCount)
-                steamerView.setName(setSteamerViewData.name)
+                setSteamerViewData.name?.let { steamerView.setName(it) }
             }
         }
     }

@@ -7,7 +7,7 @@ data class SetSteamerViewData(
     val model: String,
     val id: Int,
     val port: Int,
-    var name:String = "No.1",
+    var name:String? = "No.1",
     var usable: Boolean = true,
     // 수위 알람
     var isAlertLow: Boolean = false,
