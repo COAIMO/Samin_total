@@ -1307,36 +1307,38 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this@MainActivity, "펌웨어 버전 : ${msg.arg1}",Toast.LENGTH_SHORT).show()
                 }
                 SerialService.MSG_CHECK_PING -> {
-                    when(msg.arg1) {
-                        1 -> {
-                            gasdock_ids_list.add(msg.arg2.toByte())
-                            val ids = gasdock_ids_list.distinct().toByteArray()
-                            mainViewModel.modelMap["GasDock"] = ids
-                            mainViewModel.modelMapInt[msg.arg1] = ids
-                        }
-                        2 -> {
-                            gasroom_ids_list.add(msg.arg2.toByte())
-                            val ids = gasroom_ids_list.distinct().toByteArray()
-                            mainViewModel.modelMap["GasRoom"] = ids
-                            mainViewModel.modelMapInt[msg.arg1] = ids
-                        }
-                        3 -> {
-                            wasteLiquor_ids_list.add(msg.arg2.toByte())
-                            val ids = wasteLiquor_ids_list.distinct().toByteArray()
-                            mainViewModel.modelMap["WasteLiquor"] = ids
-                            mainViewModel.modelMapInt[msg.arg1] = ids
-                        }
-                        4 -> {
-                            oxygen_ids_list.add(msg.arg2.toByte())
-                            val ids = oxygen_ids_list.distinct().toByteArray()
-                            mainViewModel.modelMap["Oxygen"] = ids
-                            mainViewModel.modelMapInt[msg.arg1] = ids
-                        }
-                        5 -> {
-                            steamer_ids_list.add(msg.arg2.toByte())
-                            val ids = steamer_ids_list.distinct().toByteArray()
-                            mainViewModel.modelMap["Steamer"] = ids
-                            mainViewModel.modelMapInt[msg.arg1] = ids
+                    if (mainViewModel.isScanmode) {
+                        when (msg.arg1) {
+                            1 -> {
+                                gasdock_ids_list.add(msg.arg2.toByte())
+                                val ids = gasdock_ids_list.distinct().toByteArray()
+                                mainViewModel.modelMap["GasDock"] = ids
+                                mainViewModel.modelMapInt[msg.arg1] = ids
+                            }
+                            2 -> {
+                                gasroom_ids_list.add(msg.arg2.toByte())
+                                val ids = gasroom_ids_list.distinct().toByteArray()
+                                mainViewModel.modelMap["GasRoom"] = ids
+                                mainViewModel.modelMapInt[msg.arg1] = ids
+                            }
+                            3 -> {
+                                wasteLiquor_ids_list.add(msg.arg2.toByte())
+                                val ids = wasteLiquor_ids_list.distinct().toByteArray()
+                                mainViewModel.modelMap["WasteLiquor"] = ids
+                                mainViewModel.modelMapInt[msg.arg1] = ids
+                            }
+                            4 -> {
+                                oxygen_ids_list.add(msg.arg2.toByte())
+                                val ids = oxygen_ids_list.distinct().toByteArray()
+                                mainViewModel.modelMap["Oxygen"] = ids
+                                mainViewModel.modelMapInt[msg.arg1] = ids
+                            }
+                            5 -> {
+                                steamer_ids_list.add(msg.arg2.toByte())
+                                val ids = steamer_ids_list.distinct().toByteArray()
+                                mainViewModel.modelMap["Steamer"] = ids
+                                mainViewModel.modelMapInt[msg.arg1] = ids
+                            }
                         }
                     }
                 }

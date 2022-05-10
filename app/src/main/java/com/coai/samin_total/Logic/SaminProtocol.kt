@@ -174,9 +174,7 @@ class SaminProtocol {
                 } catch (e: Exception) {
                     ret = false
                 }
-            } else ret = false
-
-            ret = true
+            }
         } catch (e: Exception) {
             Log.e("TAG", "Error", e)
         }

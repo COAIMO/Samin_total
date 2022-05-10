@@ -311,6 +311,7 @@ class MainFragment : Fragment() {
         getProgressShow()
         sendThread = Thread {
             try {
+                viewmodel.isScanmode = true
                 activity?.deleteExDataSet()
                 activity?.feedBackThreadInterrupt()
                 for (model in 1..5) {
@@ -325,6 +326,7 @@ class MainFragment : Fragment() {
                     }
                 }
                 Thread.sleep(400)
+                viewmodel.isScanmode = false
 
             } catch (e: Exception) {
             }

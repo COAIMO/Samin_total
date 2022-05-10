@@ -376,5 +376,10 @@ class MainViewModel : ViewModel() {
         isProcessingMonitor = true
     }
 
+    /**
+     * 스캔 모드 여부
+     */
+    var isScanmode : Boolean = false
+
 }
 
