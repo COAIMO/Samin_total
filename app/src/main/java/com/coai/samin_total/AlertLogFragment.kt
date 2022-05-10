@@ -138,6 +138,7 @@ class AlertLogFragment : Fragment() {
                 activity?.dao?.deleteAllData()
 
             }
+            initRecycler()
         }
         return mBinding.root
     }
