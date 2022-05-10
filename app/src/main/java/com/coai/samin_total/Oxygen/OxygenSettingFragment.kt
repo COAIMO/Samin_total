@@ -23,6 +23,7 @@ import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
+import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentOxygenSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -220,6 +221,13 @@ class OxygenSettingFragment : Fragment() {
     }
 
     private fun setSaveData() {
+        for (i in viewmodel.alertMap) {
+            val aqInfo = HexDump.toByteArray(i.key)
+            val model = aqInfo[3].toInt()
+            if (model == 4) {
+                viewmodel.alertMap.remove(i.key)
+            }
+        }
         viewmodel.oxygenMasterData = null
         viewmodel.oxygensData.clear()
         viewmodel.OxygenDataLiveList.clear(true)
@@ -237,7 +245,7 @@ class OxygenSettingFragment : Fragment() {
             buff.add(i)
         }
         //마스터
-        viewmodel.oxygenMasterData = SetOxygenViewData("0",0,0)
+        viewmodel.oxygenMasterData = SetOxygenViewData("0", 0, 0)
         val oxygenMaxValueAvg = setOxygenInfo.map {
             it.setMaxValue
         }.average().toFloat()
@@ -247,8 +255,8 @@ class OxygenSettingFragment : Fragment() {
         viewmodel.oxygenMasterData =
             SetOxygenViewData(
                 "MasterOxygen",
-                11,
-                11,
+                8,
+                8,
                 setMinValue = oxygenMinValueAvg,
                 setMaxValue = oxygenMaxValueAvg
             )

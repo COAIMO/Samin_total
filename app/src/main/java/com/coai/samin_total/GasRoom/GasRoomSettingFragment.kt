@@ -23,6 +23,7 @@ import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
+import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentGasRoomSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -376,6 +377,13 @@ class GasRoomSettingFragment : Fragment() {
     }
 
     private fun setSaveData() {
+        for (i in viewmodel.alertMap) {
+            val aqInfo = HexDump.toByteArray(i.key)
+            val model = aqInfo[3].toInt()
+            if (model == 2) {
+                viewmodel.alertMap.remove(i.key)
+            }
+        }
         viewmodel.GasRoomDataLiveList.clear(true)
         val iter = setGasSensorInfo.iterator()
         while (iter.hasNext()) {

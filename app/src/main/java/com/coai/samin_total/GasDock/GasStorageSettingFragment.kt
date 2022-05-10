@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.*
 import com.coai.samin_total.CustomView.SpaceDecoration
 import com.coai.samin_total.Logic.SaminSharedPreference
+import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentGasStorageSettingBinding
 import org.json.JSONArray
 
@@ -591,6 +592,13 @@ class GasStorageSettingFragment : Fragment() {
     }
 
     private fun setSaveData() {
+        for (i in viewmodel.alertMap) {
+            val aqInfo = HexDump.toByteArray(i.key)
+            val model = aqInfo[3].toInt()
+            if (model == 1) {
+                viewmodel.alertMap.remove(i.key)
+            }
+        }
         viewmodel.GasStorageDataLiveList.clear(true)
         val iter = setGasSensorInfo.iterator()
         while (iter.hasNext()) {
