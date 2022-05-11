@@ -841,7 +841,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 Thread.sleep(25)
                                 if (model == 4.toByte())
-                                    Thread.sleep(10)
+                                    Thread.sleep(15)
 //                            Log.d(mainTAG, "sleep ============= " )
                             }
                         }
