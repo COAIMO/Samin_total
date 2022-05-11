@@ -119,6 +119,7 @@ class MainActivity : AppCompatActivity() {
         const val CHANGE_INPUT_DATA = 7
         const val CHANGE_INPUT_REGISTER = 8
         const val START_SERIAL_SERVICE = 9
+        const val ANOTHERJOB_SLEEP: Long = 40
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -958,6 +959,18 @@ class MainActivity : AppCompatActivity() {
                             if (tmpBits and (1 shl (port - 1)).toByte() > 0) {
                                 tmpBits = tmpBits xor (1 shl (port - 1)).toByte()
                                 mainViewModel.portAlertMapLed[ledkey] = tmpBits
+
+                                diffkeys.remove(ledkey)
+                                isAnotherJob = true
+                                Thread.sleep(ANOTHERJOB_SLEEP)
+
+                                for (cnt in 0..1) {
+                                    protocol.led_AlertStateByte(model, id, tmpBits)
+                                    sendProtocolToSerial(protocol.mProtocol.clone())
+                                    Thread.sleep(5)
+                                }
+
+                                isAnotherJob = false
                             }
                             continue
                         }
@@ -972,13 +985,13 @@ class MainActivity : AppCompatActivity() {
                         tmpBits = tmpBits or (1 shl (port - 1)).toByte()
 
                         mainViewModel.portAlertMapLed[ledkey] = tmpBits
-                        if (id == 11.toByte())
+                        if (id == 8.toByte())
                             continue
 
 
 //                        if (alertsendLastTime[key] == null || alertsendLastTime[key]!! < (System.currentTimeMillis() - 1000 * 5)) {
                         isAnotherJob = true
-                        Thread.sleep(20)
+                        Thread.sleep(ANOTHERJOB_SLEEP)
 
                         if (!tmpBits.equals(tmplast)) {
                             // LED 경고 상태를 전달.
@@ -1019,7 +1032,7 @@ class MainActivity : AppCompatActivity() {
 
 
                         isAnotherJob = true
-                        Thread.sleep(20)
+                        Thread.sleep(ANOTHERJOB_SLEEP)
 
 
                         for (tmp in diffkeys) {
