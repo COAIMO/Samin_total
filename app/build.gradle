@@ -8,7 +8,7 @@ plugins {
 android {
     signingConfigs {
         release {
-            storeFile file('C:\\Users\\nuri0\\Desktop\\업무\\담당사업\\삼인사이언스\\saminTotal\\saminstore.jks')
+            storeFile file('C:\\Workspace\\saminstore.jks')
             storePassword 'samin8940'
             keyAlias 'key0'
             keyPassword 'samin8940'
@@ -21,8 +21,8 @@ android {
         minSdk 26
 
         targetSdk 30
-        versionCode 2
-        versionName "1.1"
+        versionCode 3
+        versionName "1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release

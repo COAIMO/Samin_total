@@ -107,32 +107,32 @@ class WasteLiquorMainFragment : Fragment() {
                         }
                     }
 
-                    val rlist = Utils.ToIntRange(lstvalue, wasteLiquorViewData.size)
-                    if (rlist != null) {
-                        Log.d("debug", "${rlist.size}")
+                    val baseTime = System.currentTimeMillis() - 1000 * 2
+                    if (lastupdate < baseTime) {
+                        lastupdate = System.currentTimeMillis()
+                        for (t in newwasteLiquorViewData) {
+                            val idx = newwasteLiquorViewData.indexOf(t)
+                            wasteLiquorViewData[idx] = t.copy()
+                        }
+
                         synchronized(lockobj) {
-                            activity?.runOnUiThread() {
-                                rlist.forEach {
-                                    recycleAdapter.notifyItemRangeChanged(
-                                        it.lower,
-                                        1 + it.upper - it.lower
-                                    )
-                                }
+                            activity?.runOnUiThread {
+                                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                             }
                         }
                     }
                     else {
-                        val baseTime = System.currentTimeMillis() - 1000 * 5
-                        if (lastupdate < baseTime) {
-                            lastupdate = System.currentTimeMillis()
-                            for (t in newwasteLiquorViewData) {
-                                val idx = newwasteLiquorViewData.indexOf(t)
-                                wasteLiquorViewData[idx] = t.copy()
-                            }
-
+                        val rlist = Utils.ToIntRange(lstvalue, wasteLiquorViewData.size)
+                        if (rlist != null) {
+                            Log.d("debug", "${rlist.size}")
                             synchronized(lockobj) {
-                                activity?.runOnUiThread {
-                                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                                activity?.runOnUiThread() {
+                                    rlist.forEach {
+                                        recycleAdapter.notifyItemRangeChanged(
+                                            it.lower,
+                                            1 + it.upper - it.lower
+                                        )
+                                    }
                                 }
                             }
                         }

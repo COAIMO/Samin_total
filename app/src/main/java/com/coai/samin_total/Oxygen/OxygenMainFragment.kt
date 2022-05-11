@@ -111,21 +111,23 @@ class OxygenMainFragment : Fragment() {
                     viewmodel.oxygenMasterData?.heartbeatCount = heartbeatCount
                     oxygenViewData = viewmodel.oxygenMasterData?.copy()
 
-
-                    if(chk) {
+                    val baseTime = System.currentTimeMillis() - 1000 * 2
+                    if (lastupdate < baseTime) {
+                        lastupdate = System.currentTimeMillis()
                         synchronized(lockobj) {
-                            activity?.runOnUiThread() {
+                            activity?.runOnUiThread {
                                 recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                             }
                         }
                     }
                     else {
-                        val baseTime = System.currentTimeMillis() - 1000 * 5
-                        if (lastupdate < baseTime) {
-                            lastupdate = System.currentTimeMillis()
+                        if (chk) {
                             synchronized(lockobj) {
-                                activity?.runOnUiThread {
-                                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                                activity?.runOnUiThread() {
+                                    recycleAdapter.notifyItemRangeChanged(
+                                        0,
+                                        recycleAdapter.itemCount
+                                    )
                                 }
                             }
                         }
