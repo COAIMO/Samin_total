@@ -142,7 +142,7 @@ class SteamerMainFragment : Fragment() {
                     else {
                         val rlist = Utils.ToIntRange(lstvalue, steamerViewData.size)
                         if (rlist != null) {
-                            Log.d("debug", "${rlist.size}")
+//                            Log.d("debug", "${rlist.size}")
                             synchronized(lockobj) {
                                 activity?.runOnUiThread() {
                                     rlist.forEach {

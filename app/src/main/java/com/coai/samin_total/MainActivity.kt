@@ -3,18 +3,16 @@ package com.coai.samin_total
 import android.annotation.SuppressLint
 import android.app.Service
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.net.Uri
-import android.nfc.Tag
 import android.os.*
 import android.provider.Settings
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
@@ -41,13 +39,11 @@ import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
 import com.coai.samin_total.database.*
 import com.coai.samin_total.databinding.ActivityMainBinding
-import com.coai.uikit.GlobalUiTimer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromByteArray
-import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
@@ -105,6 +101,7 @@ class MainActivity : AppCompatActivity() {
 
     // 보드별 최종 전송시간
     private val alertsendLastTime = HashMap<Int, Long>()
+    private val alertBoardsendLastTime = HashMap<Short, Long>()
 
     companion object {
         var SERVICE_CONNECTED = false
@@ -783,6 +780,7 @@ class MainActivity : AppCompatActivity() {
                     val elapsed: Long = measureTimeMillis {
                         tmp.timeoutAQCheckStep()
                     }
+//                    Log.d("callTimeoutThread", "Time : $elapsed")
 
                     Thread.sleep(50)
                 } catch (e: Exception) {
@@ -924,11 +922,19 @@ class MainActivity : AppCompatActivity() {
 
         alertThread = Thread {
             val protocol = SaminProtocol()
+            val ledchanged = ArrayList<Short>()
+            val alertchanged = ArrayList<Short>()
+            val alertchangedRemind = ArrayList<Short>()
+            val currentLedState = HashMap<Short, Byte>()
             while (true) {
 
                 val elapsed: Long = measureTimeMillis {
                     val diffkeys = mainViewModel.portAlertMapLed.keys.toMutableList()
 
+                    ledchanged.clear()
+                    alertchanged.clear()
+                    alertchangedRemind.clear()
+                    currentLedState.clear()
                     for ((key, value) in mainViewModel.alertMap) {
                         val aqInfo = HexDump.toByteArray(key)
                         val model = aqInfo[3]
@@ -958,106 +964,133 @@ class MainActivity : AppCompatActivity() {
                             var tmpBits = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
                             if (tmpBits and (1 shl (port - 1)).toByte() > 0) {
                                 tmpBits = tmpBits xor (1 shl (port - 1)).toByte()
+                                currentLedState[ledkey] = tmpBits
                                 mainViewModel.portAlertMapLed[ledkey] = tmpBits
 
                                 diffkeys.remove(ledkey)
-                                isAnotherJob = true
-                                Thread.sleep(ANOTHERJOB_SLEEP)
-
-                                for (cnt in 0..1) {
-                                    protocol.led_AlertStateByte(model, id, tmpBits)
-                                    sendProtocolToSerial(protocol.mProtocol.clone())
-                                    Thread.sleep(5)
-                                }
-
-                                isAnotherJob = false
+                                if(!ledchanged.contains(ledkey))
+                                    ledchanged.add(ledkey)
                             }
                             continue
                         }
 
                         // LED 켜짐 유무 확인
                         // 기존 경고와의 차이점 식별 가능
-                        var tmpBits = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+                        var tmpBits = currentLedState[ledkey] ?: 0b10000.toByte()
                         val tmplast = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
 
                         diffkeys.remove(ledkey)
 
                         tmpBits = tmpBits or (1 shl (port - 1)).toByte()
-
-                        mainViewModel.portAlertMapLed[ledkey] = tmpBits
+//                        mainViewModel.portAlertMapLed[ledkey] = tmpBits
                         if (id == 8.toByte())
                             continue
 
-
-//                        if (alertsendLastTime[key] == null || alertsendLastTime[key]!! < (System.currentTimeMillis() - 1000 * 5)) {
+                        currentLedState[ledkey] = tmpBits
+                    }
+                    
+                    // 경고 처리
+                    if (currentLedState.size > 0){
                         isAnotherJob = true
                         Thread.sleep(ANOTHERJOB_SLEEP)
+                        var model: Byte = 0
+                        var id: Byte = 0
+                        try {
+                            for ((k, v) in currentLedState) {
+                                id = (k.toInt() shr 8 and 0xFF).toByte()
+                                model = (k and 0xFF).toByte()
+                                val tmplast = mainViewModel.portAlertMapLed[k] ?: 0b10000.toByte()
+                                if (v > tmplast) {
+                                    for (cnt in 0..1) {
+                                        protocol.led_AlertStateByte(model, id, v)
+                                        sendProtocolToSerial(protocol.mProtocol.clone())
+                                        Thread.sleep(5)
+                                    }
 
-                        if (!tmpBits.equals(tmplast)) {
-                            // LED 경고 상태를 전달.
-//                            sendProtocolToSerial(byteArrayOf(0.toByte()))
-
-                            for (cnt in 0..1) {
-                                protocol.led_AlertStateByte(model, id, tmpBits)
-                                sendProtocolToSerial(protocol.mProtocol.clone())
-                                Thread.sleep(5)
+                                    if (mainViewModel.isSoundAlert) {
+                                        tabletSoundAlertOn()
+                                        protocol.buzzer_On(model, id)
+                                        for (cnt in 0..1) {
+                                            sendProtocolToSerial(protocol.mProtocol.clone())
+                                            Thread.sleep(5)
+                                        }
+                                    }
+                                    mainViewModel.portAlertMapLed[k] = v
+                                }
+                                else if (alertBoardsendLastTime[k] == null || alertBoardsendLastTime[k]!! < (System.currentTimeMillis() - 1000 * 60)){
+                                    alertchangedRemind.add(k)
+                                    alertBoardsendLastTime[k] = System.currentTimeMillis()
+                                }
                             }
+                        } catch (ex: Exception) {
 
-                            // 경고음 처리전
-                            if (mainViewModel.isSoundAlert) {
-                                tabletSoundAlertOn()
-                                protocol.buzzer_On(model, id)
-//                                sendProtocolToSerial(byteArrayOf(0.toByte()))
+                        }
+
+                        try {
+                            // 경고 상태 재 전송
+                            for (tmp in alertchangedRemind) {
+                                id = (tmp.toInt() shr 8 and 0xFF).toByte()
+                                model = (tmp and 0xFF).toByte()
+
+                                val tmplast = mainViewModel.portAlertMapLed[tmp] ?: 0b10000.toByte()
                                 for (cnt in 0..1) {
-//                                    serialService?.sendData(protocol.mProtocol.clone())
+                                    protocol.led_AlertStateByte(model, id, tmplast)
                                     sendProtocolToSerial(protocol.mProtocol.clone())
                                     Thread.sleep(5)
                                 }
                             }
-                        } else if (alertsendLastTime[key] == null || alertsendLastTime[key]!! < (System.currentTimeMillis() - 1000 * 60)) {
-//                            sendProtocolToSerial(byteArrayOf(0.toByte()))
+                        } catch (ex : Exception) {
+                            
+                        }
+                        isAnotherJob = false
+                    }
+
+                    // 일부 LED 정상화
+                    if (ledchanged.size > 0){
+                        isAnotherJob = true
+                        Thread.sleep(ANOTHERJOB_SLEEP)
+                        var model: Byte = 0
+                        var id: Byte = 0
+                        var tmpBits: Byte = 0
+                        for (tmp in ledchanged) {
+                            id = (tmp.toInt() shr 8 and 0xFF).toByte()
+                            model = (tmp and 0xFF).toByte()
+
+                            tmpBits = currentLedState[tmp] ?: 0b10000.toByte()
                             for (cnt in 0..1) {
                                 protocol.led_AlertStateByte(model, id, tmpBits)
                                 sendProtocolToSerial(protocol.mProtocol.clone())
                                 Thread.sleep(5)
                             }
-
-                            alertsendLastTime[key] = System.currentTimeMillis()
+                            mainViewModel.portAlertMapLed[tmp] = tmpBits
                         }
 
                         isAnotherJob = false
                     }
+
                     // 에러가 사라진 AQ 찾기
                     if (diffkeys.size > 0) {
-
-
                         isAnotherJob = true
                         Thread.sleep(ANOTHERJOB_SLEEP)
-
-
                         for (tmp in diffkeys) {
                             val aqInfo = HexDump.toByteArray(tmp)
                             val model = aqInfo[1]
                             val id = aqInfo[0]
 
                             mainViewModel.portAlertMapLed.remove(tmp)
-                            if (id == 11.toByte())
+                            if (id == 8.toByte())
                                 continue
-//                            tabletSoundAlertOff()
-//                            sendProtocolToSerial(byteArrayOf(0.toByte()))
-                            for (cnt in 0..2) {
+
+                            for (cnt in 0..1) {
                                 protocol.buzzer_Off(model, id)
-//                                serialService?.sendData(protocol.mProtocol.clone())
                                 sendProtocolToSerial(protocol.mProtocol.clone())
-//                                Thread.sleep(35)
+                                Thread.sleep(5)
                             }
 
-//                            sendProtocolToSerial(byteArrayOf(0.toByte()))
                             for (cnt in 0..1) {
                                 protocol.led_AlertStateByte(model, id, 0.toByte())
-//                                serialService?.sendData(protocol.mProtocol.clone())
                                 sendProtocolToSerial(protocol.mProtocol.clone())
-                                Thread.sleep(10)
+                                Thread.sleep(5)
                             }
                         }
                         isAnotherJob = false
@@ -1073,7 +1106,7 @@ class MainActivity : AppCompatActivity() {
                         tabletSoundAlertOff()
                     }
                 }
-//                Log.d(mainTAG, "measureTimeMillis : $elapsed")
+                Log.d("sendAlert", "measureTimeMillis : $elapsed")
 
                 Thread.sleep(200)
             }

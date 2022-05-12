@@ -125,7 +125,7 @@ class GasRoomMainFragment : Fragment() {
                     else {
                         val rlist = Utils.ToIntRange(lstvalue, gasRoomViewData.size)
                         if (rlist != null) {
-                            Log.d("debug", "${lstvalue.size}")
+//                            Log.d("debug", "${lstvalue.size}")
                             synchronized(lockobj) {
                                 activity?.runOnUiThread() {
                                     rlist.forEach {

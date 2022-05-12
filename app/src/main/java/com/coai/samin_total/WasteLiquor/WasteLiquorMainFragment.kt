@@ -124,7 +124,7 @@ class WasteLiquorMainFragment : Fragment() {
                     else {
                         val rlist = Utils.ToIntRange(lstvalue, wasteLiquorViewData.size)
                         if (rlist != null) {
-                            Log.d("debug", "${rlist.size}")
+//                            Log.d("debug", "${rlist.size}")
                             synchronized(lockobj) {
                                 activity?.runOnUiThread() {
                                     rlist.forEach {

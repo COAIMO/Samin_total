@@ -132,7 +132,7 @@ class GasDockMainFragment : Fragment() {
                     else {
                         val rlist = Utils.ToIntRange(lstvalue, gasStorageViewData.size)
                         if (rlist != null) {
-                            Log.d("debug", "${lstvalue.size}")
+//                            Log.d("debug", "${lstvalue.size}")
                             synchronized(lockobj) {
                                 activity?.runOnUiThread() {
                                     rlist.forEach {
