@@ -944,8 +944,8 @@ class MainActivity : AppCompatActivity() {
                         val ledkey = littleEndianConversion(byteArrayOf(model, id)).toShort()
 
                         // 경고 로그 DB저장
-                        if (!exLastErorr[key].equals(value.content)) {
-                            exLastErorr[key] = value.content
+                        if (!exLastErorr[key].equals(value.time)) {
+                            exLastErorr[key] = value.time
                             addLogs(
                                 value.time,
                                 value.model,

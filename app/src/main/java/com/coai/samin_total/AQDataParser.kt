@@ -799,7 +799,7 @@ class AQDataParser(viewModel: MainViewModel) {
                         getLatest_time(hmapLastedDate[id]!!),
                         tmp.modelByte.toInt(),
                         tmp.id,
-                        "산소농도 하한 값",
+                        "산소농도 하한 값 ($oxygenValue)",
                         tmp.port,
                         true
                     )
@@ -816,7 +816,7 @@ class AQDataParser(viewModel: MainViewModel) {
                             getLatest_time(hmapLastedDate[id]!!),
                             tmp.modelByte.toInt(),
                             tmp.id,
-                            "산소농도 상한 값",
+                            "산소농도 상한 값 ($oxygenValue)",
                             tmp.port,
                             true
                         )
@@ -885,7 +885,7 @@ class AQDataParser(viewModel: MainViewModel) {
                         getLatest_time(hmapLastedDate[id]!!),
                         4,
                         8,
-                        "[평균]산소농도 하한 값",
+                        "[평균]산소농도 하한 값 (${viewModel.oxygenMasterData!!.setValue})",
                         8,
                         true
                     )
@@ -902,7 +902,7 @@ class AQDataParser(viewModel: MainViewModel) {
                             getLatest_time(hmapLastedDate[id]!!),
                             4,
                             8,
-                            "[평균]산소농도 상한 값",
+                            "[평균]산소농도 상한 값(${viewModel.oxygenMasterData!!.setValue})",
                             8,
                             true
                         )
