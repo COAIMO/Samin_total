@@ -426,6 +426,7 @@ class AQDataParser(viewModel: MainViewModel) {
             idx,
             tmp.isAlert!!
         )
+        viewModel.mModelMonitorValues.setErrorsStorage(idx, false)
     }
 
 
@@ -573,6 +574,7 @@ class AQDataParser(viewModel: MainViewModel) {
             idx1,
             tmp.isAlertLeft!!
         )
+        viewModel.mModelMonitorValues.setErrorsStorage(idx1, false)
 
         viewModel.mModelMonitorValues.setStoragePressurePSI(
             idx2,
@@ -582,6 +584,7 @@ class AQDataParser(viewModel: MainViewModel) {
             idx2,
             tmp.isAlertRight!!
         )
+        viewModel.mModelMonitorValues.setErrorsStorage(idx2, false)
     }
 
 
@@ -710,6 +713,7 @@ class AQDataParser(viewModel: MainViewModel) {
             idx,
             tmp.isAlert!!
         )
+        viewModel.mModelMonitorValues.setErrorsRoom(idx, false)
     }
 
     fun ProcessWasteLiquor(id: Int, data: Int) {
@@ -777,6 +781,7 @@ class AQDataParser(viewModel: MainViewModel) {
             idx,
             tmp.isAlert!!
         )
+        viewModel.mModelMonitorValues.setErrorsWaste(idx, false)
     }
 
     fun ProcessOxygen(id: Int, data: Int) {
@@ -847,6 +852,23 @@ class AQDataParser(viewModel: MainViewModel) {
         bro.setValue = tmp.setValue
         bro.isAlert = tmp.isAlert
 
+        val idx = KeyUtils.getIndex(
+            tmp.modelByte.toInt(),
+            tmp.id.toByte(),
+            tmp.port.toByte()
+        )
+
+        viewModel.mModelMonitorValues.setWarningsOxygen(
+            idx,
+            tmp.isAlert!!
+        )
+
+        viewModel.mModelMonitorValues.setOxygen(
+            idx,
+            tmp.setValue.toInt().toShort()
+        )
+        viewModel.mModelMonitorValues.setErrorsOxygen(idx, false)
+
         val oxygenAQ = setAQport.filter {
             HexDump.toByteArray(it.key).get(3) == 4.toByte()
         }
@@ -874,7 +896,9 @@ class AQDataParser(viewModel: MainViewModel) {
             }
         }
 
-        viewModel.oxygenMasterData!!.setValue = oxygenLastValueList.average().toFloat()
+        var tmpavg = oxygenLastValueList.average()
+        if(tmpavg.isNaN()) tmpavg = 0.0
+        viewModel.oxygenMasterData!!.setValue = tmpavg.toFloat()
         if (viewModel.oxygenMasterData!!.setMinValue > viewModel.oxygenMasterData!!.setValue) {
             viewModel.oxygenMasterData!!.isAlert = true
             if (alertMap[masterKey] == null) {
@@ -928,23 +952,6 @@ class AQDataParser(viewModel: MainViewModel) {
                 }
             }
         }
-
-
-        val idx = KeyUtils.getIndex(
-            tmp.modelByte.toInt(),
-            tmp.id.toByte(),
-            tmp.port.toByte()
-        )
-
-        viewModel.mModelMonitorValues.setWarningsOxygen(
-            idx,
-            tmp.isAlert!!
-        )
-
-        viewModel.mModelMonitorValues.setOxygen(
-            idx,
-            tmp.setValue.toInt().toShort()
-        )
     }
 
     fun ProcessSteamer(id: Int, temp: Int, level: Int) {
@@ -1046,6 +1053,23 @@ class AQDataParser(viewModel: MainViewModel) {
         bro.isAlertTemp = tmp.isAlertTemp
         bro.isAlertLow = tmp.isAlertLow
         bro.isTemp = tmp.isTemp
+
+        val idx = KeyUtils.getIndex(
+            tmp.modelByte.toInt(),
+            tmp.id.toByte(),
+            tmp.port.toByte()
+        )
+
+        viewModel.mModelMonitorValues.setWarningsSteam(
+            idx,
+            tmp.isAlertTemp || tmp.isAlertLow
+        )
+
+        viewModel.mModelMonitorValues.setSteamTemps(
+            idx,
+            tmp.isTemp.toInt().toShort()
+        )
+        viewModel.mModelMonitorValues.setErrorsSteam(idx, false)
     }
 
     /**
@@ -1254,26 +1278,36 @@ class AQDataParser(viewModel: MainViewModel) {
             // 경고 전달
             val current = setAQport[tmp.key]
 
-            if (current is SetGasStorageViewData) {
-                (current as SetGasStorageViewData).isAlert = true
-                current.isAlertRight = true
-                current.isAlertLeft = true
-            } else if (current is SetGasRoomViewData) {
-                (current as SetGasRoomViewData).isAlert = true
-            } else if (current is SetWasteLiquorViewData) {
-                (current as SetWasteLiquorViewData).isAlert = true
-            } else if (current is SetOxygenViewData) {
-                (current as SetOxygenViewData).isAlert = true
-                viewModel.oxygenMasterData!!.isAlert = true
-            } else if (current is SetSteamerViewData) {
-                (current as SetSteamerViewData).isAlertLow = true
-                (current as SetSteamerViewData).isAlertTemp = true
-            }
-
             val aqInfo = HexDump.toByteArray(tmp.key)
             val model = aqInfo[3].toInt()
             val id = aqInfo[2].toInt()
             val port = aqInfo[1].toInt()
+
+            val idx = KeyUtils.getIndex(
+                model.toInt(),
+                id.toByte(),
+                port.toByte()
+            )
+            if (current is SetGasStorageViewData) {
+                (current as SetGasStorageViewData).isAlert = true
+                current.isAlertRight = true
+                current.isAlertLeft = true
+                viewModel.mModelMonitorValues.setErrorsStorage(idx, true)
+            } else if (current is SetGasRoomViewData) {
+                (current as SetGasRoomViewData).isAlert = true
+                viewModel.mModelMonitorValues.setErrorsRoom(idx, true)
+            } else if (current is SetWasteLiquorViewData) {
+                (current as SetWasteLiquorViewData).isAlert = true
+                viewModel.mModelMonitorValues.setErrorsWaste(idx, true)
+            } else if (current is SetOxygenViewData) {
+                (current as SetOxygenViewData).isAlert = true
+                viewModel.oxygenMasterData!!.isAlert = true
+                viewModel.mModelMonitorValues.setErrorsOxygen(idx, true)
+            } else if (current is SetSteamerViewData) {
+                (current as SetSteamerViewData).isAlertLow = true
+                (current as SetSteamerViewData).isAlertTemp = true
+                viewModel.mModelMonitorValues.setErrorsSteam(idx, true)
+            }
 
             viewModel.addAlertInfo(
                 tmp.key,
