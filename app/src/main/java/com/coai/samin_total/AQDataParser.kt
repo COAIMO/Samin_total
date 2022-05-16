@@ -693,6 +693,9 @@ class AQDataParser(viewModel: MainViewModel) {
                     }
                 }
             }
+            else {
+                tmp.isAlert = false
+            }
 
         }
         val bro = setAQport[id] as SetGasRoomViewData
