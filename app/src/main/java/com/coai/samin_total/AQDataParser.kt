@@ -791,6 +791,10 @@ class AQDataParser(viewModel: MainViewModel) {
         val tmp1 = hmapAQPortSettings[id] ?: return
         val tmp = (tmp1 as SetOxygenViewData)
         val oxygenValue = data / 100f
+        if (oxygenValue == 0f) {
+            return
+        }
+
         tmp.setValue = oxygenValue
 
         if (!tmp.usable) {
