@@ -39,10 +39,7 @@ import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
 import com.coai.samin_total.database.*
 import com.coai.samin_total.databinding.ActivityMainBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
 import java.lang.ref.WeakReference
@@ -256,37 +253,43 @@ class MainActivity : AppCompatActivity() {
             mainViewModel.isSoundAlert = false
         }
 
-        if (mainViewModel.controlData.useModbusRTU)
-            mainViewModel.modbusService?.resetProcessImage(mainViewModel.controlData.modbusRTUID)
+        if (mainViewModel.controlData.useModbusRTU) {
+//            mainViewModel.modbusService?.resetProcessImage(mainViewModel.controlData.modbusRTUID)
+
+            GlobalScope.launch {
+                delay(1000L)
+                mainViewModel.modbusService?.resetProcessImage(mainViewModel.controlData.modbusRTUID)
+            }
+        }
 
         uiError()
         super.onResume()
     }
 
 
-    private fun sendMultipartSend(model: Byte, data: ByteArray? = null) {
-        val protocol = SaminProtocol()
-
-        if (data != null) {
-            val chunked = data!!.asSequence().chunked(40) { t ->
-                t.toByteArray()
-            }
-            var idx = 0
-            for (tmp in chunked) {
-                protocol.BuildProtocoOld(
-                    model,
-                    chunked.count().toByte(),
-                    SaminProtocolMode.SettingShare.byte,
-                    byteArrayOf(idx.toByte()) + tmp
-                )
-                sendProtocolToSerial(protocol.mProtocol.clone())
-                idx++
-            }
-        } else {
-            protocol.buildProtocol(model, 0.toByte(), SaminProtocolMode.SettingShare.byte, null)
-            sendProtocolToSerial(protocol.mProtocol.clone())
-        }
-    }
+//    private fun sendMultipartSend(model: Byte, data: ByteArray? = null) {
+//        val protocol = SaminProtocol()
+//
+//        if (data != null) {
+//            val chunked = data!!.asSequence().chunked(40) { t ->
+//                t.toByteArray()
+//            }
+//            var idx = 0
+//            for (tmp in chunked) {
+//                protocol.BuildProtocoOld(
+//                    model,
+//                    chunked.count().toByte(),
+//                    SaminProtocolMode.SettingShare.byte,
+//                    byteArrayOf(idx.toByte()) + tmp
+//                )
+//                sendProtocolToSerial(protocol.mProtocol.clone())
+//                idx++
+//            }
+//        } else {
+//            protocol.buildProtocol(model, 0.toByte(), SaminProtocolMode.SettingShare.byte, null)
+//            sendProtocolToSerial(protocol.mProtocol.clone())
+//        }
+//    }
 
     override fun onPause() {
         super.onPause()
@@ -1102,6 +1105,7 @@ class MainActivity : AppCompatActivity() {
                                 // 설정 데이터 전송 완료
                                 Log.d(mainTAG, "설정 데이터 전송 완료 ================")
 
+                                var allDone = true
                                 // 가스독 설정 복원
                                 var tmpgas = ByteArray(0)
                                 val sortGas = sortMapByKey(recvGasStorageBuffers)
@@ -1131,6 +1135,7 @@ class MainActivity : AppCompatActivity() {
 
                                 } catch(e : Exception) {
                                     e.printStackTrace()
+                                    allDone = false
                                 }
 
                                 // 가스룸 설정 복원
@@ -1157,6 +1162,7 @@ class MainActivity : AppCompatActivity() {
                                     shared.saveBoardSetData(SaminSharedPreference.GASROOM, buff)
                                 } catch(e : Exception) {
                                     e.printStackTrace()
+                                    allDone = false
                                 }
 
                                 // 폐액통 설정 복원
@@ -1180,8 +1186,10 @@ class MainActivity : AppCompatActivity() {
                                         buff.add(i)
                                     }
                                     shared.saveBoardSetData(SaminSharedPreference.WASTELIQUOR, buff)
+
                                 } catch(e : Exception) {
                                     e.printStackTrace()
+                                    allDone = false
                                 }
 
                                 // 산소농도 설정 복원
@@ -1208,6 +1216,7 @@ class MainActivity : AppCompatActivity() {
                                     shared.saveBoardSetData(SaminSharedPreference.OXYGEN, buff)
                                 } catch(e : Exception) {
                                     e.printStackTrace()
+                                    allDone = false
                                 }
 
                                 // 스팀기 설정 복원
@@ -1235,6 +1244,7 @@ class MainActivity : AppCompatActivity() {
                                     shared.saveBoardSetData(SaminSharedPreference.STEAMER, buff)
                                 } catch(e : Exception) {
                                     e.printStackTrace()
+                                    allDone = false
                                 }
 
                                 // 산소농도 대표 설정 복원
@@ -1244,16 +1254,24 @@ class MainActivity : AppCompatActivity() {
                                     tmpOxyMST = tmpOxyMST.plus(t.sliceArray(8..t.size-1))
                                 }
                 //                            Log.d(mainTAG, "tmpOxyMST : ${HexDump.dumpHexString(tmpOxyMST)}")
-                                try {
-                                    val objgas =
-                                        ProtoBuf.decodeFromByteArray<SetOxygenViewData>(tmpOxyMST)
-                                    objgas.setValue = 0f
-                                    objgas.isAlert = false
-                                    objgas.heartbeatCount = 0u
-                                    mainViewModel.oxygenMasterData = objgas
-                                    shared.saveBoardSetData(SaminSharedPreference.MASTEROXYGEN, mainViewModel.oxygenMasterData!!)
-                                } catch(e : Exception) {
-                                    e.printStackTrace()
+                                if (tmpOxyMST.size > 0) {
+                                    try {
+                                        val objgas =
+                                            ProtoBuf.decodeFromByteArray<SetOxygenViewData>(
+                                                tmpOxyMST
+                                            )
+                                        objgas.setValue = 0f
+                                        objgas.isAlert = false
+                                        objgas.heartbeatCount = 0u
+                                        mainViewModel.oxygenMasterData = objgas
+                                        shared.saveBoardSetData(
+                                            SaminSharedPreference.MASTEROXYGEN,
+                                            mainViewModel.oxygenMasterData!!
+                                        )
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        allDone = false
+                                    }
                                 }
 
                                 var tmpModemap = ByteArray(0)
@@ -1281,19 +1299,33 @@ class MainActivity : AppCompatActivity() {
                                     shared.saveHashMap(mainViewModel.modelMap)
                                 } catch(e : Exception) {
                                     e.printStackTrace()
+                                    allDone = false
                                 }
 
                                 discallFeedback()
                                 discallTimemout()
 
                                 tmp.LoadSetting()
-                                tmp.hmapLastedDate.keys.forEach{
-                                    mainViewModel.hasKey.put(it, it)
+//                                tmp.hmapLastedDate.keys.forEach{
+//                                    mainViewModel.hasKey.put(it, it)
+//                                }
+                                for(tmp in tmp.hmapLastedDate.keys) {
+                                    mainViewModel.hasKey.put(tmp, tmp)
                                 }
 
                                 callFeedback()
                                 callTimemout()
-                                onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
+
+                                if (allDone) {
+                                    recvGasStorageBuffers.clear()
+                                    recvGasRoomBuffers.clear()
+                                    recvWasteBuffers.clear()
+                                    recvOxygenBuffers.clear()
+                                    recvSteamerBuffers.clear()
+                                    recvOxygenMSTBuffers.clear()
+                                    recvModemapBuffers.clear()
+                                    onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
+                                }
                             }
                         }
                     }

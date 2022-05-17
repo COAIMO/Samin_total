@@ -259,23 +259,23 @@ class ControlFragment : Fragment() {
                     byteOxyzenMst = ProtoBuf.encodeToByteArray(it)
                 }
 
-                for (i in 0..1) {
+                for (i in 0..50) {
                     // 가스 스토리지
                     bytes?.let {
                         sendMultipartSend((16 + 1).toByte(), it)
-                        Thread.sleep(40)
+//                        Thread.sleep(40)
                     }
 
                     // 가스 룸
                     byteRoom?.let {
                         sendMultipartSend((16 + 2).toByte(), it)
-                        Thread.sleep(40)
+//                        Thread.sleep(40)
                     }
 
                     // 폐액통
                     byteWaste?.let {
                         sendMultipartSend((16 + 3).toByte(), it)
-                        Thread.sleep(40)
+//                        Thread.sleep(40)
                     }
 
                     // 산소
@@ -284,7 +284,7 @@ class ControlFragment : Fragment() {
                         if (viewmodel.oxygenMasterData != null) {
                             byteOxyzenMst?.let {
                                 sendMultipartSend((16 + 6).toByte(), it)
-                                Thread.sleep(40)
+//                                Thread.sleep(40)
                             }
                         }
                     }
@@ -292,17 +292,17 @@ class ControlFragment : Fragment() {
                     // 스팀
                     byteSteamer?.let {
                         sendMultipartSend((16 + 5).toByte(), it)
-                        Thread.sleep(40)
+//                        Thread.sleep(40)
                     }
 
                     byteModelmap?.let {
                         sendMultipartSend((16 + 7).toByte(), it)
-                        Thread.sleep(40)
+//                        Thread.sleep(40)
                     }
-
-                    sendMultipartSend(32.toByte())
                     Thread.sleep(40)
                 }
+                sendMultipartSend(32.toByte())
+                Thread.sleep(40)
             } catch (e: Exception){
                 e.printStackTrace()
             }

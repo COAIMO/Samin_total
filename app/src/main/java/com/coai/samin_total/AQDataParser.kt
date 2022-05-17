@@ -13,6 +13,7 @@ import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.Exception
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -24,7 +25,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
 
     // 최종 숫신시간
-    val hmapLastedDate = HashMap<Int, Long>()
+    val hmapLastedDate = ConcurrentHashMap<Int, Long>()
 
     //    var hmapIDLastedDate = HashMap<Short, Long>()
     val hmapPsis = HashMap<Int, ArrayList<TimePSI>>()
@@ -1035,7 +1036,7 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         } else {
-            tmp.isAlertTemp = false
+            tmp.isAlertLow = false
             if (alertMap2.containsKey(id)) {
 //                viewModel.steamerAlert.value = false
                 viewModel.addAlertInfo(
@@ -1299,7 +1300,13 @@ class AQDataParser(viewModel: MainViewModel) {
                 (current as SetGasStorageViewData).isAlert = true
                 current.isAlertRight = true
                 current.isAlertLeft = true
-                viewModel.mModelMonitorValues.setErrorsStorage(idx, true)
+                if (current.ViewType == 0)
+                    viewModel.mModelMonitorValues.setErrorsStorage(idx, true)
+                else
+                {
+                    viewModel.mModelMonitorValues.setErrorsStorage(idx, true)
+                    viewModel.mModelMonitorValues.setErrorsStorage(idx + 1, true)
+                }
             } else if (current is SetGasRoomViewData) {
                 (current as SetGasRoomViewData).isAlert = true
                 viewModel.mModelMonitorValues.setErrorsRoom(idx, true)
