@@ -906,6 +906,9 @@ class AQDataParser(viewModel: MainViewModel) {
 
         var tmpavg = oxygenLastValueList.average()
         if(tmpavg.isNaN()) tmpavg = 0.0
+        if (viewModel.oxygenMasterData == null)
+            return
+
         viewModel.oxygenMasterData!!.setValue = tmpavg.toFloat()
         if (viewModel.oxygenMasterData!!.setMinValue > viewModel.oxygenMasterData!!.setValue) {
             viewModel.oxygenMasterData!!.isAlert = true
