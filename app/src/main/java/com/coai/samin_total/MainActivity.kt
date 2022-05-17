@@ -581,6 +581,9 @@ class MainActivity : AppCompatActivity() {
             mainViewModel.isSoundAlert = false
         }
 
+        if (mainViewModel.controlData.useModbusRTU)
+            mainViewModel.modbusService?.resetProcessImage(mainViewModel.controlData.modbusRTUID)
+
         uiError()
         super.onResume()
     }
