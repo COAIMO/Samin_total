@@ -99,13 +99,21 @@ class GasDockMainFragment : Fragment() {
                                 gasStorageViewData[idx].isAlertLeft != t.isAlertLeft ||
                                 gasStorageViewData[idx].unit != t.unit    )
                             {
-                                lstvalue.add(idx)
+                                if (!lstvalue.contains(idx))
+                                    lstvalue.add(idx)
                             }
 
                             if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
                                 if (t.isAlert == true ||
                                     t.isAlertLeft == true ||
                                     t.isAlertRight == true) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                }
+                                else if (gasStorageViewData[idx].ViewType == 0 && gasStorageViewData[idx].pressure == null) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                } else if (gasStorageViewData[idx].ViewType != 0 && (gasStorageViewData[idx].pressureLeft == null || gasStorageViewData[idx].pressureRight == null)) {
                                     if (!lstvalue.contains(idx))
                                         lstvalue.add(idx)
                                 }

@@ -1354,7 +1354,10 @@ class AQDataParser(viewModel: MainViewModel) {
                     (current as SetSteamerViewData).isAlertTemp = false
                 }
             }
-            alertMapClear()
+//            alertMapClear()
+            alertMap.remove(tmp)
+            alertMap2.remove(tmp)
+            alertBase.remove(tmp)
 
             val aqInfo = HexDump.toByteArray(tmp)
             val model = aqInfo[3].toInt()

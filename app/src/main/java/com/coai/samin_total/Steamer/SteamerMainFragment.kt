@@ -106,15 +106,22 @@ class SteamerMainFragment : Fragment() {
                     for (t in newsteamerViewData) {
                         val idx = newsteamerViewData.indexOf(t)
                         if (idx > -1) {
+
+
                             if (steamerViewData[idx].unit != t.unit ||
                                     steamerViewData[idx].isAlertTemp != t.isAlertTemp ||
                                     steamerViewData[idx].isAlertLow != t.isAlertLow ||
                                     steamerViewData[idx].isTemp != t.isTemp){
-                                lstvalue.add(idx)
+                                if (!lstvalue.contains(idx))
+                                    lstvalue.add(idx)
                             }
 
                             if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
                                 if (t.isAlertTemp || t.isAlertLow) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                }
+                                else if (steamerViewData[idx].isTemp == 0) {
                                     if (!lstvalue.contains(idx))
                                         lstvalue.add(idx)
                                 }

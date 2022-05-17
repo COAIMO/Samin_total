@@ -94,11 +94,12 @@ class GasRoomMainFragment : Fragment() {
                                 gasRoomViewData[idx].isAlert != t.isAlert ||
                                 gasRoomViewData[idx].unit != t.unit)
                             {
-                                lstvalue.add(idx)
+                                if (!lstvalue.contains(idx))
+                                    lstvalue.add(idx)
                             }
 
                             if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
-                                if (t.isAlert == true) {
+                                if (t.isAlert) {
                                     if (!lstvalue.contains(idx))
                                         lstvalue.add(idx)
                                 }

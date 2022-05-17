@@ -99,14 +99,19 @@ class OxygenMainFragment : Fragment() {
                     chk = false
                     heartbeatCount++
 
-                    if (viewmodel.oxygenMasterData?.isAlert != oxygenViewData?.isAlert ||
-                        viewmodel.oxygenMasterData?.setValue != oxygenViewData?.setValue)
+                    val viewIsAlert = viewmodel.oxygenMasterData?.isAlert
+                    val viewSetValue = viewmodel.oxygenMasterData?.setValue
+
+                    if (viewIsAlert != oxygenViewData?.isAlert ||
+                        viewSetValue != oxygenViewData?.setValue)
                             chk = true
 
                     if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
-                        if (viewmodel.oxygenMasterData?.isAlert == true) {
+                        if (viewIsAlert == true) {
                             chk = true
                         }
+                        else if (viewSetValue == 0f)
+                            chk = true
                     }
                     viewmodel.oxygenMasterData?.heartbeatCount = heartbeatCount
                     oxygenViewData = viewmodel.oxygenMasterData?.copy()
@@ -114,7 +119,7 @@ class OxygenMainFragment : Fragment() {
                     val baseTime = System.currentTimeMillis() - 1000 * 2
                     if (lastupdate < baseTime) {
                         lastupdate = System.currentTimeMillis()
-                        synchronized(lockobj) {
+                         synchronized(lockobj) {
                             activity?.runOnUiThread {
                                 recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                             }
