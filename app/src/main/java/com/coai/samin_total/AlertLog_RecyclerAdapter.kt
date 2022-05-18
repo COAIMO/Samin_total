@@ -29,7 +29,7 @@ class AlertLog_RecyclerAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as AlertViewHodler).bind(alertData[position])
-        holder.setIsRecyclable(false)
+//        holder.setIsRecyclable(false)
     }
 
     inner class AlertViewHodler(view: View) : RecyclerView.ViewHolder(view) {
