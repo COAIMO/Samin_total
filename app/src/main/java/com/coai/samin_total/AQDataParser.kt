@@ -1294,6 +1294,7 @@ class AQDataParser(viewModel: MainViewModel) {
             val id = aqInfo[2].toInt()
             val port = aqInfo[1].toInt()
 
+
             val idx = KeyUtils.getIndex(
                 model.toInt(),
                 id.toByte(),
@@ -1303,27 +1304,43 @@ class AQDataParser(viewModel: MainViewModel) {
                 (current as SetGasStorageViewData).isAlert = true
                 current.isAlertRight = true
                 current.isAlertLeft = true
-                if (current.ViewType == 0)
-                    viewModel.mModelMonitorValues.setErrorsStorage(idx, true)
-                else
-                {
-                    viewModel.mModelMonitorValues.setErrorsStorage(idx, true)
-                    viewModel.mModelMonitorValues.setErrorsStorage(idx + 1, true)
+
+                if (current.usable) {
+                    if (current.ViewType == 0)
+                        viewModel.mModelMonitorValues.setErrorsStorage(idx, true)
+                    else {
+                        viewModel.mModelMonitorValues.setErrorsStorage(idx, true)
+                        viewModel.mModelMonitorValues.setErrorsStorage(idx + 1, true)
+                    }
                 }
+                else
+                    continue
             } else if (current is SetGasRoomViewData) {
                 (current as SetGasRoomViewData).isAlert = true
-                viewModel.mModelMonitorValues.setErrorsRoom(idx, true)
+                if (current.usable)
+                    viewModel.mModelMonitorValues.setErrorsRoom(idx, true)
+                else
+                    continue
             } else if (current is SetWasteLiquorViewData) {
                 (current as SetWasteLiquorViewData).isAlert = true
-                viewModel.mModelMonitorValues.setErrorsWaste(idx, true)
+                if (current.usable)
+                    viewModel.mModelMonitorValues.setErrorsWaste(idx, true)
+                else
+                    continue
             } else if (current is SetOxygenViewData) {
                 (current as SetOxygenViewData).isAlert = true
                 viewModel.oxygenMasterData!!.isAlert = true
-                viewModel.mModelMonitorValues.setErrorsOxygen(idx, true)
+                if (current.usable)
+                    viewModel.mModelMonitorValues.setErrorsOxygen(idx, true)
+                else
+                    continue
             } else if (current is SetSteamerViewData) {
                 (current as SetSteamerViewData).isAlertLow = true
                 (current as SetSteamerViewData).isAlertTemp = true
-                viewModel.mModelMonitorValues.setErrorsSteam(idx, true)
+                if (current.usable)
+                    viewModel.mModelMonitorValues.setErrorsSteam(idx, true)
+                else
+                    continue
             }
 
             viewModel.addAlertInfo(
