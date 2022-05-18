@@ -1083,6 +1083,33 @@ class AQDataParser(viewModel: MainViewModel) {
         viewModel.mModelMonitorValues.setErrorsSteam(idx, false)
     }
 
+    fun ParserGas(key: Byte, datas: ArrayList<Int>, time : Long) {
+        for (t in 1..4) {
+            val key = littleEndianConversion(
+                byteArrayOf(
+                    1,
+                    key.toByte(),
+                    t.toByte()
+                )
+            )
+
+//            datas[t-1]
+
+            val tmp1 = hmapAQPortSettings[key] ?: continue
+            val tmp = (tmp1 as SetGasStorageViewData)
+
+            if (!tmp.usable)
+                continue
+
+            if (tmp.ViewType in 1..2) {
+                hmapLastedDate[key] = time
+                ProcessDualGasStorage(key,  datas[t-1],  datas[t])
+            } else {
+                hmapLastedDate[key] = time
+                ProcessSingleGasStorage(key, datas[t-1])
+            }
+        }
+    }
     /**
      * 수신 데이터 처리
      */

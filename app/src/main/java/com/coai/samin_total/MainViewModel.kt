@@ -283,6 +283,11 @@ class MainViewModel : ViewModel() {
                 if (tmp.usable) {
                     if (tmp.ViewType == 0) {
                         // 싱글
+                        KeyUtils.setIndex(
+                            tmp.modelByte.toInt(),
+                            tmp.id.toByte(),
+                            tmp.port.toByte()
+                        )
                         val idx = KeyUtils.getIndex(
                             tmp.modelByte.toInt(),
                             tmp.id.toByte(),
@@ -292,6 +297,16 @@ class MainViewModel : ViewModel() {
                         mModelMonitorValues.setStorageKinds(idx, getModbusGASNum(tmp.gasName))
                     } else {
                         // 듀얼, 오토체인저
+                        KeyUtils.setIndex(
+                            tmp.modelByte.toInt(),
+                            tmp.id.toByte(),
+                            tmp.port.toByte()
+                        )
+                        KeyUtils.setIndex(
+                            tmp.modelByte.toInt(),
+                            tmp.id.toByte(),
+                            (tmp.port + 1).toByte()
+                        )
                         val idx1 = KeyUtils.getIndex(
                             tmp.modelByte.toInt(),
                             tmp.id.toByte(),
@@ -316,13 +331,18 @@ class MainViewModel : ViewModel() {
         GasRoomDataLiveList.value?.let {
             for (tmp in it){
                 if (tmp.usable) {
+                    KeyUtils.setIndex(
+                        tmp.modelByte.toInt(),
+                        tmp.id.toByte(),
+                        tmp.port.toByte()
+                    )
                     val idx = KeyUtils.getIndex(
                         tmp.modelByte.toInt(),
                         tmp.id.toByte(),
                         tmp.port.toByte()
                     )
                     cntGasRoom++
-                    mModelMonitorValues.setStorageKinds(idx, getModbusGASNum(tmp.gasName))
+                    mModelMonitorValues.setRoomKinds(idx, getModbusGASNum(tmp.gasName))
                 }
             }
         }
@@ -332,6 +352,11 @@ class MainViewModel : ViewModel() {
         WasteLiquorDataLiveList.value?.let {
             for (tmp in it){
                 if (tmp.usable) {
+                    KeyUtils.setIndex(
+                        tmp.modelByte.toInt(),
+                        tmp.id.toByte(),
+                        tmp.port.toByte()
+                    )
                     val idx = KeyUtils.getIndex(
                         tmp.modelByte.toInt(),
                         tmp.id.toByte(),
@@ -347,6 +372,11 @@ class MainViewModel : ViewModel() {
         OxygenDataLiveList.value?.let {
             for (tmp in it){
                 if (tmp.usable) {
+                    KeyUtils.setIndex(
+                        tmp.modelByte.toInt(),
+                        tmp.id.toByte(),
+                        tmp.port.toByte()
+                    )
                     val idx = KeyUtils.getIndex(
                         tmp.modelByte.toInt(),
                         tmp.id.toByte(),
@@ -362,6 +392,11 @@ class MainViewModel : ViewModel() {
         SteamerDataLiveList.value?.let {
             for (tmp in it){
                 if (tmp.usable) {
+                    KeyUtils.setIndex(
+                        tmp.modelByte.toInt(),
+                        tmp.id.toByte(),
+                        tmp.port.toByte()
+                    )
                     val idx = KeyUtils.getIndex(
                         tmp.modelByte.toInt(),
                         tmp.id.toByte(),

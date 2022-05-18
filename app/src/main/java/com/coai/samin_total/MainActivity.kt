@@ -253,14 +253,14 @@ class MainActivity : AppCompatActivity() {
             mainViewModel.isSoundAlert = false
         }
 
-        if (mainViewModel.controlData.useModbusRTU) {
-//            mainViewModel.modbusService?.resetProcessImage(mainViewModel.controlData.modbusRTUID)
-
-            GlobalScope.launch {
-                delay(1000L)
-                mainViewModel.modbusService?.resetProcessImage(mainViewModel.controlData.modbusRTUID)
-            }
-        }
+//        if (mainViewModel.controlData.useModbusRTU) {
+////            mainViewModel.modbusService?.resetProcessImage(mainViewModel.controlData.modbusRTUID)
+//
+//            GlobalScope.launch {
+//                delay(1000L)
+//                mainViewModel.modbusService?.resetProcessImage(mainViewModel.controlData.modbusRTUID)
+//            }
+//        }
 
         uiError()
         super.onResume()
@@ -848,7 +848,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     //    private var modbusService: SaminModbusService? = null
-    var mHandler: MyHandler? = null
+//    var mHandler: MyHandler? = null
 
 //    var mModelMonitorValues: ModelMonitorValues = ModelMonitorValues()
 
@@ -857,26 +857,6 @@ class MainActivity : AppCompatActivity() {
             mainViewModel.modbusService =
                 (arg1 as SaminModbusService.SaminModbusServiceBinder).getService()
             mHandler?.let { mainViewModel.modbusService?.setHandler(it) }
-
-//            mainViewModel.modbusService?.svcHandler?.let {
-////                val msg2 = it.obtainMessage(SaminModbusService.SETTING_SLAVE_ID, 2)
-////                it.sendMessage(msg2)
-////
-////                val msg7 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_DATA, InputData(0, true))
-////                it.sendMessage(msg7)
-////                val msg8 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_DATA, InputData(1, true))
-////                it.sendMessage(msg8)
-////                val msg9 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_DATA, InputData(3, true))
-////                it.sendMessage(msg9)
-////                val msg10 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(100, 1000))
-////                it.sendMessage(msg10)
-////                val msg11 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(1100, 1000))
-////                it.sendMessage(msg11)
-////                val msg12 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(2100, 1000))
-////                it.sendMessage(msg12)
-////                val msg13 = it.obtainMessage(SaminModbusService.CHANGE_INPUT_REGISTER, InputRegister(3100, 1000))
-////                it.sendMessage(msg13)
-//            }
 
             mainViewModel.modbusService?.setSlaveID(mainViewModel.controlData.modbusRTUID)
 
@@ -891,7 +871,6 @@ class MainActivity : AppCompatActivity() {
 //            mainViewModel.mObserveModelMonitorValues =
 //                ObserveModelMonitorValues(mainViewModel.modbusService!!, mainViewModel.mModelMonitorValues)
             mainViewModel.modbusService?.startModbusService()
-            mainViewModel.refreshModbusModels()
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
@@ -919,18 +898,31 @@ class MainActivity : AppCompatActivity() {
         bindService(bindingIntent, serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
     }
 
-    class MyHandler(activity: MainActivity?) : Handler() {
-        private val mActivity: WeakReference<MainActivity>
+    private val mHandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-
+                SaminModbusService.START_SERIAL_SERVICE -> {
+                    mainViewModel.modbusService?.resetProcessImage(mainViewModel.controlData.modbusRTUID)
+                    Thread.sleep(500)
+                    mainViewModel.refreshModbusModels()
+                }
             }
         }
-
-        init {
-            mActivity = WeakReference(activity)
-        }
     }
+//    class MyHandler(activity: MainActivity?) : Handler() {
+//        private val mActivity: WeakReference<MainActivity>
+//        override fun handleMessage(msg: Message) {
+//            when (msg.what) {
+//                SaminModbusService.START_SERIAL_SERVICE -> {
+//                    mActivity.mainViewModel.refreshModbusModels()
+//                }
+//            }
+//        }
+//
+//        init {
+//            mActivity = WeakReference(activity)
+//        }
+//    }
 
     fun addLogs(time: String, model: Int, id: Int, content: String, port: Int, isAlert: Boolean) {
         GlobalScope.launch {
@@ -1337,51 +1329,7 @@ class MainActivity : AppCompatActivity() {
                     val time = recvdata.time
                     val datas = recvdata.datas
 
-                    for (i in mainViewModel.GasStorageDataLiveList.value!!) {
-                        if ((i as SetGasStorageViewData).ViewType == 1 || (i as SetGasStorageViewData).ViewType == 2) {
-                            if ((i as SetGasStorageViewData).port == 1) {
-                                val left_value = datas[0]
-                                val right_value = datas[1]
-                                val key = littleEndianConversion(
-                                    byteArrayOf(
-                                        model,
-                                        id.toByte(),
-                                        1
-                                    )
-                                )
-                                tmp.hmapLastedDate[key] = time
-                                tmp.ProcessDualGasStorage(key, left_value, right_value)
-                            } else if ((i as SetGasStorageViewData).port == 3) {
-                                val left_value = datas[2]
-                                val right_value = datas[3]
-                                val key = littleEndianConversion(
-                                    byteArrayOf(
-                                        model,
-                                        id.toByte(),
-                                        3
-                                    )
-                                )
-                                tmp.hmapLastedDate[key] = time
-                                tmp.ProcessDualGasStorage(key, left_value, right_value)
-                            }
-                        } else {
-                            var loop = 1
-                            for (t in datas) {
-                                //아이디 1개당 포트 4개 추가
-                                val port = loop++.toByte()
-                                //키는 아이디 포트
-                                val key = littleEndianConversion(
-                                    byteArrayOf(
-                                        model,
-                                        id.toByte(),
-                                        port
-                                    )
-                                )
-                                tmp.hmapLastedDate[key] = time
-                                tmp.ProcessSingleGasStorage(key, t)
-                            }
-                        }
-                    }
+                    tmp.ParserGas(id, datas, time)
                 }
                 SerialService.MSG_GASROOM -> {
                     val recvdata = (msg.data.getSerializable("") as ParsingData)
