@@ -124,7 +124,7 @@ class WasteLiquorMainFragment : Fragment() {
                     else {
                         val rlist = Utils.ToIntRange(lstvalue, wasteLiquorViewData.size)
                         if (rlist != null) {
-//                            Log.d("debug", "${rlist.size}")
+                            Log.d("debug", "${rlist.size}")
                             synchronized(lockobj) {
                                 activity?.runOnUiThread() {
                                     rlist.forEach {
@@ -246,7 +246,8 @@ class WasteLiquorMainFragment : Fragment() {
             viewmodel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         newwasteLiquorViewData.clear()
         for(tmp in mm)
-            newwasteLiquorViewData.add(tmp)
+            if (tmp.usable)
+                newwasteLiquorViewData.add(tmp)
 
         wasteLiquorViewData.clear()
         for(t in newwasteLiquorViewData)

@@ -273,7 +273,8 @@ class SteamerMainFragment : Fragment() {
         val mm = viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         newsteamerViewData.clear()
         for (tmp in mm)
-            newsteamerViewData.add(tmp)
+            if (tmp.usable)
+                newsteamerViewData.add(tmp)
 
         steamerViewData.clear()
         for (t in newsteamerViewData)

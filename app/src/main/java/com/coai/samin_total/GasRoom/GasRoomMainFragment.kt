@@ -254,7 +254,8 @@ class GasRoomMainFragment : Fragment() {
 
         newgasRoomViewData.clear()
         for(tmp in mm){
-            newgasRoomViewData.add(tmp)
+            if (tmp.usable)
+                newgasRoomViewData.add(tmp)
         }
         gasRoomViewData.clear()
         for (tmp in newgasRoomViewData) {

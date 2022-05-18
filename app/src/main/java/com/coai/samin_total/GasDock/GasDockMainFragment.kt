@@ -260,7 +260,8 @@ class GasDockMainFragment : Fragment() {
 
         newgasStorageViewData.clear()
         for(tmp in mm) {
-            newgasStorageViewData.add(tmp)
+            if (tmp.usable)
+                newgasStorageViewData.add(tmp)
         }
 //        newgasStorageViewData.addAll(mm)
         gasStorageViewData.clear()
