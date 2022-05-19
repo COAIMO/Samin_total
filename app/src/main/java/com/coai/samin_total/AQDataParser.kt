@@ -19,6 +19,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class AQDataParser(viewModel: MainViewModel) {
+    val hmapErrorOxygen = HashMap<Int, Boolean>()
     val hmapAQPortSettings = HashMap<Int, Any>()
     val viewModel: MainViewModel = viewModel
     val setAQport = HashMap<Int, Any>()
@@ -56,6 +57,7 @@ class AQDataParser(viewModel: MainViewModel) {
      */
     fun Clear() {
         synchronized(this) {
+            hmapErrorOxygen.clear()
             hmapAQPortSettings.clear()
             setAQport.clear()
             hmapLastedDate.clear()
@@ -788,8 +790,10 @@ class AQDataParser(viewModel: MainViewModel) {
         viewModel.mModelMonitorValues.setErrorsWaste(idx, false)
     }
 
+
     fun ProcessOxygen(id: Int, data: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
+        val preError = hmapErrorOxygen[id] ?: false
         val tmp = (tmp1 as SetOxygenViewData)
         val oxygenValue = data / 100f
         if (oxygenValue <= 0f || oxygenValue > 100f) {
@@ -803,6 +807,11 @@ class AQDataParser(viewModel: MainViewModel) {
         }
 
         if (tmp.setMinValue > oxygenValue) {
+            if (!preError) {
+                hmapErrorOxygen[id] = true
+                return
+            }
+
             tmp.isAlert = true
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
@@ -820,6 +829,11 @@ class AQDataParser(viewModel: MainViewModel) {
             }
         } else {
             if (tmp.setMaxValue < oxygenValue) {
+                if (!preError) {
+                    hmapErrorOxygen[id] = true
+                    return
+                }
+
                 tmp.isAlert = true
                 if (alertMap[id] == null) {
                     alertMap.put(id, true)
@@ -837,6 +851,8 @@ class AQDataParser(viewModel: MainViewModel) {
                 }
             } else {
                 tmp.isAlert = false
+                hmapErrorOxygen.remove(id)
+
                 if (alertMap.containsKey(id)) {
                     viewModel.addAlertInfo(
                         id,
