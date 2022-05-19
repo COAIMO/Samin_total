@@ -37,7 +37,7 @@ class ControlFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    var activity:MainActivity? = null
+    var activity: MainActivity? = null
     private lateinit var mBinding: FragmentControlBinding
     private lateinit var onBackPressed: OnBackPressedCallback
     lateinit var shared: SaminSharedPreference
@@ -53,23 +53,29 @@ class ControlFragment : Fragment() {
         "250000",
         "500000",
         "1000000",
-        )
-    val modbusID = arrayListOf<String>(
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7"
     )
+
+    //    val modbusID = arrayListOf<String>(
+//        "1",
+//        "2",
+//        "3",
+//        "4",
+//        "5",
+//        "6",
+//        "7"
+//    )
+    val modbusID = arrayListOf<String>().apply {
+        for (i in 0..255){
+            this.add(i.toString())
+        }
+    }
     var selected_Id = 1
     var selected_buadrate = 9600
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
-        onBackPressed = object : OnBackPressedCallback(true){
+        onBackPressed = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 activity!!.onFragmentChange(MainViewModel.ADMINFRAGMENT)
             }
@@ -86,6 +92,7 @@ class ControlFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -128,12 +135,12 @@ class ControlFragment : Fragment() {
         mBinding.swConnectModbus.isChecked = viewmodel.controlData.useModbusRTU
 //        mBinding.swConnectSetting.isChecked = viewmodel.controlData.useSettingShare
 
-        mBinding.btnSettingSend.setOnClickListener{
+        mBinding.btnSettingSend.setOnClickListener {
             if (!mBinding.swMirror.isChecked)
                 sendSettingValues()
         }
 
-        mBinding.saveBtn.setOnClickListener{
+        mBinding.saveBtn.setOnClickListener {
             setSaveData()
         }
 
@@ -146,6 +153,7 @@ class ControlFragment : Fragment() {
         }
         return mBinding.root
     }
+
     private fun setModbusIDSpinner() {
         val arrayAdapter = ArrayAdapter(
             requireContext(),
@@ -153,7 +161,7 @@ class ControlFragment : Fragment() {
             modbusID
         )
         mBinding.spModbusId.adapter = arrayAdapter
-        mBinding.spModbusId.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        mBinding.spModbusId.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -177,21 +185,22 @@ class ControlFragment : Fragment() {
             buadrate
         )
         mBinding.spModbusBuadrate.adapter = arrayAdapter
-        mBinding.spModbusBuadrate.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                selected_buadrate = buadrate[position].toInt()
-            }
+        mBinding.spModbusBuadrate.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    selected_buadrate = buadrate[position].toInt()
+                }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                Toast.makeText(context, "통신속도를 선택해주세요.", Toast.LENGTH_SHORT)
-                    .show()
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    Toast.makeText(context, "통신속도를 선택해주세요.", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
-        }
     }
 
     private fun sendProtocolToSerial(data: ByteArray) {
@@ -202,17 +211,22 @@ class ControlFragment : Fragment() {
         val protocol = SaminProtocol()
 
         if (data != null) {
-            val chunked = data!!.asSequence().chunked(40){ t ->
+            val chunked = data!!.asSequence().chunked(40) { t ->
                 t.toByteArray()
             }
             var idx = 0
-            for (tmp in chunked){
-                protocol.BuildProtocoOld(model, chunked.count().toByte(), SaminProtocolMode.SettingShare.byte,byteArrayOf(idx.toByte()) + tmp)
+            for (tmp in chunked) {
+                protocol.BuildProtocoOld(
+                    model,
+                    chunked.count().toByte(),
+                    SaminProtocolMode.SettingShare.byte,
+                    byteArrayOf(idx.toByte()) + tmp
+                )
                 sendProtocolToSerial(protocol.mProtocol.clone())
                 idx++
             }
         } else {
-            protocol.buildProtocol(model, 0.toByte(), SaminProtocolMode.SettingShare.byte,null)
+            protocol.buildProtocol(model, 0.toByte(), SaminProtocolMode.SettingShare.byte, null)
             sendProtocolToSerial(protocol.mProtocol.clone())
         }
     }
@@ -243,8 +257,8 @@ class ControlFragment : Fragment() {
 
                 viewmodel.WasteLiquorDataLiveList.value?.let {
                     byteWaste = ProtoBuf.encodeToByteArray(it.toList())
-    //                var ttt = ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(byteWaste!!)
-    //                println(ttt)
+                    //                var ttt = ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(byteWaste!!)
+                    //                println(ttt)
                 }
 
                 viewmodel.OxygenDataLiveList.value?.let {
@@ -303,7 +317,7 @@ class ControlFragment : Fragment() {
                 }
                 sendMultipartSend(32.toByte())
                 Thread.sleep(40)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
 
