@@ -69,7 +69,7 @@ class GasRoomSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("")) {
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString().equals(",") && !s.toString().equals(".")) {
                 try {
                     if (selectedSensor == null) return
                     selectedSensor?.zeroPoint = s.toString().toFloat()
