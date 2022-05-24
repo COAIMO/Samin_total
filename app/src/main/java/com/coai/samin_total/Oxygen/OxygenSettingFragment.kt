@@ -25,6 +25,7 @@ import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentOxygenSettingBinding
+import org.w3c.dom.Text
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -82,6 +83,24 @@ class OxygenSettingFragment : Fragment() {
         }
     }
 
+    private val mOxygen_zeropointWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString().equals(".") ) {
+                if (selectedSensor == null) return
+                selectedSensor?.zeroPoint = s.toString().toFloat()
+            } else {
+                if (selectedSensor == null) return
+                selectedSensor?.zeroPoint = 0f
+            }
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -132,6 +151,7 @@ class OxygenSettingFragment : Fragment() {
                 )
                 mBinding.oxygenBoardSettingView.mOxygen_minValue_et.setText(selectedSensor?.setMinValue.toString())
                 mBinding.oxygenBoardSettingView.mOxygen_maxValue_et.setText(selectedSensor?.setMaxValue.toString())
+                mBinding.oxygenBoardSettingView.mOxygen_zeropoint.setText((selectedSensor?.zeroPoint ?: 0.0f).toString())
             }
         })
 
@@ -167,6 +187,9 @@ class OxygenSettingFragment : Fragment() {
         )
         mBinding.oxygenBoardSettingView.mOxygen_maxValue_et.addTextChangedListener(
             mOxygen_maxValueWatcher
+        )
+        mBinding.oxygenBoardSettingView.mOxygen_zeropoint.addTextChangedListener(
+            mOxygen_zeropointWatcher
         )
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.OXYGENMAINFRAGMENT)

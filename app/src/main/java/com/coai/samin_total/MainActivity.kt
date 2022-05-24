@@ -607,6 +607,7 @@ class MainActivity : AppCompatActivity() {
             val alertchanged = ArrayList<Short>()
             val alertchangedRemind = ArrayList<Short>()
             val currentLedState = HashMap<Short, Byte>()
+            var prevAlertOxygen : Boolean = false
             while (true) {
 
                 val elapsed: Long = measureTimeMillis {
@@ -688,7 +689,7 @@ class MainActivity : AppCompatActivity() {
                                         Thread.sleep(5)
                                     }
 
-                                    if (mainViewModel.isSoundAlert) {
+                                    if (mainViewModel.isSoundAlert && !model.equals(4.toByte())) {
                                         tabletSoundAlertOn()
                                         protocol.buzzer_On(model, id)
                                         for (cnt in 0..1) {
@@ -696,6 +697,14 @@ class MainActivity : AppCompatActivity() {
                                             Thread.sleep(5)
                                         }
                                     }
+                                    if (model.equals(4.toByte())) {
+                                        protocol.buzzer_On(model, id)
+                                        for (cnt in 0..1) {
+                                            sendProtocolToSerial(protocol.mProtocol.clone())
+                                            Thread.sleep(5)
+                                        }
+                                    }
+
                                     mainViewModel.portAlertMapLed[k] = v
                                 }
                                 else if (alertBoardsendLastTime[k] == null || alertBoardsendLastTime[k]!! < (System.currentTimeMillis() - 1000 * 60)){
@@ -762,10 +771,12 @@ class MainActivity : AppCompatActivity() {
                             if (id == 8.toByte())
                                 continue
 
-                            for (cnt in 0..1) {
-                                protocol.buzzer_Off(model, id)
-                                sendProtocolToSerial(protocol.mProtocol.clone())
-                                Thread.sleep(5)
+                            if (!model.equals(4.toByte())) {
+                                for (cnt in 0..1) {
+                                    protocol.buzzer_Off(model, id)
+                                    sendProtocolToSerial(protocol.mProtocol.clone())
+                                    Thread.sleep(5)
+                                }
                             }
 
                             for (cnt in 0..1) {
@@ -777,12 +788,37 @@ class MainActivity : AppCompatActivity() {
                         isAnotherJob = false
                     }
 
+                    // 산소 센서 평균 에러 여부
+                    if (mainViewModel.oxygenMasterData != null && !prevAlertOxygen && mainViewModel.oxygenMasterData!!.isAlert) {
+                        prevAlertOxygen = true
+
+                        isAnotherJob = true
+                        Thread.sleep(ANOTHERJOB_SLEEP)
+
+                        for (t in 0..7) {
+                            val model: Byte = 4
+                            val id: Byte = t.toByte()
+
+                            for (cnt in 0..1) {
+                                protocol.buzzer_On(model, id)
+                                sendProtocolToSerial(protocol.mProtocol.clone())
+                                Thread.sleep(5)
+                            }
+                        }
+                        isAnotherJob = false
+                    } else if ( mainViewModel.oxygenMasterData != null && !mainViewModel.oxygenMasterData!!.isAlert){
+                        prevAlertOxygen = false
+                    } else if (mainViewModel.oxygenMasterData == null) {
+                        prevAlertOxygen = false
+                    }
+
                     val targets = java.util.HashMap<Int, Int>()
                     for (t in mainViewModel.alertMap.values) {
                         if (t.isAlert && !targets.containsKey(t.model)) {
                             targets[t.model] = t.model
                         }
                     }
+
                     if (targets.size == 0) {
                         tabletSoundAlertOff()
                     }

@@ -157,6 +157,25 @@ class ConnectTestFragment : Fragment() {
             }
             activity?.isAnotherJob = false
         }
+
+        mBinding.btnOxygenAlertOff.setOnClickListener {
+            activity?.isAnotherJob = true
+            Thread.sleep(100)
+
+            val protocol = SaminProtocol()
+            for (t in 0..7) {
+                val model: Byte = 4
+                val id: Byte = t.toByte()
+
+                for (cnt in 0..1) {
+                    protocol.buzzer_Off(model, id)
+                    activity?.sendProtocolToSerial(protocol.mProtocol.clone())
+                    Thread.sleep(5)
+                }
+            }
+
+            activity?.isAnotherJob = false
+        }
         return mBinding.root
     }
 

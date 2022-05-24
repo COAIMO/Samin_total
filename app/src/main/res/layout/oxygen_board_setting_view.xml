@@ -73,4 +73,22 @@
         android:text="19.2"
         android:textSize="20sp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="영점 조절"
+        android:textSize="15sp" />
+
+    <EditText
+        android:id="@+id/et_oxygen_zeropoint"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="10dp"
+        android:inputType="numberDecimal|numberSigned"
+        android:text="0.0"
+        android:textSize="20sp" />
+
 </LinearLayout>
