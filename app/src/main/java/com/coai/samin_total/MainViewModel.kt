@@ -49,6 +49,7 @@ class MainViewModel : ViewModel() {
         const val OXYGENSETTINGFRAGMENT = 19
         const val STEAMERSETTINGFRAGMENT = 20
         const val WASTELIQUORSETTINGFRAGMENT =21
+        const val GASROOMLEAKTESTFRAGMENT = 22
 
         const val GasDockStorage = 1.toByte()
         const val GasRoom = 2.toByte()
@@ -415,6 +416,6 @@ class MainViewModel : ViewModel() {
      * 스캔 모드 여부
      */
     var isScanmode : Boolean = false
-
+    var isLeakTestTime:Int = -1
 }
 

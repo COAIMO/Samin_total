@@ -24,6 +24,7 @@ import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.GasRoomMainFragment
 import com.coai.samin_total.GasRoom.GasRoomSettingFragment
+import com.coai.samin_total.GasRoom.RoomLeakTestFragment
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.*
 import com.coai.samin_total.Oxygen.OxygenMainFragment
@@ -77,6 +78,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var oxygenSettingFragment: OxygenSettingFragment
     lateinit var steamerSettingFragment: SteamerSettingFragment
     lateinit var wasteLiquorSettingFragment: WasteWaterSettingFragment
+    lateinit var gasRoomLeakTestFragment: RoomLeakTestFragment
     private lateinit var mainViewModel: MainViewModel
     lateinit var db: SaminDataBase
     lateinit var shared: SaminSharedPreference
@@ -334,6 +336,7 @@ class MainActivity : AppCompatActivity() {
         oxygenSettingFragment = OxygenSettingFragment()
         steamerSettingFragment = SteamerSettingFragment()
         wasteLiquorSettingFragment = WasteWaterSettingFragment()
+        gasRoomLeakTestFragment = RoomLeakTestFragment()
     }
 
     fun onFragmentChange(index: Int) {
@@ -386,6 +389,8 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.HostFragment_container, steamerSettingFragment).commit()
             MainViewModel.WASTELIQUORSETTINGFRAGMENT -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, wasteLiquorSettingFragment).commit()
+            MainViewModel.GASROOMLEAKTESTFRAGMENT -> supportFragmentManager.beginTransaction()
+                .replace(R.id.HostFragment_container, gasRoomLeakTestFragment).commit()
             else -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, mainFragment).commit()
         }

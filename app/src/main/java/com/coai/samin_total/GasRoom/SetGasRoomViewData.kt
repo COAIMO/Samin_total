@@ -22,5 +22,6 @@ data class SetGasRoomViewData(
     var unit: Int = 0,
     var slopeValue: Float = -10f,
     val modelByte: Byte = 2,
-    var heartbeatCount : UByte = 0u
+    var heartbeatCount : UByte = 0u,
+    var leakTest:Boolean = false
 )

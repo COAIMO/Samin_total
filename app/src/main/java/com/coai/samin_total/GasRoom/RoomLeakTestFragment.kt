@@ -1,9 +1,7 @@
 package com.coai.samin_total.GasRoom
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,18 +9,14 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.SimpleItemAnimator
 import com.coai.samin_total.Dialog.AlertDialogFragment
-import com.coai.samin_total.Dialog.LeakTestDialogFragment
-import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
 import com.coai.samin_total.Logic.Utils
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
-import com.coai.samin_total.Steamer.SetSteamerViewData
-import com.coai.samin_total.databinding.FragmentGasRoomMainBinding
-import java.util.*
+import com.coai.samin_total.databinding.FragmentRoomLeakTestBinding
+import com.github.mikephil.charting.data.Entry
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -31,41 +25,33 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [GasRoomMainFragment.newInstance] factory method to
+ * Use the [RoomLeakTestFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class GasRoomMainFragment : Fragment() {
+class RoomLeakTestFragment : Fragment() {
+    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private lateinit var mBinding: FragmentGasRoomMainBinding
-    private val gasRoomViewData = arrayListOf<SetGasRoomViewData>()
-    private val newgasRoomViewData = arrayListOf<SetGasRoomViewData>()
-    private lateinit var recycleAdapter: GasRoom_RecycleAdapter
+    private lateinit var mBinding: FragmentRoomLeakTestBinding
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
     private val viewmodel by activityViewModels<MainViewModel>()
-    var btn_Count = 0
-    lateinit var alertdialogFragment: AlertDialogFragment
-    lateinit var shared: SaminSharedPreference
+    private lateinit var recycleAdapter: GasRoomLeakTest_RecycleAdapter
     lateinit var itemSpace: SpacesItemDecoration
+    private val lockobj = object {}
+    private val newgasRoomViewData = arrayListOf<SetGasRoomViewData>()
+    lateinit var alertdialogFragment: AlertDialogFragment
     private var taskRefresh: Thread? = null
     private var isOnTaskRefesh: Boolean = true
-    lateinit var leaktestdialogFragment: LeakTestDialogFragment
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    var heartbeatCount: UByte = 0u
+    private val gasRoomViewData = arrayListOf<SetGasRoomViewData>()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
         onBackPressed = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                activity!!.onFragmentChange(MainViewModel.MAINFRAGMENT)
+                activity!!.onFragmentChange(MainViewModel.GASROOMMAINFRAGMENT)
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
@@ -77,7 +63,15 @@ class GasRoomMainFragment : Fragment() {
         onBackPressed.remove()
     }
 
-    val lockobj = object {}
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            param1 = it.getString(ARG_PARAM1)
+            param2 = it.getString(ARG_PARAM2)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         isOnTaskRefesh = true
@@ -98,6 +92,8 @@ class GasRoomMainFragment : Fragment() {
                             {
                                 if (!lstvalue.contains(idx))
                                     lstvalue.add(idx)
+
+                                val entry = Entry()
                             }
 
                             if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
@@ -151,116 +147,114 @@ class GasRoomMainFragment : Fragment() {
         taskRefresh?.start()
     }
 
-    override fun onPause() {
-        super.onPause()
-        isOnTaskRefesh = false
-        taskRefresh?.interrupt()
-        taskRefresh?.join()
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        mBinding = FragmentGasRoomMainBinding.inflate(inflater, container, false)
-        shared = SaminSharedPreference(requireContext())
+        mBinding = FragmentRoomLeakTestBinding.inflate(inflater, container, false)
         itemSpace = SpacesItemDecoration(50)
-
         initRecycler()
         initView()
-        updateView()
-        mBinding.btnSetting.setOnClickListener {
-            activity?.onFragmentChange(MainViewModel.GASROOMSETTINGFRAGMENT)
-        }
-
-        mBinding.btnZoomInout.setOnClickListener {
-            if (!viewmodel.roomViewZoomState) {
-                viewmodel.roomViewZoomState = true
-                mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
-                synchronized(lockobj) {
-                    mBinding.gasRoomRecyclerView.apply {
-                        itemSpace.changeSpace(150, 60, 150, 60)
-                    }
-                }
-            } else {
-                viewmodel.roomViewZoomState = false
-                mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
-                synchronized(lockobj) {
-                    mBinding.gasRoomRecyclerView.apply {
-                        itemSpace.changeSpace(20, 150, 20, 150)
-                    }
-                }
-            }
-            synchronized(lockobj) {
-                activity?.runOnUiThread {
-                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-                }
-            }
-        }
-        mBinding.btnUnit.setOnClickListener {
-            for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(
-                compareBy(
-                    { it.id },
-                    { it.port })
-            ).withIndex()) {
-                data.unit++
-                viewmodel.GasRoomDataLiveList.value!!.set(index, data)
-                if (data.unit == 3) data.unit = 0
-            }
-        }
-        mBinding.btnAlert.setOnClickListener {
-            alertdialogFragment = AlertDialogFragment()
-            val bundle = Bundle()
-            bundle.putString("model", "GasRoom")
-            alertdialogFragment.arguments = bundle
-            alertdialogFragment.show(childFragmentManager, "GasRoom")
-        }
-
-        mBinding.btnBack.setOnClickListener {
-            activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
-        }
+        setButtonClickEvent()
         updateAlert()
-
-        mBinding.btnLeakTest.setOnClickListener {
-            leaktestdialogFragment = LeakTestDialogFragment()
-            leaktestdialogFragment.show(childFragmentManager, "GasRoom")
-        }
         return mBinding.root
     }
 
-    private fun initRecycler() {
-//        recycleAdapter = GasRoom_RecycleAdapter()
-        mBinding.gasRoomRecyclerView.apply {
+    private fun setButtonClickEvent() {
+        mBinding.btnAlert.setOnClickListener {
+            onClick(it)
+        }
+        mBinding.btnBack.setOnClickListener {
+            onClick(it)
+        }
+        mBinding.btnUnit.setOnClickListener {
+            onClick(it)
+        }
+        mBinding.btnZoomInout.setOnClickListener {
+            onClick(it)
+        }
+    }
 
-            if (!viewmodel.roomViewZoomState){
+    private fun onClick(view: View) {
+        when (view) {
+            mBinding.btnAlert -> {
+                alertdialogFragment = AlertDialogFragment()
+                val bundle = Bundle()
+                bundle.putString("model", "GasRoom")
+                alertdialogFragment.arguments = bundle
+                alertdialogFragment.show(childFragmentManager, "GasRoom")
+            }
+            mBinding.btnBack -> {
+                activity?.onFragmentChange(MainViewModel.GASROOMMAINFRAGMENT)
+            }
+            mBinding.btnUnit -> {
+                for ((index, data) in viewmodel.GasRoomDataLiveList.value!!.sortedWith(
+                    compareBy(
+                        { it.id },
+                        { it.port })
+                ).withIndex()) {
+                    data.unit++
+                    viewmodel.GasRoomDataLiveList.value!!.set(index, data)
+                    if (data.unit == 3) data.unit = 0
+                }
+            }
+            mBinding.btnZoomInout -> {
+                if (!viewmodel.roomViewZoomState) {
+                    viewmodel.roomViewZoomState = true
+                    mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
+                    synchronized(lockobj) {
+                        mBinding.gasRoomLeakTestRecyclerView.apply {
+                            itemSpace.changeSpace(150, 60, 150, 60)
+                        }
+                    }
+                } else {
+                    viewmodel.roomViewZoomState = false
+                    mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+                    synchronized(lockobj) {
+                        mBinding.gasRoomLeakTestRecyclerView.apply {
+                            itemSpace.changeSpace(10, 150, 10, 150)
+                        }
+                    }
+                }
+                synchronized(lockobj) {
+                    activity?.runOnUiThread {
+                        recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun initRecycler() {
+        mBinding.gasRoomLeakTestRecyclerView.apply {
+            if (!viewmodel.roomViewZoomState) {
                 layoutManager =
-                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-                itemSpace.changeSpace(20, 150, 20, 150)
-            }else{
+                    GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
+                itemSpace.changeSpace(10, 150, 10, 150)
+            } else {
                 layoutManager =
-                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                    GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
                 itemSpace.changeSpace(150, 60, 150, 60)
             }
             addItemDecoration(itemSpace)
 
-            recycleAdapter = GasRoom_RecycleAdapter()
+            recycleAdapter = GasRoomLeakTest_RecycleAdapter()
             adapter = recycleAdapter
         }
-//        (mBinding.gasRoomRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
-        mBinding.gasRoomRecyclerView.itemAnimator = null
-        mBinding.gasRoomRecyclerView.animation = null
+        mBinding.gasRoomLeakTestRecyclerView.itemAnimator = null
+        mBinding.gasRoomLeakTestRecyclerView.animation = null
     }
 
-    private var timerTaskRefresh: Timer? = null
-    var heartbeatCount: UByte = 0u
-
-    @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
-        val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
-
+        val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(
+            compareBy({ it.id },
+                { it.port })
+        )
         newgasRoomViewData.clear()
-        for(tmp in mm){
+        val testData = mm.filter {
+            it.leakTest
+        }
+        for (tmp in testData) {
             if (tmp.usable)
                 newgasRoomViewData.add(tmp)
         }
@@ -268,12 +262,12 @@ class GasRoomMainFragment : Fragment() {
         for (tmp in newgasRoomViewData) {
             gasRoomViewData.add(tmp.copy())
         }
-
+        recycleAdapter.setLeakTestTime(viewmodel.isLeakTestTime)
         recycleAdapter.submitList(newgasRoomViewData)
 
         if (viewmodel.roomViewZoomState) {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
-        }else{
+        } else {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
 
@@ -282,16 +276,6 @@ class GasRoomMainFragment : Fragment() {
                 recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
             }
         }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun updateView() {
-//        viewmodel.GasRoomDataLiveList.observe(viewLifecycleOwner) {
-//            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
-//            recycleAdapter.submitList(mm)
-//            recycleAdapter.notifyDataSetChanged()
-//        }
-
 
     }
 
@@ -306,6 +290,13 @@ class GasRoomMainFragment : Fragment() {
 
     }
 
+    override fun onPause() {
+        super.onPause()
+        isOnTaskRefesh = false
+        taskRefresh?.interrupt()
+        taskRefresh?.join()
+    }
+
     companion object {
         /**
          * Use this factory method to create a new instance of
@@ -313,18 +304,16 @@ class GasRoomMainFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment GasRoomMainFragment.
+         * @return A new instance of fragment RoomLeakTestFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            GasRoomMainFragment().apply {
+            RoomLeakTestFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)
                 }
             }
     }
-
-
 }
