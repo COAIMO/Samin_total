@@ -92,8 +92,6 @@ class RoomLeakTestFragment : Fragment() {
                             {
                                 if (!lstvalue.contains(idx))
                                     lstvalue.add(idx)
-
-                                val entry = Entry()
                             }
 
                             if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {

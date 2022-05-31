@@ -44,6 +44,8 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
         testTime = mins
     }
 
+
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as gasRoomLeakTestViewHodler).bind(setGasRoomViewData[position])
 
@@ -65,6 +67,7 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
             gasRoomView.setAlert(setGasRoomViewData.isAlert)
             gasRoomView.heartBeat(setGasRoomViewData.heartbeatCount)
             setLineChart()
+            addEntry(setGasRoomViewData.pressure)
         }
 
         fun setLineChart(){
@@ -107,5 +110,47 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
             gasRoomGraphView.data = lineData// 라인 차트 데이터 지정
         }
 
+        fun addEntry(psi: Float){
+            val data = gasRoomGraphView.data
+            data?.let {
+                var set: ILineDataSet? = data.getDataSetByIndex(0)
+                //임의의 데이터 셋 (0번부터 시작)
+                if (set == null){
+                    set = createSet()
+                    data.addDataSet(set)
+                }
+                //데이터 엔트리 추가
+                data.addEntry(Entry(set.entryCount.toFloat(), psi),0)
+                data.notifyDataChanged()//데이터 변경알림
+
+                gasRoomGraphView.apply {
+                    notifyDataSetChanged()//라인 차트변경 알림.
+                    moveViewToX(data.entryCount.toFloat())
+                    setVisibleXRangeMaximum(4f)// x축 데이터 최대 표현 개수
+                    setPinchZoom(false)// 확대 설정
+                    isDoubleTapToZoomEnabled = false// 더블탭 확대 설정
+                    setBackgroundColor(Color.parseColor("#ffffff"))
+                    description.textSize = 15f
+                    setExtraOffsets(8f,15f,8f,15f)
+                }
+
+            }
+        }
+        private fun createSet():LineDataSet{
+            val set = LineDataSet(null, "Psi")
+            set.apply {
+                axisDependency = YAxis.AxisDependency.RIGHT//y값 데이터 왼쪽으로
+                color = Color.parseColor("#ff9800")
+                setCircleColor(Color.parseColor("#ff9800"))// 데이터 원형 색 지정
+                valueTextSize= 10f //값 글자 크기
+                lineWidth = 10f// 라인 두께
+                circleRadius = 3f
+                fillAlpha = 0//라인색 투명도
+                fillColor = Color.parseColor("#ff9800") // 라인 색 지정
+                highLightColor = Color.parseColor("#ff9800")
+                setDrawValues(true)//값을 그리기
+            }
+            return set
+        }
     }
 }
