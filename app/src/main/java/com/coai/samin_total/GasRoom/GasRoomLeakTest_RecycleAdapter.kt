@@ -40,15 +40,20 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
         this.setGasRoomViewData = tmp
     }
 
-    fun setLeakTestTime(mins:Int){
+    fun setLeakTestTime(mins: Int) {
         testTime = mins
     }
 
+    fun setEntry(entries: List<Entry>) {
+        setGraphData = entries
+    }
+
+    var setGraphData = listOf<Entry>()
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as gasRoomLeakTestViewHodler).bind(setGasRoomViewData[position])
-
+        (holder as gasRoomLeakTestViewHodler).graphBind(setGraphData[position])
         holder.setIsRecyclable(false)
     }
 
@@ -56,7 +61,7 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
         private val gasRoomView =
             view.findViewById<GasRoomView>(R.id.gas_room_data_view)
         private val gasRoomGraphView = view.findViewById<LineChart>(R.id.gas_room_graph_view)
-
+        var count = 0f
         fun bind(setGasRoomViewData: SetGasRoomViewData) {
             gasRoomView.setGasName(setGasRoomViewData.gasName)
             gasRoomView.setGasColor(setGasRoomViewData.gasColor)
@@ -66,11 +71,13 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
             gasRoomView.setGasIndex(setGasRoomViewData.gasIndex)
             gasRoomView.setAlert(setGasRoomViewData.isAlert)
             gasRoomView.heartBeat(setGasRoomViewData.heartbeatCount)
-            setLineChart()
-            addEntry(setGasRoomViewData.pressure)
         }
 
-        fun setLineChart(){
+        fun graphBind(entry: Entry) {
+            setLineChart(entry)
+        }
+
+        fun setLineChart(entry: Entry) {
             val xAxis: XAxis = gasRoomGraphView.xAxis
             val yAxis: YAxis = gasRoomGraphView.axisLeft
 
@@ -78,14 +85,14 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
                 position = XAxis.XAxisPosition.BOTTOM
                 textSize = 10f
                 setDrawGridLines(false)//배경 그리드 라인 세팅
-                granularity = 1f // x축 데이터 표시 간격
-                axisMinimum = 2f// x축 데이터의 최소 표시값
+                //granularity = 1f // x축 데이터 표시 간격
+                //axisMinimum = 2f// x축 데이터의 최소 표시값
                 isGranularityEnabled = true // x축 간격을 제한하는 세분화 기능
             }
             yAxis.apply {
                 setDrawGridLines(false)
-                axisMinimum = 0f
-                axisMaximum = 20f
+//                axisMinimum = 0f
+//                axisMaximum = 20f
 
             }
             gasRoomGraphView.apply {
@@ -98,51 +105,47 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
 //                    setDrawInside(false)// 차트안에 그릴것인가?
 //                }
                 legend.isEnabled = false
-                description.text = "${testTime}"+"(m)T"
-                setVisibleXRangeMaximum(4f)// x축 데이터 최대 표현 개수
-                setPinchZoom(false)// 확대 설정
-                isDoubleTapToZoomEnabled = false// 더블탭 확대 설정
-                setBackgroundColor(Color.parseColor("#ffffff"))
-                description.textSize = 15f
-                setExtraOffsets(8f,15f,8f,15f)
             }
             val lineData = LineData()
             gasRoomGraphView.data = lineData// 라인 차트 데이터 지정
+            addEntry(entry)
         }
 
-        fun addEntry(psi: Float){
+        fun addEntry(entry: Entry) {
             val data = gasRoomGraphView.data
             data?.let {
                 var set: ILineDataSet? = data.getDataSetByIndex(0)
                 //임의의 데이터 셋 (0번부터 시작)
-                if (set == null){
+                if (set == null) {
                     set = createSet()
                     data.addDataSet(set)
                 }
                 //데이터 엔트리 추가
-                data.addEntry(Entry(set.entryCount.toFloat(), psi),0)
+                data.addEntry(entry, 0)
                 data.notifyDataChanged()//데이터 변경알림
-
+                count++
                 gasRoomGraphView.apply {
                     notifyDataSetChanged()//라인 차트변경 알림.
-                    moveViewToX(data.entryCount.toFloat())
-                    setVisibleXRangeMaximum(4f)// x축 데이터 최대 표현 개수
-                    setPinchZoom(false)// 확대 설정
+                    moveViewToX(entry.x)
+//                    setVisibleXRangeMaximum(20f)// x축 데이터 최대 표현 개수
+                    //setPinchZoom(false)// 확대 설정
                     isDoubleTapToZoomEnabled = false// 더블탭 확대 설정
+                    description.text = "${testTime}" + "(m)T"
                     setBackgroundColor(Color.parseColor("#ffffff"))
                     description.textSize = 15f
-                    setExtraOffsets(8f,15f,8f,15f)
+                    setExtraOffsets(8f, 15f, 8f, 15f)
                 }
 
             }
         }
-        private fun createSet():LineDataSet{
+
+        private fun createSet(): LineDataSet {
             val set = LineDataSet(null, "Psi")
             set.apply {
-                axisDependency = YAxis.AxisDependency.RIGHT//y값 데이터 왼쪽으로
+                axisDependency = YAxis.AxisDependency.LEFT//y값 데이터 왼쪽으로
                 color = Color.parseColor("#ff9800")
                 setCircleColor(Color.parseColor("#ff9800"))// 데이터 원형 색 지정
-                valueTextSize= 10f //값 글자 크기
+                valueTextSize = 10f //값 글자 크기
                 lineWidth = 10f// 라인 두께
                 circleRadius = 3f
                 fillAlpha = 0//라인색 투명도
@@ -152,5 +155,8 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
             }
             return set
         }
+
     }
+
+
 }

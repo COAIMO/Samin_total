@@ -1,14 +1,22 @@
 package com.coai.samin_total.GasRoom
 
+import android.app.Activity
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
+import android.os.CountDownTimer
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.Button
+import android.widget.GridLayout
+import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
+import com.coai.samin_total.CustomView.LeakTestView
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SpacesItemDecoration
 import com.coai.samin_total.Logic.Utils
@@ -45,7 +53,7 @@ class RoomLeakTestFragment : Fragment() {
     private var isOnTaskRefesh: Boolean = true
     var heartbeatCount: UByte = 0u
     private val gasRoomViewData = arrayListOf<SetGasRoomViewData>()
-
+    private val graphData = arrayListOf<Entry>()
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
@@ -79,22 +87,30 @@ class RoomLeakTestFragment : Fragment() {
             try {
                 var lastupdate: Long = System.currentTimeMillis()
                 val lstvalue = mutableListOf<Int>()
+                var count: Float = 0f
+                var startmill: Long = System.currentTimeMillis()
                 while (isOnTaskRefesh) {
                     lstvalue.clear()
                     heartbeatCount++
 
+
+                    for (t in newgasRoomViewData){
+
+                    }
+
+                    for ((key, value ))
                     for (t in newgasRoomViewData) {
                         val idx = newgasRoomViewData.indexOf(t)
                         if (idx > -1) {
                             if (gasRoomViewData[idx].pressure != t.pressure ||
                                 gasRoomViewData[idx].isAlert != t.isAlert ||
-                                gasRoomViewData[idx].unit != t.unit)
-                            {
+                                gasRoomViewData[idx].unit != t.unit
+                            ) {
                                 if (!lstvalue.contains(idx))
                                     lstvalue.add(idx)
                             }
 
-                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
                                 if (t.isAlert) {
                                     if (!lstvalue.contains(idx))
                                         lstvalue.add(idx)
@@ -102,6 +118,10 @@ class RoomLeakTestFragment : Fragment() {
                             }
                             t.heartbeatCount = heartbeatCount
                             gasRoomViewData[idx] = t.copy()
+                            //
+                            val sec = (System.currentTimeMillis() - startmill) / 100f
+                            graphData[idx] = Entry(sec, newgasRoomViewData[idx].pressure)
+
                         }
                     }
 
@@ -115,21 +135,20 @@ class RoomLeakTestFragment : Fragment() {
 
                         synchronized(lockobj) {
                             activity?.runOnUiThread {
-                                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+//                                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                             }
                         }
-                    }
-                    else {
+                    } else {
                         val rlist = Utils.ToIntRange(lstvalue, gasRoomViewData.size)
                         if (rlist != null) {
 //                            Log.d("debug", "${lstvalue.size}")
                             synchronized(lockobj) {
                                 activity?.runOnUiThread() {
                                     rlist.forEach {
-                                        recycleAdapter.notifyItemRangeChanged(
-                                            it.lower,
-                                            1 + it.upper - it.lower
-                                        )
+//                                        recycleAdapter.notifyItemRangeChanged(
+//                                            it.lower,
+//                                            1 + it.upper - it.lower
+//                                        )
                                     }
                                 }
                             }
@@ -151,10 +170,18 @@ class RoomLeakTestFragment : Fragment() {
     ): View? {
         mBinding = FragmentRoomLeakTestBinding.inflate(inflater, container, false)
         itemSpace = SpacesItemDecoration(50)
-        initRecycler()
+        initGridLayout()
         initView()
         setButtonClickEvent()
         updateAlert()
+//
+//        val testCountDownTimer = object : CountDownTimer((600*1000).toLong(), 500) {
+//            override fun onTick(millisUntilFinished: Long) {
+//            }
+//
+//            override fun onFinish() {
+//            }
+//        }
         return mBinding.root
     }
 
@@ -201,16 +228,22 @@ class RoomLeakTestFragment : Fragment() {
                     viewmodel.roomViewZoomState = true
                     mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
                     synchronized(lockobj) {
-                        mBinding.gasRoomLeakTestRecyclerView.apply {
-                            itemSpace.changeSpace(150, 60, 150, 60)
+//                        mBinding.gasRoomLeakTestRecyclerView.apply {
+//                            itemSpace.changeSpace(150, 60, 150, 60)
+//                        }
+                        mBinding.gasRoomLeakTestGridLayout.apply {
+                            columnCount = 1
                         }
                     }
                 } else {
                     viewmodel.roomViewZoomState = false
                     mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
                     synchronized(lockobj) {
-                        mBinding.gasRoomLeakTestRecyclerView.apply {
-                            itemSpace.changeSpace(10, 150, 10, 150)
+//                        mBinding.gasRoomLeakTestRecyclerView.apply {
+//                            itemSpace.changeSpace(10, 150, 10, 150)
+//                        }
+                        mBinding.gasRoomLeakTestGridLayout.apply {
+                            columnCount = 2
                         }
                     }
                 }
@@ -223,26 +256,18 @@ class RoomLeakTestFragment : Fragment() {
         }
     }
 
-    private fun initRecycler() {
-        mBinding.gasRoomLeakTestRecyclerView.apply {
-            if (!viewmodel.roomViewZoomState) {
-                layoutManager =
-                    GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
-                itemSpace.changeSpace(10, 150, 10, 150)
-            } else {
-                layoutManager =
-                    GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
-                itemSpace.changeSpace(150, 60, 150, 60)
-            }
-            addItemDecoration(itemSpace)
 
-            recycleAdapter = GasRoomLeakTest_RecycleAdapter()
-            adapter = recycleAdapter
+    private fun initGridLayout() {
+        mBinding.gasRoomLeakTestGridLayout.apply {
+            if (!viewmodel.roomViewZoomState) {
+                columnCount = 2
+            } else {
+                columnCount = 1
+            }
         }
-        mBinding.gasRoomLeakTestRecyclerView.itemAnimator = null
-        mBinding.gasRoomLeakTestRecyclerView.animation = null
     }
 
+    val view_data_Hashmap = HashMap<SetGasRoomViewData, LeakTestView>()
     private fun initView() {
         val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(
             compareBy({ it.id },
@@ -260,8 +285,23 @@ class RoomLeakTestFragment : Fragment() {
         for (tmp in newgasRoomViewData) {
             gasRoomViewData.add(tmp.copy())
         }
-        recycleAdapter.setLeakTestTime(viewmodel.isLeakTestTime)
-        recycleAdapter.submitList(newgasRoomViewData)
+        //
+        graphData.clear()
+        for ((index, value) in newgasRoomViewData.withIndex()) {
+            graphData.add(index, Entry(0f, value.pressure))
+            val testView = LeakTestView(requireContext())
+            val params = GridLayout.LayoutParams().apply {
+
+            }
+            params.height = 500
+            params.width = GridLayout.LayoutParams.WRAP_CONTENT
+            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+            params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+            testView.layoutParams = params
+            mBinding.gasRoomLeakTestGridLayout.addView(testView)
+            view_data_Hashmap.put(value, testView)
+        }
+
 
         if (viewmodel.roomViewZoomState) {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
@@ -271,7 +311,7 @@ class RoomLeakTestFragment : Fragment() {
 
         synchronized(lockobj) {
             activity?.runOnUiThread {
-                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+//                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
             }
         }
 

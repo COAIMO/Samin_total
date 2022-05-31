@@ -89,22 +89,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/top_layer">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/gasRoomLeakTestRecyclerView"
+        <GridLayout
+            android:id="@+id/gasRoomLeakTestGridLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+        </GridLayout>
     </androidx.core.widget.NestedScrollView>
-    x
 
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/btn_back"
-        android:layout_width="50dp"
-        android:layout_height="30dp"
-        android:layout_marginEnd="33dp"
-        android:layout_marginBottom="33dp"
-        android:background="@drawable/backbutton_ic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="33dp"
+            android:layout_marginBottom="33dp"
+            android:background="@drawable/backbutton_ic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
