@@ -242,6 +242,9 @@ class WasteLiquorMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
+        if (!shared.loadLabNameData().isEmpty()) {
+            mBinding.labNameTv.text = shared.loadLabNameData()
+        }
         val mm =
             viewmodel.WasteLiquorDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         newwasteLiquorViewData.clear()

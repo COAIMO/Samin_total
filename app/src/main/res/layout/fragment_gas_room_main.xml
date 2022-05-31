@@ -32,13 +32,13 @@
         app:layout_constraintTop_toTopOf="@+id/top_layer" />
 
     <TextView
-        android:id="@+id/btn_test"
+        android:id="@+id/lab_name_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="10dp"
         android:fontFamily="@font/nexon_font"
-        android:text="01"
+        android:text="@string/title_lab_name"
         android:textColor="@color/PageNumberTextColor"
         android:textSize="35sp"
         app:flow_horizontalAlign="center"

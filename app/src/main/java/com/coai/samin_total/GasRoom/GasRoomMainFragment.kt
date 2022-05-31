@@ -250,6 +250,10 @@ class GasRoomMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
+        if (!shared.loadLabNameData().isEmpty()) {
+            mBinding.labNameTv.text = shared.loadLabNameData()
+        }
+
         val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
 
         newgasRoomViewData.clear()

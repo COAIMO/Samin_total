@@ -270,6 +270,10 @@ class SteamerMainFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
+        if (!shared.loadLabNameData().isEmpty()) {
+            mBinding.labNameTv.text = shared.loadLabNameData()
+        }
+
         val mm = viewmodel.SteamerDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         newsteamerViewData.clear()
         for (tmp in mm)

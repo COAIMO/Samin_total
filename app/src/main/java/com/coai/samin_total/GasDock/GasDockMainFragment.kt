@@ -252,6 +252,9 @@ class GasDockMainFragment : Fragment() {
     }
 
     private fun initView() {
+        if (!shared.loadLabNameData().isEmpty()) {
+            mBinding.labNameTv.text = shared.loadLabNameData()
+        }
         //셋팅 데이터 불러와서 뷰추가 할것!!!
         val mm = mainViewModel.GasStorageDataLiveList.value!!.sortedWith(
             compareBy({ it.id },

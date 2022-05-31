@@ -2,7 +2,7 @@
     <string name="app_name">Samin_total</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_place">Lab - 015</string>
+    <string name="title_lab_name">Lab - 015</string>
     <string name="title_gas_storage">가스저장고</string>
     <string name="title_gas_room">룸가스</string>
     <string name="title_waste_liquor">폐액레벨</string>
