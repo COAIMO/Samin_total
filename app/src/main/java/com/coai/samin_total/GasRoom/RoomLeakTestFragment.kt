@@ -2,9 +2,11 @@ package com.coai.samin_total.GasRoom
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
-import android.os.Bundle
-import android.os.CountDownTimer
+import android.net.Uri
+import android.os.*
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +16,8 @@ import android.widget.Button
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.children
+import androidx.core.view.marginStart
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.CustomView.LeakTestView
@@ -23,8 +27,15 @@ import com.coai.samin_total.Logic.Utils
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
+import com.coai.samin_total.database.AlertData
 import com.coai.samin_total.databinding.FragmentRoomLeakTestBinding
 import com.github.mikephil.charting.data.Entry
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStreamWriter
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -54,6 +65,8 @@ class RoomLeakTestFragment : Fragment() {
     var heartbeatCount: UByte = 0u
     private val gasRoomViewData = arrayListOf<SetGasRoomViewData>()
     private val graphData = arrayListOf<Entry>()
+    val END_LEAKTEST = 1
+    val CREATE_FILE = 2
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
@@ -69,6 +82,43 @@ class RoomLeakTestFragment : Fragment() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == CREATE_FILE && resultCode == Activity.RESULT_OK) {
+            GlobalScope.launch {
+                data?.data?.also {
+                    alterDocument(it)
+                }
+            }
+        }
+    }
+
+    lateinit var datas: List<Entry>
+
+    private fun alterDocument(uri: Uri) {
+        try {
+            val contentResolver = requireContext().applicationContext.contentResolver
+            for (i in leakTestview_data_Hashmap) {
+                i.value.graphData.dataSets
+                Log.d(
+                    "leak",
+                    "asdfasd}"
+                )
+            }
+            contentResolver.openFileDescriptor(uri, "w")?.use {
+//                FileOutputStream(it.fileDescriptor).use {
+//                    it.write(datas.toString().toByteArray())
+//                }
+                val tmp = OutputStreamWriter(FileOutputStream(it.fileDescriptor), "UTF-8")
+                tmp.write("\uFEFF" + datas.toString())
+                tmp.flush()
+            }
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 
 
@@ -89,70 +139,46 @@ class RoomLeakTestFragment : Fragment() {
                 val lstvalue = mutableListOf<Int>()
                 var count: Float = 0f
                 var startmill: Long = System.currentTimeMillis()
+                var testTime: Float = 0f
+                var isFirst = false
                 while (isOnTaskRefesh) {
                     lstvalue.clear()
                     heartbeatCount++
 
-
-                    for (t in newgasRoomViewData){
-
-                    }
-
-                    for ((key, value ))
-                    for (t in newgasRoomViewData) {
-                        val idx = newgasRoomViewData.indexOf(t)
-                        if (idx > -1) {
-                            if (gasRoomViewData[idx].pressure != t.pressure ||
-                                gasRoomViewData[idx].isAlert != t.isAlert ||
-                                gasRoomViewData[idx].unit != t.unit
-                            ) {
-                                if (!lstvalue.contains(idx))
-                                    lstvalue.add(idx)
-                            }
-
+                    if (viewmodel.isLeakTestTime * 60 < testTime) {
+                        if (!isFirst){
+                            val msg = handler.obtainMessage(
+                                END_LEAKTEST
+                            )
+                            handler.sendMessage(msg)
+                            isFirst = true
+                        }
+                        Log.d(
+                            "break",
+                            "걸림"
+                        )
+                    }else{
+                        for (t in leakTestview_data_Hashmap) {
+                            Log.d(
+                                "leak",
+                                "id:${t.key.id}\t, port:${t.key.port}\t ,pressure:${t.key.pressure}"
+                            )
                             if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
-                                if (t.isAlert) {
-                                    if (!lstvalue.contains(idx))
-                                        lstvalue.add(idx)
+                                if (t.key.isAlert) {
+
                                 }
                             }
-                            t.heartbeatCount = heartbeatCount
-                            gasRoomViewData[idx] = t.copy()
-                            //
-                            val sec = (System.currentTimeMillis() - startmill) / 100f
-                            graphData[idx] = Entry(sec, newgasRoomViewData[idx].pressure)
-
-                        }
-                    }
-
-                    val baseTime = System.currentTimeMillis() - 1000 * 2
-                    if (lastupdate < baseTime) {
-                        lastupdate = System.currentTimeMillis()
-                        for (t in newgasRoomViewData) {
-                            val idx = newgasRoomViewData.indexOf(t)
-                            gasRoomViewData[idx] = t.copy()
-                        }
-
-                        synchronized(lockobj) {
-                            activity?.runOnUiThread {
-//                                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-                            }
-                        }
-                    } else {
-                        val rlist = Utils.ToIntRange(lstvalue, gasRoomViewData.size)
-                        if (rlist != null) {
-//                            Log.d("debug", "${lstvalue.size}")
+                            testTime = ((System.currentTimeMillis() - startmill) / 1000).toFloat()
+                            t.key.heartbeatCount = heartbeatCount
                             synchronized(lockobj) {
                                 activity?.runOnUiThread() {
-                                    rlist.forEach {
-//                                        recycleAdapter.notifyItemRangeChanged(
-//                                            it.lower,
-//                                            1 + it.upper - it.lower
-//                                        )
-                                    }
+                                    t.value.bind(t.key)
+                                    t.value.addEntry(testTime, t.key.pressure)
                                 }
                             }
+
                         }
+
                     }
 
                     Thread.sleep(50)
@@ -174,14 +200,7 @@ class RoomLeakTestFragment : Fragment() {
         initView()
         setButtonClickEvent()
         updateAlert()
-//
-//        val testCountDownTimer = object : CountDownTimer((600*1000).toLong(), 500) {
-//            override fun onTick(millisUntilFinished: Long) {
-//            }
-//
-//            override fun onFinish() {
-//            }
-//        }
+
         return mBinding.root
     }
 
@@ -228,12 +247,12 @@ class RoomLeakTestFragment : Fragment() {
                     viewmodel.roomViewZoomState = true
                     mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
                     synchronized(lockobj) {
-//                        mBinding.gasRoomLeakTestRecyclerView.apply {
-//                            itemSpace.changeSpace(150, 60, 150, 60)
-//                        }
                         mBinding.gasRoomLeakTestGridLayout.apply {
+                            removeAllViews()
                             columnCount = 1
                         }
+
+//                        setGridColumns(mBinding.gasRoomLeakTestGridLayout, 1)
                     }
                 } else {
                     viewmodel.roomViewZoomState = false
@@ -243,13 +262,23 @@ class RoomLeakTestFragment : Fragment() {
 //                            itemSpace.changeSpace(10, 150, 10, 150)
 //                        }
                         mBinding.gasRoomLeakTestGridLayout.apply {
+                            removeAllViews()
                             columnCount = 2
                         }
                     }
                 }
                 synchronized(lockobj) {
                     activity?.runOnUiThread {
-                        recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                        for (i in leakTestview_data_Hashmap) {
+                            val param = i.value.layoutParams as GridLayout.LayoutParams
+                            param.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                            param.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                            if (viewmodel.roomViewZoomState){
+                                val gasroom_param = i.value.gasRoomView.layoutParams
+
+                            }
+                            mBinding.gasRoomLeakTestGridLayout.addView(i.value)
+                        }
                     }
                 }
             }
@@ -261,13 +290,14 @@ class RoomLeakTestFragment : Fragment() {
         mBinding.gasRoomLeakTestGridLayout.apply {
             if (!viewmodel.roomViewZoomState) {
                 columnCount = 2
+
             } else {
                 columnCount = 1
             }
         }
     }
 
-    val view_data_Hashmap = HashMap<SetGasRoomViewData, LeakTestView>()
+    val leakTestview_data_Hashmap = HashMap<SetGasRoomViewData, LeakTestView>()
     private fun initView() {
         val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(
             compareBy({ it.id },
@@ -287,6 +317,7 @@ class RoomLeakTestFragment : Fragment() {
         }
         //
         graphData.clear()
+
         for ((index, value) in newgasRoomViewData.withIndex()) {
             graphData.add(index, Entry(0f, value.pressure))
             val testView = LeakTestView(requireContext())
@@ -299,7 +330,7 @@ class RoomLeakTestFragment : Fragment() {
             params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
             testView.layoutParams = params
             mBinding.gasRoomLeakTestGridLayout.addView(testView)
-            view_data_Hashmap.put(value, testView)
+            leakTestview_data_Hashmap.put(value, testView)
         }
 
 
@@ -333,6 +364,27 @@ class RoomLeakTestFragment : Fragment() {
         isOnTaskRefesh = false
         taskRefresh?.interrupt()
         taskRefresh?.join()
+    }
+
+    val handler = object : Handler(Looper.getMainLooper()) {
+        override fun handleMessage(msg: Message) {
+            when(msg.what){
+                END_LEAKTEST ->{
+                    isOnTaskRefesh = false
+                    taskRefresh?.interrupt()
+                    taskRefresh?.join()
+                    if (viewmodel.isSaveLeakTestData){
+                        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "application/txt"
+                            putExtra(Intent.EXTRA_TITLE, "invoice.txt")
+                        }
+                        startActivityForResult(intent, CREATE_FILE)
+                    }
+                    activity?.onFragmentChange(MainViewModel.GASROOMMAINFRAGMENT)
+                }
+            }
+        }
     }
 
     companion object {

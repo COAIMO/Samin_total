@@ -125,6 +125,9 @@ class LeakTestDialogFragment : DialogFragment() {
         mBinding.btnTestStart.setOnClickListener {
             onClick(it)
         }
+        mBinding.swExportData.setOnClickListener {
+            onClick(it)
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -140,6 +143,9 @@ class LeakTestDialogFragment : DialogFragment() {
                 viewmodel.isLeakTestTime = mBinding.etTestTime.text.toString().toInt()
                 activity?.onFragmentChange(MainViewModel.GASROOMLEAKTESTFRAGMENT)
                 this.dismiss()
+            }
+            mBinding.swExportData ->{
+                viewmodel.isSaveLeakTestData =  mBinding.swExportData.isChecked
             }
         }
     }

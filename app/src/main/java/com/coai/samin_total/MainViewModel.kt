@@ -48,7 +48,7 @@ class MainViewModel : ViewModel() {
         const val GASROOMSETTINGFRAGMENT = 18
         const val OXYGENSETTINGFRAGMENT = 19
         const val STEAMERSETTINGFRAGMENT = 20
-        const val WASTELIQUORSETTINGFRAGMENT =21
+        const val WASTELIQUORSETTINGFRAGMENT = 21
         const val GASROOMLEAKTESTFRAGMENT = 22
 
         const val GasDockStorage = 1.toByte()
@@ -65,19 +65,20 @@ class MainViewModel : ViewModel() {
     val WasteLiquorDataLiveList = MutableListLiveData<SetWasteLiquorViewData>()
     val OxygenDataLiveList = MutableListLiveData<SetOxygenViewData>()
     val SteamerDataLiveList = MutableListLiveData<SetSteamerViewData>()
-//    var oxygenMasterData = SetOxygenViewData("0",0,0)
-    var oxygenMasterData:SetOxygenViewData? = null
+
+    //    var oxygenMasterData = SetOxygenViewData("0",0,0)
+    var oxygenMasterData: SetOxygenViewData? = null
     val oxygensData = HashMap<Int, SetOxygenViewData>()
 
     val alertInfo = MutableListLiveData<SetAlertData>()
     val alertMap = ConcurrentHashMap<Int, SetAlertData>()
     val portAlertMapLed = ConcurrentHashMap<Short, Byte>()
 
-    val wasteAlert:MutableLiveData<Boolean> = MutableLiveData()
-    val oxyenAlert:MutableLiveData<Boolean> = MutableLiveData()
-    val gasStorageAlert:MutableLiveData<Boolean> = MutableLiveData()
-    val steamerAlert:MutableLiveData<Boolean> = MutableLiveData()
-    val gasRoomAlert:MutableLiveData<Boolean> = MutableLiveData()
+    val wasteAlert: MutableLiveData<Boolean> = MutableLiveData()
+    val oxyenAlert: MutableLiveData<Boolean> = MutableLiveData()
+    val gasStorageAlert: MutableLiveData<Boolean> = MutableLiveData()
+    val steamerAlert: MutableLiveData<Boolean> = MutableLiveData()
+    val gasRoomAlert: MutableLiveData<Boolean> = MutableLiveData()
 
     var isSoundAlert = true
 
@@ -180,7 +181,8 @@ class MainViewModel : ViewModel() {
         "kgf/cm2" to 0.070307,
         "psi" to 1.toDouble()
     )
-    fun removeModelMap(){
+
+    fun removeModelMap() {
         modelMap.remove("GasDock")
         modelMap.remove("GasRoom")
         modelMap.remove("WasteLiquor")
@@ -203,10 +205,12 @@ class MainViewModel : ViewModel() {
     fun addAlertInfo(id: Int, arg: SetAlertData) {
         try {
             alertInfo.add(arg)
-        } catch (e: Exception) { }
+        } catch (e: Exception) {
+        }
         try {
             alertMap[id] = arg
-        } catch (e: Exception) { }
+        } catch (e: Exception) {
+        }
     }
 
     /**
@@ -216,8 +220,10 @@ class MainViewModel : ViewModel() {
     fun addAlertInfoNoNoti(id: Int, arg: SetAlertData) {
         try {
             alertInfo.add(arg)
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+        }
     }
+
     var storageViewZoomState = false
     var roomViewZoomState = false
     var wasteViewZoomState = false
@@ -227,7 +233,7 @@ class MainViewModel : ViewModel() {
     /**
      *  관제 설정 데이터
      */
-    var controlData : ControlData = ControlData()
+    var controlData: ControlData = ControlData()
 
     /**
      * 모드버스 플래그 객체
@@ -239,13 +245,13 @@ class MainViewModel : ViewModel() {
     /**
      *  모드 버스 모니터링 여부
      */
-    var isProcessingMonitor : Boolean = false
+    var isProcessingMonitor: Boolean = false
 
     // 모드버스용 가스 구분 코드 변환
     private fun getModbusGASNum(arg: String): Short {
-        var ret:Short = 0
+        var ret: Short = 0
 
-        ret = when(arg) {
+        ret = when (arg) {
             gasType[0] -> 1
             gasType[1] -> 2
             gasType[2] -> 3
@@ -262,6 +268,7 @@ class MainViewModel : ViewModel() {
 
         return ret
     }
+
     /**
      * 모드버스 초기화
      * 설정 변경 시 호출 필요
@@ -280,7 +287,7 @@ class MainViewModel : ViewModel() {
 
         var cntGasStorage = 0
         GasStorageDataLiveList.value?.let {
-            for (tmp in it){
+            for (tmp in it) {
                 if (tmp.usable) {
                     if (tmp.ViewType == 0) {
                         // 싱글
@@ -330,7 +337,7 @@ class MainViewModel : ViewModel() {
 
         var cntGasRoom = 0
         GasRoomDataLiveList.value?.let {
-            for (tmp in it){
+            for (tmp in it) {
                 if (tmp.usable) {
                     KeyUtils.setIndex(
                         tmp.modelByte.toInt(),
@@ -351,7 +358,7 @@ class MainViewModel : ViewModel() {
 
         var cntWaste = 0
         WasteLiquorDataLiveList.value?.let {
-            for (tmp in it){
+            for (tmp in it) {
                 if (tmp.usable) {
                     KeyUtils.setIndex(
                         tmp.modelByte.toInt(),
@@ -371,7 +378,7 @@ class MainViewModel : ViewModel() {
 
         var cntOxygen = 0
         OxygenDataLiveList.value?.let {
-            for (tmp in it){
+            for (tmp in it) {
                 if (tmp.usable) {
                     KeyUtils.setIndex(
                         tmp.modelByte.toInt(),
@@ -391,7 +398,7 @@ class MainViewModel : ViewModel() {
 
         var cntSteamer = 0
         SteamerDataLiveList.value?.let {
-            for (tmp in it){
+            for (tmp in it) {
                 if (tmp.usable) {
                     KeyUtils.setIndex(
                         tmp.modelByte.toInt(),
@@ -415,7 +422,9 @@ class MainViewModel : ViewModel() {
     /**
      * 스캔 모드 여부
      */
-    var isScanmode : Boolean = false
-    var isLeakTestTime:Int = -1
+    var isScanmode: Boolean = false
+
+    var isLeakTestTime: Int = -1
+    var isSaveLeakTestData: Boolean = false
 }
 
