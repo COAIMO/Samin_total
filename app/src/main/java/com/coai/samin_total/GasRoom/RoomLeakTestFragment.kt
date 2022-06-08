@@ -105,50 +105,55 @@ class RoomLeakTestFragment : Fragment() {
                 while (isOnTaskRefesh) {
                     lstvalue.clear()
                     heartbeatCount++
+                    try {
 
-                    for(t in gasRoomViewData) {
-                        var idx = gasRoomViewData.indexOf(t)
-                        if (idx > -1){
-                            if (newgasRoomViewData[idx].pressure != t.pressure ||
-                                newgasRoomViewData[idx].isAlert != t.isAlert ||
-                                newgasRoomViewData[idx].unit != t.unit) {
-                                if (!lstvalue.contains(idx))
-                                    lstvalue.add(idx)
-                            }
-
-                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
-                                if (t.isAlert) {
+                        for (t in gasRoomViewData) {
+                            var idx = gasRoomViewData.indexOf(t)
+                            if (idx > -1) {
+                                if (newgasRoomViewData[idx].pressure != t.pressure ||
+                                    newgasRoomViewData[idx].isAlert != t.isAlert ||
+                                    newgasRoomViewData[idx].unit != t.unit
+                                ) {
                                     if (!lstvalue.contains(idx))
                                         lstvalue.add(idx)
                                 }
-                            }
 
-                            newgasRoomViewData[idx].heartbeatCount = heartbeatCount
-                        }
-                    }
+                                if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
+                                    if (t.isAlert) {
+                                        if (!lstvalue.contains(idx))
+                                            lstvalue.add(idx)
+                                    }
+                                }
 
-                    for(t in lstvalue) {
-                        if (gasRoomViewData[t].pressure != newgasRoomViewData[t].pressure)
-                            gasRoomViewData[t].pressure = newgasRoomViewData[t].pressure
-
-                        if (gasRoomViewData[t].isAlert != newgasRoomViewData[t].isAlert)
-                        gasRoomViewData[t].isAlert = newgasRoomViewData[t].isAlert
-
-                        if (gasRoomViewData[t].unit != newgasRoomViewData[t].unit)
-                            gasRoomViewData[t].unit = newgasRoomViewData[t].unit
-
-                        gasRoomViewData[t].heartbeatCount = newgasRoomViewData[t].heartbeatCount
-                        leakTestview_data_Hashmap[t]?.bind(gasRoomViewData[t])
-                    }
-
-                    testTime = ((System.currentTimeMillis() - startmill) / 1000f).toFloat()
-                    if(lastupdate <= System.currentTimeMillis() - 200) {
-                        if (viewmodel.isLeakTestTime * 60 > testTime) {
-                            for (t in leakTestview_data_Hashmap) {
-                                t.value.addEntry(testTime, gasRoomViewData[t.key].pressure)
+                                newgasRoomViewData[idx].heartbeatCount = heartbeatCount
                             }
                         }
-                        lastupdate = System.currentTimeMillis()
+
+                        for (t in lstvalue) {
+                            if (gasRoomViewData[t].pressure != newgasRoomViewData[t].pressure)
+                                gasRoomViewData[t].pressure = newgasRoomViewData[t].pressure
+
+                            if (gasRoomViewData[t].isAlert != newgasRoomViewData[t].isAlert)
+                                gasRoomViewData[t].isAlert = newgasRoomViewData[t].isAlert
+
+                            if (gasRoomViewData[t].unit != newgasRoomViewData[t].unit)
+                                gasRoomViewData[t].unit = newgasRoomViewData[t].unit
+
+                            gasRoomViewData[t].heartbeatCount = newgasRoomViewData[t].heartbeatCount
+                            leakTestview_data_Hashmap[t]?.bind(gasRoomViewData[t])
+                        }
+
+                        testTime = ((System.currentTimeMillis() - startmill) / 1000f).toFloat()
+                        if (lastupdate <= System.currentTimeMillis() - 200) {
+                            if (viewmodel.isLeakTestTime * 60 > testTime) {
+                                for (t in leakTestview_data_Hashmap) {
+                                    t.value.addEntry(testTime, gasRoomViewData[t.key].pressure)
+                                }
+                            }
+                            lastupdate = System.currentTimeMillis()
+                        }
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
                     }
 
 

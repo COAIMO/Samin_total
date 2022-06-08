@@ -75,6 +75,13 @@ class LeakTestView(context: Context, attrs: AttributeSet? = null) :
 //                setDrawInside(false)// 차트안에 그릴것인가?
 //            }
             legend.isEnabled = false
+
+            setPinchZoom(true)// 확대 설정
+            isDoubleTapToZoomEnabled = false// 더블탭 확대 설정
+            description.text = "시간(s)"
+            setBackgroundColor(Color.parseColor("#ffffff"))
+            description.textSize = 10f
+            setExtraOffsets(8f, 15f, 8f, 15f)
         }
         val lineData = LineData()
         lineChart.data = lineData// 라인 차트 데이터 지정
@@ -150,18 +157,7 @@ class LeakTestView(context: Context, attrs: AttributeSet? = null) :
             lineChart.apply {
                 notifyDataSetChanged()//라인 차트변경 알림.
                 moveViewToX(data.entryCount.toFloat())
-
-//                moveViewToX(data.entryCount.toFloat())
-
-//                setVisibleXRangeMaximum(4f)// x축 데이터 최대 표현 개수
-                setPinchZoom(true)// 확대 설정
-                isDoubleTapToZoomEnabled = false// 더블탭 확대 설정
-                description.text = "시간(s)"
-                setBackgroundColor(Color.parseColor("#ffffff"))
-                description.textSize = 10f
-                setExtraOffsets(8f, 15f, 8f, 15f)
             }
-
         }
     }
 }
