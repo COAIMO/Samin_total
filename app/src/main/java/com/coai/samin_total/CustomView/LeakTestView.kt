@@ -23,7 +23,7 @@ class LeakTestView(context: Context, attrs: AttributeSet? = null) :
     var gasRoomView: GasRoomView
     var lineChart: LineChart
     lateinit var graphData: LineData
-
+    val graphMap = hashMapOf<Float,Float>()
     init {
         LayoutInflater.from(context).inflate(R.layout.gas_room_leaktest_view, this, true)
         gasRoomView = findViewById(R.id.gas_room_data_view)
@@ -81,7 +81,7 @@ class LeakTestView(context: Context, attrs: AttributeSet? = null) :
     }
 
     private fun createSet(): LineDataSet {
-        val set = LineDataSet(null, "체온")
+        val set = LineDataSet(null, "psi")
         set.apply {
             axisDependency = YAxis.AxisDependency.RIGHT//y값 데이터 왼쪽으로
 //            color = Color.parseColor("#ff9800")
@@ -144,7 +144,7 @@ class LeakTestView(context: Context, attrs: AttributeSet? = null) :
             //데이터 엔트리 추가
 //            graphData.addEntry(Entry(set.entryCount.toFloat(), psi), 0)
             graphData.addEntry(Entry(testTime, psi), 0)
-
+            graphMap.put(testTime, psi)
             graphData.notifyDataChanged()//데이터 변경알림
 
             lineChart.apply {
