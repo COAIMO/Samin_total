@@ -95,6 +95,7 @@ class MainActivity : AppCompatActivity() {
     private val recvSteamerBuffers = HashMap<Int, ByteArray>()
     private val recvOxygenMSTBuffers = HashMap<Int, ByteArray>()
     private val recvModemapBuffers = HashMap<Int, ByteArray>()
+    private val recvLabNameBuffers = HashMap<Int, ByteArray>()
 
     // 보드별 최종 전송시간
     private val alertsendLastTime = HashMap<Int, Long>()
@@ -1129,6 +1130,9 @@ class MainActivity : AppCompatActivity() {
                             0x17.toByte() -> {
                                 recvModemapBuffers[buff.get(7).toInt()] = buff.clone()
                             }
+                            0x18.toByte() -> {
+                                recvLabNameBuffers[buff.get(7).toInt()] = buff.clone()
+                            }
                             0x20.toByte() -> {
                                 // 설정 데이터 전송 완료
                                 Log.d(mainTAG, "설정 데이터 전송 완료 ================")
@@ -1325,6 +1329,20 @@ class MainActivity : AppCompatActivity() {
                                         mainViewModel.modelMapInt[id] = t.value.clone()
                                     }
                                     shared.saveHashMap(mainViewModel.modelMap)
+                                } catch(e : Exception) {
+                                    e.printStackTrace()
+                                    allDone = false
+                                }
+
+                                var tmpLabname = ByteArray(0)
+                                var sortLabname = sortMapByKey(recvLabNameBuffers)
+                                for (t in sortLabname.values){
+                                    tmpLabname = tmpLabname.plus(t.sliceArray(8..t.size-1))
+                                }
+                                try {
+                                    val objLabname =
+                                        ProtoBuf.decodeFromByteArray<String>(tmpLabname)
+                                    SaminSharedPreference(this@MainActivity).labNameSave(SaminSharedPreference.LABNAME, objLabname)
                                 } catch(e : Exception) {
                                     e.printStackTrace()
                                     allDone = false

@@ -244,6 +244,9 @@ class ControlFragment : Fragment() {
                 var byteSteamer: ByteArray? = null
                 var byteOxyzenMst: ByteArray? = null
                 var byteModelmap: ByteArray? = null
+                var byteLabName: ByteArray? = null
+
+                val labname = SaminSharedPreference(requireContext()).loadLabNameData()
 
                 byteModelmap = ProtoBuf.encodeToByteArray(viewmodel.modelMap)
 
@@ -272,6 +275,8 @@ class ControlFragment : Fragment() {
                 viewmodel.oxygenMasterData?.let {
                     byteOxyzenMst = ProtoBuf.encodeToByteArray(it)
                 }
+
+                byteLabName = ProtoBuf.encodeToByteArray(labname)
 
                 for (i in 0..50) {
                     // 가스 스토리지
@@ -312,6 +317,10 @@ class ControlFragment : Fragment() {
                     byteModelmap?.let {
                         sendMultipartSend((16 + 7).toByte(), it)
 //                        Thread.sleep(40)
+                    }
+
+                    byteLabName?.let {
+                        sendMultipartSend((16 + 8).toByte(), it)
                     }
                     Thread.sleep(40)
                 }
