@@ -1,14 +1,21 @@
 package com.coai.samin_total.GasRoom
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.coai.samin_total.Logic.AutoUpdatableAdapter
 import com.coai.samin_total.R
 import com.coai.uikit.samin.status.GasRoomView
 import com.coai.uikit.samin.status.GasStorageView
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.LineData
 import kotlin.properties.Delegates
 
 class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
@@ -21,7 +28,6 @@ class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             LayoutInflater.from(parent.context)
                 .inflate(R.layout.gas_room_view, parent, false)
         )
-
     }
 
     override fun getItemCount(): Int {
@@ -56,5 +62,4 @@ class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             gasRoomView.heartBeat(setGasRoomViewData.heartbeatCount)
         }
     }
-
 }

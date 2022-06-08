@@ -48,4 +48,6 @@
     <string name="text_use_modbus_tcp_port">MODBUS TCP 포트</string>
     <string name="text_use_modbus_udp_port">MODBUS UDP 포트</string>
     <string name="text_setting_copy">설정 전송</string>
+    <string name="text_gasleaktest">가스 누출 테스트</string>
+    <string name="text_select_all">모두 선택</string>
 </resources>

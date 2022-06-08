@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.coai.samin_total.Dialog.AlertDialogFragment
+import com.coai.samin_total.Dialog.LeakTestDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
 import com.coai.samin_total.Logic.Utils
@@ -49,6 +50,7 @@ class GasRoomMainFragment : Fragment() {
     lateinit var itemSpace: SpacesItemDecoration
     private var taskRefresh: Thread? = null
     private var isOnTaskRefesh: Boolean = true
+    lateinit var leaktestdialogFragment: LeakTestDialogFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -219,6 +221,11 @@ class GasRoomMainFragment : Fragment() {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
         }
         updateAlert()
+
+        mBinding.btnLeakTest.setOnClickListener {
+            leaktestdialogFragment = LeakTestDialogFragment()
+            leaktestdialogFragment.show(childFragmentManager, "GasRoom")
+        }
         return mBinding.root
     }
 
