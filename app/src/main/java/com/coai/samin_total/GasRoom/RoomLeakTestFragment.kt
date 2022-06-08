@@ -99,33 +99,81 @@ class RoomLeakTestFragment : Fragment() {
                 val lstvalue = mutableListOf<Int>()
                 var count: Float = 0f
                 var startmill: Long = System.currentTimeMillis()
+                var bftestTime: Float = 0f
                 var testTime: Float = 0f
                 var isFirst = false
                 while (isOnTaskRefesh) {
                     lstvalue.clear()
                     heartbeatCount++
-                    for (t in leakTestview_data_Hashmap) {
-//                        Log.d(
-//                            "leak",
-//                            "${t.value.graphData.dataSets}"
-//                        )
-                        if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
-                            if (t.key.isAlert) {
 
+                    for(t in gasRoomViewData) {
+                        var idx = gasRoomViewData.indexOf(t)
+                        if (idx > -1){
+                            if (newgasRoomViewData[idx].pressure != t.pressure ||
+                                newgasRoomViewData[idx].isAlert != t.isAlert ||
+                                newgasRoomViewData[idx].unit != t.unit) {
+                                if (!lstvalue.contains(idx))
+                                    lstvalue.add(idx)
+                            }
+
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
+                                if (t.isAlert) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                }
+                            }
+
+                            newgasRoomViewData[idx].heartbeatCount = heartbeatCount
+                        }
+                    }
+
+                    for(t in lstvalue) {
+                        if (gasRoomViewData[t].pressure != newgasRoomViewData[t].pressure)
+                            gasRoomViewData[t].pressure = newgasRoomViewData[t].pressure
+
+                        if (gasRoomViewData[t].isAlert != newgasRoomViewData[t].isAlert)
+                        gasRoomViewData[t].isAlert = newgasRoomViewData[t].isAlert
+
+                        if (gasRoomViewData[t].unit != newgasRoomViewData[t].unit)
+                            gasRoomViewData[t].unit = newgasRoomViewData[t].unit
+
+                        gasRoomViewData[t].heartbeatCount = newgasRoomViewData[t].heartbeatCount
+                        leakTestview_data_Hashmap[t]?.bind(gasRoomViewData[t])
+                    }
+
+                    testTime = ((System.currentTimeMillis() - startmill) / 1000f).toFloat()
+                    if(lastupdate <= System.currentTimeMillis() - 200) {
+                        if (viewmodel.isLeakTestTime * 60 > testTime) {
+                            for (t in leakTestview_data_Hashmap) {
+                                t.value.addEntry(testTime, gasRoomViewData[t.key].pressure)
                             }
                         }
-                        testTime = ((System.currentTimeMillis() - startmill) / 1000).toFloat()
-                        t.key.heartbeatCount = heartbeatCount
-                        synchronized(lockobj) {
-//                            activity?.runOnUiThread() {
-                                t.value.bind(t.key)
-                                if (viewmodel.isLeakTestTime * 60 > testTime) {
-                                    t.value.addEntry(testTime, t.key.pressure)
-                                }
-//                            }
-                        }
-
+                        lastupdate = System.currentTimeMillis()
                     }
+
+
+//                    for (t in leakTestview_data_Hashmap) {
+////                        Log.d(
+////                            "leak",
+////                            "${t.value.graphData.dataSets}"
+////                        )
+//                        if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
+//                            if (t.key.isAlert) {
+//
+//                            }
+//                        }
+//                        testTime = ((System.currentTimeMillis() - startmill) / 1000).toFloat()
+//                        //t.key.heartbeatCount = heartbeatCount
+////                        synchronized(lockobj) {
+//////                            activity?.runOnUiThread() {
+////                                t.value.bind(t.key)
+////                                if (viewmodel.isLeakTestTime * 60 > testTime) {
+////                                    t.value.addEntry(testTime, t.key.pressure)
+////                                }
+//////                            }
+////                        }
+//
+//                    }
                     Thread.sleep(50)
                 }
             } catch (e: Exception) {
@@ -246,6 +294,10 @@ class RoomLeakTestFragment : Fragment() {
                 mBinding.gasRoomLeakTestGridLayout.removeAllViews()
                 mBinding.gasRoomLeakTestGridLayout.invalidate()
             }
+            activity?.runOnUiThread {
+                mBinding.gasRoomLeakTestGridLayout.removeAllViews()
+                mBinding.gasRoomLeakTestGridLayout.invalidate()
+            }
         }
 
         if (zoomState){
@@ -271,16 +323,14 @@ class RoomLeakTestFragment : Fragment() {
         }
         synchronized(lockobj) {
             val sortmap = leakTestview_data_Hashmap.toSortedMap(
-                compareBy({ it.id },
-                    { it.port })
+                compareBy {it}
             )
             activity?.runOnUiThread {
                 for (i in sortmap) {
                     val param = i.value.layoutParams as GridLayout.LayoutParams
                     param.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
                     param.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
-                    if (i.value.parent == null)
-                        mBinding.gasRoomLeakTestGridLayout.addView(i.value)
+                    mBinding.gasRoomLeakTestGridLayout.addView(i.value)
                 }
 
                 mBinding.btnZoomInout.isEnabled = true
@@ -299,7 +349,7 @@ class RoomLeakTestFragment : Fragment() {
         }
     }
 
-    val leakTestview_data_Hashmap = HashMap<SetGasRoomViewData, LeakTestView>()
+    val leakTestview_data_Hashmap = HashMap<Int, LeakTestView>()
     private fun initView() {
         val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(
             compareBy({ it.id },
@@ -316,12 +366,15 @@ class RoomLeakTestFragment : Fragment() {
         }
         gasRoomViewData.clear()
         for (tmp in newgasRoomViewData) {
-            gasRoomViewData.add(tmp.copy())
+            val temp = tmp.copy()
+            temp.pressure = -1f
+            temp.isAlert = false
+            gasRoomViewData.add(temp)
         }
         //
         graphData.clear()
 
-        for ((index, value) in newgasRoomViewData.withIndex()) {
+        for ((index, value) in gasRoomViewData.withIndex()) {
             graphData.add(index, Entry(0f, value.pressure))
             val testView = LeakTestView(requireContext())
             val params = GridLayout.LayoutParams().apply {
@@ -333,7 +386,8 @@ class RoomLeakTestFragment : Fragment() {
             params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
             testView.layoutParams = params
             mBinding.gasRoomLeakTestGridLayout.addView(testView)
-            leakTestview_data_Hashmap.put(value, testView)
+//            testView.bind(value)
+            leakTestview_data_Hashmap.put(index, testView)
         }
 
 
@@ -407,13 +461,14 @@ class RoomLeakTestFragment : Fragment() {
                 tmp.write("\uFEFF")
                 tmp.write(String.format("id, port, 시간, 압력(psi)\n"))
                 for (i in leakTestview_data_Hashmap.toSortedMap(
-                    compareBy({ it.id },
-                        { it.port })
-                )) {
+                    compareBy {it})
+                ) {
 //                    val datas = i.value.graphData.dataSets
                     val datas = i.value.graphMap.toSortedMap(compareBy { it })
                     for (t in datas) {
-                        tmp.write(String.format("${i.key.id},${i.key.port},${t.key}, ${t.value}\n"))
+                        val keydata = gasRoomViewData[i.key]
+
+                        tmp.write(String.format("${keydata.id},${keydata.port},${t.key}, ${t.value}\n"))
                     }
 
                 }
