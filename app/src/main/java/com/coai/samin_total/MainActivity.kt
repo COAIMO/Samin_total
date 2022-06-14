@@ -525,9 +525,9 @@ class MainActivity : AppCompatActivity() {
                                         sendProtocolToSerial(it)
                                     }
                                 }
-                                Thread.sleep(25)
-                                if (model == 4.toByte())
-                                    Thread.sleep(15)
+                                Thread.sleep(50)
+//                                if (model == 4.toByte())
+//                                    Thread.sleep(15)
 //                            Log.d(mainTAG, "sleep ============= " )
                             }
                         }
