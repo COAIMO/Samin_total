@@ -461,21 +461,21 @@ class MainActivity : AppCompatActivity() {
 
         isCallTimeout = true
 
-        callTimeoutThread = Thread {
-            while (isCallTimeout) {
-                try {
-                    val elapsed: Long = measureTimeMillis {
-                        tmp.timeoutAQCheckStep()
-                    }
-//                    Log.d("callTimeoutThread", "Time : $elapsed")
-
-                    Thread.sleep(50)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }
-        callTimeoutThread?.start()
+//        callTimeoutThread = Thread {
+//            while (isCallTimeout) {
+//                try {
+//                    val elapsed: Long = measureTimeMillis {
+//                        tmp.timeoutAQCheckStep()
+//                    }
+////                    Log.d("callTimeoutThread", "Time : $elapsed")
+//
+//                    Thread.sleep(50)
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                }
+//            }
+//        }
+//        callTimeoutThread?.start()
     }
 
     private fun discallFeedback() {
