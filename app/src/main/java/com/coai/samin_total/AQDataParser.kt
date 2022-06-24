@@ -184,169 +184,169 @@ class AQDataParser(viewModel: MainViewModel) {
      * Todo: 에러 체크 기능 필요. 정상화 체크 필요.
      */
 
-    private fun ProcessGasStorage(id: Int, data: Int) {
-        val tmp1 = hmapAQPortSettings[id] ?: return
-        val tmp = (tmp1 as SetGasStorageViewData)
-        if (!tmp.usable) {
-            return
-        }
-        var value: Float = 0f
-        when (tmp.sensorType) {
-            "Sensts 142PSI" -> {
-                value = calcPSI142(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
-            }
-            "Sensts 2000PSI" -> {
-                value = calcPSI2000(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
-            }
-            else -> {
-                value = calcSensor(
-                    data.toFloat(),
-                    tmp.pressure_Max!!,
-                    tmp.rewardValue,
-                    tmp.zeroPoint
-                )
-            }
-        }
-
-        if (tmp.ViewType == 0) {
-            tmp.pressure = value
-            if (tmp.pressure_Min!! > tmp.pressure!!) {
-                tmp.isAlert = true
-
-                if (alertMap[id] == null) {
-                    alertMap.put(id, true)
-//                    viewModel.gasStorageAlert.value = true
-                    viewModel.addAlertInfo(
-                        id,
-                        SetAlertData(
-                            getLatest_time(hmapLastedDate[id]!!),
-                            tmp.modelByte.toInt(),
-                            tmp.id,
-                            "가스 압력 하한 값",
-                            tmp.port,
-                            true
-                        )
-                    )
-                }
-
-            } else {
-                if (alertMap.containsKey(id)) {
-                    tmp.isAlert = false
-//                    viewModel.gasStorageAlert.value = false
-                    viewModel.addAlertInfo(
-                        id,
-                        SetAlertData(
-                            getLatest_time(hmapLastedDate[id]!!),
-                            tmp.modelByte.toInt(),
-                            tmp.id,
-                            "가스 압력 정상",
-                            tmp.port,
-                            false
-                        )
-                    )
-                    if (alertMap.containsKey(id)) {
-                        alertMap.remove(id)
-                    }
-                }
-            }
-        } else if (tmp.ViewType == 1 || tmp.ViewType == 2) {
-            if (tmp.port == 1 || tmp.port == 3) {
-                tmp.pressureLeft = value
-            } else {
-                tmp.pressureRight = value
-            }
-
-            if (tmp.pressure_Min!! > tmp.pressureLeft!!) {
-                tmp.isAlertLeft = true
-
-                if (alertMap[id] == null) {
-                    alertMap.put(id, true)
-//                    viewModel.gasStorageAlert.value = true
-                    viewModel.addAlertInfo(
-                        id,
-                        SetAlertData(
-                            getLatest_time(hmapLastedDate[id]!!),
-                            tmp.modelByte.toInt(),
-                            tmp.id,
-                            "가스 압력 하한 값",
-                            tmp.port,
-                            true
-                        )
-                    )
-                }
-
-            } else if (tmp.pressure_Min!! < tmp.pressureLeft!!) {
-                if (alertMap.containsKey(id)) {
-                    tmp.isAlertLeft = false
-//                    viewModel.gasStorageAlert.value = false
-                    viewModel.addAlertInfo(
-                        id,
-                        SetAlertData(
-                            getLatest_time(hmapLastedDate[id]!!),
-                            tmp.modelByte.toInt(),
-                            tmp.id,
-                            "가스 압력 정상",
-                            tmp.port,
-                            false
-                        )
-                    )
-
-                    if (alertMap.containsKey(id)) {
-                        alertMap.remove(id)
-                    }
-                }
-                if (tmp.pressure_Min!! > tmp.pressureRight!!) {
-                    tmp.isAlertRight = true
-
-                    if (alertMap2[id] == null) {
-                        alertMap2.put(id, true)
-//                        viewModel.gasStorageAlert.value = true
-                        viewModel.addAlertInfo(
-                            id + 65536,
-                            SetAlertData(
-                                getLatest_time(hmapLastedDate[id]!!),
-                                tmp.modelByte.toInt(),
-                                tmp.id,
-                                "가스 압력 하한 값",
-                                tmp.port + 1,
-                                true
-                            )
-                        )
-                    }
-
-                } else if (tmp.pressure_Min!! < tmp.pressureRight!!) {
-                    if (alertMap2.containsKey(id)) {
-                        tmp.isAlertRight = false
-//                        viewModel.gasStorageAlert.value = false
-                        viewModel.addAlertInfo(
-                            id + 65536,
-                            SetAlertData(
-                                getLatest_time(hmapLastedDate[id]!!),
-                                tmp.modelByte.toInt(),
-                                tmp.id,
-                                "가스 압력 정상",
-                                tmp.port + 1,
-                                false
-                            )
-                        )
-
-                        if (alertMap2.containsKey(id)) {
-                            alertMap2.remove(id)
-                        }
-                    }
-                }
-
-            }
-        }
-
-        val bro = setAQport[id] as SetGasStorageViewData
-        bro.pressure = tmp.pressure
-        bro.isAlert = tmp.isAlert
-        bro.pressureLeft = tmp.pressureLeft
-        bro.pressureRight = tmp.pressureRight
-        bro.isAlertLeft = tmp.isAlertLeft
-        bro.isAlertRight = tmp.isAlertRight
-    }
+//    private fun ProcessGasStorage(id: Int, data: Int) {
+//        val tmp1 = hmapAQPortSettings[id] ?: return
+//        val tmp = (tmp1 as SetGasStorageViewData)
+//        if (!tmp.usable) {
+//            return
+//        }
+//        var value: Float = 0f
+//        when (tmp.sensorType) {
+//            "Sensts 142PSI" -> {
+//                value = calcPSI142(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+//            }
+//            "Sensts 2000PSI" -> {
+//                value = calcPSI2000(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+//            }
+//            else -> {
+//                value = calcSensor(
+//                    data.toFloat(),
+//                    tmp.pressure_Max!!,
+//                    tmp.rewardValue,
+//                    tmp.zeroPoint
+//                )
+//            }
+//        }
+//
+//        if (tmp.ViewType == 0) {
+//            tmp.pressure = value
+//            if (tmp.pressure_Min!! > tmp.pressure!!) {
+//                tmp.isAlert = true
+//
+//                if (alertMap[id] == null) {
+//                    alertMap.put(id, true)
+////                    viewModel.gasStorageAlert.value = true
+//                    viewModel.addAlertInfo(
+//                        id,
+//                        SetAlertData(
+//                            getLatest_time(hmapLastedDate[id]!!),
+//                            tmp.modelByte.toInt(),
+//                            tmp.id,
+//                            "가스 압력 하한 값",
+//                            tmp.port,
+//                            true
+//                        )
+//                    )
+//                }
+//
+//            } else {
+//                if (alertMap.containsKey(id)) {
+//                    tmp.isAlert = false
+////                    viewModel.gasStorageAlert.value = false
+//                    viewModel.addAlertInfo(
+//                        id,
+//                        SetAlertData(
+//                            getLatest_time(hmapLastedDate[id]!!),
+//                            tmp.modelByte.toInt(),
+//                            tmp.id,
+//                            "가스 압력 정상",
+//                            tmp.port,
+//                            false
+//                        )
+//                    )
+//                    if (alertMap.containsKey(id)) {
+//                        alertMap.remove(id)
+//                    }
+//                }
+//            }
+//        } else if (tmp.ViewType == 1 || tmp.ViewType == 2) {
+//            if (tmp.port == 1 || tmp.port == 3) {
+//                tmp.pressureLeft = value
+//            } else {
+//                tmp.pressureRight = value
+//            }
+//
+//            if (tmp.pressure_Min!! > tmp.pressureLeft!!) {
+//                tmp.isAlertLeft = true
+//
+//                if (alertMap[id] == null) {
+//                    alertMap.put(id, true)
+////                    viewModel.gasStorageAlert.value = true
+//                    viewModel.addAlertInfo(
+//                        id,
+//                        SetAlertData(
+//                            getLatest_time(hmapLastedDate[id]!!),
+//                            tmp.modelByte.toInt(),
+//                            tmp.id,
+//                            "가스 압력 하한 값",
+//                            tmp.port,
+//                            true
+//                        )
+//                    )
+//                }
+//
+//            } else if (tmp.pressure_Min!! < tmp.pressureLeft!!) {
+//                if (alertMap.containsKey(id)) {
+//                    tmp.isAlertLeft = false
+////                    viewModel.gasStorageAlert.value = false
+//                    viewModel.addAlertInfo(
+//                        id,
+//                        SetAlertData(
+//                            getLatest_time(hmapLastedDate[id]!!),
+//                            tmp.modelByte.toInt(),
+//                            tmp.id,
+//                            "가스 압력 정상",
+//                            tmp.port,
+//                            false
+//                        )
+//                    )
+//
+//                    if (alertMap.containsKey(id)) {
+//                        alertMap.remove(id)
+//                    }
+//                }
+//                if (tmp.pressure_Min!! > tmp.pressureRight!!) {
+//                    tmp.isAlertRight = true
+//
+//                    if (alertMap2[id] == null) {
+//                        alertMap2.put(id, true)
+////                        viewModel.gasStorageAlert.value = true
+//                        viewModel.addAlertInfo(
+//                            id + 65536,
+//                            SetAlertData(
+//                                getLatest_time(hmapLastedDate[id]!!),
+//                                tmp.modelByte.toInt(),
+//                                tmp.id,
+//                                "가스 압력 하한 값",
+//                                tmp.port + 1,
+//                                true
+//                            )
+//                        )
+//                    }
+//
+//                } else if (tmp.pressure_Min!! < tmp.pressureRight!!) {
+//                    if (alertMap2.containsKey(id)) {
+//                        tmp.isAlertRight = false
+////                        viewModel.gasStorageAlert.value = false
+//                        viewModel.addAlertInfo(
+//                            id + 65536,
+//                            SetAlertData(
+//                                getLatest_time(hmapLastedDate[id]!!),
+//                                tmp.modelByte.toInt(),
+//                                tmp.id,
+//                                "가스 압력 정상",
+//                                tmp.port + 1,
+//                                false
+//                            )
+//                        )
+//
+//                        if (alertMap2.containsKey(id)) {
+//                            alertMap2.remove(id)
+//                        }
+//                    }
+//                }
+//
+//            }
+//        }
+//
+//        val bro = setAQport[id] as SetGasStorageViewData
+//        bro.pressure = tmp.pressure
+//        bro.isAlert = tmp.isAlert
+//        bro.pressureLeft = tmp.pressureLeft
+//        bro.pressureRight = tmp.pressureRight
+//        bro.isAlertLeft = tmp.isAlertLeft
+//        bro.isAlertRight = tmp.isAlertRight
+//    }
 
     fun ProcessSingleGasStorage(id: Int, data: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
@@ -357,17 +357,17 @@ class AQDataParser(viewModel: MainViewModel) {
         var value: Float = 0f
         when (tmp.sensorType) {
             "Sensts 142PSI" -> {
-                value = calcPSI142(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+                value = calcPSI142(data.toFloat(), tmp.left_rewardValue, tmp.left_zeroPoint)
             }
             "Sensts 2000PSI" -> {
-                value = calcPSI2000(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+                value = calcPSI2000(data.toFloat(), tmp.left_rewardValue, tmp.left_zeroPoint)
             }
             else -> {
                 value = calcSensor(
                     data.toFloat(),
                     tmp.pressure_Max!!,
-                    tmp.rewardValue,
-                    tmp.zeroPoint
+                    tmp.left_rewardValue,
+                    tmp.left_zeroPoint
                 )
             }
         }
@@ -444,27 +444,27 @@ class AQDataParser(viewModel: MainViewModel) {
 
         when (tmp.sensorType) {
             "Sensts 142PSI" -> {
-                left_pressure = calcPSI142(left_value.toFloat(), tmp.rewardValue, tmp.zeroPoint)
-                right_pressure = calcPSI142(right_value.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+                left_pressure = calcPSI142(left_value.toFloat(), tmp.left_rewardValue, tmp.left_zeroPoint)
+                right_pressure = calcPSI142(right_value.toFloat(), tmp.right_rewardValue, tmp.right_zeroPoint)
 
             }
             "Sensts 2000PSI" -> {
-                left_pressure = calcPSI2000(left_value.toFloat(), tmp.rewardValue, tmp.zeroPoint)
-                right_pressure = calcPSI2000(right_value.toFloat(), tmp.rewardValue, tmp.zeroPoint)
+                left_pressure = calcPSI2000(left_value.toFloat(), tmp.left_rewardValue, tmp.left_zeroPoint)
+                right_pressure = calcPSI2000(right_value.toFloat(), tmp.right_rewardValue, tmp.right_zeroPoint)
 
             }
             else -> {
                 left_pressure = calcSensor(
                     left_value.toFloat(),
                     tmp.pressure_Max!!,
-                    tmp.rewardValue,
-                    tmp.zeroPoint
+                    tmp.left_rewardValue,
+                    tmp.left_zeroPoint
                 )
                 right_pressure = calcSensor(
                     right_value.toFloat(),
                     tmp.pressure_Max!!,
-                    tmp.rewardValue,
-                    tmp.zeroPoint
+                    tmp.right_rewardValue,
+                    tmp.right_zeroPoint
                 )
             }
         }
