@@ -11,7 +11,7 @@
         android:layout_width="413dp"
         android:layout_height="413dp"
         android:layout_marginTop="173dp"
-        app:app_version="1.16"
+        app:app_version="1.17"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
