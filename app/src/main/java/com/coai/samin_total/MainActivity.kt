@@ -142,6 +142,9 @@ class MainActivity : AppCompatActivity() {
             shared.loadBoardSetData(SaminSharedPreference.CONTROL) as ControlData
         tmp = AQDataParser(mainViewModel)
 
+        mainViewModel.isCheckTimeOut =
+            shared.getTimeOutState()
+
         this.viewModel = ViewModelProvider(
             this,
             ViewModelFactory(application)
@@ -170,6 +173,8 @@ class MainActivity : AppCompatActivity() {
             AlertDatabase::class.java,
             "alertLogs"
         ).build().alertDAO()
+
+
     }
 
 //    fun bindSerialService() {
@@ -224,7 +229,6 @@ class MainActivity : AppCompatActivity() {
         steamer_ids_list.clear()
         protocolBuffers.clear()
     }
-
 
 
     private fun sortMapByKey(map: Map<Int, ByteArray>): LinkedHashMap<Int, ByteArray> {
@@ -448,34 +452,36 @@ class MainActivity : AppCompatActivity() {
      */
     var isCallTimeout = true
 
-    private fun discallTimemout() {
+    fun discallTimemout() {
         isCallTimeout = false
         callTimeoutThread?.interrupt()
         callTimeoutThread?.join()
         callTimeoutThread = null
     }
+
     fun callTimemout() {
         isCallTimeout = false
         callTimeoutThread?.interrupt()
         callTimeoutThread?.join()
 
         isCallTimeout = true
-
-        callTimeoutThread = Thread {
-            while (isCallTimeout) {
-                try {
-                    val elapsed: Long = measureTimeMillis {
-                        tmp.timeoutAQCheckStep()
-                    }
+        if (mainViewModel.isCheckTimeOut) {
+            callTimeoutThread = Thread {
+                while (isCallTimeout) {
+                    try {
+                        val elapsed: Long = measureTimeMillis {
+                            tmp.timeoutAQCheckStep()
+                        }
 //                    Log.d("callTimeoutThread", "Time : $elapsed")
 
-                    Thread.sleep(50)
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                        Thread.sleep(50)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
+            callTimeoutThread?.start()
         }
-        callTimeoutThread?.start()
     }
 
     private fun discallFeedback() {
@@ -613,7 +619,7 @@ class MainActivity : AppCompatActivity() {
             val alertchanged = ArrayList<Short>()
             val alertchangedRemind = ArrayList<Short>()
             val currentLedState = HashMap<Short, Byte>()
-            var prevAlertOxygen : Boolean = false
+            var prevAlertOxygen: Boolean = false
             while (true) {
 
                 val elapsed: Long = measureTimeMillis {
@@ -656,7 +662,7 @@ class MainActivity : AppCompatActivity() {
                                 mainViewModel.portAlertMapLed[ledkey] = tmpBits
 
                                 diffkeys.remove(ledkey)
-                                if(!ledchanged.contains(ledkey))
+                                if (!ledchanged.contains(ledkey))
                                     ledchanged.add(ledkey)
                             }
                             continue
@@ -676,9 +682,9 @@ class MainActivity : AppCompatActivity() {
 
                         currentLedState[ledkey] = tmpBits
                     }
-                    
+
                     // 경고 처리
-                    if (currentLedState.size > 0){
+                    if (currentLedState.size > 0) {
                         isAnotherJob = true
                         Thread.sleep(ANOTHERJOB_SLEEP)
                         var model: Byte = 0
@@ -712,8 +718,7 @@ class MainActivity : AppCompatActivity() {
                                     }
 
                                     mainViewModel.portAlertMapLed[k] = v
-                                }
-                                else if (alertBoardsendLastTime[k] == null || alertBoardsendLastTime[k]!! < (System.currentTimeMillis() - 1000 * 60)){
+                                } else if (alertBoardsendLastTime[k] == null || alertBoardsendLastTime[k]!! < (System.currentTimeMillis() - 1000 * 60)) {
                                     alertchangedRemind.add(k)
                                     alertBoardsendLastTime[k] = System.currentTimeMillis()
                                 }
@@ -735,14 +740,14 @@ class MainActivity : AppCompatActivity() {
                                     Thread.sleep(5)
                                 }
                             }
-                        } catch (ex : Exception) {
-                            
+                        } catch (ex: Exception) {
+
                         }
                         isAnotherJob = false
                     }
 
                     // 일부 LED 정상화
-                    if (ledchanged.size > 0){
+                    if (ledchanged.size > 0) {
                         isAnotherJob = true
                         Thread.sleep(ANOTHERJOB_SLEEP)
                         var model: Byte = 0
@@ -812,7 +817,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                         isAnotherJob = false
-                    } else if ( mainViewModel.oxygenMasterData != null && !mainViewModel.oxygenMasterData!!.isAlert){
+                    } else if (mainViewModel.oxygenMasterData != null && !mainViewModel.oxygenMasterData!!.isAlert) {
                         prevAlertOxygen = false
                     } else if (mainViewModel.oxygenMasterData == null) {
                         prevAlertOxygen = false
@@ -1065,7 +1070,8 @@ class MainActivity : AppCompatActivity() {
                     ).show()
                 }
                 SerialService.MSG_CHECK_VERSION -> {
-                    Toast.makeText(this@MainActivity, "펌웨어 버전 : ${msg.arg1}",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "펌웨어 버전 : ${msg.arg1}", Toast.LENGTH_SHORT)
+                        .show()
                 }
                 SerialService.MSG_CHECK_PING -> {
                     if (mainViewModel.isScanmode) {
@@ -1107,7 +1113,7 @@ class MainActivity : AppCompatActivity() {
                     val buff = msg.data.getByteArray("")
                     Log.d(mainTAG, "datahandler : \n${HexDump.dumpHexString(buff)}")
                     if (buff != null) {
-                        when(buff.get(2)) {
+                        when (buff.get(2)) {
                             0x11.toByte() -> {
                                 // 가스 독
                                 recvGasStorageBuffers[buff.get(7).toInt()] = buff.clone()
@@ -1146,15 +1152,17 @@ class MainActivity : AppCompatActivity() {
                                 // 가스독 설정 복원
                                 var tmpgas = ByteArray(0)
                                 val sortGas = sortMapByKey(recvGasStorageBuffers)
-                                for (t in sortGas.values){
-                                    tmpgas = tmpgas.plus(t.sliceArray(8..t.size-1))
+                                for (t in sortGas.values) {
+                                    tmpgas = tmpgas.plus(t.sliceArray(8..t.size - 1))
                                 }
-                //                            Log.d(mainTAG, "tmpgas : ${HexDump.dumpHexString(tmpgas)}")
+                                //                            Log.d(mainTAG, "tmpgas : ${HexDump.dumpHexString(tmpgas)}")
                                 try {
                                     val objgas =
-                                        ProtoBuf.decodeFromByteArray<List<SetGasStorageViewData>>(tmpgas)
+                                        ProtoBuf.decodeFromByteArray<List<SetGasStorageViewData>>(
+                                            tmpgas
+                                        )
                                     mainViewModel.GasStorageDataLiveList.clear(true)
-                                    for(t in objgas) {
+                                    for (t in objgas) {
                                         t.pressureLeft = 0f
                                         t.pressure = 0f
                                         t.pressureRight = 0f
@@ -1170,7 +1178,7 @@ class MainActivity : AppCompatActivity() {
                                     }
                                     shared.saveBoardSetData(SaminSharedPreference.GASSTORAGE, buff)
 
-                                } catch(e : Exception) {
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
@@ -1178,15 +1186,17 @@ class MainActivity : AppCompatActivity() {
                                 // 가스룸 설정 복원
                                 var tmpgasroom = ByteArray(0)
                                 val sortGasroom = sortMapByKey(recvGasRoomBuffers)
-                                for (t in sortGasroom.values){
-                                    tmpgasroom = tmpgasroom.plus(t.sliceArray(8..t.size-1))
+                                for (t in sortGasroom.values) {
+                                    tmpgasroom = tmpgasroom.plus(t.sliceArray(8..t.size - 1))
                                 }
-                //                            Log.d(mainTAG, "tmpgasroom : ${HexDump.dumpHexString(tmpgasroom)}")
+                                //                            Log.d(mainTAG, "tmpgasroom : ${HexDump.dumpHexString(tmpgasroom)}")
                                 try {
                                     val objgas =
-                                        ProtoBuf.decodeFromByteArray<List<SetGasRoomViewData>>(tmpgasroom)
+                                        ProtoBuf.decodeFromByteArray<List<SetGasRoomViewData>>(
+                                            tmpgasroom
+                                        )
                                     mainViewModel.GasRoomDataLiveList.clear(true)
-                                    for(t in objgas) {
+                                    for (t in objgas) {
                                         t.pressure = 0f
                                         t.isAlert = false
                                         t.heartbeatCount = 0u
@@ -1197,23 +1207,25 @@ class MainActivity : AppCompatActivity() {
                                         buff.add(i)
                                     }
                                     shared.saveBoardSetData(SaminSharedPreference.GASROOM, buff)
-                                } catch(e : Exception) {
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
 
                                 // 폐액통 설정 복원
-                                var tmpwaste= ByteArray(0)
+                                var tmpwaste = ByteArray(0)
                                 val sortWaste = sortMapByKey(recvWasteBuffers)
-                                for (t in sortWaste.values){
-                                    tmpwaste = tmpwaste.plus(t.sliceArray(8..t.size-1))
+                                for (t in sortWaste.values) {
+                                    tmpwaste = tmpwaste.plus(t.sliceArray(8..t.size - 1))
                                 }
                                 Log.d(mainTAG, "tmpwaste : ${HexDump.dumpHexString(tmpwaste)}")
                                 try {
                                     val objgas =
-                                        ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(tmpwaste)
+                                        ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(
+                                            tmpwaste
+                                        )
                                     mainViewModel.WasteLiquorDataLiveList.clear(true)
-                                    for(t in objgas) {
+                                    for (t in objgas) {
                                         t.isAlert = false
                                         t.heartbeatCount = 0u
                                         mainViewModel.WasteLiquorDataLiveList.add(t)
@@ -1224,23 +1236,25 @@ class MainActivity : AppCompatActivity() {
                                     }
                                     shared.saveBoardSetData(SaminSharedPreference.WASTELIQUOR, buff)
 
-                                } catch(e : Exception) {
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
 
                                 // 산소농도 설정 복원
-                                var tmpOxygen= ByteArray(0)
+                                var tmpOxygen = ByteArray(0)
                                 val sortOxygen = sortMapByKey(recvOxygenBuffers)
-                                for (t in sortOxygen.values){
-                                    tmpOxygen = tmpOxygen.plus(t.sliceArray(8..t.size-1))
+                                for (t in sortOxygen.values) {
+                                    tmpOxygen = tmpOxygen.plus(t.sliceArray(8..t.size - 1))
                                 }
-                //                            Log.d(mainTAG, "tmpOxygen : ${HexDump.dumpHexString(tmpOxygen)}")
+                                //                            Log.d(mainTAG, "tmpOxygen : ${HexDump.dumpHexString(tmpOxygen)}")
                                 try {
                                     val objgas =
-                                        ProtoBuf.decodeFromByteArray<List<SetOxygenViewData>>(tmpOxygen)
+                                        ProtoBuf.decodeFromByteArray<List<SetOxygenViewData>>(
+                                            tmpOxygen
+                                        )
                                     mainViewModel.OxygenDataLiveList.clear(true)
-                                    for(t in objgas) {
+                                    for (t in objgas) {
                                         t.isAlert = false
                                         t.setValue = 0f
                                         t.heartbeatCount = 0u
@@ -1251,7 +1265,7 @@ class MainActivity : AppCompatActivity() {
                                         buff.add(i)
                                     }
                                     shared.saveBoardSetData(SaminSharedPreference.OXYGEN, buff)
-                                } catch(e : Exception) {
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
@@ -1259,15 +1273,17 @@ class MainActivity : AppCompatActivity() {
                                 // 스팀기 설정 복원
                                 var tmpSteamer = ByteArray(0)
                                 var sortSteamer = sortMapByKey(recvSteamerBuffers)
-                                for (t in sortSteamer.values){
-                                    tmpSteamer = tmpSteamer.plus(t.sliceArray(8..t.size-1))
+                                for (t in sortSteamer.values) {
+                                    tmpSteamer = tmpSteamer.plus(t.sliceArray(8..t.size - 1))
                                 }
-                //                            Log.d(mainTAG, "tmpSteamer : ${HexDump.dumpHexString(tmpSteamer)}")
+                                //                            Log.d(mainTAG, "tmpSteamer : ${HexDump.dumpHexString(tmpSteamer)}")
                                 try {
                                     val objgas =
-                                        ProtoBuf.decodeFromByteArray<List<SetSteamerViewData>>(tmpSteamer)
+                                        ProtoBuf.decodeFromByteArray<List<SetSteamerViewData>>(
+                                            tmpSteamer
+                                        )
                                     mainViewModel.SteamerDataLiveList.clear(true)
-                                    for(t in objgas) {
+                                    for (t in objgas) {
                                         t.isAlertLow = false
                                         t.isAlertTemp = false
                                         t.isTemp = 0
@@ -1279,7 +1295,7 @@ class MainActivity : AppCompatActivity() {
                                         buff.add(i)
                                     }
                                     shared.saveBoardSetData(SaminSharedPreference.STEAMER, buff)
-                                } catch(e : Exception) {
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
@@ -1287,10 +1303,10 @@ class MainActivity : AppCompatActivity() {
                                 // 산소농도 대표 설정 복원
                                 var tmpOxyMST = ByteArray(0)
                                 var sortOxymst = sortMapByKey(recvOxygenMSTBuffers)
-                                for (t in sortOxymst.values){
-                                    tmpOxyMST = tmpOxyMST.plus(t.sliceArray(8..t.size-1))
+                                for (t in sortOxymst.values) {
+                                    tmpOxyMST = tmpOxyMST.plus(t.sliceArray(8..t.size - 1))
                                 }
-                //                            Log.d(mainTAG, "tmpOxyMST : ${HexDump.dumpHexString(tmpOxyMST)}")
+                                //                            Log.d(mainTAG, "tmpOxyMST : ${HexDump.dumpHexString(tmpOxyMST)}")
                                 if (tmpOxyMST.size > 0) {
                                     try {
                                         val objgas =
@@ -1313,13 +1329,15 @@ class MainActivity : AppCompatActivity() {
 
                                 var tmpModemap = ByteArray(0)
                                 var sortModemap = sortMapByKey(recvModemapBuffers)
-                                for (t in sortModemap.values){
-                                    tmpModemap = tmpModemap.plus(t.sliceArray(8..t.size-1))
+                                for (t in sortModemap.values) {
+                                    tmpModemap = tmpModemap.plus(t.sliceArray(8..t.size - 1))
                                 }
                                 mainViewModel.modelMap.clear()
                                 try {
                                     val objgas =
-                                        ProtoBuf.decodeFromByteArray<HashMap<String, ByteArray>>(tmpModemap)
+                                        ProtoBuf.decodeFromByteArray<HashMap<String, ByteArray>>(
+                                            tmpModemap
+                                        )
                                     for (t in objgas) {
                                         mainViewModel.modelMap[t.key] = t.value
                                         var id = when {
@@ -1334,21 +1352,24 @@ class MainActivity : AppCompatActivity() {
                                         mainViewModel.modelMapInt[id] = t.value.clone()
                                     }
                                     shared.saveHashMap(mainViewModel.modelMap)
-                                } catch(e : Exception) {
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
 
                                 var tmpLabname = ByteArray(0)
                                 var sortLabname = sortMapByKey(recvLabNameBuffers)
-                                for (t in sortLabname.values){
-                                    tmpLabname = tmpLabname.plus(t.sliceArray(8..t.size-1))
+                                for (t in sortLabname.values) {
+                                    tmpLabname = tmpLabname.plus(t.sliceArray(8..t.size - 1))
                                 }
                                 try {
                                     val objLabname =
                                         ProtoBuf.decodeFromByteArray<String>(tmpLabname)
-                                    SaminSharedPreference(this@MainActivity).labNameSave(SaminSharedPreference.LABNAME, objLabname)
-                                } catch(e : Exception) {
+                                    SaminSharedPreference(this@MainActivity).labNameSave(
+                                        SaminSharedPreference.LABNAME,
+                                        objLabname
+                                    )
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
@@ -1360,7 +1381,7 @@ class MainActivity : AppCompatActivity() {
 //                                tmp.hmapLastedDate.keys.forEach{
 //                                    mainViewModel.hasKey.put(it, it)
 //                                }
-                                for(tmp in tmp.hmapLastedDate.keys) {
+                                for (tmp in tmp.hmapLastedDate.keys) {
                                     mainViewModel.hasKey.put(tmp, tmp)
                                 }
 
@@ -1488,9 +1509,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun unbindMessengerService() {
-        serialSVCIPCService?.send(Message.obtain(null, SerialService.MSG_UNBIND_CLIENT, 0, 0).apply {
-            replyTo = serialSVCIPCClient
-        })
+        serialSVCIPCService?.send(
+            Message.obtain(null, SerialService.MSG_UNBIND_CLIENT, 0, 0).apply {
+                replyTo = serialSVCIPCClient
+            })
         unbindService(serialSVCIPCServiceConnection)
     }
 }

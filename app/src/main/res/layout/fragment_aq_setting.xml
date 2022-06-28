@@ -10,10 +10,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/grid_layout"
         android:layout_width="0dp"
-        android:layout_marginStart="320dp"
-        android:layout_marginEnd="320dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="320dp"
         android:layout_marginTop="254dp"
+        android:layout_marginEnd="320dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,23 +28,41 @@
             android:textSize="18pt"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/et_newName"
             android:layout_width="391dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="38dp"
             android:gravity="center"
             android:inputType="text"
             android:maxLength="20"
             android:maxLines="1"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_marginStart="38dp"
             app:layout_constraintStart_toEndOf="@id/tv_newPassword"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/tv_checkTimeout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginTop="20dp"
+            android:text="AQ통신 장애확인여부(초이테크)"
+            android:textSize="18pt"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_newPassword"/>
 
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/sw_check_Timeout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            app:layout_constraintStart_toEndOf="@id/tv_checkTimeout"
+            app:layout_constraintTop_toTopOf="@id/tv_checkTimeout" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.appcompat.widget.AppCompatButton

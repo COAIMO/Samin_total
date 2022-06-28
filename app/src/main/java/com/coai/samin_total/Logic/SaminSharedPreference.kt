@@ -29,6 +29,8 @@ class SaminSharedPreference(context: Context) {
         const val CONTROL = "Control"
         const val LABNAME = "LAB"
         const val MASTEROXYGEN ="MasterOxygen"
+        const val TIMEOUTSTATE ="TimeOut"
+
     }
 
     val labName = "Lab - 015"
@@ -216,5 +218,16 @@ class SaminSharedPreference(context: Context) {
            name =  Gson().fromJson(data, token)
         }
         return name
+    }
+
+    fun SavecheckTimeOutState(value:Boolean) {
+        boardSetDataSharedPreference.edit().apply {
+            putBoolean(TIMEOUTSTATE, value)
+            apply()
+        }
+    }
+
+    fun getTimeOutState():Boolean{
+        return boardSetDataSharedPreference.getBoolean(TIMEOUTSTATE, true)
     }
 }

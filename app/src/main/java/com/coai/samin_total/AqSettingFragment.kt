@@ -1,19 +1,15 @@
 package com.coai.samin_total
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.core.view.children
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.Logic.SaminSharedPreference
-import com.coai.samin_total.Logic.ThreadSynchronied
 import com.coai.samin_total.databinding.FragmentAqSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -29,15 +25,8 @@ class AqSettingFragment : Fragment() {
     var activity: MainActivity? = null
     private lateinit var onBackPressed: OnBackPressedCallback
     private lateinit var mBinding: FragmentAqSettingBinding
-    private val viewmodel by activityViewModels<MainViewModel>()
-    private val aqInfoData = mutableListOf<SetAqInfo>()
-    private lateinit var recycleAdapter: AqSetting_RecycleAdapter
-    val aqSettingViewList = mutableListOf<View>()
-    val aqInfo_ViewMap = HashMap<SetAqInfo, View>()
-    private lateinit var sendThread: Thread
-    private lateinit var progressThread: Thread
-    private val progressSync = ThreadSynchronied()
-    private val sendSync = ThreadSynchronied()
+    lateinit var shared: SaminSharedPreference
+    private val viewmodel: MainViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -69,12 +58,19 @@ class AqSettingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         mBinding = FragmentAqSettingBinding.inflate(inflater, container, false)
+        shared = SaminSharedPreference(requireContext())
+
+        initView()
         setButtonClickEvent()
 
-
-
-
         return mBinding.root
+    }
+
+    private fun initView() {
+        if (!shared.loadLabNameData().isEmpty()) {
+            mBinding.etNewName.setText(shared.loadLabNameData())
+        }
+        mBinding.swCheckTimeout.isChecked = shared.getTimeOutState()
     }
 
     private fun setButtonClickEvent() {
@@ -89,13 +85,23 @@ class AqSettingFragment : Fragment() {
         }
     }
 
-
     private fun onClick(view: View) {
         when (view) {
             mBinding.saveBtn -> {
                 val labName = mBinding.etNewName.text.toString()
                 activity?.shared?.labNameSave(SaminSharedPreference.LABNAME, labName)
-                activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
+                viewmodel.isCheckTimeOut = mBinding.swCheckTimeout.isChecked
+                activity?.shared?.SavecheckTimeOutState(viewmodel.isCheckTimeOut)
+
+                if (shared.getTimeOutState()) {
+                    activity?.discallTimemout()
+                } else {
+                    activity?.callTimemout()
+                }
+                Thread.sleep(500)
+                getActivity()?.let { ActivityCompat.finishAffinity(it) }
+                System.exit(0)
+//                activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
             }
             mBinding.cancelBtn -> {
                 activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)

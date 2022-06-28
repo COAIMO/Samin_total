@@ -21,8 +21,8 @@ android {
         minSdk 26
 
         targetSdk 30
-        versionCode 19
-        versionName "1.18"
+        versionCode 21
+        versionName "1.20"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release

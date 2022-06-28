@@ -426,5 +426,6 @@ class MainViewModel : ViewModel() {
 
     var isLeakTestTime: Int = -1
     var isSaveLeakTestData: Boolean = false
+    var isCheckTimeOut:Boolean = true
 }
 
