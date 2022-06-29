@@ -48,13 +48,13 @@
             android:id="@+id/tv_checkTimeout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
             android:gravity="center_vertical"
-            android:layout_marginTop="20dp"
             android:text="AQ통신 장애확인여부(초이테크)"
             android:textSize="18pt"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_newPassword"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_newPassword" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/sw_check_Timeout"
@@ -63,6 +63,32 @@
             android:layout_marginStart="50dp"
             app:layout_constraintStart_toEndOf="@id/tv_checkTimeout"
             app:layout_constraintTop_toTopOf="@id/tv_checkTimeout" />
+
+        <TextView
+            android:id="@+id/tv_FeedbackTiming"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:gravity="center_vertical"
+            android:text="통신요청 주기(ms)"
+            android:textSize="18pt"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_checkTimeout" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/et_FeedbackTiming"
+            android:layout_width="391dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:inputType="number"
+            android:maxLength="3"
+            android:maxLines="1"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            app:layout_constraintStart_toEndOf="@id/tv_FeedbackTiming"
+            app:layout_constraintTop_toTopOf="@id/tv_FeedbackTiming" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.appcompat.widget.AppCompatButton

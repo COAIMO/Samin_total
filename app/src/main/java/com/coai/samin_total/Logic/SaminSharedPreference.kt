@@ -30,6 +30,7 @@ class SaminSharedPreference(context: Context) {
         const val LABNAME = "LAB"
         const val MASTEROXYGEN ="MasterOxygen"
         const val TIMEOUTSTATE ="TimeOut"
+        const val FEEDBACKTIMING ="FeedbackTiming"
 
     }
 
@@ -229,5 +230,15 @@ class SaminSharedPreference(context: Context) {
 
     fun getTimeOutState():Boolean{
         return boardSetDataSharedPreference.getBoolean(TIMEOUTSTATE, true)
+    }
+
+    fun SaveFeedbackTiming(time:Long){
+        boardSetDataSharedPreference.edit().apply {
+            putLong(FEEDBACKTIMING, time)
+            apply()
+        }
+    }
+    fun getFeedbackTiming():Long{
+        return boardSetDataSharedPreference.getLong(FEEDBACKTIMING, 50)
     }
 }

@@ -103,6 +103,8 @@ class MainActivity : AppCompatActivity() {
     private val alertsendLastTime = HashMap<Int, Long>()
     private val alertBoardsendLastTime = HashMap<Short, Long>()
 
+    // 요청주기
+    private var FEEDBACK_SLEEP:Long? = null
     companion object {
         var SERVICE_CONNECTED = false
 
@@ -144,7 +146,7 @@ class MainActivity : AppCompatActivity() {
 
         mainViewModel.isCheckTimeOut =
             shared.getTimeOutState()
-
+        FEEDBACK_SLEEP = shared.getFeedbackTiming()
         this.viewModel = ViewModelProvider(
             this,
             ViewModelFactory(application)
@@ -531,7 +533,7 @@ class MainActivity : AppCompatActivity() {
                                         sendProtocolToSerial(it)
                                     }
                                 }
-                                Thread.sleep(50)
+                                Thread.sleep(FEEDBACK_SLEEP!!)
 //                                if (model == 4.toByte())
 //                                    Thread.sleep(15)
 //                            Log.d(mainTAG, "sleep ============= " )
@@ -686,7 +688,7 @@ class MainActivity : AppCompatActivity() {
                     // 경고 처리
                     if (currentLedState.size > 0) {
                         isAnotherJob = true
-                        Thread.sleep(ANOTHERJOB_SLEEP)
+                        Thread.sleep(FEEDBACK_SLEEP!!)
                         var model: Byte = 0
                         var id: Byte = 0
                         try {
@@ -749,7 +751,7 @@ class MainActivity : AppCompatActivity() {
                     // 일부 LED 정상화
                     if (ledchanged.size > 0) {
                         isAnotherJob = true
-                        Thread.sleep(ANOTHERJOB_SLEEP)
+                        Thread.sleep(FEEDBACK_SLEEP!!)
                         var model: Byte = 0
                         var id: Byte = 0
                         var tmpBits: Byte = 0
@@ -772,7 +774,7 @@ class MainActivity : AppCompatActivity() {
                     // 에러가 사라진 AQ 찾기
                     if (diffkeys.size > 0) {
                         isAnotherJob = true
-                        Thread.sleep(ANOTHERJOB_SLEEP)
+                        Thread.sleep(FEEDBACK_SLEEP!!)
                         for (tmp in diffkeys) {
                             val aqInfo = HexDump.toByteArray(tmp)
                             val model = aqInfo[1]
@@ -804,7 +806,7 @@ class MainActivity : AppCompatActivity() {
                         prevAlertOxygen = true
 
                         isAnotherJob = true
-                        Thread.sleep(ANOTHERJOB_SLEEP)
+                        Thread.sleep(FEEDBACK_SLEEP!!)
 
                         for (t in 0..7) {
                             val model: Byte = 4

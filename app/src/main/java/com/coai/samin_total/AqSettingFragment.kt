@@ -71,6 +71,7 @@ class AqSettingFragment : Fragment() {
             mBinding.etNewName.setText(shared.loadLabNameData())
         }
         mBinding.swCheckTimeout.isChecked = shared.getTimeOutState()
+        mBinding.etFeedbackTiming.setText(shared.getFeedbackTiming().toString())
     }
 
     private fun setButtonClickEvent() {
@@ -98,6 +99,7 @@ class AqSettingFragment : Fragment() {
                 } else {
                     activity?.callTimemout()
                 }
+                shared.SaveFeedbackTiming(mBinding.etFeedbackTiming.text.toString().toLong())
                 Thread.sleep(500)
                 getActivity()?.let { ActivityCompat.finishAffinity(it) }
                 System.exit(0)
