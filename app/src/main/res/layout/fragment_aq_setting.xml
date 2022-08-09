@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
             android:gravity="center_vertical"
-            android:text="AQ통신 장애확인여부(초이테크)"
+            android:text="AQ 장애확인여부(PLC연결 시 해제)"
             android:textSize="18pt"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
