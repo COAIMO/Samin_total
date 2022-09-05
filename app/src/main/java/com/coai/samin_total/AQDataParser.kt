@@ -737,6 +737,7 @@ class AQDataParser(viewModel: MainViewModel) {
 //            "ProcessWasteLiquor",
 //            "Model:${tmp.model} ID: ${tmp.id} Port:${tmp.port}}// data:${data}"
 //        )
+
         if (data == 0) {
             tmp.isAlert = true
             if (alertMap[id] == null) {
