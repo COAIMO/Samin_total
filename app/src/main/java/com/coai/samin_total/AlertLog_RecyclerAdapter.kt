@@ -16,6 +16,7 @@ class AlertLog_RecyclerAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() 
                 .inflate(R.layout.alertlog_view, parent, false)
         )
 
+
     }
 
     override fun getItemCount(): Int {
