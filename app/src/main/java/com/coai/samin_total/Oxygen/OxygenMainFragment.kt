@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
+import com.coai.samin_total.Logic.Utils
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
@@ -23,7 +24,7 @@ import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentOxygenMainBinding
 import java.util.*
 
-// TODO: Rename parameter arguments, choose names that match
+ // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -42,6 +43,9 @@ class OxygenMainFragment : Fragment() {
     private lateinit var recycleAdapter: Oxygen_RecycleAdapter
 //    private val oxygenViewData = mutableListOf<SetOxygenViewData>()
     private var oxygenViewData:SetOxygenViewData? = null
+
+    private val oxygenViewDataList = arrayListOf<SetOxygenViewData>()
+    private val newOxygenViewDataList = arrayListOf<SetOxygenViewData>()
 
     private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
@@ -91,56 +95,114 @@ class OxygenMainFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         isOnTaskRefesh = true
-        taskRefresh = Thread() {
+//        taskRefresh = Thread() {
+//            try {
+//                var lastupdate: Long = System.currentTimeMillis()
+//                var chk: Boolean = false
+//                while (isOnTaskRefesh) {
+//                    chk = false
+//                    heartbeatCount++
+//
+//                    val viewIsAlert = viewmodel.oxygenMasterData?.isAlert
+//                    val viewSetValue = viewmodel.oxygenMasterData?.setValue
+//
+//                    if (viewIsAlert != oxygenViewData?.isAlert ||
+//                        viewSetValue != oxygenViewData?.setValue)
+//                            chk = true
+//
+//                    if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
+//                        if (viewIsAlert == true) {
+//                            chk = true
+//                        }
+//                        else if (viewSetValue == 0f)
+//                            chk = true
+//                    }
+//                    viewmodel.oxygenMasterData?.heartbeatCount = heartbeatCount
+//                    oxygenViewData = viewmodel.oxygenMasterData?.copy()
+//
+//                    val baseTime = System.currentTimeMillis() - 1000 * 2
+//                    if (lastupdate < baseTime) {
+//                        lastupdate = System.currentTimeMillis()
+//                         synchronized(lockobj) {
+//                            activity?.runOnUiThread {
+//                                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+//                            }
+//                        }
+//                    }
+//                    else {
+//                        if (chk) {
+//                            synchronized(lockobj) {
+//                                activity?.runOnUiThread() {
+//                                    recycleAdapter.notifyItemRangeChanged(
+//                                        0,
+//                                        recycleAdapter.itemCount
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//                    Thread.sleep(50)
+//                }
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
+        taskRefresh = Thread{
             try {
                 var lastupdate: Long = System.currentTimeMillis()
-                var chk: Boolean = false
-                while (isOnTaskRefesh) {
-                    chk = false
+                val lstvalue = mutableListOf<Int>()
+                while (isOnTaskRefesh){
+                    lstvalue.clear()
                     heartbeatCount++
 
-                    val viewIsAlert = viewmodel.oxygenMasterData?.isAlert
-                    val viewSetValue = viewmodel.oxygenMasterData?.setValue
+                    for (t in newOxygenViewDataList){
+                        val idx = newOxygenViewDataList.indexOf(t)
+                        if (idx > -1){
+                            if (oxygenViewDataList[idx].isAlert != t.isAlert)
+                                lstvalue.add(idx)
 
-                    if (viewIsAlert != oxygenViewData?.isAlert ||
-                        viewSetValue != oxygenViewData?.setValue)
-                            chk = true
-
-                    if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
-                        if (viewIsAlert == true) {
-                            chk = true
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)){
+                                if (t.isAlert)
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                            }
+                            t.heartbeatCount = heartbeatCount
+                            oxygenViewDataList[idx] = t.copy()
                         }
-                        else if (viewSetValue == 0f)
-                            chk = true
                     }
-                    viewmodel.oxygenMasterData?.heartbeatCount = heartbeatCount
-                    oxygenViewData = viewmodel.oxygenMasterData?.copy()
 
                     val baseTime = System.currentTimeMillis() - 1000 * 2
-                    if (lastupdate < baseTime) {
+                    if (lastupdate < baseTime){
                         lastupdate = System.currentTimeMillis()
-                         synchronized(lockobj) {
+                        for (t in newOxygenViewDataList){
+                            val idx =  newOxygenViewDataList.indexOf(t)
+                            oxygenViewDataList[idx] = t.copy()
+                        }
+
+                        synchronized(lockobj){
                             activity?.runOnUiThread {
                                 recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                             }
                         }
-                    }
-                    else {
-                        if (chk) {
-                            synchronized(lockobj) {
+                    }else{
+                        val rlist = Utils.ToIntRange(lstvalue, oxygenViewDataList.size)
+                        if (rlist != null){
+                            synchronized(lockobj){
                                 activity?.runOnUiThread() {
-                                    recycleAdapter.notifyItemRangeChanged(
-                                        0,
-                                        recycleAdapter.itemCount
-                                    )
+                                    rlist.forEach {
+                                        recycleAdapter.notifyItemRangeChanged(
+                                            it.lower,
+                                            1 + it.upper - it.lower
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
-
                     Thread.sleep(50)
                 }
-            } catch (e: Exception) {
+            }catch (e:Exception){
                 e.printStackTrace()
             }
         }
@@ -174,8 +236,13 @@ class OxygenMainFragment : Fragment() {
                 mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
                 synchronized(lockobj) {
                     mBinding.oxygenRecyclerView.apply {
+//                        itemSpace.changeSpace(
+//                            50, 650, 50, 650
+//                        )
+                        layoutManager =
+                            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
                         itemSpace.changeSpace(
-                            50, 650, 50, 650
+                            180, 150, 180, 150
                         )
                     }
                 }
@@ -184,8 +251,13 @@ class OxygenMainFragment : Fragment() {
                 mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
                 synchronized(lockobj) {
                     mBinding.oxygenRecyclerView.apply {
+//                        itemSpace.changeSpace(
+//                            220, 800, 200, 800
+//                        )
+                        layoutManager =
+                            GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
                         itemSpace.changeSpace(
-                            220, 800, 200, 800
+                            80, 50, 90, 50
                         )
                     }
                 }
@@ -214,21 +286,33 @@ class OxygenMainFragment : Fragment() {
 
     private fun initRecycler() {
         mBinding.oxygenRecyclerView.apply {
+//            if (!viewmodel.oxygenViewZoomState) {
+//                layoutManager =
+//                    GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
+//                itemSpace.changeSpace(
+//                    220, 800, 200, 800
+//                )
+//            } else {
+//                layoutManager =
+//                    GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
+//                itemSpace.changeSpace(
+//                    80, 650, 80, 650
+//                )
+//            }
             if (!viewmodel.oxygenViewZoomState) {
                 layoutManager =
-                    GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
+                    GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
                 itemSpace.changeSpace(
-                    220, 800, 200, 800
+                    80, 50, 90, 50
                 )
             } else {
                 layoutManager =
-                    GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
+                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
                 itemSpace.changeSpace(
-                    80, 650, 80, 650
+                    180, 150, 180, 150
                 )
             }
             addItemDecoration(itemSpace)
-
             recycleAdapter = Oxygen_RecycleAdapter()
             adapter = recycleAdapter
         }
@@ -242,18 +326,33 @@ class OxygenMainFragment : Fragment() {
         if (!shared.loadLabNameData().isEmpty()) {
             mBinding.labNameTv.text = shared.loadLabNameData()
         }
-//        val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
-//        recycleAdapter.submitList(mm)
-
-        if (viewmodel.oxygenMasterData != null) {
-            oxygenViewData = viewmodel.oxygenMasterData?.copy()
-            recycleAdapter.setData(viewmodel.oxygenMasterData!!)
+//        if (viewmodel.oxygenMasterData != null) {
+//            oxygenViewData = viewmodel.oxygenMasterData?.copy()
+//            recycleAdapter.setData(viewmodel.oxygenMasterData!!)
+//        }
+        val mm = viewmodel.OxygenDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
+        newOxygenViewDataList.clear()
+        for (tmp in mm)
+            if (tmp.usable)
+                newOxygenViewDataList.add(tmp)
+        oxygenViewDataList.clear()
+        for (t in newOxygenViewDataList){
+            oxygenViewDataList.add(t.copy())
         }
+
+        recycleAdapter.submitList(newOxygenViewDataList)
+
 
         if (viewmodel.oxygenViewZoomState) {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
         } else {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+        }
+
+        synchronized(lockobj){
+            activity?.runOnUiThread {
+                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+            }
         }
     }
 

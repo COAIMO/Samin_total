@@ -27,11 +27,12 @@ class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     }
 
     override fun getItemCount(): Int {
-        var count = -1
-        if (masterOxygenData == null) {
-            count = 0
-        }else count =1
-        return count
+//        var count = -1
+//        if (masterOxygenData == null) {
+//            count = 0
+//        }else count =1
+//        return count
+        return  setOxygenViewData.size
     }
 
 
@@ -47,7 +48,9 @@ class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as oxygenViewHodler).bind(masterOxygenData!!)
+//        (holder as oxygenViewHodler).bind(masterOxygenData!!)
+//        holder.setIsRecyclable(false)
+        (holder as oxygenViewHodler).bind(setOxygenViewData[position])
         holder.setIsRecyclable(false)
     }
 

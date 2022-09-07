@@ -4,4 +4,6 @@
     <dimen name="DialogView_width">600dp</dimen>
     <dimen name="passwordDialogView_height">400dp</dimen>
     <dimen name="passwordDialogView_width">600dp</dimen>
+    <dimen name="PopUpView_height">600dp</dimen>
+    <dimen name="PopUpView_width">800dp</dimen>
 </resources>

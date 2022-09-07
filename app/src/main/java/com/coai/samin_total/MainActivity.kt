@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
 import com.coai.samin_total.Dialog.AlertDialogFragment
+import com.coai.samin_total.Dialog.AlertPopUpFragment
 import com.coai.samin_total.Dialog.ScanDialogFragment
 import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.GasDockMainFragment
@@ -79,6 +80,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var steamerSettingFragment: SteamerSettingFragment
     lateinit var wasteLiquorSettingFragment: WasteWaterSettingFragment
     lateinit var gasRoomLeakTestFragment: RoomLeakTestFragment
+    lateinit var alertPopUpFragment: AlertPopUpFragment
     private lateinit var mainViewModel: MainViewModel
     lateinit var db: SaminDataBase
     lateinit var shared: SaminSharedPreference
@@ -104,7 +106,8 @@ class MainActivity : AppCompatActivity() {
     private val alertBoardsendLastTime = HashMap<Short, Long>()
 
     // 요청주기
-    private var FEEDBACK_SLEEP:Long? = null
+    private var FEEDBACK_SLEEP: Long? = null
+
     companion object {
         var SERVICE_CONNECTED = false
 
@@ -155,6 +158,7 @@ class MainActivity : AppCompatActivity() {
 
         setFragment()
         sendAlert()
+        popUpAlertSend()
 
 
 //        alertAQThread = Thread {
@@ -176,7 +180,14 @@ class MainActivity : AppCompatActivity() {
             "alertLogs"
         ).build().alertDAO()
 
-
+        mainViewModel.isPopUp.value = false
+        mainViewModel.isPopUp.observe(this) {
+            Log.d("팝업", "${it}")
+            if (it) {
+                alertPopUpFragment.show(supportFragmentManager, "")
+                mainViewModel.isPopUp.value = false
+            }
+        }
     }
 
 //    fun bindSerialService() {
@@ -344,6 +355,7 @@ class MainActivity : AppCompatActivity() {
         steamerSettingFragment = SteamerSettingFragment()
         wasteLiquorSettingFragment = WasteWaterSettingFragment()
         gasRoomLeakTestFragment = RoomLeakTestFragment()
+        alertPopUpFragment = AlertPopUpFragment()
     }
 
     fun onFragmentChange(index: Int) {
@@ -1517,6 +1529,69 @@ class MainActivity : AppCompatActivity() {
             })
         unbindService(serialSVCIPCServiceConnection)
     }
+
+    var popUpThread: Thread? = null
+    private fun popUpAlertSend() {
+        popUpThread?.interrupt()
+        popUpThread?.join()
+
+        popUpThread = Thread {
+            val protocol = SaminProtocol()
+            val alertchanged = ArrayList<Short>()
+            val alertchangedRemind = ArrayList<Short>()
+            val exContent = ConcurrentHashMap<Int, SetAlertData>()
+            var prevAlertOxygen: Boolean = false
+            while (true) {
+
+                val elapsed: Long = measureTimeMillis {
+
+                    alertchanged.clear()
+                    alertchangedRemind.clear()
+
+                    for ((key, value) in mainViewModel.alertMap) {
+                        Log.d("팝업", "key = ${key}, value:${value}")
+                        val aqInfo = HexDump.toByteArray(key)
+                        val model = aqInfo[3]
+                        val id = aqInfo[2]
+                        val port = aqInfo[1]
+
+                        if (!exContent.containsKey(key)) {
+                            if (value.isAlert){
+                                exContent[key] = value
+                                runOnUiThread {
+                                    try {
+//                                        if (mainViewModel.isPopUp.value == false) {
+//                                            mainViewModel.isPopUp.value = true
+//                                        }
+                                        if(alertPopUpFragment.showsDialog){
+                                            alertPopUpFragment.show(supportFragmentManager,"")
+                                        }
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                }
+                            }
+                        }
+
+                        if (exContent.containsKey(key)){
+                            if (exContent[key]!!.isAlert != value.isAlert){
+                                exContent.remove(key)
+                            }
+                        }
+                    }
+
+                }
+                Log.d("sendAlert", "measureTimeMillis : $elapsed")
+
+                Thread.sleep(200)
+            }
+
+        }
+
+        popUpThread?.start()
+
+    }
+
 }
 
 
