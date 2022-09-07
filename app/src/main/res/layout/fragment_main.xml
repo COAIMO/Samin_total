@@ -196,12 +196,12 @@
             android:layout_marginStart="30dp"
             android:background="@drawable/sound_ic" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btn_scan"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="30dp"
-            android:background="@drawable/button_scan" />
+<!--        <androidx.appcompat.widget.AppCompatImageButton-->
+<!--            android:id="@+id/btn_scan"-->
+<!--            android:layout_width="40dp"-->
+<!--            android:layout_height="40dp"-->
+<!--            android:layout_marginStart="30dp"-->
+<!--            android:background="@drawable/button_scan" />-->
     </LinearLayout>
 
     <ImageView

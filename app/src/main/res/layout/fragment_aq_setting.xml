@@ -12,12 +12,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="320dp"
-        android:layout_marginTop="254dp"
         android:layout_marginEnd="320dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/save_btn">
 
         <TextView
             android:id="@+id/tv_newPassword"
@@ -89,6 +89,32 @@
             android:gravity="center"
             app:layout_constraintStart_toEndOf="@id/tv_FeedbackTiming"
             app:layout_constraintTop_toTopOf="@id/tv_FeedbackTiming" />
+
+        <TextView
+            android:id="@+id/tv_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:gravity="center_vertical"
+            android:text="AQ 스캔"
+            android:textSize="18pt"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_FeedbackTiming" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_scan"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="50dp"
+            android:text="Scan"
+            android:background="@color/AnotherButtonBack"
+            android:textColor="@color/white"
+            android:textSize="18pt"
+            android:layout_gravity="center"
+            android:gravity="center"
+            app:layout_constraintStart_toEndOf="@id/tv_scan"
+            app:layout_constraintTop_toTopOf="@id/tv_scan"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.appcompat.widget.AppCompatButton

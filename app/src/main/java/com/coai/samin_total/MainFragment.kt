@@ -252,9 +252,6 @@ class MainFragment : Fragment() {
         mBinding.btnSound.setOnClickListener {
             onClick(mBinding.btnSound)
         }
-        mBinding.btnScan.setOnClickListener {
-            onClick(mBinding.btnScan)
-        }
     }
 
     private fun onClick(view: View) {
@@ -293,12 +290,6 @@ class MainFragment : Fragment() {
                     mBinding.btnSound.setImageResource(R.drawable.sound_ic)
                     viewmodel.isSoundAlert = true
                 }
-            }
-            mBinding.btnScan -> {
-                scanModel()
-//                viewmodel.modelMap["GasRoom"] = byteArrayOf(1.toByte(), 2.toByte(), 3.toByte(),  4.toByte(), 5.toByte())
-//                viewmodel.modelMap["GasDock"] = byteArrayOf(1.toByte(), 2.toByte(), 3.toByte(),  4.toByte(), 5.toByte())
-//                shared.saveHashMap(viewmodel.modelMap)
             }
         }
     }
