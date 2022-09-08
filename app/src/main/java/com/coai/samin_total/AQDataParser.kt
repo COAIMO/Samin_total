@@ -898,88 +898,84 @@ class AQDataParser(viewModel: MainViewModel) {
             HexDump.toByteArray(it.key).get(3) == 4.toByte()
         }
 
-        val masterKey = littleEndianConversion(
-            byteArrayOf(
-                4.toByte(),
-                11.toByte(),
-                11.toByte()
-            )
-        )
-        val oxygenLastValueList = mutableListOf<Float>()
-        for ((key, value) in oxygenAQ) {
-//            val aqInfo = HexDump.toByteArray(key)
-//            val model = aqInfo[3].toInt()
-//            val oxyid = aqInfo[2].toInt()
-//            val port = aqInfo[1].toInt()
-            val oxydata = (value as SetOxygenViewData)
+//        val masterKey = littleEndianConversion(
+//            byteArrayOf(
+//                4.toByte(),
+//                11.toByte(),
+//                11.toByte()
+//            )
+//        )
+//        val oxygenLastValueList = mutableListOf<Float>()
+//        for ((key, value) in oxygenAQ) {
+//            val oxydata = (value as SetOxygenViewData)
+//
+//            viewModel.oxygensData.put(key, oxydata)
+//            if (oxydata.setValue == 0f) {
+//                continue
+//            } else {
+//                oxygenLastValueList.add(oxydata.setValue)
+//            }
+//        }
 
-            viewModel.oxygensData.put(key, oxydata)
-            if (oxydata.setValue == 0f) {
-                continue
-            } else {
-                oxygenLastValueList.add(oxydata.setValue)
-            }
-        }
-
-        var tmpavg = oxygenLastValueList.average()
-        if(tmpavg.isNaN()) tmpavg = 0.0
-        if (viewModel.oxygenMasterData == null)
-            return
-
-        viewModel.oxygenMasterData!!.setValue = tmpavg.toFloat()
-        if (viewModel.oxygenMasterData!!.setMinValue > viewModel.oxygenMasterData!!.setValue) {
-            viewModel.oxygenMasterData!!.isAlert = true
-            if (alertMap[masterKey] == null) {
-                alertMap.put(masterKey, true)
-                viewModel.addAlertInfo(
-                    masterKey,
-                    SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        4,
-                        8,
-                        "[평균]산소농도 하한 값 (${viewModel.oxygenMasterData!!.setValue})",
-                        8,
-                        true
-                    )
-                )
-            }
-        } else {
-            if (viewModel.oxygenMasterData!!.setMaxValue < viewModel.oxygenMasterData!!.setValue) {
-                viewModel.oxygenMasterData!!.isAlert = true
-                if (alertMap[masterKey] == null) {
-                    alertMap.put(masterKey, true)
-                    viewModel.addAlertInfo(
-                        masterKey,
-                        SetAlertData(
-                            getLatest_time(hmapLastedDate[id]!!),
-                            4,
-                            8,
-                            "[평균]산소농도 상한 값(${viewModel.oxygenMasterData!!.setValue})",
-                            8,
-                            true
-                        )
-                    )
-                }
-            } else {
-                viewModel.oxygenMasterData!!.isAlert = false
-                if (alertMap.containsKey(masterKey)) {
-                    viewModel.addAlertInfo(
-                        masterKey,
-                        SetAlertData(
-                            getLatest_time(hmapLastedDate[id]!!),
-                            4,
-                            8,
-                            "[평균]산소농도 정상",
-                            8,
-                            false
-                        )
-                    )
-                    if (alertMap.containsKey(masterKey)) {
-                        alertMap.remove(masterKey)
-                    }
-                }
-            }
-        }
+//        var tmpavg = oxygenLastValueList.average()
+//        if(tmpavg.isNaN()) tmpavg = 0.0
+//        if (viewModel.oxygenMasterData == null)
+//            return
+//
+//        viewModel.oxygenMasterData!!.setValue = tmpavg.toFloat()
+//        if (viewModel.oxygenMasterData!!.setMinValue > viewModel.oxygenMasterData!!.setValue) {
+//            viewModel.oxygenMasterData!!.isAlert = true
+//            if (alertMap[masterKey] == null) {
+//                alertMap.put(masterKey, true)
+//                viewModel.addAlertInfo(
+//                    masterKey,
+//                    SetAlertData(
+//                        getLatest_time(hmapLastedDate[id]!!),
+//                        4,
+//                        8,
+//                        "[평균]산소농도 하한 값 (${viewModel.oxygenMasterData!!.setValue})",
+//                        8,
+//                        true
+//                    )
+//                )
+//            }
+//        } else {
+//            if (viewModel.oxygenMasterData!!.setMaxValue < viewModel.oxygenMasterData!!.setValue) {
+//                viewModel.oxygenMasterData!!.isAlert = true
+//                if (alertMap[masterKey] == null) {
+//                    alertMap.put(masterKey, true)
+//                    viewModel.addAlertInfo(
+//                        masterKey,
+//                        SetAlertData(
+//                            getLatest_time(hmapLastedDate[id]!!),
+//                            4,
+//                            8,
+//                            "[평균]산소농도 상한 값(${viewModel.oxygenMasterData!!.setValue})",
+//                            8,
+//                            true
+//                        )
+//                    )
+//                }
+//            } else {
+//                viewModel.oxygenMasterData!!.isAlert = false
+//                if (alertMap.containsKey(masterKey)) {
+//                    viewModel.addAlertInfo(
+//                        masterKey,
+//                        SetAlertData(
+//                            getLatest_time(hmapLastedDate[id]!!),
+//                            4,
+//                            8,
+//                            "[평균]산소농도 정상",
+//                            8,
+//                            false
+//                        )
+//                    )
+//                    if (alertMap.containsKey(masterKey)) {
+//                        alertMap.remove(masterKey)
+//                    }
+//                }
+//            }
+//        }
     }
 
     fun ProcessSteamer(id: Int, temp: Int, level: Int) {
@@ -1373,7 +1369,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     continue
             } else if (current is SetOxygenViewData) {
                 (current as SetOxygenViewData).isAlert = true
-                viewModel.oxygenMasterData!!.isAlert = true
+//                viewModel.oxygenMasterData!!.isAlert = true
                 if (current.usable)
                     viewModel.mModelMonitorValues.setErrorsOxygen(idx, true)
                 else
@@ -1419,7 +1415,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     (current as SetWasteLiquorViewData).isAlert = false
                 else if (current is SetOxygenViewData) {
                     (current as SetOxygenViewData).isAlert = false
-                    viewModel.oxygenMasterData!!.isAlert = false
+//                    viewModel.oxygenMasterData!!.isAlert = false
                 } else if (current is SetSteamerViewData) {
                     (current as SetSteamerViewData).isAlertLow = false
                     (current as SetSteamerViewData).isAlertTemp = false

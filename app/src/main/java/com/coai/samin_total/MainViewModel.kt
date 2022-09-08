@@ -2,9 +2,11 @@ package com.coai.samin_total
 
 import android.app.Application
 import android.graphics.Color
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
 import com.coai.libsaminmodbus.model.KeyUtils
@@ -22,6 +24,7 @@ import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.database.AlertData
 import com.coai.samin_total.database.AlertDatabase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
@@ -67,7 +70,7 @@ class MainViewModel : ViewModel() {
     val SteamerDataLiveList = MutableListLiveData<SetSteamerViewData>()
 
     //    var oxygenMasterData = SetOxygenViewData("0",0,0)
-    var oxygenMasterData: SetOxygenViewData? = null
+//    var oxygenMasterData: SetOxygenViewData? = null
     val oxygensData = HashMap<Int, SetOxygenViewData>()
 
     val alertInfo = MutableListLiveData<SetAlertData>()
@@ -426,9 +429,39 @@ class MainViewModel : ViewModel() {
 
     var isLeakTestTime: Int = -1
     var isSaveLeakTestData: Boolean = false
-    var isCheckTimeOut:Boolean = true
-
+    var isCheckTimeOut: Boolean = true
     val isPopUp: MutableLiveData<Boolean> = MutableLiveData()
+
+//    val popUpHashMap: LiveData<HashMap<Int, SetAlertData>> = _popUpHashMap
+    val popUpHashMap = HashMap<Int, SetAlertData>()
+    val _popUpList = MutableLiveData<MutableList<SetAlertData>>()
+
+    init {
+        _popUpList.value = mutableListOf<SetAlertData>()
+    }
+    fun addPopupMap(key:Int, value:SetAlertData){
+        try {
+            popUpHashMap.set(key,value)
+            for (i in popUpHashMap){
+                _popUpList.value?.add(i.value)
+            }
+            Log.d("테스트1","map = ${popUpHashMap[key]}")
+            Log.d("테스트1","list = ${_popUpList.value}")
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+    }
+    fun removePopupMap(key: Int,value: SetAlertData){
+        try {
+            popUpHashMap.remove(key)
+            _popUpList.value!!.remove(value)
+
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+    }
+
+    val popUpDataLiveList = MutableListLiveData<SetAlertData>()
 
 }
 

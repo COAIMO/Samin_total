@@ -1,5 +1,6 @@
 package com.coai.samin_total.Dialog
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.TextureView
 import android.view.View
@@ -29,8 +30,10 @@ class AlertPopUP_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     fun submitList(viewData: List<SetAlertData>) {
         this.alertData = viewData
+        notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -39,16 +42,19 @@ class AlertPopUP_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         val btn = holder.itemView.findViewById<Button>(R.id.btn_move)
         btn.setOnClickListener {
-            buttonClickListener.onClick(it,position)
+            buttonClickListener.onClick(it, position)
         }
     }
-    interface OnButtonClickListener{
+
+    interface OnButtonClickListener {
         fun onClick(v: View, position: Int)
     }
-    fun setButtonClickListener(onButtonClickListener: OnButtonClickListener){
+
+    fun setButtonClickListener(onButtonClickListener: OnButtonClickListener) {
         this.buttonClickListener = onButtonClickListener
     }
-    private lateinit var buttonClickListener:OnButtonClickListener
+
+    private lateinit var buttonClickListener: OnButtonClickListener
 
     inner class AlertViewHodler(view: View) : RecyclerView.ViewHolder(view) {
         private val tv_model = view.findViewById<TextView>(R.id.tv_model)
@@ -58,7 +64,15 @@ class AlertPopUP_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
         private val tv_port = view.findViewById<TextView>(R.id.tv_port)
 
         fun bind(setAlertData: SetAlertData) {
-            tv_model.text = setAlertData.model.toString()
+            tv_model.text = setAlertData.model.apply {
+                when (this) {
+                    1 -> "가스저장고"
+                    2 -> "가스룸"
+                    3 -> "폐액"
+                    4 -> "산소농도모듈"
+                    5 -> "스팀기"
+                }
+            }.toString()
             tv_id.text = setAlertData.id.toString()
             tv_error_content.text = setAlertData.content
             tv_time.text = setAlertData.time

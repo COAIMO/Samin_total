@@ -124,6 +124,7 @@ class MainActivity : AppCompatActivity() {
         const val ANOTHERJOB_SLEEP: Long = 40
     }
 
+    private var setFragment: Int = -1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
@@ -179,15 +180,6 @@ class MainActivity : AppCompatActivity() {
             AlertDatabase::class.java,
             "alertLogs"
         ).build().alertDAO()
-
-        mainViewModel.isPopUp.value = false
-        mainViewModel.isPopUp.observe(this) {
-            Log.d("팝업", "${it}")
-            if (it) {
-                alertPopUpFragment.show(supportFragmentManager, "")
-                mainViewModel.isPopUp.value = false
-            }
-        }
     }
 
 //    fun bindSerialService() {
@@ -333,6 +325,7 @@ class MainActivity : AppCompatActivity() {
         mainFragment = MainFragment()
         supportFragmentManager.beginTransaction().replace(R.id.HostFragment_container, mainFragment)
             .commit()
+        setFragment = MainViewModel.MAINFRAGMENT
         mainsettingFragment = MainSettingFragment()
         alertdialogFragment = AlertDialogFragment()
         scandialogFragment = ScanDialogFragment()
@@ -359,6 +352,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onFragmentChange(index: Int) {
+        setFragment = index
         when (index) {
             MainViewModel.MAINFRAGMENT -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, mainFragment).commit()
@@ -814,28 +808,28 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     // 산소 센서 평균 에러 여부
-                    if (mainViewModel.oxygenMasterData != null && !prevAlertOxygen && mainViewModel.oxygenMasterData!!.isAlert) {
-                        prevAlertOxygen = true
-
-                        isAnotherJob = true
-                        Thread.sleep(FEEDBACK_SLEEP!!)
-
-                        for (t in 0..7) {
-                            val model: Byte = 4
-                            val id: Byte = t.toByte()
-
-                            for (cnt in 0..1) {
-                                protocol.buzzer_On(model, id)
-                                sendProtocolToSerial(protocol.mProtocol.clone())
-                                Thread.sleep(5)
-                            }
-                        }
-                        isAnotherJob = false
-                    } else if (mainViewModel.oxygenMasterData != null && !mainViewModel.oxygenMasterData!!.isAlert) {
-                        prevAlertOxygen = false
-                    } else if (mainViewModel.oxygenMasterData == null) {
-                        prevAlertOxygen = false
-                    }
+//                    if (mainViewModel.oxygenMasterData != null && !prevAlertOxygen && mainViewModel.oxygenMasterData!!.isAlert) {
+//                        prevAlertOxygen = true
+//
+//                        isAnotherJob = true
+//                        Thread.sleep(FEEDBACK_SLEEP!!)
+//
+//                        for (t in 0..7) {
+//                            val model: Byte = 4
+//                            val id: Byte = t.toByte()
+//
+//                            for (cnt in 0..1) {
+//                                protocol.buzzer_On(model, id)
+//                                sendProtocolToSerial(protocol.mProtocol.clone())
+//                                Thread.sleep(5)
+//                            }
+//                        }
+//                        isAnotherJob = false
+//                    } else if (mainViewModel.oxygenMasterData != null && !mainViewModel.oxygenMasterData!!.isAlert) {
+//                        prevAlertOxygen = false
+//                    } else if (mainViewModel.oxygenMasterData == null) {
+//                        prevAlertOxygen = false
+//                    }
 
                     val targets = java.util.HashMap<Int, Int>()
                     for (t in mainViewModel.alertMap.values) {
@@ -1315,31 +1309,31 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                                 // 산소농도 대표 설정 복원
-                                var tmpOxyMST = ByteArray(0)
-                                var sortOxymst = sortMapByKey(recvOxygenMSTBuffers)
-                                for (t in sortOxymst.values) {
-                                    tmpOxyMST = tmpOxyMST.plus(t.sliceArray(8..t.size - 1))
-                                }
-                                //                            Log.d(mainTAG, "tmpOxyMST : ${HexDump.dumpHexString(tmpOxyMST)}")
-                                if (tmpOxyMST.size > 0) {
-                                    try {
-                                        val objgas =
-                                            ProtoBuf.decodeFromByteArray<SetOxygenViewData>(
-                                                tmpOxyMST
-                                            )
-                                        objgas.setValue = 0f
-                                        objgas.isAlert = false
-                                        objgas.heartbeatCount = 0u
-                                        mainViewModel.oxygenMasterData = objgas
-                                        shared.saveBoardSetData(
-                                            SaminSharedPreference.MASTEROXYGEN,
-                                            mainViewModel.oxygenMasterData!!
-                                        )
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                        allDone = false
-                                    }
-                                }
+//                                var tmpOxyMST = ByteArray(0)
+//                                var sortOxymst = sortMapByKey(recvOxygenMSTBuffers)
+//                                for (t in sortOxymst.values) {
+//                                    tmpOxyMST = tmpOxyMST.plus(t.sliceArray(8..t.size - 1))
+//                                }
+//                                //                            Log.d(mainTAG, "tmpOxyMST : ${HexDump.dumpHexString(tmpOxyMST)}")
+//                                if (tmpOxyMST.size > 0) {
+//                                    try {
+//                                        val objgas =
+//                                            ProtoBuf.decodeFromByteArray<SetOxygenViewData>(
+//                                                tmpOxyMST
+//                                            )
+//                                        objgas.setValue = 0f
+//                                        objgas.isAlert = false
+//                                        objgas.heartbeatCount = 0u
+//                                        mainViewModel.oxygenMasterData = objgas
+//                                        shared.saveBoardSetData(
+//                                            SaminSharedPreference.MASTEROXYGEN,
+//                                            mainViewModel.oxygenMasterData!!
+//                                        )
+//                                    } catch (e: Exception) {
+//                                        e.printStackTrace()
+//                                        allDone = false
+//                                    }
+//                                }
 
                                 var tmpModemap = ByteArray(0)
                                 var sortModemap = sortMapByKey(recvModemapBuffers)
@@ -1556,16 +1550,67 @@ class MainActivity : AppCompatActivity() {
                         val port = aqInfo[1]
 
                         if (!exContent.containsKey(key)) {
-                            if (value.isAlert){
+                            if (value.isAlert) {
                                 exContent[key] = value
                                 runOnUiThread {
                                     try {
+//                                        mainViewModel.addPopUpList(value)
+                                        Log.d("라이브11", "${value}")
+                                        runOnUiThread {
+                                            mainViewModel.addPopupMap(key, value)
+                                            mainViewModel.popUpDataLiveList.add(value)
+                                            mainViewModel.popUpDataLiveList.notifyChange()
+                                        }
+                                        if (!alertPopUpFragment.isAdded) {
+                                            if (setFragment != MainViewModel.MAINFRAGMENT) {
+                                                when (value.model) {
+                                                    1 -> {
+                                                        if (setFragment != MainViewModel.GASDOCKMAINFRAGMENT) {
+                                                            alertPopUpFragment.show(
+                                                                supportFragmentManager,
+                                                                ""
+                                                            )
+                                                        }
+                                                    }
+                                                    2 -> {
+                                                        if (setFragment != MainViewModel.GASROOMMAINFRAGMENT) {
+                                                            alertPopUpFragment.show(
+                                                                supportFragmentManager,
+                                                                ""
+                                                            )
+                                                        }
+                                                    }
+                                                    3 -> {
+                                                        if (setFragment != MainViewModel.WASTELIQUORMAINFRAGMENT) {
+                                                            alertPopUpFragment.show(
+                                                                supportFragmentManager,
+                                                                ""
+                                                            )
+                                                        }
+                                                    }
+                                                    4 -> {
+                                                        if (setFragment != MainViewModel.OXYGENMAINFRAGMENT) {
+                                                            alertPopUpFragment.show(
+                                                                supportFragmentManager,
+                                                                ""
+                                                            )
+                                                        }
+                                                    }
+                                                    5 -> {
+                                                        if (setFragment != MainViewModel.STEAMERMAINFRAGMENT) {
+                                                            alertPopUpFragment.show(
+                                                                supportFragmentManager,
+                                                                ""
+                                                            )
+                                                        }
+                                                    }
+
+                                                }
+                                            }
+                                        }
 //                                        if (mainViewModel.isPopUp.value == false) {
 //                                            mainViewModel.isPopUp.value = true
 //                                        }
-                                        if(alertPopUpFragment.showsDialog){
-                                            alertPopUpFragment.show(supportFragmentManager,"")
-                                        }
                                     } catch (e: Exception) {
                                         e.printStackTrace()
                                     }
@@ -1573,9 +1618,16 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
 
-                        if (exContent.containsKey(key)){
-                            if (exContent[key]!!.isAlert != value.isAlert){
-                                exContent.remove(key)
+                        if (exContent.containsKey(key)) {
+                            if (exContent[key]!!.isAlert != value.isAlert) {
+                                Log.d("라이브22", "${exContent[key]!!}")
+                                mainViewModel.removePopupMap(key, exContent[key]!!)
+                                runOnUiThread {
+                                    mainViewModel.popUpDataLiveList.remove(exContent[key]!!)
+                                    mainViewModel.popUpDataLiveList.notifyChange()
+                                    exContent.remove(key)
+                                }
+//                                mainViewModel.addPopUpList(value)
                             }
                         }
                     }

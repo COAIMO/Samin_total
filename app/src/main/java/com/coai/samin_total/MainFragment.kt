@@ -414,15 +414,15 @@ class MainFragment : Fragment() {
                 }
             }
 
-            viewmodel.oxygenMasterData = null
-            viewmodel.oxygensData.clear()
+//            viewmodel.oxygenMasterData = null
+//            viewmodel.oxygensData.clear()
+//            val tmpobj =
+//                shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)
+//            if (tmpobj is SetOxygenViewData) {
+//                viewmodel.oxygenMasterData = tmpobj
+//            }
 //            val oxygenMasterDataSet =
 //                (shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)) as SetOxygenViewData
-            val tmpobj =
-                shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)
-            if (tmpobj is SetOxygenViewData) {
-                viewmodel.oxygenMasterData = tmpobj
-            }
 
             activity?.isSending = true
             activity?.tmp?.LoadSetting()

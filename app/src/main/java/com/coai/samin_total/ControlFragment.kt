@@ -272,9 +272,9 @@ class ControlFragment : Fragment() {
                     byteSteamer = ProtoBuf.encodeToByteArray(it.toList())
                 }
 
-                viewmodel.oxygenMasterData?.let {
-                    byteOxyzenMst = ProtoBuf.encodeToByteArray(it)
-                }
+//                viewmodel.oxygenMasterData?.let {
+//                    byteOxyzenMst = ProtoBuf.encodeToByteArray(it)
+//                }
 
                 byteLabName = ProtoBuf.encodeToByteArray(labname)
 
@@ -300,12 +300,12 @@ class ControlFragment : Fragment() {
                     // 산소
                     byteOxyzen?.let {
                         sendMultipartSend((16 + 4).toByte(), it)
-                        if (viewmodel.oxygenMasterData != null) {
-                            byteOxyzenMst?.let {
-                                sendMultipartSend((16 + 6).toByte(), it)
-//                                Thread.sleep(40)
-                            }
-                        }
+//                        if (viewmodel.oxygenMasterData != null) {
+//                            byteOxyzenMst?.let {
+//                                sendMultipartSend((16 + 6).toByte(), it)
+////                                Thread.sleep(40)
+//                            }
+//                        }
                     }
 
                     // 스팀

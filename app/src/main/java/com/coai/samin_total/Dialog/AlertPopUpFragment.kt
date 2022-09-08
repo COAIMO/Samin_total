@@ -1,7 +1,9 @@
 package com.coai.samin_total.Dialog
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +13,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
+import com.coai.samin_total.Logic.Utils
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
@@ -35,8 +38,10 @@ class AlertPopUpFragment : DialogFragment() {
     private lateinit var mBinding: FragmentAlertPopUpBinding
     private lateinit var recycleAdapter: AlertPopUP_RecyclerAdapter
     private val viewmodel by activityViewModels<MainViewModel>()
-    private val alertData = mutableListOf<SetAlertData>()
+    private var alertData = mutableListOf<SetAlertData>()
     private var activity: MainActivity? = null
+    private var taskRefresh: Thread? = null
+    private var isOnTaskRefesh: Boolean = true
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -46,6 +51,13 @@ class AlertPopUpFragment : DialogFragment() {
     override fun onDetach() {
         super.onDetach()
         activity = null
+    }
+
+    override fun onPause() {
+        super.onPause()
+        isOnTaskRefesh = false
+        taskRefresh?.interrupt()
+        taskRefresh?.join()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,6 +103,16 @@ class AlertPopUpFragment : DialogFragment() {
                 }
             }
         })
+//        viewmodel._popUpList.observe(viewLifecycleOwner){
+//            Log.d("라이브","${it}")
+//            alertData = it
+//            recycleAdapter.submitList(alertData)
+//        }
+        viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
+            Log.d("라이브", "${it}")
+            recycleAdapter.submitList(it)
+            recycleAdapter.notifyDataSetChanged()
+        }
         return mBinding.root
     }
 
@@ -100,6 +122,20 @@ class AlertPopUpFragment : DialogFragment() {
         dialog?.window?.setLayout(width, height)
         dialog?.window?.setBackgroundDrawableResource(R.drawable.border_layout)
         super.onResume()
+//        taskRefresh = Thread{
+//            try {
+//                var lastupdate: Long = System.currentTimeMillis()
+//                val lstvalue = mutableListOf<Int>()
+//                while (isOnTaskRefesh){
+//
+//
+//                    Thread.sleep(50)
+//                }
+//            }catch (e:Exception){
+//                e.printStackTrace()
+//            }
+//        }
+//        taskRefresh?.start()
     }
 
     private fun initRecycler() {
@@ -118,20 +154,20 @@ class AlertPopUpFragment : DialogFragment() {
     }
 
     private fun initView() {
-        alertData.removeAll(alertData)
-        mBinding.tvTitle.setText(R.string.title_event_log)
-        for ((key, value) in viewmodel.alertMap) {
-            val aqInfo = HexDump.toByteArray(key)
-            val portNum = aqInfo[1]
-            val id = aqInfo[2]
-            val model = aqInfo[3]
-
-            if (value.isAlert) {
-                alertData.add(value)
-                recycleAdapter.submitList(alertData)
-            }
-        }
-        recycleAdapter.notifyDataSetChanged()
+//        alertData.removeAll(alertData)
+//        mBinding.tvTitle.setText(R.string.title_event_log)
+//        for ((key, value) in viewmodel.alertMap) {
+//            val aqInfo = HexDump.toByteArray(key)
+//            val portNum = aqInfo[1]
+//            val id = aqInfo[2]
+//            val model = aqInfo[3]
+//
+//            if (value.isAlert) {
+//                alertData.add(value)
+//                recycleAdapter.submitList(alertData)
+//            }
+//        }
+//        recycleAdapter.notifyDataSetChanged()
 
     }
 
