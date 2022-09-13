@@ -203,6 +203,8 @@ class SteamerSettingFragment : Fragment() {
             val model = aqInfo[3].toInt()
             if (model == 5) {
                 viewmodel.alertMap.remove(i.key)
+                viewmodel.popUpDataLiveList.remove(i.value)
+                viewmodel.popUpDataLiveList.notifyChange()
             }
         }
         viewmodel.SteamerDataLiveList.clear(true)

@@ -1623,9 +1623,13 @@ class MainActivity : AppCompatActivity() {
                                 Log.d("라이브22", "${exContent[key]!!}")
                                 mainViewModel.removePopupMap(key, exContent[key]!!)
                                 runOnUiThread {
-                                    mainViewModel.popUpDataLiveList.remove(exContent[key]!!)
-                                    mainViewModel.popUpDataLiveList.notifyChange()
-                                    exContent.remove(key)
+                                    try {
+                                        mainViewModel.popUpDataLiveList.remove(exContent[key]!!)
+                                        mainViewModel.popUpDataLiveList.notifyChange()
+                                        exContent.remove(key)
+                                    }catch (e:Exception){
+                                        e.printStackTrace()
+                                    }
                                 }
 //                                mainViewModel.addPopUpList(value)
                             }

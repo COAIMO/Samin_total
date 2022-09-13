@@ -78,7 +78,7 @@ class AlertPopUpFragment : DialogFragment() {
         recycleAdapter.setButtonClickListener(object :
             AlertPopUP_RecyclerAdapter.OnButtonClickListener {
             override fun onClick(v: View, position: Int) {
-                val aa = alertData[position]
+                val aa = viewmodel.popUpDataLiveList.value!!.get(position)
                 when (aa.model) {
                     1 -> {
                         activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)

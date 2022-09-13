@@ -88,7 +88,9 @@ class OxygenSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString().equals(".") ) {
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString()
+                    .equals(".")
+            ) {
                 if (selectedSensor == null) return
                 selectedSensor?.zeroPoint = s.toString().toFloat()
             } else {
@@ -151,7 +153,9 @@ class OxygenSettingFragment : Fragment() {
                 )
                 mBinding.oxygenBoardSettingView.mOxygen_minValue_et.setText(selectedSensor?.setMinValue.toString())
                 mBinding.oxygenBoardSettingView.mOxygen_maxValue_et.setText(selectedSensor?.setMaxValue.toString())
-                mBinding.oxygenBoardSettingView.mOxygen_zeropoint.setText((selectedSensor?.zeroPoint ?: 0.0f).toString())
+                mBinding.oxygenBoardSettingView.mOxygen_zeropoint.setText(
+                    (selectedSensor?.zeroPoint ?: 0.0f).toString()
+                )
             }
         })
 
@@ -249,8 +253,11 @@ class OxygenSettingFragment : Fragment() {
             val model = aqInfo[3].toInt()
             if (model == 4) {
                 viewmodel.alertMap.remove(i.key)
+                viewmodel.popUpDataLiveList.remove(i.value)
+                viewmodel.popUpDataLiveList.notifyChange()
             }
         }
+
 //        viewmodel.oxygenMasterData = null
         viewmodel.oxygensData.clear()
         viewmodel.OxygenDataLiveList.clear(true)

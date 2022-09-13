@@ -64,15 +64,13 @@ class AlertPopUP_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
         private val tv_port = view.findViewById<TextView>(R.id.tv_port)
 
         fun bind(setAlertData: SetAlertData) {
-            tv_model.text = setAlertData.model.apply {
-                when (this) {
-                    1 -> "가스저장고"
-                    2 -> "가스룸"
-                    3 -> "폐액"
-                    4 -> "산소농도모듈"
-                    5 -> "스팀기"
-                }
-            }.toString()
+            when(setAlertData.model){
+                1 -> tv_model.text = "가스저장고"
+                2 -> tv_model.text ="가스룸"
+                3 -> tv_model.text ="폐액"
+                4 -> tv_model.text ="산소농도모듈"
+                5 -> tv_model.text ="스팀기"
+            }
             tv_id.text = setAlertData.id.toString()
             tv_error_content.text = setAlertData.content
             tv_time.text = setAlertData.time

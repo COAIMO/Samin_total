@@ -828,50 +828,93 @@ class AQDataParser(viewModel: MainViewModel) {
                     )
                 )
             }
-        } else {
-            if (tmp.setMaxValue < oxygenValue) {
-                if (!preError) {
-                    hmapErrorOxygen[id] = true
-                    return
-                }
+        } else if(tmp.setMaxValue < oxygenValue){
+            if (!preError) {
+                hmapErrorOxygen[id] = true
+                return
+            }
 
-                tmp.isAlert = true
-                if (alertMap[id] == null) {
-                    alertMap.put(id, true)
-                    viewModel.addAlertInfo(
-                        id,
-                        SetAlertData(
-                            getLatest_time(hmapLastedDate[id]!!),
-                            tmp.modelByte.toInt(),
-                            tmp.id,
-                            "산소농도 상한 값 ($oxygenValue)",
-                            tmp.port,
-                            true
-                        )
+            tmp.isAlert = true
+            if (alertMap[id] == null) {
+                alertMap.put(id, true)
+                viewModel.addAlertInfo(
+                    id,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "산소농도 상한 값 ($oxygenValue)",
+                        tmp.port,
+                        true
                     )
-                }
-            } else {
-                tmp.isAlert = false
-                hmapErrorOxygen.remove(id)
+                )
+            }
+        }else{
+            tmp.isAlert = false
+            hmapErrorOxygen.remove(id)
 
+            if (alertMap.containsKey(id)) {
+                viewModel.addAlertInfo(
+                    id,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "산소농도 정상",
+                        tmp.port,
+                        false
+                    )
+                )
                 if (alertMap.containsKey(id)) {
-                    viewModel.addAlertInfo(
-                        id,
-                        SetAlertData(
-                            getLatest_time(hmapLastedDate[id]!!),
-                            tmp.modelByte.toInt(),
-                            tmp.id,
-                            "산소농도 정상",
-                            tmp.port,
-                            false
-                        )
-                    )
-                    if (alertMap.containsKey(id)) {
-                        alertMap.remove(id)
-                    }
+                    alertMap.remove(id)
                 }
             }
         }
+
+//        else {
+//            if (tmp.setMaxValue < oxygenValue) {
+//                if (!preError) {
+//                    hmapErrorOxygen[id] = true
+//                    return
+//                }
+//
+//                tmp.isAlert = true
+//                if (alertMap[id] == null) {
+//                    alertMap.put(id, true)
+//                    viewModel.addAlertInfo(
+//                        id,
+//                        SetAlertData(
+//                            getLatest_time(hmapLastedDate[id]!!),
+//                            tmp.modelByte.toInt(),
+//                            tmp.id,
+//                            "산소농도 상한 값 ($oxygenValue)",
+//                            tmp.port,
+//                            true
+//                        )
+//                    )
+//                }
+//            } else {
+//                tmp.isAlert = false
+//                hmapErrorOxygen.remove(id)
+//
+//                if (alertMap.containsKey(id)) {
+//                    viewModel.addAlertInfo(
+//                        id,
+//                        SetAlertData(
+//                            getLatest_time(hmapLastedDate[id]!!),
+//                            tmp.modelByte.toInt(),
+//                            tmp.id,
+//                            "산소농도 정상",
+//                            tmp.port,
+//                            false
+//                        )
+//                    )
+//                    if (alertMap.containsKey(id)) {
+//                        alertMap.remove(id)
+//                    }
+//                }
+//            }
+//        }
 
         val bro = setAQport[id] as SetOxygenViewData
         bro.setValue = tmp.setValue
