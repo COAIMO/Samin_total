@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
+import com.coai.samin_total.Dialog.ScanAlertDialogFragment
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.databinding.FragmentAqSettingBinding
@@ -31,6 +32,7 @@ class AqSettingFragment : Fragment() {
     private val viewmodel: MainViewModel by activityViewModels()
     lateinit var progress_Dialog: ProgressDialog
     lateinit var sendThread: Thread
+    private val scanAlertDialogFragment = ScanAlertDialogFragment()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -119,99 +121,15 @@ class AqSettingFragment : Fragment() {
                 activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
             }
             mBinding.btnScan -> {
-                scanModel()
-            }
-        }
-
-    }
-    private fun scanModel() {
-        getProgressShow()
-        sendThread = Thread {
-            try {
-                viewmodel.isScanmode = true
-                activity?.deleteExDataSet()
-                activity?.feedBackThreadInterrupt()
-                for (model in 1..5) {
-                    for (id in 0..7) {
-                        for (count in 0..2) {
-                            val protocol = SaminProtocol()
-                            protocol.checkModel(model.toByte(), id.toByte())
-//                            activity?.serialService?.sendData(protocol.mProtocol)
-                            sendAlertProtocol(protocol.mProtocol)
-                            Thread.sleep(40)
-                        }
-                    }
+                if (!scanAlertDialogFragment.isAdded) {
+                    scanAlertDialogFragment.show(parentFragmentManager, "")
                 }
-                Thread.sleep(400)
-                viewmodel.isScanmode = false
 
-            } catch (e: Exception) {
             }
-
-            activity?.runOnUiThread {
-                if (viewmodel.modelMap.isEmpty()) {
-                    Toast.makeText(requireContext(), "연결된 AQ보드가 없습니다.", Toast.LENGTH_SHORT).show()
-                }
-                initView()
-            }
-//            createHasKey()
-            if (!activity?.isSending!!) {
-                activity?.callFeedback()
-                activity?.isSending = true
-            }
-            shared.saveHashMap(viewmodel.modelMap)
-            getProgressHidden()
-
         }
-        sendThread.start()
 
     }
-    private fun getProgressShow() {
-        try {
-            val str_tittle = "Please Wait ..."
-            val str_message = "잠시만 기다려주세요 ...\n진행 중입니다 ..."
-            val str_buttonOK = "종료"
-            val str_buttonNO = "취소"
 
-            progress_Dialog = ProgressDialog(context)
-            progress_Dialog.setTitle(str_tittle) //팝업창 타이틀 지정
-            progress_Dialog.setIcon(R.mipmap.samin_launcher_ic) //팝업창 아이콘 지정
-            progress_Dialog.setMessage(str_message) //팝업창 내용 지정
-            progress_Dialog.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
-            progress_Dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER) //프로그레스 원형 표시 설정
-            progress_Dialog.setButton(
-                DialogInterface.BUTTON_POSITIVE,
-                str_buttonOK,
-                DialogInterface.OnClickListener { dialog, which ->
-                    try {
-                        sendThread.interrupt()
-                        viewmodel.removeModelMap()
-                        getProgressHidden()
-                    } catch (e: Exception) {
-                    }
-                })
-
-            try {
-                progress_Dialog.show()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-    private fun sendAlertProtocol(data: ByteArray) {
-        activity?.sendProtocolToSerial(data)
-    }
-
-    private fun getProgressHidden() {
-        try {
-            progress_Dialog.dismiss()
-            progress_Dialog.cancel()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
     companion object {
         /**
          * Use this factory method to create a new instance of

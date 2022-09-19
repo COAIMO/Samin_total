@@ -69,145 +69,125 @@ class AlertDialogFragment : DialogFragment() {
         when (model) {
             "Main" -> {
                 mBinding.tvTitle.setText(R.string.title_event_log)
-//                for (i in viewmodel.alertInfo.value!!) {
-//                    alertData.add(i)
-//                    recycleAdapter.submitList(alertData)
+//                for ((key, value) in viewmodel.alertMap) {
+//                    val aqInfo = HexDump.toByteArray(key)
+//                    val portNum = aqInfo[1]
+//                    val id = aqInfo[2]
+//                    val model = aqInfo[3]
+//
+//                    if (value.isAlert) {
+//                        alertData.add(value)
+//                        recycleAdapter.submitList(alertData)
+//                    }
 //                }
-
-                for ((key, value) in viewmodel.alertMap) {
-                    val aqInfo = HexDump.toByteArray(key)
-                    val portNum = aqInfo[1]
-                    val id = aqInfo[2]
-                    val model = aqInfo[3]
-
-                    if (value.isAlert) {
-                        alertData.add(value)
-                        recycleAdapter.submitList(alertData)
-                    }
+                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
+                    recycleAdapter.submitList(it)
+                    recycleAdapter.notifyDataSetChanged()
                 }
             }
             "GasStorage" -> {
                 mBinding.tvTitle.setText(R.string.title_gasstorage_event_log)
-//                for (i in viewmodel.alertInfo.value!!) {
-//                    if (i.model == 1) {
-//                        alertData.add(i)
-//                        recycleAdapter.submitList(alertData)
+//                for ((key, value) in viewmodel.alertMap) {
+//                    val aqInfo = HexDump.toByteArray(key)
+//                    val model = aqInfo[3]
+//                    if (model == 1.toByte()) {
+//                        if (value.isAlert) {
+//                            alertData.add(value)
+//                            recycleAdapter.submitList(alertData)
+//                        }
 //                    }
 //                }
-                for ((key, value) in viewmodel.alertMap) {
-                    val aqInfo = HexDump.toByteArray(key)
-                    val model = aqInfo[3]
-                    if (model == 1.toByte()) {
-                        if (value.isAlert) {
-                            alertData.add(value)
-                            recycleAdapter.submitList(alertData)
-                        }
+                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
+                    val item = it.filter {
+                        it.model == 1
                     }
-
+                    recycleAdapter.submitList(item)
+                    recycleAdapter.notifyDataSetChanged()
                 }
             }
             "GasRoom" -> {
                 mBinding.tvTitle.setText(R.string.title_gasroom_event_log)
-//                for (i in viewmodel.alertInfo.value!!) {
-//                    if (i.model == 2) {
-//                        alertData.add(i)
-//                        recycleAdapter.submitList(alertData)
+//                for ((key, value) in viewmodel.alertMap) {
+//                    val aqInfo = HexDump.toByteArray(key)
+//                    val model = aqInfo[3]
+//                    if (model == 2.toByte()) {
+//                        if (value.isAlert) {
+//                            alertData.add(value)
+//                            recycleAdapter.submitList(alertData)
+//                        }
 //                    }
 //                }
-                for ((key, value) in viewmodel.alertMap) {
-                    val aqInfo = HexDump.toByteArray(key)
-                    val model = aqInfo[3]
-                    if (model == 2.toByte()) {
-                        if (value.isAlert) {
-                            alertData.add(value)
-                            recycleAdapter.submitList(alertData)
-                        }
+                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
+                    val item = it.filter {
+                        it.model == 2
                     }
-
+                    recycleAdapter.submitList(item)
+                    recycleAdapter.notifyDataSetChanged()
                 }
             }
             "WasteLiquor" -> {
                 mBinding.tvTitle.setText(R.string.title_wasteliquor_event_log)
-//                for (i in viewmodel.alertInfo.value!!) {
-//                    if (i.model == 3) {
-//                        alertData.add(i)
-//                        recycleAdapter.submitList(alertData)
+//                for ((key, value) in viewmodel.alertMap) {
+//                    val aqInfo = HexDump.toByteArray(key)
+//                    val model = aqInfo[3]
+//                    if (model == 3.toByte()) {
+//                        if (value.isAlert) {
+//                            alertData.add(value)
+//                            recycleAdapter.submitList(alertData)
+//                        }
 //                    }
 //                }
-
-                for ((key, value) in viewmodel.alertMap) {
-                    val aqInfo = HexDump.toByteArray(key)
-                    val model = aqInfo[3]
-                    if (model == 3.toByte()) {
-                        if (value.isAlert) {
-                            alertData.add(value)
-                            recycleAdapter.submitList(alertData)
-                        }
+                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
+                    val item = it.filter {
+                        it.model == 3
                     }
+                    recycleAdapter.submitList(item)
+                    recycleAdapter.notifyDataSetChanged()
                 }
             }
             "Oxygen" -> {
                 mBinding.tvTitle.setText(R.string.title_oxygen_event_log)
-                // 디스플레이용 리스트 만들고
-//                val tmpList = ArrayList<SetAlertData>()
-                // 디스플레이용 현재 데이터 생성
-
-//                for ((key, value) in viewmodel.oxygensData) {
+//                for ((key, value) in viewmodel.alertMap) {
 //                    val aqInfo = HexDump.toByteArray(key)
-//                    val model = aqInfo[3].toInt()
-//                    val oxyid = aqInfo[2].toInt()
-//                    val port = aqInfo[1].toInt()
-//                    tmpList.add(
-//                        SetAlertData(
-//                            getLatest_time(System.currentTimeMillis()),
-//                            model,
-//                            oxyid,
-//                            "현재 산소농도:${value.setValue}",
-//                            port,
-//                            false
-//                        )
-//                    )
+//                    val model = aqInfo[3]
+//                    if (model == 4.toByte()) {
+//                        if (value.isAlert) {
+//                            alertData.add(value)
+//                            recycleAdapter.submitList(alertData)
+//                        }
+//                    }
 //                }
-                for ((key, value) in viewmodel.alertMap) {
-                    val aqInfo = HexDump.toByteArray(key)
-                    val model = aqInfo[3]
-                    if (model == 4.toByte()) {
-                        if (value.isAlert) {
-                            alertData.add(value)
-                            recycleAdapter.submitList(alertData)
-                        }
-                    }
 
+                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
+                    val item = it.filter {
+                        it.model == 4
+                    }
+                    recycleAdapter.submitList(item)
+                    recycleAdapter.notifyDataSetChanged()
                 }
-                // 디스플레이용 리스트에 실제 알람 내용 추가
-//                for (i in alertData)
-//                    tmpList.add(i)
-////                아답타에 디스플레이용 리스트 submitList
-//                recycleAdapter.submitList(tmpList)
             }
             "Steamer" -> {
                 mBinding.tvTitle.setText(R.string.title_steamer_event_log)
-//                for (i in viewmodel.alertInfo.value!!) {
-//                    if (i.model == 5) {
-//                        alertData.add(i)
-//                        recycleAdapter.submitList(alertData)
+//                for ((key, value) in viewmodel.alertMap) {
+//                    val aqInfo = HexDump.toByteArray(key)
+//                    val model = aqInfo[3]
+//                    if (model == 5.toByte()) {
+//                        if (value.isAlert) {
+//                            alertData.add(value)
+//                            recycleAdapter.submitList(alertData)
+//                        }
 //                    }
 //                }
-                for ((key, value) in viewmodel.alertMap) {
-                    val aqInfo = HexDump.toByteArray(key)
-                    val model = aqInfo[3]
-                    if (model == 5.toByte()) {
-                        if (value.isAlert) {
-                            alertData.add(value)
-                            recycleAdapter.submitList(alertData)
-                        }
+                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
+                    val item = it.filter {
+                        it.model == 5
                     }
+                    recycleAdapter.submitList(item)
+                    recycleAdapter.notifyDataSetChanged()
 
                 }
             }
         }
-        recycleAdapter.notifyDataSetChanged()
-
     }
 
     private fun initRecycler() {

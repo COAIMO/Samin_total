@@ -38,7 +38,9 @@ class PasswordDialogFragment : DialogFragment() {
 
     override fun onDetach() {
         super.onDetach()
+        mBinding.etPassword.text!!.clear()
         activity = null
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

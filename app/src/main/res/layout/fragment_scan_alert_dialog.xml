@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Dialog.ScanAlertDialogFragment">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_alert"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/onalert_ic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.1" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_alert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="스캔 진행시 설정값이 초기화 됩니다.\n AQ스캔 진행하시겠습니까?"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_alert" />
+
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_okay"
+        style="@style/saveButton"
+        android:layout_marginHorizontal="20dp"
+        android:text="진행"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_cancel"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_alert"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_cancel"
+        style="@style/cancelButton"
+        android:layout_marginHorizontal="20dp"
+        android:text="@string/text_cancel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_okay"
+        app:layout_constraintTop_toTopOf="@id/btn_okay" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
