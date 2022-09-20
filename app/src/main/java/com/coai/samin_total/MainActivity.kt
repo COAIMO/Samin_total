@@ -261,9 +261,10 @@ class MainActivity : AppCompatActivity() {
 //        GlobalUiTimer.getInstance().activity = this
 //        if (mainViewModel.controlData.useSettingShare)
 //        sendSettingValues()
-        if (BuildConfig.DEBUG) {
-            mainViewModel.isSoundAlert = false
-        }
+
+//        if (BuildConfig.DEBUG) {
+//            mainViewModel.isSoundAlert = false
+//        }
 
 //        if (mainViewModel.controlData.useModbusRTU) {
 ////            mainViewModel.modbusService?.resetProcessImage(mainViewModel.controlData.modbusRTUID)
@@ -686,13 +687,13 @@ class MainActivity : AppCompatActivity() {
                         diffkeys.remove(ledkey)
 
 //                        tmpBits = tmpBits or (1 shl (port - 1)).toByte()
-                        if (model == 4.toByte()){
+                        if (model == 4.toByte()) {
                             tmpBits = 0b11111
-                        }else if (model == 5.toByte()){
+                        } else if (model == 5.toByte()) {
                             tmpBits = tmpBits or (3 shl (port - 1)).toByte()
-                                Log.d("LED", "tmpBits 2 = ${tmpBits}")
+                            Log.d("LED", "tmpBits 2 = ${tmpBits}")
 
-                        }else{
+                        } else {
                             tmpBits = tmpBits or (1 shl (port - 1)).toByte()
                         }
                         if (id == 8.toByte())
@@ -1539,7 +1540,7 @@ class MainActivity : AppCompatActivity() {
 
     var popUpThread: Thread? = null
     var isPopUp = false
-     fun popUpAlertSend() {
+    fun popUpAlertSend() {
         popUpThread?.interrupt()
         popUpThread?.join()
         isPopUp = true
@@ -1574,50 +1575,102 @@ class MainActivity : AppCompatActivity() {
                                                 mainViewModel.addPopupMap(key, value)
                                                 mainViewModel.popUpDataLiveList.add(value)
                                                 mainViewModel.popUpDataLiveList.notifyChange()
-                                            }
-                                            if (!alertPopUpFragment.isAdded) {
+//                                            if (!alertPopUpFragment.isAdded) {
+//                                                if (setFragment != MainViewModel.MAINFRAGMENT) {
+//                                                    when (value.model) {
+//                                                        1 -> {
+//                                                            if (setFragment != MainViewModel.GASDOCKMAINFRAGMENT) {
+//                                                                alertPopUpFragment.show(
+//                                                                    supportFragmentManager,
+//                                                                    ""
+//                                                                )
+//                                                            }
+//                                                        }
+//                                                        2 -> {
+//                                                            if (setFragment != MainViewModel.GASROOMMAINFRAGMENT) {
+//                                                                alertPopUpFragment.show(
+//                                                                    supportFragmentManager,
+//                                                                    ""
+//                                                                )
+//                                                            }
+//                                                        }
+//                                                        3 -> {
+//                                                            if (setFragment != MainViewModel.WASTELIQUORMAINFRAGMENT) {
+//                                                                alertPopUpFragment.show(
+//                                                                    supportFragmentManager,
+//                                                                    ""
+//                                                                )
+//                                                            }
+//                                                        }
+//                                                        4 -> {
+//                                                            if (setFragment != MainViewModel.OXYGENMAINFRAGMENT) {
+//                                                                alertPopUpFragment.show(
+//                                                                    supportFragmentManager,
+//                                                                    ""
+//                                                                )
+//                                                            }
+//                                                        }
+//                                                        5 -> {
+//                                                            if (setFragment != MainViewModel.STEAMERMAINFRAGMENT) {
+//                                                                alertPopUpFragment.show(
+//                                                                    supportFragmentManager,
+//                                                                    ""
+//                                                                )
+//                                                            }
+//                                                        }
+//
+//                                                    }
+//                                                }
+//                                            }
+
                                                 if (setFragment != MainViewModel.MAINFRAGMENT) {
                                                     when (value.model) {
                                                         1 -> {
                                                             if (setFragment != MainViewModel.GASDOCKMAINFRAGMENT) {
-                                                                alertPopUpFragment.show(
-                                                                    supportFragmentManager,
-                                                                    ""
-                                                                )
+                                                                if (!alertPopUpFragment.isAdded)
+                                                                    alertPopUpFragment.show(
+                                                                        supportFragmentManager,
+                                                                        ""
+                                                                    )
                                                             }
                                                         }
                                                         2 -> {
                                                             if (setFragment != MainViewModel.GASROOMMAINFRAGMENT) {
-                                                                alertPopUpFragment.show(
-                                                                    supportFragmentManager,
-                                                                    ""
-                                                                )
+                                                                if (!alertPopUpFragment.isAdded)
+                                                                    alertPopUpFragment.show(
+                                                                        supportFragmentManager,
+                                                                        ""
+                                                                    )
                                                             }
                                                         }
                                                         3 -> {
                                                             if (setFragment != MainViewModel.WASTELIQUORMAINFRAGMENT) {
-                                                                alertPopUpFragment.show(
-                                                                    supportFragmentManager,
-                                                                    ""
-                                                                )
+                                                                if (!alertPopUpFragment.isAdded)
+                                                                    alertPopUpFragment.show(
+                                                                        supportFragmentManager,
+                                                                        ""
+                                                                    )
                                                             }
                                                         }
                                                         4 -> {
                                                             if (setFragment != MainViewModel.OXYGENMAINFRAGMENT) {
-                                                                alertPopUpFragment.show(
-                                                                    supportFragmentManager,
-                                                                    ""
-                                                                )
+                                                                if (!alertPopUpFragment.isAdded)
+                                                                    alertPopUpFragment.show(
+                                                                        supportFragmentManager,
+                                                                        ""
+                                                                    )
                                                             }
                                                         }
                                                         5 -> {
                                                             if (setFragment != MainViewModel.STEAMERMAINFRAGMENT) {
-                                                                alertPopUpFragment.show(
-                                                                    supportFragmentManager,
-                                                                    ""
-                                                                )
+                                                                if (!alertPopUpFragment.isAdded)
+                                                                    alertPopUpFragment.show(
+                                                                        supportFragmentManager,
+                                                                        ""
+                                                                    )
                                                             }
                                                         }
+
 
                                                     }
                                                 }
@@ -1655,7 +1708,7 @@ class MainActivity : AppCompatActivity() {
 
                     Thread.sleep(200)
 
-                }catch (e:Exception){
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
@@ -1665,6 +1718,7 @@ class MainActivity : AppCompatActivity() {
         popUpThread?.start()
 
     }
+
     fun popUpThreadInterrupt() {
         isPopUp = false
         popUpThread?.interrupt()

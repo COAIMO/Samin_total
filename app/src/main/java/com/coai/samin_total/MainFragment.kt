@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -252,6 +254,9 @@ class MainFragment : Fragment() {
         mBinding.btnSound.setOnClickListener {
             onClick(mBinding.btnSound)
         }
+        mBinding.labsislogo.setOnClickListener {
+            onClick(it)
+        }
     }
 
     private fun onClick(view: View) {
@@ -290,6 +295,10 @@ class MainFragment : Fragment() {
                     mBinding.btnSound.setImageResource(R.drawable.sound_ic)
                     viewmodel.isSoundAlert = true
                 }
+            }
+            mBinding.labsislogo ->{
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.saminsci.com/"))
+                startActivity(intent)
             }
         }
     }
