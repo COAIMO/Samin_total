@@ -32,14 +32,14 @@ class PasswordDialogFragment : DialogFragment() {
     var activity: MainActivity? = null
 
     override fun onAttach(context: Context) {
-        super.onAttach(context)
         activity = getActivity() as MainActivity
+        super.onAttach(context)
     }
 
     override fun onDetach() {
-        super.onDetach()
         mBinding.etPassword.text!!.clear()
         activity = null
+        super.onDetach()
 
     }
 
@@ -58,6 +58,7 @@ class PasswordDialogFragment : DialogFragment() {
         mBinding = FragmentPasswordDialogBinding.inflate(inflater, container, false)
 
         mBinding.btnCancel.setOnClickListener {
+            mBinding.etPassword.text!!.clear()
             dialog?.dismiss()
         }
 
@@ -76,6 +77,7 @@ class PasswordDialogFragment : DialogFragment() {
                 Toast.makeText(context, "잘못된 비밀번호 입니다.", Toast.LENGTH_SHORT).show()
                 dialog?.dismiss()
             }
+            mBinding.etPassword.text!!.clear()
         }
 
         return mBinding.root

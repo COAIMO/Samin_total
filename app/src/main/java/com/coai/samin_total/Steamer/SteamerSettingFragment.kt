@@ -162,10 +162,13 @@ class SteamerSettingFragment : Fragment() {
         for ((key, ids) in viewmodel.modelMap) {
             //indices 배열을 인덱스 범위
             if (key == "Steamer") {
+//                for (id in ids.indices) {
+//                    for (port in 1..2) {
+//                        setSteamerInfo.add(SetSteamerViewData(key, ids.get(id).toInt(), port))
+//                    }
+//                }
                 for (id in ids.indices) {
-                    for (port in 1..2) {
-                        setSteamerInfo.add(SetSteamerViewData(key, ids.get(id).toInt(), port))
-                    }
+                    setSteamerInfo.add(SetSteamerViewData(key, ids.get(id).toInt(), port = 1))
                 }
             }
         }

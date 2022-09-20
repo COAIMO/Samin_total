@@ -188,6 +188,7 @@ class AlertDialogFragment : DialogFragment() {
                 }
             }
         }
+//        recycleAdapter.notifyDataSetChanged()
     }
 
     private fun initRecycler() {

@@ -664,8 +664,10 @@ class MainActivity : AppCompatActivity() {
                                 continue
 
                             var tmpBits = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+//                                Log.d("LED", "tmpBits 1 = ${tmpBits}")
                             if (tmpBits and (1 shl (port - 1)).toByte() > 0) {
                                 tmpBits = tmpBits xor (1 shl (port - 1)).toByte()
+//                                Log.d("LED", "tmpBits 2 = ${tmpBits}")
                                 currentLedState[ledkey] = tmpBits
                                 mainViewModel.portAlertMapLed[ledkey] = tmpBits
 
@@ -683,12 +685,22 @@ class MainActivity : AppCompatActivity() {
 
                         diffkeys.remove(ledkey)
 
-                        tmpBits = tmpBits or (1 shl (port - 1)).toByte()
-//                        mainViewModel.portAlertMapLed[ledkey] = tmpBits
+//                        tmpBits = tmpBits or (1 shl (port - 1)).toByte()
+                        if (model == 4.toByte()){
+                            tmpBits = 0b11111
+                        }else if (model == 5.toByte()){
+                            tmpBits = tmpBits or (3 shl (port - 1)).toByte()
+                                Log.d("LED", "tmpBits 2 = ${tmpBits}")
+
+                        }else{
+                            tmpBits = tmpBits or (1 shl (port - 1)).toByte()
+                        }
+
                         if (id == 8.toByte())
                             continue
 
                         currentLedState[ledkey] = tmpBits
+
                     }
 
                     // 경고 처리
@@ -702,9 +714,11 @@ class MainActivity : AppCompatActivity() {
                                 id = (k.toInt() shr 8 and 0xFF).toByte()
                                 model = (k and 0xFF).toByte()
                                 val tmplast = mainViewModel.portAlertMapLed[k] ?: 0b10000.toByte()
+//                                Log.d("LED", "tmplast = ${tmplast}")
                                 if (v > tmplast) {
                                     for (cnt in 0..1) {
                                         protocol.led_AlertStateByte(model, id, v)
+//                                        Log.d("LED", "v = ${v}")
                                         sendProtocolToSerial(protocol.mProtocol.clone())
                                         Thread.sleep(5)
                                     }
@@ -1627,7 +1641,7 @@ class MainActivity : AppCompatActivity() {
                                         mainViewModel.popUpDataLiveList.remove(exContent[key]!!)
                                         mainViewModel.popUpDataLiveList.notifyChange()
                                         exContent.remove(key)
-                                    }catch (e:Exception){
+                                    } catch (e: Exception) {
                                         e.printStackTrace()
                                     }
                                 }
