@@ -69,6 +69,7 @@ class OxygenMainFragment : Fragment() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 //        viewmodel = ViewModelProvider(this).get(OxygenViewModel::class.java)

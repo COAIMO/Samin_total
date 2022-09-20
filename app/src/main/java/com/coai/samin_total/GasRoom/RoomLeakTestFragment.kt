@@ -444,6 +444,7 @@ class RoomLeakTestFragment : Fragment() {
     }
 
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == CREATE_FILE && resultCode == Activity.RESULT_OK) {
             GlobalScope.launch {
