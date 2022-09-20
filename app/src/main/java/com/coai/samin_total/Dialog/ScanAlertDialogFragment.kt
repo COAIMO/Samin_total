@@ -11,11 +11,16 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import com.coai.samin_total.GasDock.SetGasStorageViewData
+import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
+import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.R
+import com.coai.samin_total.Steamer.SetSteamerViewData
+import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentScanAlertDialogBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -98,11 +103,13 @@ class ScanAlertDialogFragment : DialogFragment() {
 
     private fun scanModel() {
         getProgressShow()
+        activity?.popUpThreadInterrupt()
+        viewmodel.clearPopUP()
         sendThread = Thread {
             try {
                 viewmodel.isScanmode = true
-                activity?.deleteExDataSet()
-                activity?.feedBackThreadInterrupt()
+                    activity?.deleteExDataSet()
+                    activity?.feedBackThreadInterrupt()
                 for (model in 1..5) {
                     for (id in 0..7) {
                         for (count in 0..2) {
@@ -118,6 +125,7 @@ class ScanAlertDialogFragment : DialogFragment() {
                 viewmodel.isScanmode = false
 
             } catch (e: Exception) {
+                e.printStackTrace()
             }
 
             activity?.runOnUiThread {
@@ -128,10 +136,15 @@ class ScanAlertDialogFragment : DialogFragment() {
                     dismiss()
                     (requireActivity() as MainActivity).onFragmentChange(MainViewModel.MAINFRAGMENT)
                 }
+                clearLiveData()
             }
             if (!activity?.isSending!!) {
                 activity?.callFeedback()
                 activity?.isSending = true
+            }
+            if (!activity?.isPopUp!!){
+                activity?.popUpAlertSend()
+                activity?.isPopUp = true
             }
             shared.saveHashMap(viewmodel.modelMap)
             getProgressHidden()
@@ -140,7 +153,135 @@ class ScanAlertDialogFragment : DialogFragment() {
         sendThread.start()
 
     }
+    private fun clearLiveData(){
+        if (!shared.loadHashMap().isNullOrEmpty()) {
+            shared.loadHashMap().forEach { (key, value) ->
+                viewmodel.modelMap[key] = value
+                var id = when {
+                    key.equals("GasDock") -> 1
+                    key.equals("GasRoom") -> 2
+                    key.equals("WasteLiquor") -> 3
+                    key.equals("Oxygen") -> 4
+                    key.equals("Steamer") -> 5
+                    else -> 1
+                }
 
+                viewmodel.modelMapInt[id] = value.clone()
+            }
+
+            val storgeDataSet =
+                shared.loadBoardSetData(SaminSharedPreference.GASSTORAGE) as MutableList<SetGasStorageViewData>
+            viewmodel.GasStorageDataLiveList.clear(true)
+            if (storgeDataSet.isNotEmpty()) {
+                for (i in storgeDataSet) {
+                    viewmodel.GasStorageDataLiveList.add(i)
+                }
+            }
+
+            viewmodel.GasRoomDataLiveList.clear(true)
+            val roomDataSet =
+                shared.loadBoardSetData(SaminSharedPreference.GASROOM) as MutableList<SetGasRoomViewData>
+            if (roomDataSet.isNotEmpty()) {
+                for (i in roomDataSet) {
+                    viewmodel.GasRoomDataLiveList.add(i)
+                }
+            }
+
+            viewmodel.OxygenDataLiveList.clear(true)
+            val oxygenDataSet =
+                shared.loadBoardSetData(SaminSharedPreference.OXYGEN) as MutableList<SetOxygenViewData>
+            if (oxygenDataSet.isNotEmpty()) {
+                for (i in oxygenDataSet) {
+                    viewmodel.OxygenDataLiveList.add(i)
+                }
+            }
+
+            viewmodel.SteamerDataLiveList.clear(true)
+            val steamerDataSet =
+                shared.loadBoardSetData(SaminSharedPreference.STEAMER) as MutableList<SetSteamerViewData>
+            if (steamerDataSet.isNotEmpty()) {
+                for (i in steamerDataSet) {
+                    viewmodel.SteamerDataLiveList.add(i)
+                }
+            }
+
+            viewmodel.WasteLiquorDataLiveList.clear(true)
+            val wasteDataSet =
+                shared.loadBoardSetData(SaminSharedPreference.WASTELIQUOR) as MutableList<SetWasteLiquorViewData>
+            if (wasteDataSet.isNotEmpty()) {
+                for (i in wasteDataSet) {
+                    viewmodel.WasteLiquorDataLiveList.add(i)
+                }
+            }
+
+//            viewmodel.oxygenMasterData = null
+//            viewmodel.oxygensData.clear()
+//            val tmpobj =
+//                shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)
+//            if (tmpobj is SetOxygenViewData) {
+//                viewmodel.oxygenMasterData = tmpobj
+//            }
+//            val oxygenMasterDataSet =
+//                (shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)) as SetOxygenViewData
+
+            activity?.isSending = true
+            activity?.tmp?.LoadSetting()
+            activity?.callFeedback()
+            activity?.callTimemout()
+
+        }
+        createHasKey()
+    }
+    private fun createHasKey() {
+        for ((key, value) in viewmodel.modelMapInt) {
+            val model = key.toByte()
+            for (i in value) {
+                val id = i
+                if (key == 1 || key == 2 || key == 3) {
+                    for (port in 1..4) {
+                        val createkey =
+                            littleEndianConversion(
+                                byteArrayOf(
+                                    model,
+                                    id,
+                                    port.toByte()
+                                )
+                            )
+                        viewmodel.hasKey.put(createkey, createkey)
+                    }
+                } else if (key == 4) {
+                    val createkey =
+                        littleEndianConversion(
+                            byteArrayOf(
+                                model,
+                                id,
+                                1.toByte()
+                            )
+                        )
+                    viewmodel.hasKey.put(createkey, createkey)
+                } else if (key == 5) {
+                    for (port in 1..2) {
+                        val createkey =
+                            littleEndianConversion(
+                                byteArrayOf(
+                                    model,
+                                    id,
+                                    port.toByte()
+                                )
+                            )
+                        viewmodel.hasKey.put(createkey, createkey)
+                    }
+                }
+            }
+        }
+    }
+    private fun littleEndianConversion(bytes: ByteArray): Int {
+        var result = 0
+        for (i in bytes.indices) {
+            result = result or (bytes[i].toUByte().toInt() shl 8 * i)
+        }
+        return result
+    }
     private fun getProgressShow() {
         try {
             val str_tittle = "Please Wait ..."

@@ -511,8 +511,6 @@ class MainFragment : Fragment() {
         mBinding.wasteLiquorMainStatusLayout.invalidate()
         mBinding.oxygenMainStatusLayout.invalidate()
         mBinding.steamerMainStatusLayout.invalidate()
-
-
     }
 
     private fun getProgressShow() {

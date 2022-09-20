@@ -463,5 +463,10 @@ class MainViewModel : ViewModel() {
 
     val popUpDataLiveList = MutableListLiveData<SetAlertData>()
 
+    fun clearPopUP(){
+        popUpHashMap.clear()
+        _popUpList.value?.clear()
+        popUpDataLiveList.clear(true)
+    }
 }
 

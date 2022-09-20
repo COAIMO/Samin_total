@@ -695,7 +695,6 @@ class MainActivity : AppCompatActivity() {
                         }else{
                             tmpBits = tmpBits or (1 shl (port - 1)).toByte()
                         }
-
                         if (id == 8.toByte())
                             continue
 
@@ -1539,127 +1538,137 @@ class MainActivity : AppCompatActivity() {
     }
 
     var popUpThread: Thread? = null
-    private fun popUpAlertSend() {
+    var isPopUp = false
+     fun popUpAlertSend() {
         popUpThread?.interrupt()
         popUpThread?.join()
-
+        isPopUp = true
         popUpThread = Thread {
             val protocol = SaminProtocol()
             val alertchanged = ArrayList<Short>()
             val alertchangedRemind = ArrayList<Short>()
             val exContent = ConcurrentHashMap<Int, SetAlertData>()
             var prevAlertOxygen: Boolean = false
-            while (true) {
+            while (isPopUp) {
+                try {
+                    val elapsed: Long = measureTimeMillis {
 
-                val elapsed: Long = measureTimeMillis {
+                        alertchanged.clear()
+                        alertchangedRemind.clear()
 
-                    alertchanged.clear()
-                    alertchangedRemind.clear()
+                        for ((key, value) in mainViewModel.alertMap) {
+                            Log.d("팝업", "key = ${key}, value:${value}")
+                            val aqInfo = HexDump.toByteArray(key)
+                            val model = aqInfo[3]
+                            val id = aqInfo[2]
+                            val port = aqInfo[1]
 
-                    for ((key, value) in mainViewModel.alertMap) {
-                        Log.d("팝업", "key = ${key}, value:${value}")
-                        val aqInfo = HexDump.toByteArray(key)
-                        val model = aqInfo[3]
-                        val id = aqInfo[2]
-                        val port = aqInfo[1]
-
-                        if (!exContent.containsKey(key)) {
-                            if (value.isAlert) {
-                                exContent[key] = value
-                                runOnUiThread {
-                                    try {
+                            if (!exContent.containsKey(key)) {
+                                if (value.isAlert) {
+                                    exContent[key] = value
+                                    runOnUiThread {
+                                        try {
 //                                        mainViewModel.addPopUpList(value)
-                                        Log.d("라이브11", "${value}")
-                                        runOnUiThread {
-                                            mainViewModel.addPopupMap(key, value)
-                                            mainViewModel.popUpDataLiveList.add(value)
-                                            mainViewModel.popUpDataLiveList.notifyChange()
-                                        }
-                                        if (!alertPopUpFragment.isAdded) {
-                                            if (setFragment != MainViewModel.MAINFRAGMENT) {
-                                                when (value.model) {
-                                                    1 -> {
-                                                        if (setFragment != MainViewModel.GASDOCKMAINFRAGMENT) {
-                                                            alertPopUpFragment.show(
-                                                                supportFragmentManager,
-                                                                ""
-                                                            )
+                                            Log.d("라이브11", "${value}")
+                                            runOnUiThread {
+                                                mainViewModel.addPopupMap(key, value)
+                                                mainViewModel.popUpDataLiveList.add(value)
+                                                mainViewModel.popUpDataLiveList.notifyChange()
+                                            }
+                                            if (!alertPopUpFragment.isAdded) {
+                                                if (setFragment != MainViewModel.MAINFRAGMENT) {
+                                                    when (value.model) {
+                                                        1 -> {
+                                                            if (setFragment != MainViewModel.GASDOCKMAINFRAGMENT) {
+                                                                alertPopUpFragment.show(
+                                                                    supportFragmentManager,
+                                                                    ""
+                                                                )
+                                                            }
                                                         }
-                                                    }
-                                                    2 -> {
-                                                        if (setFragment != MainViewModel.GASROOMMAINFRAGMENT) {
-                                                            alertPopUpFragment.show(
-                                                                supportFragmentManager,
-                                                                ""
-                                                            )
+                                                        2 -> {
+                                                            if (setFragment != MainViewModel.GASROOMMAINFRAGMENT) {
+                                                                alertPopUpFragment.show(
+                                                                    supportFragmentManager,
+                                                                    ""
+                                                                )
+                                                            }
                                                         }
-                                                    }
-                                                    3 -> {
-                                                        if (setFragment != MainViewModel.WASTELIQUORMAINFRAGMENT) {
-                                                            alertPopUpFragment.show(
-                                                                supportFragmentManager,
-                                                                ""
-                                                            )
+                                                        3 -> {
+                                                            if (setFragment != MainViewModel.WASTELIQUORMAINFRAGMENT) {
+                                                                alertPopUpFragment.show(
+                                                                    supportFragmentManager,
+                                                                    ""
+                                                                )
+                                                            }
                                                         }
-                                                    }
-                                                    4 -> {
-                                                        if (setFragment != MainViewModel.OXYGENMAINFRAGMENT) {
-                                                            alertPopUpFragment.show(
-                                                                supportFragmentManager,
-                                                                ""
-                                                            )
+                                                        4 -> {
+                                                            if (setFragment != MainViewModel.OXYGENMAINFRAGMENT) {
+                                                                alertPopUpFragment.show(
+                                                                    supportFragmentManager,
+                                                                    ""
+                                                                )
+                                                            }
                                                         }
-                                                    }
-                                                    5 -> {
-                                                        if (setFragment != MainViewModel.STEAMERMAINFRAGMENT) {
-                                                            alertPopUpFragment.show(
-                                                                supportFragmentManager,
-                                                                ""
-                                                            )
+                                                        5 -> {
+                                                            if (setFragment != MainViewModel.STEAMERMAINFRAGMENT) {
+                                                                alertPopUpFragment.show(
+                                                                    supportFragmentManager,
+                                                                    ""
+                                                                )
+                                                            }
                                                         }
-                                                    }
 
+                                                    }
                                                 }
                                             }
-                                        }
 //                                        if (mainViewModel.isPopUp.value == false) {
 //                                            mainViewModel.isPopUp.value = true
 //                                        }
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        if (exContent.containsKey(key)) {
-                            if (exContent[key]!!.isAlert != value.isAlert) {
-                                Log.d("라이브22", "${exContent[key]!!}")
-                                mainViewModel.removePopupMap(key, exContent[key]!!)
-                                runOnUiThread {
-                                    try {
-                                        mainViewModel.popUpDataLiveList.remove(exContent[key]!!)
-                                        mainViewModel.popUpDataLiveList.notifyChange()
-                                        exContent.remove(key)
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
+                            if (exContent.containsKey(key)) {
+                                if (exContent[key]!!.isAlert != value.isAlert) {
+                                    Log.d("라이브22", "${exContent[key]!!}")
+                                    mainViewModel.removePopupMap(key, exContent[key]!!)
+                                    runOnUiThread {
+                                        try {
+                                            mainViewModel.popUpDataLiveList.remove(exContent[key]!!)
+                                            mainViewModel.popUpDataLiveList.notifyChange()
+                                            exContent.remove(key)
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                        }
                                     }
-                                }
 //                                mainViewModel.addPopUpList(value)
+                                }
                             }
                         }
+
                     }
+                    Log.d("sendAlert", "measureTimeMillis : $elapsed")
 
+                    Thread.sleep(200)
+
+                }catch (e:Exception){
+                    e.printStackTrace()
                 }
-                Log.d("sendAlert", "measureTimeMillis : $elapsed")
-
-                Thread.sleep(200)
             }
 
         }
 
         popUpThread?.start()
 
+    }
+    fun popUpThreadInterrupt() {
+        isPopUp = false
+        popUpThread?.interrupt()
+        popUpThread?.join()
     }
 
 }
