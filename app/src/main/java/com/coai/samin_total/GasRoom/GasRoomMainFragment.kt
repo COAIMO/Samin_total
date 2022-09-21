@@ -210,7 +210,7 @@ class GasRoomMainFragment : Fragment() {
             }
         }
         mBinding.btnAlert.setOnClickListener {
-            alertdialogFragment = AlertDialogFragment()
+            alertdialogFragment = viewmodel.alertDialogFragment
             val bundle = Bundle()
             bundle.putString("model", "GasRoom")
             alertdialogFragment.arguments = bundle

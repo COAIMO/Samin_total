@@ -205,7 +205,7 @@ class WasteLiquorMainFragment : Fragment() {
 
         mBinding.btnAlert.setOnClickListener {
 //            udateAlert()
-            alertdialogFragment = AlertDialogFragment()
+            alertdialogFragment = viewmodel.alertDialogFragment
             val bundle = Bundle()
             bundle.putString("model", "WasteLiquor")
             alertdialogFragment.arguments = bundle

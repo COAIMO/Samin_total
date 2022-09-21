@@ -12,6 +12,7 @@ import com.coai.libmodbus.service.SaminModbusService
 import com.coai.libsaminmodbus.model.KeyUtils
 import com.coai.libsaminmodbus.model.ModelMonitorValues
 import com.coai.libsaminmodbus.model.ObserveModelMonitorValues
+import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
@@ -468,5 +469,10 @@ class MainViewModel : ViewModel() {
         _popUpList.value?.clear()
         popUpDataLiveList.clear(true)
     }
+
+    val alertDialogLiveData = MutableListLiveData<SetAlertData>()
+    val alertDialogFragment = AlertDialogFragment()
+    val saveConetMap = ConcurrentHashMap<Int, SetAlertData>()
+
 }
 

@@ -1550,6 +1550,7 @@ class MainActivity : AppCompatActivity() {
             val alertchangedRemind = ArrayList<Short>()
             val exContent = ConcurrentHashMap<Int, SetAlertData>()
             var prevAlertOxygen: Boolean = false
+            val saveContent = ConcurrentHashMap<Int, SetAlertData>()
             while (isPopUp) {
                 try {
                     val elapsed: Long = measureTimeMillis {
@@ -1558,69 +1559,54 @@ class MainActivity : AppCompatActivity() {
                         alertchangedRemind.clear()
 
                         for ((key, value) in mainViewModel.alertMap) {
-                            Log.d("팝업", "key = ${key}, value:${value}")
                             val aqInfo = HexDump.toByteArray(key)
                             val model = aqInfo[3]
                             val id = aqInfo[2]
                             val port = aqInfo[1]
+
+//                            runOnUiThread {
+//                                if (saveContent.containsKey(key)) {
+//                                    Log.d("팝업", "지울리스트 = ${saveContent[key]}")
+//
+////                                    saveContent[key]?.let {
+////                                        Log.d("팝업", "지울리스트 제거 = ${it}")
+////                                        mainViewModel.popUpDataLiveList.remove(it)
+////                                        mainViewModel.popUpDataLiveList.notifyChange()
+////                                    }
+//
+//                                    saveContent.remove(key)
+//                                }
+//                            }
 
                             if (!exContent.containsKey(key)) {
                                 if (value.isAlert) {
                                     exContent[key] = value
                                     runOnUiThread {
                                         try {
+
 //                                        mainViewModel.addPopUpList(value)
-                                            Log.d("라이브11", "${value}")
+                                            if (!mainViewModel.alertDialogFragment.isAdded) {
+                                                for (i in saveContent) {
+                                                    mainViewModel.popUpDataLiveList.remove(
+                                                        i.value
+                                                    )
+                                                }
+                                                mainViewModel.popUpDataLiveList.notifyChange()
+                                                saveContent.clear()
+                                            }else{
+                                                if (saveContent.containsKey(key)) {
+                                                    Log.d("팝업", "지울리스트 = ${saveContent[key]}")
+                                                    saveContent[key]?.let {
+                                                        Log.d("팝업", "지울리스트 제거 = ${it}")
+                                                        mainViewModel.popUpDataLiveList.remove(it)
+                                                        mainViewModel.popUpDataLiveList.notifyChange()
+                                                    }
+                                                    saveContent.remove(key)
+                                                }
+                                            }
                                             mainViewModel.addPopupMap(key, value)
                                             mainViewModel.popUpDataLiveList.add(value)
                                             mainViewModel.popUpDataLiveList.notifyChange()
-//                                            if (!alertPopUpFragment.isAdded) {
-//                                                if (setFragment != MainViewModel.MAINFRAGMENT) {
-//                                                    when (value.model) {
-//                                                        1 -> {
-//                                                            if (setFragment != MainViewModel.GASDOCKMAINFRAGMENT) {
-//                                                                alertPopUpFragment.show(
-//                                                                    supportFragmentManager,
-//                                                                    ""
-//                                                                )
-//                                                            }
-//                                                        }
-//                                                        2 -> {
-//                                                            if (setFragment != MainViewModel.GASROOMMAINFRAGMENT) {
-//                                                                alertPopUpFragment.show(
-//                                                                    supportFragmentManager,
-//                                                                    ""
-//                                                                )
-//                                                            }
-//                                                        }
-//                                                        3 -> {
-//                                                            if (setFragment != MainViewModel.WASTELIQUORMAINFRAGMENT) {
-//                                                                alertPopUpFragment.show(
-//                                                                    supportFragmentManager,
-//                                                                    ""
-//                                                                )
-//                                                            }
-//                                                        }
-//                                                        4 -> {
-//                                                            if (setFragment != MainViewModel.OXYGENMAINFRAGMENT) {
-//                                                                alertPopUpFragment.show(
-//                                                                    supportFragmentManager,
-//                                                                    ""
-//                                                                )
-//                                                            }
-//                                                        }
-//                                                        5 -> {
-//                                                            if (setFragment != MainViewModel.STEAMERMAINFRAGMENT) {
-//                                                                alertPopUpFragment.show(
-//                                                                    supportFragmentManager,
-//                                                                    ""
-//                                                                )
-//                                                            }
-//                                                        }
-//
-//                                                    }
-//                                                }
-//                                            }
 
                                             if (setFragment != MainViewModel.MAINFRAGMENT) {
                                                 when (value.model) {
@@ -1683,14 +1669,22 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
 
+                            // POPup 창이 안떠있을때
                             if (exContent.containsKey(key)) {
                                 if (exContent[key]!!.isAlert != value.isAlert) {
-                                    Log.d("라이브22", "${exContent[key]!!}")
                                     mainViewModel.removePopupMap(key, exContent[key]!!)
                                     runOnUiThread {
                                         try {
-                                            mainViewModel.popUpDataLiveList.remove(exContent[key]!!)
-                                            mainViewModel.popUpDataLiveList.notifyChange()
+                                            if (mainViewModel.alertDialogFragment.isAdded) {
+//                                                saveContent.ad
+                                                Log.d("팝업", "지울리스트 추가 = ${exContent[key]}")
+
+                                                saveContent[key] = exContent[key]!!
+                                            } else {
+                                                mainViewModel.popUpDataLiveList.remove(exContent[key]!!)
+                                                mainViewModel.popUpDataLiveList.notifyChange()
+                                            }
+
                                             exContent.remove(key)
                                         } catch (e: Exception) {
                                             e.printStackTrace()
@@ -1702,8 +1696,6 @@ class MainActivity : AppCompatActivity() {
                         }
 
                     }
-                    Log.d("sendAlert", "measureTimeMillis : $elapsed")
-
                     Thread.sleep(200)
 
                 } catch (e: Exception) {

@@ -232,7 +232,7 @@ class GasDockMainFragment : Fragment() {
             }
         }
         mBinding.btnAlert.setOnClickListener {
-            alertdialogFragment = AlertDialogFragment()
+            alertdialogFragment = mainViewModel.alertDialogFragment
             val bundle = Bundle()
             bundle.putString("model", "GasStorage")
             alertdialogFragment.arguments = bundle

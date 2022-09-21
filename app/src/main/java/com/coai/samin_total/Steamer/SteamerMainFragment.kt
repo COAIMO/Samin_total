@@ -232,7 +232,7 @@ class SteamerMainFragment : Fragment() {
         }
 
         mBinding.btnAlert.setOnClickListener {
-            alertdialogFragment = AlertDialogFragment()
+            alertdialogFragment = viewmodel.alertDialogFragment
             val bundle = Bundle()
             bundle.putString("model", "Steamer")
             alertdialogFragment.arguments = bundle
