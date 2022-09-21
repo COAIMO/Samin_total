@@ -280,7 +280,7 @@ class MainFragment : Fragment() {
                 activity?.onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
             }
             mBinding.btnAlert -> {
-                alertdialogFragment = AlertDialogFragment()
+                alertdialogFragment = viewmodel.alertDialogFragment
                 val bundle = Bundle()
                 bundle.putString("model", "Main")
                 alertdialogFragment.arguments = bundle
