@@ -62,6 +62,9 @@ class AlertPopUpFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (viewmodel.alertDialogFragment.isAdded) {
+            viewmodel.alertDialogFragment.dismiss()
+        }
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)

@@ -48,6 +48,7 @@ import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.experimental.and
 import kotlin.experimental.or
@@ -1564,36 +1565,12 @@ class MainActivity : AppCompatActivity() {
                             val id = aqInfo[2]
                             val port = aqInfo[1]
 
-//                            runOnUiThread {
-//                                if (saveContent.containsKey(key)) {
-//                                    Log.d("팝업", "지울리스트 = ${saveContent[key]}")
-//
-////                                    saveContent[key]?.let {
-////                                        Log.d("팝업", "지울리스트 제거 = ${it}")
-////                                        mainViewModel.popUpDataLiveList.remove(it)
-////                                        mainViewModel.popUpDataLiveList.notifyChange()
-////                                    }
-//
-//                                    saveContent.remove(key)
-//                                }
-//                            }
-
                             if (!exContent.containsKey(key)) {
                                 if (value.isAlert) {
                                     exContent[key] = value
                                     runOnUiThread {
                                         try {
-
-//                                        mainViewModel.addPopUpList(value)
-                                            if (!mainViewModel.alertDialogFragment.isAdded) {
-                                                for (i in saveContent) {
-                                                    mainViewModel.popUpDataLiveList.remove(
-                                                        i.value
-                                                    )
-                                                }
-                                                mainViewModel.popUpDataLiveList.notifyChange()
-                                                saveContent.clear()
-                                            }else{
+                                            if (mainViewModel.alertDialogFragment.isAdded) {
                                                 if (saveContent.containsKey(key)) {
                                                     Log.d("팝업", "지울리스트 = ${saveContent[key]}")
                                                     saveContent[key]?.let {
@@ -1659,9 +1636,7 @@ class MainActivity : AppCompatActivity() {
 
                                                 }
                                             }
-//                                        if (mainViewModel.isPopUp.value == false) {
-//                                            mainViewModel.isPopUp.value = true
-//                                        }
+
                                         } catch (e: Exception) {
                                             e.printStackTrace()
                                         }
@@ -1695,6 +1670,27 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
 
+
+                        try {
+                            if (!mainViewModel.alertDialogFragment.isAdded) {
+                                var removelist: ArrayList<SetAlertData> = ArrayList()
+                                for (i in saveContent) {
+                                    Log.d("test", "지울리스트= ${i}")
+                                    removelist.add(i.value)
+                                }
+                                saveContent.clear()
+                                runOnUiThread {
+                                    for (i in removelist) {
+                                        mainViewModel.popUpDataLiveList.remove(
+                                            i
+                                        )
+                                    }
+                                    mainViewModel.popUpDataLiveList.notifyChange()
+                                }
+                            }
+                        } catch (ex: Exception) {
+                            ex.printStackTrace()
+                        }
                     }
                     Thread.sleep(200)
 
