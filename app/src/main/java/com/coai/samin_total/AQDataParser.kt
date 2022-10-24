@@ -444,13 +444,17 @@ class AQDataParser(viewModel: MainViewModel) {
 
         when (tmp.sensorType) {
             "Sensts 142PSI" -> {
-                left_pressure = calcPSI142(left_value.toFloat(), tmp.left_rewardValue, tmp.left_zeroPoint)
-                right_pressure = calcPSI142(right_value.toFloat(), tmp.right_rewardValue, tmp.right_zeroPoint)
+                left_pressure =
+                    calcPSI142(left_value.toFloat(), tmp.left_rewardValue, tmp.left_zeroPoint)
+                right_pressure =
+                    calcPSI142(right_value.toFloat(), tmp.right_rewardValue, tmp.right_zeroPoint)
 
             }
             "Sensts 2000PSI" -> {
-                left_pressure = calcPSI2000(left_value.toFloat(), tmp.left_rewardValue, tmp.left_zeroPoint)
-                right_pressure = calcPSI2000(right_value.toFloat(), tmp.right_rewardValue, tmp.right_zeroPoint)
+                left_pressure =
+                    calcPSI2000(left_value.toFloat(), tmp.left_rewardValue, tmp.left_zeroPoint)
+                right_pressure =
+                    calcPSI2000(right_value.toFloat(), tmp.right_rewardValue, tmp.right_zeroPoint)
 
             }
             else -> {
@@ -620,6 +624,59 @@ class AQDataParser(viewModel: MainViewModel) {
             }
         }
         tmp.pressure = value
+        //수정
+        if (tmp.pressure > tmp.limit_max) {
+            tmp.isPressAlert = true
+            if (alertMap2[id] == null) {
+                alertMap2.put(id, true)
+                viewModel.addAlertInfo(
+                    id + 65536,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "가스압력 상한 값 초과",
+                        tmp.port,
+                        true
+                    )
+                )
+            }
+        } else if (tmp.pressure < tmp.limit_min) {
+            tmp.isPressAlert = true
+            if (alertMap2[id] == null) {
+                alertMap2.put(id, true)
+                viewModel.addAlertInfo(
+                    id + 65536,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "가스 하한 값 초과",
+                        tmp.port,
+                        true
+                    )
+                )
+            }
+        } else {
+            tmp.isPressAlert = false
+            if (alertMap2.containsKey(id)) {
+                viewModel.addAlertInfo(
+                    id + 65536,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "가스 압력 정상",
+                        tmp.port,
+                        false
+                    )
+                )
+                if (alertMap2.containsKey(id)) {
+                    alertMap2.remove(id)
+                }
+            }
+        }
+        //수정 끝
 
         // 기울기 데이터 값 수집
         val item = TimePSI(hmapLastedDate[id]!!, tmp.pressure, 0x02, tmp.id, tmp.port)
@@ -656,7 +713,7 @@ class AQDataParser(viewModel: MainViewModel) {
         if (slope < tmp.slopeValue) {
             // 경고
             alertBase.put(id, value)
-            tmp.isAlert = true
+            tmp.isSlopeAlert = true
             tmp.pressure
 
             if (alertMap[id] == null) {
@@ -677,8 +734,7 @@ class AQDataParser(viewModel: MainViewModel) {
         } else {
             if (alertMap.containsKey(id)) {
                 if (alertBase[id]!! + 2 < value) {
-                    tmp.isAlert = false
-//                    viewModel.gasRoomAlert.value = false
+                    tmp.isSlopeAlert = false
                     viewModel.addAlertInfo(
                         id,
                         SetAlertData(
@@ -695,15 +751,15 @@ class AQDataParser(viewModel: MainViewModel) {
                         alertMap.remove(id)
                     }
                 }
-            }
-            else {
-                tmp.isAlert = false
+            } else {
+                tmp.isSlopeAlert = false
             }
 
         }
+        tmp.isAlert = tmp.isPressAlert || tmp.isSlopeAlert
         val bro = setAQport[id] as SetGasRoomViewData
-        bro.isAlert = tmp.isAlert
         bro.pressure = tmp.pressure
+        bro.isAlert = tmp.isAlert
 
         val idx = KeyUtils.getIndex(
             tmp.modelByte.toInt(),
@@ -717,7 +773,7 @@ class AQDataParser(viewModel: MainViewModel) {
         )
         viewModel.mModelMonitorValues.setWarningsRoom(
             idx,
-            tmp.isAlert!!
+            tmp.isAlert
         )
         viewModel.mModelMonitorValues.setErrorsRoom(idx, false)
     }
@@ -828,7 +884,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     )
                 )
             }
-        } else if(tmp.setMaxValue < oxygenValue){
+        } else if (tmp.setMaxValue < oxygenValue) {
             if (!preError) {
                 hmapErrorOxygen[id] = true
                 return
@@ -849,7 +905,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     )
                 )
             }
-        }else{
+        } else {
             tmp.isAlert = false
             hmapErrorOxygen.remove(id)
 
@@ -1139,7 +1195,7 @@ class AQDataParser(viewModel: MainViewModel) {
         viewModel.mModelMonitorValues.setErrorsSteam(idx, false)
     }
 
-    fun ParserGas(key: Byte, datas: ArrayList<Int>, time : Long) {
+    fun ParserGas(key: Byte, datas: ArrayList<Int>, time: Long) {
         for (t in 1..4) {
             val key = littleEndianConversion(
                 byteArrayOf(
@@ -1159,13 +1215,14 @@ class AQDataParser(viewModel: MainViewModel) {
 
             if (tmp.ViewType in 1..2) {
                 hmapLastedDate[key] = time
-                ProcessDualGasStorage(key,  datas[t-1],  datas[t])
+                ProcessDualGasStorage(key, datas[t - 1], datas[t])
             } else {
                 hmapLastedDate[key] = time
-                ProcessSingleGasStorage(key, datas[t-1])
+                ProcessSingleGasStorage(key, datas[t - 1])
             }
         }
     }
+
     /**
      * 수신 데이터 처리
      */
@@ -1395,8 +1452,7 @@ class AQDataParser(viewModel: MainViewModel) {
                         viewModel.mModelMonitorValues.setErrorsStorage(idx, true)
                         viewModel.mModelMonitorValues.setErrorsStorage(idx + 1, true)
                     }
-                }
-                else
+                } else
                     continue
             } else if (current is SetGasRoomViewData) {
                 (current as SetGasRoomViewData).isAlert = true

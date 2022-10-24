@@ -41,6 +41,8 @@ class GasRoomBoardSettingView constructor(context: Context, attrs: AttributeSet?
     )
     var selected_SensorType = ""
     var selected_GasType = ""
+    var mLimitmaxValue_Et:EditText
+    var mLimitminValue_Et:EditText
 
     private fun setSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
@@ -109,6 +111,8 @@ class GasRoomBoardSettingView constructor(context: Context, attrs: AttributeSet?
         mSlopeValue_Et = findViewById(R.id.et_slope_value)
         mSelectedGas_Et = findViewById(R.id.et_selectedGas)
         mSelectedGasColor_sp = findViewById(R.id.sp_selectedGasColor)
+        mLimitmaxValue_Et = findViewById(R.id.et_limit_maxvalue)
+        mLimitminValue_Et = findViewById(R.id.et_limit_minvalue)
         setSensorTypeSpinner()
         setGasTypeSpinner()
         setIsSensor()

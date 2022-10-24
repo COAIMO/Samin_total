@@ -69,7 +69,9 @@ class GasRoomSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString().equals(".")) {
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString()
+                    .equals(".")
+            ) {
                 try {
                     if (selectedSensor == null) return
                     selectedSensor?.zeroPoint = s.toString().toFloat()
@@ -142,6 +144,42 @@ class GasRoomSettingFragment : Fragment() {
         }
 
     }
+    private val mLimitMaxtextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s != null && !s.toString().equals("")) {
+                try {
+                    if (selectedSensor == null) return
+                    selectedSensor?.limit_max = s.toString().toFloat()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+    }
+    private val mLimitMintextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s != null && !s.toString().equals("")) {
+                try {
+                    if (selectedSensor == null) return
+                    selectedSensor?.limit_min = s.toString().toFloat()
+                }catch (e:Exception){
+                    e.printStackTrace()
+                }
+            }
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -208,6 +246,8 @@ class GasRoomSettingFragment : Fragment() {
                 mBinding.gasRoomBoardSettingView.mSelectedGasColor_sp.setSelection(
                     viewmodel.gasColorValue.indexOf(selectedSensor?.gasColor)
                 )
+                mBinding.gasRoomBoardSettingView.mLimitmaxValue_Et.setText(selectedSensor?.limit_max.toString())
+                mBinding.gasRoomBoardSettingView.mLimitminValue_Et.setText(selectedSensor?.limit_min.toString())
             }
         })
         return mBinding.root
@@ -275,6 +315,8 @@ class GasRoomSettingFragment : Fragment() {
 //                selectedSensor?.zeroPoint =  mBinding.gasRoomBoardSettingView.mZeroPoint_Et.text.toString().toFloat()
 //            }
 //        }
+        mBinding.gasRoomBoardSettingView.mLimitmaxValue_Et.addTextChangedListener(mLimitMaxtextWatcher)
+        mBinding.gasRoomBoardSettingView.mLimitminValue_Et.addTextChangedListener(mLimitMintextWatcher)
     }
 
     private fun initRecycler() {
