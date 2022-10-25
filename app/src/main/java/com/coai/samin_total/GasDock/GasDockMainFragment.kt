@@ -243,6 +243,8 @@ class GasDockMainFragment : Fragment() {
         }
 
         updateAlert()
+
+        mBinding.tvCurruntTime.text = mainViewModel.getCurrnetDate()
         return mBinding.root
     }
 

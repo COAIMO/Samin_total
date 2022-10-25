@@ -5,7 +5,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainFragment">
+<!--    38.26-->
+    <ImageView
+        android:id="@+id/top_layer"
+        android:layout_marginTop="20dp"
+        android:layout_width="1253.740dp"
+        android:layout_height="56.7dp"
+        android:background="@drawable/ic_top_layer2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
+    <TextView
+        android:id="@+id/tv_curruntTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:textColor="#b2b2b3"
+        android:textSize="17sp"
+        android:textStyle="normal"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="@id/top_layer"
+        app:layout_constraintBottom_toBottomOf="@id/top_layer"
+        app:layout_constraintStart_toStartOf="@id/top_layer"/>
 
     <TextView
         android:id="@+id/lab_ID_TextView"
@@ -15,25 +36,26 @@
         android:fontFamily="@font/nexon_font"
         android:text="@string/title_lab_name"
         android:textColor="#000000"
-        android:textSize="21.5pt"
+        android:textSize="44sp"
         android:textStyle="bold"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/top_layer"/>
 
 
     <LinearLayout
         android:id="@+id/mainIcon_Container_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="35dp"
-        android:layout_marginTop="285dp"
-        android:layout_marginEnd="35dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="25dp"
         android:orientation="horizontal"
         android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/lab_ID_TextView">
 
         <LinearLayout
             android:id="@+id/gasDock_MainStatus_layout"
@@ -44,8 +66,8 @@
 
             <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/gasDock_MainStatus"
-                android:layout_width="190dp"
-                android:layout_height="190dp"
+                android:layout_width="226.78dp"
+                android:layout_height="226.78dp"
                 android:tag="0"
                 android:visibility="visible"
                 app:isAlert="false"
@@ -58,7 +80,7 @@
                 android:layout_marginTop="15dp"
                 android:text="@string/title_gas_storage"
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="25sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -70,8 +92,8 @@
 
             <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/gasRoom_MainStatus"
-                android:layout_width="190dp"
-                android:layout_height="190dp"
+                android:layout_width="226.78dp"
+                android:layout_height="226.78dp"
                 android:tag="0"
                 android:visibility="visible"
                 app:isAlert="false"
@@ -84,7 +106,7 @@
                 android:layout_marginTop="15dp"
                 android:text="@string/title_gas_room"
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="25sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -96,8 +118,8 @@
 
             <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/wasteLiquor_MainStatus"
-                android:layout_width="190dp"
-                android:layout_height="190dp"
+                android:layout_width="226.78dp"
+                android:layout_height="226.78dp"
                 android:tag="0"
                 android:visibility="visible"
                 app:isAlert="false"
@@ -110,7 +132,7 @@
                 android:layout_marginTop="15dp"
                 android:text="@string/title_waste_liquor"
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="25sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -122,8 +144,8 @@
 
             <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/oxygen_MainStatus"
-                android:layout_width="190dp"
-                android:layout_height="190dp"
+                android:layout_width="226.78dp"
+                android:layout_height="226.78dp"
                 android:tag="0"
                 android:visibility="visible"
                 app:isAlert="false"
@@ -136,7 +158,7 @@
                 android:layout_marginTop="15dp"
                 android:text="@string/title_oxygen"
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="25sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -148,8 +170,8 @@
 
             <com.coai.uikit.samin.status.TopStatusView
                 android:id="@+id/steamer_MainStatus"
-                android:layout_width="193dp"
-                android:layout_height="193dp"
+                android:layout_width="226.78dp"
+                android:layout_height="226.78dp"
                 android:tag="0"
                 android:visibility="visible"
                 app:isAlert="false"
@@ -162,7 +184,7 @@
                 android:layout_marginTop="15dp"
                 android:text="@string/title_steamer"
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="25sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -170,7 +192,7 @@
         android:id="@+id/settingBar_Layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="157dp"
+        android:layout_marginBottom="112dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -178,22 +200,22 @@
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btn_setting"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:background="@drawable/button_setting" />
 
         <ImageView
             android:id="@+id/btn_alert"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="30dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="50dp"
             android:src="@drawable/button_nonalert" />
 
         <ImageView
             android:id="@+id/btn_sound"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="30dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="50dp"
             android:background="@drawable/sound_ic" />
 
 <!--        <androidx.appcompat.widget.AppCompatImageButton-->
@@ -204,14 +226,13 @@
 <!--            android:background="@drawable/button_scan" />-->
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/labsislogo"
-        android:layout_width="80dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="50dp"
-        android:src="@drawable/labsislogo_ic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
+<!--    <ImageView-->
+<!--        android:id="@+id/labsislogo"-->
+<!--        android:layout_width="80dp"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:layout_marginBottom="50dp"-->
+<!--        android:src="@drawable/labsislogo_ic"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent" />-->
 </androidx.constraintlayout.widget.ConstraintLayout>

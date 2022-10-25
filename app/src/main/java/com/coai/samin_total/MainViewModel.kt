@@ -27,6 +27,8 @@ import com.coai.samin_total.database.AlertDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
 
 class MainViewModel : ViewModel() {
@@ -511,5 +513,10 @@ class MainViewModel : ViewModel() {
     val alertDialogFragment = AlertDialogFragment()
     val saveConetMap = ConcurrentHashMap<Int, SetAlertData>()
 
+    fun getCurrnetDate(): String {
+        val current = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일")
+        return current.format(formatter)
+    }
 }
 

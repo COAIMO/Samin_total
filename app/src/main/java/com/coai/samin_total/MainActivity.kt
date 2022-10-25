@@ -181,6 +181,11 @@ class MainActivity : AppCompatActivity() {
             AlertDatabase::class.java,
             "alertLogs"
         ).build().alertDAO()
+
+        mBinding.btnHomepage.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.saminsci.com/"))
+            startActivity(intent)
+        }
     }
 
 //    fun bindSerialService() {
