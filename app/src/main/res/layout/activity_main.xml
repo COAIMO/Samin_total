@@ -18,5 +18,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
-
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/btn_homepage"
+        android:layout_width="249.440dp"
+        android:layout_height="34dp"
+        android:gravity="center"
+        android:textColor="#b2b2b3"
+        android:textStyle="bold"
+        android:background="@drawable/homepage_button"
+        android:text="www.saminsci.com"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

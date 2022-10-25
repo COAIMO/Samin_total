@@ -27,6 +27,8 @@ import com.coai.samin_total.database.AlertDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
 
 class MainViewModel : ViewModel() {
@@ -433,38 +435,40 @@ class MainViewModel : ViewModel() {
     var isCheckTimeOut: Boolean = true
     val isPopUp: MutableLiveData<Boolean> = MutableLiveData()
 
-//    val popUpHashMap: LiveData<HashMap<Int, SetAlertData>> = _popUpHashMap
+    //    val popUpHashMap: LiveData<HashMap<Int, SetAlertData>> = _popUpHashMap
     val popUpHashMap = HashMap<Int, SetAlertData>()
     val _popUpList = MutableLiveData<MutableList<SetAlertData>>()
 
     init {
         _popUpList.value = mutableListOf<SetAlertData>()
     }
-    fun addPopupMap(key:Int, value:SetAlertData){
+
+    fun addPopupMap(key: Int, value: SetAlertData) {
         try {
-            popUpHashMap.set(key,value)
-            for (i in popUpHashMap){
+            popUpHashMap.set(key, value)
+            for (i in popUpHashMap) {
                 _popUpList.value?.add(i.value)
             }
-            Log.d("테스트1","map = ${popUpHashMap[key]}")
-            Log.d("테스트1","list = ${_popUpList.value}")
-        }catch (e:Exception){
+            Log.d("테스트1", "map = ${popUpHashMap[key]}")
+            Log.d("테스트1", "list = ${_popUpList.value}")
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-    fun removePopupMap(key: Int,value: SetAlertData){
+
+    fun removePopupMap(key: Int, value: SetAlertData) {
         try {
             popUpHashMap.remove(key)
             _popUpList.value!!.remove(value)
 
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     val popUpDataLiveList = MutableListLiveData<SetAlertData>()
 
-    fun clearPopUP(){
+    fun clearPopUP() {
         popUpHashMap.clear()
         _popUpList.value?.clear()
         popUpDataLiveList.clear(true)
@@ -474,5 +478,10 @@ class MainViewModel : ViewModel() {
     val alertDialogFragment = AlertDialogFragment()
     val saveConetMap = ConcurrentHashMap<Int, SetAlertData>()
 
+    fun getCurrnetDate(): String {
+        val current = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일")
+        return current.format(formatter)
+    }
 }
 

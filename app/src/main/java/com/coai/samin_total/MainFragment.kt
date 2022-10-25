@@ -27,6 +27,8 @@ import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentMainBinding
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -180,7 +182,11 @@ class MainFragment : Fragment() {
         mBinding = FragmentMainBinding.inflate(inflater, container, false)
         shared = SaminSharedPreference(requireContext())
         setButtonClickEvent()
-
+//            mBinding.gasDockMainStatusLayout.visibility = View.VISIBLE
+//            mBinding.gasRoomMainStatusLayout.visibility = View.VISIBLE
+//            mBinding.wasteLiquorMainStatusLayout.visibility = View.VISIBLE
+//            mBinding.oxygenMainStatusLayout.visibility = View.VISIBLE
+//            mBinding.steamerMainStatusLayout.visibility = View.VISIBLE
 
         if (isFirst) {
             isFirst = false
@@ -193,19 +199,20 @@ class MainFragment : Fragment() {
             mBinding.labIDTextView.text = shared.loadLabNameData()
         }
 
-        mBinding.labIDTextView.setOnClickListener {
-            shared.removeBoardSetData(SaminSharedPreference.GASSTORAGE)
-            shared.removeBoardSetData(SaminSharedPreference.GASROOM)
-            shared.removeBoardSetData(SaminSharedPreference.WASTELIQUOR)
-            shared.removeBoardSetData(SaminSharedPreference.OXYGEN)
-            shared.removeBoardSetData(SaminSharedPreference.STEAMER)
-        }
+//        mBinding.labIDTextView.setOnClickListener {
+//            shared.removeBoardSetData(SaminSharedPreference.GASSTORAGE)
+//            shared.removeBoardSetData(SaminSharedPreference.GASROOM)
+//            shared.removeBoardSetData(SaminSharedPreference.WASTELIQUOR)
+//            shared.removeBoardSetData(SaminSharedPreference.OXYGEN)
+//            shared.removeBoardSetData(SaminSharedPreference.STEAMER)
+//        }
         if (viewmodel.isSoundAlert) {
             mBinding.btnSound.setImageResource(R.drawable.sound_ic)
         } else {
             mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
         }
 
+        mBinding.tvCurruntTime.text = viewmodel.getCurrnetDate()
         return mBinding.root
     }
 
@@ -254,9 +261,9 @@ class MainFragment : Fragment() {
         mBinding.btnSound.setOnClickListener {
             onClick(mBinding.btnSound)
         }
-        mBinding.labsislogo.setOnClickListener {
-            onClick(it)
-        }
+//        mBinding.btnHomepage.setOnClickListener {
+//            onClick(it)
+//        }
     }
 
     private fun onClick(view: View) {
@@ -296,10 +303,10 @@ class MainFragment : Fragment() {
                     viewmodel.isSoundAlert = true
                 }
             }
-            mBinding.labsislogo ->{
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.saminsci.com/"))
-                startActivity(intent)
-            }
+//            mBinding.btnHomepage ->{
+//                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.saminsci.com/"))
+//                startActivity(intent)
+//            }
         }
     }
 
