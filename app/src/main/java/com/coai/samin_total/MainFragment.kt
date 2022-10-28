@@ -187,13 +187,14 @@ class MainFragment : Fragment() {
 //            mBinding.wasteLiquorMainStatusLayout.visibility = View.VISIBLE
 //            mBinding.oxygenMainStatusLayout.visibility = View.VISIBLE
 //            mBinding.steamerMainStatusLayout.visibility = View.VISIBLE
-
+            mBinding.tempHumMainStatusLayout.visibility = View.VISIBLE
+            mBinding.tempHumMainStatus.setAlert(true)
         if (isFirst) {
             isFirst = false
-            initView()
+//            initView()
         }
-        mainLayoutIconVisibility()
-        updateAlert()
+//        mainLayoutIconVisibility()
+//        updateAlert()
 
         if (!shared.loadLabNameData().isEmpty()) {
             mBinding.labIDTextView.text = shared.loadLabNameData()

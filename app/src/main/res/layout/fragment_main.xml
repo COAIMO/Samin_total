@@ -186,6 +186,32 @@
                 android:textColor="#000000"
                 android:textSize="25sp" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tempHum_MainStatus_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.coai.uikit.samin.status.TopStatusView
+                android:id="@+id/tempHum_MainStatus"
+                android:layout_width="226.78dp"
+                android:layout_height="226.78dp"
+                android:tag="0"
+                android:visibility="visible"
+                app:isAlert="false"
+                app:status_type="TempHum" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="15dp"
+                android:text="@string/title_tempHum"
+                android:textColor="#000000"
+                android:textSize="25sp" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
