@@ -759,6 +759,8 @@ class AQDataParser(viewModel: MainViewModel) {
         tmp.isAlert = tmp.isPressAlert || tmp.isSlopeAlert
         val bro = setAQport[id] as SetGasRoomViewData
         bro.pressure = tmp.pressure
+        bro.isPressAlert = tmp.isPressAlert
+        bro.isSlopeAlert = tmp.isSlopeAlert
         bro.isAlert = tmp.isAlert
 
         val idx = KeyUtils.getIndex(
