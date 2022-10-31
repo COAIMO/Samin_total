@@ -3,6 +3,33 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/activity_main.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_admin.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_alert_dialog.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_alert_log.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_aq_setting.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_connect_test.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_control.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_dock_main.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_room_main.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_room_setting.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_storage_setting.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_layout.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_leak_test_dialog.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_main.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_main_setting.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_oxygen_main.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_oxygen_setting.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_password.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_password_dialog.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_room_leak_test.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_scan_dialog.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_steamer_main.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_steamer_setting.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_version.xml" value="0.5333333333333333" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_waste_liquor_main.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_waste_liquor_setting.xml" value="0.4140625" />
+        <entry key="..\:/Users/cgdo/AndroidStudioProjects/Samin_total/app/src/main/res/layout/gas_room_board_setting_view.xml" value="0.4140625" />
         <entry key="..\:/Users/negai/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_dock_main.xml" value="0.125" />
         <entry key="..\:/Users/negai/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_room_main.xml" value="0.125" />
         <entry key="..\:/Users/negai/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_oxygen_main.xml" value="0.125" />
