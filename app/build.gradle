@@ -14,16 +14,15 @@ android {
             keyPassword 'samin8940'
         }
     }
-    compileSdk 30
+    compileSdk 32
 
     defaultConfig {
         applicationId "com.coai.samin_total"
         minSdk 26
 
-        //noinspection ExpiringTargetSdkVersion,ExpiringTargetSdkVersion
-        targetSdk 30
-        versionCode 27
-        versionName "1.26"
+        targetSdk 32
+        versionCode 28
+        versionName "1.27"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
