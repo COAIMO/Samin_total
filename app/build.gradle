@@ -14,13 +14,14 @@ android {
             keyPassword 'samin8940'
         }
     }
-    compileSdk 32
+    compileSdk 30
 
     defaultConfig {
         applicationId "com.coai.samin_total"
         minSdk 26
 
-        targetSdk 32
+        //noinspection ExpiredTargetSdkVersion,ExpiringTargetSdkVersion,ExpiringTargetSdkVersion
+        targetSdk 30
         versionCode 28
         versionName "1.27"
 
