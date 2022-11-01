@@ -624,59 +624,6 @@ class AQDataParser(viewModel: MainViewModel) {
             }
         }
         tmp.pressure = value
-        //수정
-        if (tmp.pressure > tmp.limit_max) {
-            tmp.isPressAlert = true
-            if (alertMap2[id] == null) {
-                alertMap2.put(id, true)
-                viewModel.addAlertInfo(
-                    id + 65536,
-                    SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "가스압력 상한 값 초과",
-                        tmp.port,
-                        true
-                    )
-                )
-            }
-        } else if (tmp.pressure < tmp.limit_min) {
-            tmp.isPressAlert = true
-            if (alertMap2[id] == null) {
-                alertMap2.put(id, true)
-                viewModel.addAlertInfo(
-                    id + 65536,
-                    SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "가스 하한 값 초과",
-                        tmp.port,
-                        true
-                    )
-                )
-            }
-        } else {
-            tmp.isPressAlert = false
-            if (alertMap2.containsKey(id)) {
-                viewModel.addAlertInfo(
-                    id + 65536,
-                    SetAlertData(
-                        getLatest_time(hmapLastedDate[id]!!),
-                        tmp.modelByte.toInt(),
-                        tmp.id,
-                        "가스 압력 정상",
-                        tmp.port,
-                        false
-                    )
-                )
-                if (alertMap2.containsKey(id)) {
-                    alertMap2.remove(id)
-                }
-            }
-        }
-        //수정 끝
 
         // 기울기 데이터 값 수집
         val item = TimePSI(hmapLastedDate[id]!!, tmp.pressure, 0x02, tmp.id, tmp.port)
@@ -727,7 +674,8 @@ class AQDataParser(viewModel: MainViewModel) {
                         tmp.id,
                         "MASSIVE_LEAK 발생",
                         tmp.port,
-                        true
+                        true,
+                        0
                     )
                 )
             }
@@ -743,12 +691,16 @@ class AQDataParser(viewModel: MainViewModel) {
                             tmp.id,
                             "MASSIVE_LEAK 문제해결",
                             tmp.port,
-                            false
+                            false,
+                            0
                         )
                     )
 
                     if (alertMap.containsKey(id)) {
                         alertMap.remove(id)
+                    }
+                    if (alertMap2.containsKey(id)) {
+                        alertMap2.remove(id)
                     }
                 }
             } else {
@@ -756,6 +708,63 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         }
+
+        //수정
+        if (tmp.pressure > tmp.limit_max) {
+            tmp.isPressAlert = true
+            if (alertMap2[id] == null) {
+                alertMap2.put(id, true)
+                viewModel.addAlertInfo(
+                    id,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "가스압력 상한 값 초과",
+                        tmp.port,
+                        true,
+                        1
+                    )
+                )
+            }
+        } else if (tmp.pressure < tmp.limit_min) {
+            tmp.isPressAlert = true
+            if (alertMap2[id] == null) {
+                alertMap2.put(id, true)
+                viewModel.addAlertInfo(
+                    id,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "가스 하한 값 초과",
+                        tmp.port,
+                        true,
+                        2
+                    )
+                )
+            }
+        } else {
+            tmp.isPressAlert = false
+            if (alertMap2.containsKey(id)) {
+                viewModel.addAlertInfo(
+                    id,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "가스 압력 정상",
+                        tmp.port,
+                        false
+                    )
+                )
+                if (alertMap2.containsKey(id)) {
+                    alertMap2.remove(id)
+                }
+            }
+        }
+        //수정 끝
+
         tmp.isAlert = tmp.isPressAlert || tmp.isSlopeAlert
         val bro = setAQport[id] as SetGasRoomViewData
         bro.pressure = tmp.pressure

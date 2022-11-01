@@ -1553,77 +1553,173 @@ class MainActivity : AppCompatActivity() {
             var prevAlertOxygen: Boolean = false
             val saveContent = ConcurrentHashMap<Int, SetAlertData>()
             val lstValues = ArrayList<Int>()
+            val lstLowValues = ArrayList<Int>()
+
+            val exLowContnet = ConcurrentHashMap<Int, SetAlertData>()
+            val saveLowContent = ConcurrentHashMap<Int, SetAlertData>()
+            val view_list = mutableListOf<SetAlertData>()
+            val lst_list = mutableListOf<SetAlertData>()
+
+            val remove_list = mutableListOf<SetAlertData>()
+
+            val exData = ConcurrentHashMap<Int, SetAlertData>()
+            val alertViewData = ConcurrentHashMap<Int, SetAlertData>()
+            val popUpViewData = ConcurrentHashMap<Int, SetAlertData>()
+            val alertlist = mutableListOf<SetAlertData>()
+            val removelist = mutableListOf<SetAlertData>()
+            val removeMap = ConcurrentHashMap<Int, SetAlertData>()
+            val alertremovelist = mutableListOf<SetAlertData>()
+
             while (isPopUp) {
                 try {
                     val elapsed: Long = measureTimeMillis {
-
                         alertchanged.clear()
                         alertchangedRemind.clear()
 
                         lstValues.clear()
                         for ((key, value) in mainViewModel.alertMap) {
                             val aqInfo = HexDump.toByteArray(key)
-                            val model = aqInfo[3]
-                            val id = aqInfo[2]
-                            val port = aqInfo[1]
+                            if (exData.containsKey(key)) {
+                                if (exData[key]?.isAlert != value.isAlert) {
+                                    removelist.add(exData[key]!!)
+                                    Log.d("팝업", "제거 리스트추가 : ${removelist}")
+                                    removeMap[key] = exData[key]!!
+                                    exData.remove(key)
+                                }
 
-                            if (!exContent.containsKey(key)) {
+                            } else {
                                 if (value.isAlert) {
-                                    exContent[key] = value
                                     if (!lstValues.contains(value.model))
                                         lstValues.add(value.model)
-                                    runOnUiThread {
-                                        try {
-                                            if (mainViewModel.alertDialogFragment.isAdded) {
-                                                if (saveContent.containsKey(key)) {
-                                                    Log.d("팝업", "지울리스트 = ${saveContent[key]}")
-                                                    saveContent[key]?.let {
-                                                        Log.d("팝업", "지울리스트 제거 = ${it}")
-                                                        mainViewModel.popUpDataLiveList.remove(it)
-                                                        mainViewModel.popUpDataLiveList.notifyChange()
-                                                    }
-                                                    saveContent.remove(key)
-                                                }
-                                            }
-                                            mainViewModel.addPopupMap(key, value)
-                                            mainViewModel.popUpDataLiveList.add(value)
-                                            mainViewModel.popUpDataLiveList.notifyChange()
-
-                                        } catch (e: Exception) {
-                                            e.printStackTrace()
+                                    exData[key] = value
+                                    alertlist.add(value)
+                                    Log.d("팝업", "팝업 추가 : ${value}")
+                                    if (removeMap.containsKey(key)) {
+                                        for (i in removeMap) {
+                                            alertremovelist.add(i.value)
                                         }
                                     }
                                 }
                             }
+                            //이전 데이터가 없을 경우
+//                            if (!exContent.containsKey(key) ||
+//                                exContent[key] != value
+//                            ) {
+//
+//
+//                                // 값이 알람 일경우
+////                                if (value.isAlert) {
+////                                    exContent[key] = value
+////                                    if (!lstValues.contains(value.model))
+////                                        lstValues.add(value.model)
+//////                                    runOnUiThread {
+//////                                        try {
+//////                                            //다이얼로그가 떠있고
+//////                                            if (mainViewModel.alertDialogFragment.isAdded) {
+//////                                                //saveContent에 키가 존재할경우
+//////                                                // saveContent 값을 popUpDataLiveList에서 지운다.
+//////                                                if (saveContent.containsKey(key)) {
+//////                                                    Log.d("팝업", "지울리스트 = ${saveContent[key]}")
+//////                                                    saveContent[key]?.let {
+//////                                                        mainViewModel.popUpDataLiveList.remove(it)
+//////                                                        mainViewModel.popUpDataLiveList.notifyChange()
+//////                                                    }
+//////                                                    saveContent.remove(key)
+//////                                                }
+//////
+//////                                            }
+//////                                            Log.d("팝업", "추가 = ${value}")
+//////                                            // 알람 값을 추가한다.
+//////                                            mainViewModel.addPopupMap(key, value)
+//////                                            mainViewModel.popUpDataLiveList.add(value)
+//////                                            mainViewModel.popUpDataLiveList.notifyChange()
+//////
+//////                                        } catch (e: Exception) {
+//////                                            e.printStackTrace()
+//////                                        }
+//////                                    }
+////                                    //이거1111
+//////                                    if (saveContent.containsKey(key)) {
+//////                                        Log.d("pop", "삭제 리스트 삭제 : ${saveContent}")
+//////                                        saveContent[key]?.let { remove_list.add(it) }
+//////                                        saveContent.remove(key)
+//////                                    }
+//////                                    view_list.add(value)
+//////                                    Log.d("pop", "추가되는 리스트 : ${value}")
+////                                }
+//                            }
+                            //이전 값이 존재 할경우
+//                            if (exContent.containsKey(key)) {
+//                                //이전값 알람과 갱신된 알람 값이 다를 경우
+//                                if (exContent[key]!!.isAlert != value.isAlert) {
+////                                    mainViewModel.removePopupMap(key, exContent[key]!!)
+////                                    runOnUiThread {
+////                                        try {
+////                                            if (mainViewModel.alertDialogFragment.isAdded) {
+//////                                                saveContent.ad
+//////                                                Log.d("팝업", "지울리스트 추가 = ${exContent[key]}")
+////
+////                                                // 저장값에 이전 데이터를 넣어준다.
+////                                                saveContent[key] = exContent[key]!!
+////                                            } else {
+////                                                // 팝업에 이전 데이터 삭제
+////                                                mainViewModel.popUpDataLiveList.remove(exContent[key]!!)
+////                                                mainViewModel.popUpDataLiveList.notifyChange()
+////                                            }
+////                                            //이전 데이터 삭제
+////                                            exContent.remove(key)
+////                                        } catch (e: Exception) {
+////                                            e.printStackTrace()
+////                                        }
+////                                    }
+//
+//                                    //이거1111
+////                                    saveContent[key] = exContent[key]!!
+////                                    remove_list.add(exContent[key]!!)
+////                                    exContent.remove(key)
+//
+//                                }
+//                            }
 
-                            // POPup 창이 안떠있을때
-                            if (exContent.containsKey(key)) {
-                                if (exContent[key]!!.isAlert != value.isAlert) {
-                                    mainViewModel.removePopupMap(key, exContent[key]!!)
-                                    runOnUiThread {
-                                        try {
-                                            if (mainViewModel.alertDialogFragment.isAdded) {
-//                                                saveContent.ad
-                                                Log.d("팝업", "지울리스트 추가 = ${exContent[key]}")
 
-                                                saveContent[key] = exContent[key]!!
-                                            } else {
-                                                mainViewModel.popUpDataLiveList.remove(exContent[key]!!)
-                                                mainViewModel.popUpDataLiveList.notifyChange()
-                                            }
-
-                                            exContent.remove(key)
-                                        } catch (e: Exception) {
-                                            e.printStackTrace()
-                                        }
-                                    }
-//                                mainViewModel.addPopUpList(value)
+                        }
+//                        runOnUiThread {
+//                            for (i in remove_list) {
+//                                Log.d("테스트", "삭제되는 데이터 : ${i}")
+//                                mainViewModel.popUpDataLiveList.remove(i)
+//                            }
+//                            Log.d("테스트", "savecontn : ${saveContent}")
+//                            remove_list.clear()
+//
+//                            if (view_list.isNotEmpty()) {
+//                                mainViewModel.popUpDataLiveList.addAll(view_list)
+//                                Log.d("테스트", "추가되는 데이터 : ${view_list}")
+//                                mainViewModel.popUpDataLiveList.notifyChange()
+//                            }
+//
+//                            view_list.clear()
+//                        }
+                        runOnUiThread {
+                            if (!mainViewModel.alertDialogFragment.isAdded) {
+                                for (i in removelist) {
+                                    mainViewModel.popUpDataLiveList.remove(i)
                                 }
+                                removelist.clear()
+                            } else {
+                                for (i in alertremovelist){
+                                    mainViewModel.popUpDataLiveList.remove(i)
+                                }
+                                alertremovelist.clear()
                             }
+
+                            mainViewModel.popUpDataLiveList.addAll(alertlist)
+                            mainViewModel.popUpDataLiveList.notifyChange()
+                            alertlist.clear()
+
                         }
 
                         var chk = false
-                        for(i in lstValues) {
+                        for (i in lstValues) {
                             if (setFragment != MainViewModel.MAINFRAGMENT) {
                                 when (i) {
                                     1 -> {
@@ -1666,26 +1762,27 @@ class MainActivity : AppCompatActivity() {
                         }
 
 
-                        try {
-                            if (!mainViewModel.alertDialogFragment.isAdded) {
-                                var removelist: ArrayList<SetAlertData> = ArrayList()
-                                for (i in saveContent) {
-                                    Log.d("test", "지울리스트= ${i}")
-                                    removelist.add(i.value)
-                                }
-                                saveContent.clear()
-                                runOnUiThread {
-                                    for (i in removelist) {
-                                        mainViewModel.popUpDataLiveList.remove(
-                                            i
-                                        )
-                                    }
-                                    mainViewModel.popUpDataLiveList.notifyChange()
-                                }
-                            }
-                        } catch (ex: Exception) {
-                            ex.printStackTrace()
-                        }
+//                        try {
+//                            if (!mainViewModel.alertDialogFragment.isAdded) {
+//                                val removelist: ArrayList<SetAlertData> = ArrayList()
+//                                for (i in saveContent) {
+//                                    Log.d("test", "지울리스트= ${i}")
+//                                    removelist.add(i.value)
+//                                }
+//                                saveContent.clear()
+//                                runOnUiThread {
+//                                    for (i in removelist) {
+//                                        mainViewModel.popUpDataLiveList.remove(
+//                                            i
+//                                        )
+//                                    }
+//                                    mainViewModel.popUpDataLiveList.notifyChange()
+//                                }
+//                            }
+//
+//                        } catch (ex: Exception) {
+//                            ex.printStackTrace()
+//                        }
                     }
                     Thread.sleep(200)
 

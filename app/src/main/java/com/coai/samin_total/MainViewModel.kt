@@ -76,6 +76,8 @@ class MainViewModel : ViewModel() {
 
     val alertInfo = MutableListLiveData<SetAlertData>()
     val alertMap = ConcurrentHashMap<Int, SetAlertData>()
+//    val alertLowMap = ConcurrentHashMap<Int, SetAlertData>()//
+
     val portAlertMapLed = ConcurrentHashMap<Short, Byte>()
 
     val wasteAlert: MutableLiveData<Boolean> = MutableLiveData()
@@ -206,16 +208,48 @@ class MainViewModel : ViewModel() {
     /**
      * 경고 상태 전달
      */
+    val exalertMap = ConcurrentHashMap<Int, Int>()
+
     fun addAlertInfo(id: Int, arg: SetAlertData) {
         try {
             alertInfo.add(arg)
         } catch (e: Exception) {
         }
         try {
-            alertMap[id] = arg
+            if (!arg.isAlert) {
+                // 정상일 경우
+                alertMap[id] = arg
+                if (exalertMap.containsKey(arg.id))
+                    exalertMap.remove(arg.id)
+            } else {
+                // 에러일 경우
+                if (arg.alertState == 0) {
+                    // 매시브릭일 때
+                    if (!exalertMap.containsKey(arg.id))
+                        exalertMap.put(arg.id, arg.alertState)
+                } else {
+                    // 기타 알람
+                    if (exalertMap.containsKey(arg.id) &&
+                       exalertMap[arg.id] != arg.alertState) {
+                        return
+                    }
+                }
+                alertMap[id] = arg
+            }
         } catch (e: Exception) {
         }
     }
+
+//    fun addAlertLowInfo(id: Int, arg: SetAlertData) {
+//        try {
+//            alertInfo.add(arg)
+//        } catch (e: Exception) {
+//        }
+//        try {
+//            alertLowMap[id] = arg
+//        } catch (e: Exception) {
+//        }
+//    }
 
     /**
      * 경고 상태 전달
@@ -433,38 +467,40 @@ class MainViewModel : ViewModel() {
     var isCheckTimeOut: Boolean = true
     val isPopUp: MutableLiveData<Boolean> = MutableLiveData()
 
-//    val popUpHashMap: LiveData<HashMap<Int, SetAlertData>> = _popUpHashMap
+    //    val popUpHashMap: LiveData<HashMap<Int, SetAlertData>> = _popUpHashMap
     val popUpHashMap = HashMap<Int, SetAlertData>()
     val _popUpList = MutableLiveData<MutableList<SetAlertData>>()
 
     init {
         _popUpList.value = mutableListOf<SetAlertData>()
     }
-    fun addPopupMap(key:Int, value:SetAlertData){
+
+    fun addPopupMap(key: Int, value: SetAlertData) {
         try {
-            popUpHashMap.set(key,value)
-            for (i in popUpHashMap){
+            popUpHashMap.set(key, value)
+            for (i in popUpHashMap) {
                 _popUpList.value?.add(i.value)
             }
-            Log.d("테스트1","map = ${popUpHashMap[key]}")
-            Log.d("테스트1","list = ${_popUpList.value}")
-        }catch (e:Exception){
+            Log.d("테스트1", "map = ${popUpHashMap[key]}")
+            Log.d("테스트1", "list = ${_popUpList.value}")
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-    fun removePopupMap(key: Int,value: SetAlertData){
+
+    fun removePopupMap(key: Int, value: SetAlertData) {
         try {
             popUpHashMap.remove(key)
             _popUpList.value!!.remove(value)
 
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     val popUpDataLiveList = MutableListLiveData<SetAlertData>()
 
-    fun clearPopUP(){
+    fun clearPopUP() {
         popUpHashMap.clear()
         _popUpList.value?.clear()
         popUpDataLiveList.clear(true)

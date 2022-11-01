@@ -12,9 +12,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/../SmartLABPROTOTYPE/UIKit" />
-            <option value="$PROJECT_DIR$/../saminmodbustest/libmodbus" />
-            <option value="$PROJECT_DIR$/../saminmodbustest/libsaminmodbus" />
+            <option value="$USER_HOME$/SmartLABPROTOTYPE/UIKit" />
+            <option value="$USER_HOME$/saminmodbustest/libmodbus" />
+            <option value="$USER_HOME$/saminmodbustest/libsaminmodbus" />
           </set>
         </option>
       </GradleProjectSettings>
