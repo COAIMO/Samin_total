@@ -1580,20 +1580,41 @@ class MainActivity : AppCompatActivity() {
                         for ((key, value) in mainViewModel.alertMap) {
                             val aqInfo = HexDump.toByteArray(key)
                             if (exData.containsKey(key)) {
-                                if (exData[key]?.isAlert != value.isAlert) {
+                                if (exData[key]?.isAlert != value.isAlert ||
+                                        exData[key]?.alertState != value.alertState) {
                                     removelist.add(exData[key]!!)
                                     Log.d("팝업", "제거 리스트추가 : ${removelist}")
                                     removeMap[key] = exData[key]!!
                                     exData.remove(key)
                                 }
 
-                            } else {
+                            }
+
+
+                            if (!exData.containsKey(key)){
+                                //  신규
                                 if (value.isAlert) {
                                     if (!lstValues.contains(value.model))
                                         lstValues.add(value.model)
                                     exData[key] = value
                                     alertlist.add(value)
                                     Log.d("팝업", "팝업 추가 : ${value}")
+                                    if (removeMap.containsKey(key)) {
+                                        for (i in removeMap) {
+                                            alertremovelist.add(i.value)
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                // 변경
+                                if (
+                                    value.isAlert &&
+                                    exData[key]?.isAlert == value.isAlert &&
+                                    exData[key]?.alertState != value.alertState
+                                ) {
+                                    alertlist.add(value)
+                                    exData[key] = value
                                     if (removeMap.containsKey(key)) {
                                         for (i in removeMap) {
                                             alertremovelist.add(i.value)

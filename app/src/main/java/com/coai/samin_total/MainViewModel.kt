@@ -213,6 +213,7 @@ class MainViewModel : ViewModel() {
     fun addAlertInfo(id: Int, arg: SetAlertData) {
         try {
             alertInfo.add(arg)
+            alertInfo.notifyChange()
         } catch (e: Exception) {
         }
         try {
