@@ -4,15 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="18dp"
     tools:context=".GasRoom.RoomLeakTestFragment">
+
+    <!--    <ImageView-->
+    <!--        android:id="@+id/top_layer"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="50dp"-->
+    <!--        android:src="@drawable/ic_top_layer"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <ImageView
         android:id="@+id/top_layer"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:src="@drawable/ic_top_layer"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="1253.740dp"
+        android:layout_height="56.7dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/ic_top_layer2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -20,11 +28,11 @@
         android:id="@+id/title_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginBottom="5dp"
         android:fontFamily="@font/nexon_font"
         android:text="@string/title_gas_lab"
-        android:textColor="@color/TitleTextColor"
+        android:textColor="@color/PageNumberTextColor"
         android:textSize="35sp"
         app:flow_horizontalAlign="center"
         app:flow_horizontalBias="0.5"
@@ -33,46 +41,58 @@
         app:layout_constraintTop_toTopOf="@+id/top_layer" />
 
     <TextView
+        android:id="@+id/lab_name_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginBottom="10dp"
         android:fontFamily="@font/nexon_font"
-        android:text="01"
+        android:text="@string/title_lab_name"
         android:textColor="@color/PageNumberTextColor"
         android:textSize="35sp"
         app:flow_horizontalAlign="center"
-        app:layout_constraintBottom_toBottomOf="@id/top_layer"
+        app:layout_constraintBottom_toBottomOf="@id/title_tv"
         app:layout_constraintStart_toEndOf="@id/title_tv"
-        app:layout_constraintTop_toTopOf="@+id/top_layer" />
+        app:layout_constraintTop_toTopOf="@+id/title_tv" />
+
+    <TextView
+        android:id="@+id/tv_curruntTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="#b2b2b3"
+        android:textSize="17sp"
+        android:textStyle="normal"
+        app:layout_constraintStart_toStartOf="@id/title_tv"
+        app:layout_constraintTop_toBottomOf="@id/title_tv" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="180dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="@id/top_layer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/btn_alert"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
             android:layout_marginEnd="30dp"
             android:src="@drawable/nonalert_ic" />
 
         <ImageView
             android:id="@+id/btn_unit"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
             android:layout_marginEnd="30dp"
             android:src="@drawable/pressure_unit_ic" />
 
         <ImageView
             android:id="@+id/btn_zoom_inout"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
             android:src="@drawable/screen_increase_ic" />
     </LinearLayout>
 
@@ -93,19 +113,18 @@
             android:id="@+id/gasRoomLeakTestGridLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-        </GridLayout>
+            android:orientation="horizontal"></GridLayout>
     </androidx.core.widget.NestedScrollView>
 
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btn_back"
-            android:layout_width="50dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="33dp"
-            android:layout_marginBottom="33dp"
-            android:background="@drawable/backbutton_ic"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="33dp"
+        android:layout_marginBottom="33dp"
+        android:background="@drawable/backbutton_ic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

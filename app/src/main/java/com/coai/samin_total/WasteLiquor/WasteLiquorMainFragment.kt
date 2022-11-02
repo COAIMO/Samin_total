@@ -216,7 +216,9 @@ class WasteLiquorMainFragment : Fragment() {
             activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
         }
         updateAlert()
-
+        viewmodel.date.observe(viewLifecycleOwner) {
+            mBinding.tvCurruntTime.text = it
+        }
         return mBinding.root
     }
 

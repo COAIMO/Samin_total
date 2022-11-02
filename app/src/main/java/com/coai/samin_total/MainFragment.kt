@@ -187,14 +187,14 @@ class MainFragment : Fragment() {
 //            mBinding.wasteLiquorMainStatusLayout.visibility = View.VISIBLE
 //            mBinding.oxygenMainStatusLayout.visibility = View.VISIBLE
 //            mBinding.steamerMainStatusLayout.visibility = View.VISIBLE
-            mBinding.tempHumMainStatusLayout.visibility = View.VISIBLE
-            mBinding.tempHumMainStatus.setAlert(true)
+//            mBinding.tempHumMainStatusLayout.visibility = View.VISIBLE
+//            mBinding.tempHumMainStatus.setAlert(true)
         if (isFirst) {
             isFirst = false
-//            initView()
+            initView()
         }
-//        mainLayoutIconVisibility()
-//        updateAlert()
+        mainLayoutIconVisibility()
+        updateAlert()
 
         if (!shared.loadLabNameData().isEmpty()) {
             mBinding.labIDTextView.text = shared.loadLabNameData()
@@ -212,8 +212,9 @@ class MainFragment : Fragment() {
         } else {
             mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
         }
-
-        mBinding.tvCurruntTime.text = viewmodel.getCurrnetDate()
+        viewmodel.date.observe(viewLifecycleOwner){
+            mBinding.tvCurruntTime.text = it
+        }
         return mBinding.root
     }
 

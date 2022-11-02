@@ -226,6 +226,9 @@ class GasRoomMainFragment : Fragment() {
             leaktestdialogFragment = LeakTestDialogFragment()
             leaktestdialogFragment.show(childFragmentManager, "GasRoom")
         }
+        viewmodel.date.observe(viewLifecycleOwner) {
+            mBinding.tvCurruntTime.text = it
+        }
         return mBinding.root
     }
 

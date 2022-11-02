@@ -46,6 +46,7 @@ import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.ArrayList
@@ -522,7 +523,7 @@ class MainActivity : AppCompatActivity() {
                     while (isAnotherJob) {
                         Thread.sleep(10)
                     }
-
+                    mainViewModel.setCurrnetDate(LocalDateTime.now())
                     val processMils = measureTimeMillis {
                         for ((md, ids) in mainViewModel.modelMapInt) {
                             for (index in ids.indices) {

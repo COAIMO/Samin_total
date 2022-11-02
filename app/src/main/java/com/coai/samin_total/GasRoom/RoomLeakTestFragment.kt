@@ -198,7 +198,9 @@ class RoomLeakTestFragment : Fragment() {
         initView()
         setButtonClickEvent()
         updateAlert()
-
+        viewmodel.date.observe(viewLifecycleOwner) {
+            mBinding.tvCurruntTime.text = it
+        }
         return mBinding.root
     }
 

@@ -27,6 +27,7 @@ import com.coai.samin_total.database.AlertDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
@@ -233,7 +234,8 @@ class MainViewModel : ViewModel() {
                 } else {
                     // 기타 알람
                     if (exalertMap.containsKey(arg.id) &&
-                       exalertMap[arg.id] != arg.alertState) {
+                        exalertMap[arg.id] != arg.alertState
+                    ) {
                         return
                     }
                 }
@@ -513,10 +515,10 @@ class MainViewModel : ViewModel() {
     val alertDialogFragment = AlertDialogFragment()
     val saveConetMap = ConcurrentHashMap<Int, SetAlertData>()
 
-    fun getCurrnetDate(): String {
-        val current = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일")
-        return current.format(formatter)
+    val dateFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일")
+    val date = MutableLiveData<String>()
+    fun setCurrnetDate(time: LocalDateTime){
+        date.postValue(time.format(dateFormatter))
     }
 }
 

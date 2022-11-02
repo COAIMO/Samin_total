@@ -76,7 +76,8 @@ class GasDockMainFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
     }
-    lateinit var thUIError : Thread
+
+    lateinit var thUIError: Thread
     var isrunthUIError = true
 
     inner class ThreadRefresh : Thread() {
@@ -97,20 +98,20 @@ class GasDockMainFragment : Fragment() {
                                 gasStorageViewData[idx].isAlert != t.isAlert ||
                                 gasStorageViewData[idx].isAlertRight != t.isAlertRight ||
                                 gasStorageViewData[idx].isAlertLeft != t.isAlertLeft ||
-                                gasStorageViewData[idx].unit != t.unit    )
-                            {
+                                gasStorageViewData[idx].unit != t.unit
+                            ) {
                                 if (!lstvalue.contains(idx))
                                     lstvalue.add(idx)
                             }
 
-                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
                                 if (t.isAlert == true ||
                                     t.isAlertLeft == true ||
-                                    t.isAlertRight == true) {
+                                    t.isAlertRight == true
+                                ) {
                                     if (!lstvalue.contains(idx))
                                         lstvalue.add(idx)
-                                }
-                                else if (gasStorageViewData[idx].ViewType == 0 && gasStorageViewData[idx].pressure == null) {
+                                } else if (gasStorageViewData[idx].ViewType == 0 && gasStorageViewData[idx].pressure == null) {
                                     if (!lstvalue.contains(idx))
                                         lstvalue.add(idx)
                                 } else if (gasStorageViewData[idx].ViewType != 0 && (gasStorageViewData[idx].pressureLeft == null || gasStorageViewData[idx].pressureRight == null)) {
@@ -136,8 +137,7 @@ class GasDockMainFragment : Fragment() {
                                 recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                             }
                         }
-                    }
-                    else {
+                    } else {
                         val rlist = Utils.ToIntRange(lstvalue, gasStorageViewData.size)
                         if (rlist != null) {
 //                            Log.d("debug", "${lstvalue.size}")
@@ -244,7 +244,9 @@ class GasDockMainFragment : Fragment() {
 
         updateAlert()
 
-        mBinding.tvCurruntTime.text = mainViewModel.getCurrnetDate()
+        mainViewModel.date.observe(viewLifecycleOwner) {
+            mBinding.tvCurruntTime.text = it
+        }
         return mBinding.root
     }
 
@@ -264,13 +266,13 @@ class GasDockMainFragment : Fragment() {
         )
 
         newgasStorageViewData.clear()
-        for(tmp in mm) {
+        for (tmp in mm) {
             if (tmp.usable)
                 newgasStorageViewData.add(tmp)
         }
 //        newgasStorageViewData.addAll(mm)
         gasStorageViewData.clear()
-        for(t in newgasStorageViewData) {
+        for (t in newgasStorageViewData) {
             gasStorageViewData.add(t.copy())
         }
 
@@ -278,7 +280,7 @@ class GasDockMainFragment : Fragment() {
 
         if (mainViewModel.storageViewZoomState) {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
-        }else{
+        } else {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
 

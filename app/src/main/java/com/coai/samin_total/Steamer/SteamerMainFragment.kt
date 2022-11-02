@@ -244,6 +244,9 @@ class SteamerMainFragment : Fragment() {
         }
 
         updateAlert()
+        viewmodel.date.observe(viewLifecycleOwner) {
+            mBinding.tvCurruntTime.text = it
+        }
         return mBinding.root
     }
 
