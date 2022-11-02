@@ -34,6 +34,7 @@ class AQDataParser(viewModel: MainViewModel) {
     val alertBase = HashMap<Int, Float>()
     val alertMap = HashMap<Int, Boolean>()
     val alertMap2 = HashMap<Int, Boolean>()
+    val pressStateMap = HashMap<Int, Int>()
 
     private fun alertMapClear() {
         alertBase.clear()
@@ -666,6 +667,7 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
 //                viewModel.gasRoomAlert.value = true
+                pressStateMap[id] = 0
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -702,6 +704,9 @@ class AQDataParser(viewModel: MainViewModel) {
                     if (alertMap2.containsKey(id)) {
                         alertMap2.remove(id)
                     }
+                    if (pressStateMap.containsKey(id)){
+                        pressStateMap.remove(id)
+                    }
                 }
             } else {
                 tmp.isSlopeAlert = false
@@ -712,7 +717,8 @@ class AQDataParser(viewModel: MainViewModel) {
         //수정
         if (tmp.pressure > tmp.limit_max) {
             tmp.isPressAlert = true
-            if (alertMap2[id] == null) {
+            if (alertMap2[id] == null || pressStateMap[id] != 1) {
+                pressStateMap[id] = 1
                 alertMap2.put(id, true)
                 viewModel.addAlertInfo(
                     id,
@@ -729,7 +735,8 @@ class AQDataParser(viewModel: MainViewModel) {
             }
         } else if (tmp.pressure < tmp.limit_min) {
             tmp.isPressAlert = true
-            if (alertMap2[id] == null) {
+            if (alertMap2[id] == null || pressStateMap[id] != 2) {
+                pressStateMap[id] = 2
                 alertMap2.put(id, true)
                 viewModel.addAlertInfo(
                     id,
@@ -761,6 +768,9 @@ class AQDataParser(viewModel: MainViewModel) {
                 if (alertMap2.containsKey(id)) {
                     alertMap2.remove(id)
                 }
+                if (pressStateMap.containsKey(id)){
+                    pressStateMap.remove(id)
+                }
             }
         }
         //수정 끝
@@ -768,6 +778,8 @@ class AQDataParser(viewModel: MainViewModel) {
         tmp.isAlert = tmp.isPressAlert || tmp.isSlopeAlert
         val bro = setAQport[id] as SetGasRoomViewData
         bro.pressure = tmp.pressure
+        bro.isPressAlert = tmp.isPressAlert
+        bro.isSlopeAlert = tmp.isSlopeAlert
         bro.isAlert = tmp.isAlert
 
         val idx = KeyUtils.getIndex(
