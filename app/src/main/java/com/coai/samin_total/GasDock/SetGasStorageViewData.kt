@@ -51,5 +51,7 @@ data class SetGasStorageViewData(
     var right_rewardValue: Float = 1f,
     var unit:Int = 0,
     val modelByte: Byte = 1,
-    var heartbeatCount : UByte = 0u
+    var heartbeatCount : UByte = 0u,
+    var isLowLeftPressAlert :Boolean = false,
+    var isLowRightPressAlert:Boolean = false
 )

@@ -1,6 +1,5 @@
 package com.coai.samin_total.GasDock
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -94,9 +93,8 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
             setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
             setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
+            gasDcokView.setLowLeftPressAlert(setGasStorageViewData.isLowLeftPressAlert)
             setGasStorageViewData.isAlert?.let { gasDcokView.setAlert(it) }
-//            setGasStorageViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
-//            setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
             setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
             gasDcokView.setGasUnit(setGasStorageViewData.unit)
             gasDcokView.heartBeat(setGasStorageViewData.heartbeatCount)
@@ -112,6 +110,8 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
             setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
             setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
+            gasDcokView.setLowLeftPressAlert(setGasStorageViewData.isLowLeftPressAlert)
+            gasDcokView.setLowRightPressAlert(setGasStorageViewData.isLowRightPressAlert)
             setGasStorageViewData.isAlert?.let { gasDcokView.setAlert(it) }
             setGasStorageViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
             setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
@@ -148,6 +148,8 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
             setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
             setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
+            gasDcokView.setLowLeftPressAlert(setGasStorageViewData.isLowLeftPressAlert)
+            gasDcokView.setLowRightPressAlert(setGasStorageViewData.isLowRightPressAlert)
             setGasStorageViewData.isAlert?.let { gasDcokView.setAlert(it) }
             setGasStorageViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
             setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }

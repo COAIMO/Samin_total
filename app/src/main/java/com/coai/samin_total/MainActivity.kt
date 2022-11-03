@@ -1727,21 +1727,25 @@ class MainActivity : AppCompatActivity() {
 //                            view_list.clear()
 //                        }
                         runOnUiThread {
-                            if (!mainViewModel.alertDialogFragment.isAdded) {
-                                for (i in removelist) {
-                                    mainViewModel.popUpDataLiveList.remove(i)
+                            try {
+                                if (!mainViewModel.alertDialogFragment.isAdded) {
+                                    for (i in removelist) {
+                                        mainViewModel.popUpDataLiveList.remove(i)
+                                    }
+                                    removelist.clear()
+                                } else {
+                                    for (i in alertremovelist) {
+                                        mainViewModel.popUpDataLiveList.remove(i)
+                                    }
+                                    alertremovelist.clear()
                                 }
-                                removelist.clear()
-                            } else {
-                                for (i in alertremovelist){
-                                    mainViewModel.popUpDataLiveList.remove(i)
-                                }
-                                alertremovelist.clear()
-                            }
 
-                            mainViewModel.popUpDataLiveList.addAll(alertlist)
-                            mainViewModel.popUpDataLiveList.notifyChange()
-                            alertlist.clear()
+                                mainViewModel.popUpDataLiveList.addAll(alertlist)
+                                mainViewModel.popUpDataLiveList.notifyChange()
+                                alertlist.clear()
+                            }catch (e:Exception){
+                                e.printStackTrace()
+                            }
 
                         }
 
@@ -1780,11 +1784,15 @@ class MainActivity : AppCompatActivity() {
 
                         if (chk) {
                             runOnUiThread {
-                                if (!alertPopUpFragment.isAdded)
-                                    alertPopUpFragment.show(
-                                        supportFragmentManager,
-                                        ""
-                                    )
+                                try {
+                                    if (!alertPopUpFragment.isAdded)
+                                        alertPopUpFragment.show(
+                                            supportFragmentManager,
+                                            ""
+                                        )
+                                }catch (e:Exception){
+                                    e.printStackTrace()
+                                }
                             }
                         }
 

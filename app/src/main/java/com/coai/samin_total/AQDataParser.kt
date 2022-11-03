@@ -374,11 +374,11 @@ class AQDataParser(viewModel: MainViewModel) {
         }
         tmp.pressure = value
         if (tmp.pressure_Min!! > tmp.pressure!!) {
-            tmp.isAlert = true
+//            tmp.isAlert = true
+            tmp.isLowLeftPressAlert = true
 
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
-//                viewModel.gasStorageAlert.value = true
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -393,9 +393,9 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         } else {
-            tmp.isAlert = false
+//            tmp.isAlert = false
+            tmp.isLowLeftPressAlert = false
             if (alertMap.containsKey(id)) {
-//                viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -412,7 +412,9 @@ class AQDataParser(viewModel: MainViewModel) {
                 }
             }
         }
+        tmp.isAlert = tmp.isLowLeftPressAlert
         val bro = setAQport[id] as SetGasStorageViewData
+        bro.isLowLeftPressAlert = tmp.isLowLeftPressAlert
         bro.isAlert = tmp.isAlert
         bro.pressure = tmp.pressure
 
@@ -477,11 +479,10 @@ class AQDataParser(viewModel: MainViewModel) {
         tmp.pressureRight = right_pressure
 
         if (tmp.pressure_Min!! > tmp.pressureLeft!!) {
-            tmp.isAlertLeft = true
-
+//            tmp.isAlertLeft = true
+                tmp.isLowLeftPressAlert = true
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
-//                viewModel.gasStorageAlert.value = true
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -496,9 +497,9 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         } else if (tmp.pressure_Min!! < tmp.pressureLeft!!) {
-            tmp.isAlertLeft = false
+//            tmp.isAlertLeft = false
+            tmp.isLowLeftPressAlert = false
             if (alertMap.containsKey(id)) {
-//                viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
                     id,
                     SetAlertData(
@@ -518,10 +519,10 @@ class AQDataParser(viewModel: MainViewModel) {
         }
 
         if (tmp.pressure_Min!! > tmp.pressureRight!!) {
-            tmp.isAlertRight = true
+//            tmp.isAlertRight = true
+            tmp.isLowRightPressAlert = true
             if (alertMap2[id] == null) {
                 alertMap2.put(id, true)
-//                viewModel.gasStorageAlert.value = true
                 viewModel.addAlertInfo(
                     id + 65536,
                     SetAlertData(
@@ -536,9 +537,9 @@ class AQDataParser(viewModel: MainViewModel) {
             }
 
         } else if (tmp.pressure_Min!! < tmp.pressureRight!!) {
-            tmp.isAlertRight = false
+//            tmp.isAlertRight = false
+            tmp.isLowRightPressAlert = false
             if (alertMap2.containsKey(id)) {
-//                viewModel.gasStorageAlert.value = false
                 viewModel.addAlertInfo(
                     id + 65536,
                     SetAlertData(
@@ -556,10 +557,14 @@ class AQDataParser(viewModel: MainViewModel) {
                 }
             }
         }
+        tmp.isAlertLeft = tmp.isLowLeftPressAlert
+        tmp.isAlertRight = tmp.isLowRightPressAlert
 
         val bro = setAQport[id] as SetGasStorageViewData
         bro.pressureLeft = tmp.pressureLeft
         bro.pressureRight = tmp.pressureRight
+        bro.isLowLeftPressAlert = tmp.isLowLeftPressAlert
+        bro.isLowRightPressAlert = tmp.isLowRightPressAlert
         bro.isAlertLeft = tmp.isAlertLeft
         bro.isAlertRight = tmp.isAlertRight
 
@@ -1463,6 +1468,8 @@ class AQDataParser(viewModel: MainViewModel) {
             )
             if (current is SetGasStorageViewData) {
                 (current as SetGasStorageViewData).isAlert = true
+                current.isLowLeftPressAlert = false
+                current.isLowRightPressAlert = false
                 current.isAlertRight = true
                 current.isAlertLeft = true
 
@@ -1511,7 +1518,8 @@ class AQDataParser(viewModel: MainViewModel) {
                     id,
                     "AQ 신호 이상(통신불가)",
                     port,
-                    true
+                    true,
+                    4
                 )
             )
             lostConnectAQs[tmp.key] = true
@@ -1527,6 +1535,8 @@ class AQDataParser(viewModel: MainViewModel) {
             if (alertinfo == alertinfo || !alertinfo!!.isAlert) {
                 if (current is SetGasStorageViewData) {
                     (current as SetGasStorageViewData).isAlert = false
+                    current.isLowLeftPressAlert = false
+                    current.isLowRightPressAlert = false
                     current.isAlertRight = false
                     current.isAlertLeft = false
                 } else if (current is SetGasRoomViewData)

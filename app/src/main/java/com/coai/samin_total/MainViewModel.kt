@@ -227,16 +227,18 @@ class MainViewModel : ViewModel() {
                     exalertMap.remove(arg.id)
             } else {
                 // 에러일 경우
-                if (arg.alertState == 0) {
-                    // 매시브릭일 때
-                    if (!exalertMap.containsKey(arg.id))
-                        exalertMap.put(arg.id, arg.alertState)
-                } else {
-                    // 기타 알람
-                    if (exalertMap.containsKey(arg.id) &&
-                        exalertMap[arg.id] != arg.alertState
-                    ) {
-                        return
+                if (arg.model == 2){
+                    if (arg.alertState == 0) {
+                        // 매시브릭일 때
+                        if (!exalertMap.containsKey(arg.id))
+                            exalertMap.put(arg.id, arg.alertState)
+                    } else {
+                        // 기타 알람
+                        if (exalertMap.containsKey(arg.id) &&
+                            exalertMap[arg.id] != arg.alertState
+                        ) {
+                            return
+                        }
                     }
                 }
                 alertMap[id] = arg
