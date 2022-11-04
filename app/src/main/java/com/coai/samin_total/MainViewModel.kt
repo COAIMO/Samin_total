@@ -21,6 +21,7 @@ import com.coai.samin_total.Logic.*
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerSettingFragment
+import com.coai.samin_total.TempHum.SetTempHumViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.database.AlertData
 import com.coai.samin_total.database.AlertDatabase
@@ -57,7 +58,8 @@ class MainViewModel : ViewModel() {
         const val STEAMERSETTINGFRAGMENT = 20
         const val WASTELIQUORSETTINGFRAGMENT = 21
         const val GASROOMLEAKTESTFRAGMENT = 22
-
+        const val TEMPHUMMAINFRAGMENT =23
+        const val TEMPHUMSETTINGFRAGMENT = 24
         const val GasDockStorage = 1.toByte()
         const val GasRoom = 2.toByte()
         const val WasteLiquor = 3.toByte()
@@ -72,7 +74,7 @@ class MainViewModel : ViewModel() {
     val WasteLiquorDataLiveList = MutableListLiveData<SetWasteLiquorViewData>()
     val OxygenDataLiveList = MutableListLiveData<SetOxygenViewData>()
     val SteamerDataLiveList = MutableListLiveData<SetSteamerViewData>()
-
+    val TempHumDataLiveList = MutableListLiveData<SetTempHumViewData>()
     //    var oxygenMasterData = SetOxygenViewData("0",0,0)
 //    var oxygenMasterData: SetOxygenViewData? = null
     val oxygensData = HashMap<Int, SetOxygenViewData>()
@@ -272,6 +274,7 @@ class MainViewModel : ViewModel() {
     var wasteViewZoomState = false
     var oxygenViewZoomState = false
     var steamerViewZoomState = false
+    var tempHumViewZoomState = false
 
     /**
      *  관제 설정 데이터

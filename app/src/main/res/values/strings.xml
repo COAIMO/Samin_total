@@ -36,6 +36,7 @@
     <string name="title_level_lab">LEVEL - LAB</string>
     <string name="title_oxygen_lab">OXYGEN - LAB</string>
     <string name="title_level_temperature_lab">LEVEL/TEMP - LAB</string>
+    <string name="title_tempHum_lab">TEMP/HUM - LAB</string>
     <string name="text_setting_pairing">미러링 설정 복제</string>
     <string name="text_aq_setting">AQ Setting</string>
     <string name="text_connection">연결</string>

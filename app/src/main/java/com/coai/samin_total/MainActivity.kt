@@ -36,6 +36,8 @@ import com.coai.samin_total.Service.SerialService
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerMainFragment
 import com.coai.samin_total.Steamer.SteamerSettingFragment
+import com.coai.samin_total.TempHum.TempHumMainFragment
+import com.coai.samin_total.TempHum.TempHumSettingFragment
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
@@ -83,6 +85,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var wasteLiquorSettingFragment: WasteWaterSettingFragment
     lateinit var gasRoomLeakTestFragment: RoomLeakTestFragment
     lateinit var alertPopUpFragment: AlertPopUpFragment
+    lateinit var tempHumFragment:TempHumMainFragment
+    lateinit var tempHumSettingFragment: TempHumSettingFragment
     private lateinit var mainViewModel: MainViewModel
     lateinit var db: SaminDataBase
     lateinit var shared: SaminSharedPreference
@@ -231,6 +235,7 @@ class MainActivity : AppCompatActivity() {
     var wasteLiquor_ids_list = mutableListOf<Byte>()
     var oxygen_ids_list = mutableListOf<Byte>()
     var steamer_ids_list = mutableListOf<Byte>()
+    var temphum_ids_list = mutableListOf<Byte>()
 
     //    val modelMap = HashMap<String, ByteArray>()
     fun idsListClear() {
@@ -239,6 +244,7 @@ class MainActivity : AppCompatActivity() {
         wasteLiquor_ids_list.clear()
         oxygen_ids_list.clear()
         steamer_ids_list.clear()
+        temphum_ids_list.clear()
         protocolBuffers.clear()
     }
 
@@ -357,6 +363,8 @@ class MainActivity : AppCompatActivity() {
         wasteLiquorSettingFragment = WasteWaterSettingFragment()
         gasRoomLeakTestFragment = RoomLeakTestFragment()
         alertPopUpFragment = AlertPopUpFragment()
+        tempHumFragment = TempHumMainFragment()
+        tempHumSettingFragment = TempHumSettingFragment()
     }
 
     fun onFragmentChange(index: Int) {
@@ -412,6 +420,10 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.HostFragment_container, wasteLiquorSettingFragment).commit()
             MainViewModel.GASROOMLEAKTESTFRAGMENT -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, gasRoomLeakTestFragment).commit()
+            MainViewModel.TEMPHUMMAINFRAGMENT -> supportFragmentManager.beginTransaction()
+                .replace(R.id.HostFragment_container, tempHumFragment).commit()
+            MainViewModel.TEMPHUMSETTINGFRAGMENT -> supportFragmentManager.beginTransaction()
+                .replace(R.id.HostFragment_container, tempHumSettingFragment).commit()
             else -> supportFragmentManager.beginTransaction()
                 .replace(R.id.HostFragment_container, mainFragment).commit()
         }
@@ -1135,10 +1147,16 @@ class MainActivity : AppCompatActivity() {
                                 mainViewModel.modelMap["Steamer"] = ids
                                 mainViewModel.modelMapInt[msg.arg1] = ids
                             }
+                            6 ->{
+                                temphum_ids_list.add(msg.arg2.toByte())
+                                val ids = temphum_ids_list.distinct().toByteArray()
+                                mainViewModel.modelMap["TempHum"] = ids
+                                mainViewModel.modelMapInt[msg.arg1] = ids
+                            }
                         }
                     }
                 }
-                SerialService.MSG_SHARE_SETTING -> {
+                SerialService.`MSG_SHARE_SETTING` -> {
                     val buff = msg.data.getByteArray("")
                     Log.d(mainTAG, "datahandler : \n${HexDump.dumpHexString(buff)}")
                     if (buff != null) {
@@ -1509,6 +1527,18 @@ class MainActivity : AppCompatActivity() {
                         tmp.hmapLastedDate[key] = time
                         tmp.ProcessSteamer(key, temp_data, level_data)
                     }
+                }
+                SerialService.MSG_TEMPHUM ->{
+                    val recvdata = (msg.data.getSerializable("") as ParsingData)
+                    val id = recvdata.id
+                    val model = recvdata.model
+                    val time = recvdata.time
+                    val datas = recvdata.datas
+
+                    val port = 1.toByte()
+                    val key = littleEndianConversion(byteArrayOf(model, id.toByte(), port))
+                    tmp.hmapLastedDate[key] = time
+                    tmp.ProcessOxygen(key, datas[0])
                 }
 
                 else -> super.handleMessage(msg)

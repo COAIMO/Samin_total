@@ -20,6 +20,7 @@ import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.R
 import com.coai.samin_total.Steamer.SetSteamerViewData
+import com.coai.samin_total.TempHum.SetTempHumViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentScanAlertDialogBinding
 
@@ -38,7 +39,7 @@ class ScanAlertDialogFragment : DialogFragment() {
     private var param1: String? = null
     private var param2: String? = null
     var activity: MainActivity? = null
-    private lateinit var mBinding:FragmentScanAlertDialogBinding
+    private lateinit var mBinding: FragmentScanAlertDialogBinding
     lateinit var sendThread: Thread
     lateinit var progress_Dialog: ProgressDialog
     private val viewmodel: MainViewModel by activityViewModels()
@@ -90,9 +91,9 @@ class ScanAlertDialogFragment : DialogFragment() {
         }
     }
 
-    private fun onClick(view: View){
-        when(view){
-            mBinding.btnCancel ->{
+    private fun onClick(view: View) {
+        when (view) {
+            mBinding.btnCancel -> {
                 dismiss()
             }
             mBinding.btnOkay -> {
@@ -108,9 +109,9 @@ class ScanAlertDialogFragment : DialogFragment() {
         sendThread = Thread {
             try {
                 viewmodel.isScanmode = true
-                    activity?.deleteExDataSet()
-                    activity?.feedBackThreadInterrupt()
-                for (model in 1..5) {
+                activity?.deleteExDataSet()
+                activity?.feedBackThreadInterrupt()
+                for (model in 1..6) {
                     for (id in 0..7) {
                         for (count in 0..2) {
                             val protocol = SaminProtocol()
@@ -132,7 +133,7 @@ class ScanAlertDialogFragment : DialogFragment() {
                 if (viewmodel.modelMap.isEmpty()) {
                     Toast.makeText(requireContext(), "연결된 AQ보드가 없습니다.", Toast.LENGTH_SHORT).show()
                     dismiss()
-                }else{
+                } else {
                     dismiss()
                     (requireActivity() as MainActivity).onFragmentChange(MainViewModel.MAINFRAGMENT)
                 }
@@ -142,7 +143,7 @@ class ScanAlertDialogFragment : DialogFragment() {
                 activity?.callFeedback()
                 activity?.isSending = true
             }
-            if (!activity?.isPopUp!!){
+            if (!activity?.isPopUp!!) {
                 activity?.popUpAlertSend()
                 activity?.isPopUp = true
             }
@@ -153,7 +154,8 @@ class ScanAlertDialogFragment : DialogFragment() {
         sendThread.start()
 
     }
-    private fun clearLiveData(){
+
+    private fun clearLiveData() {
         if (!shared.loadHashMap().isNullOrEmpty()) {
             shared.loadHashMap().forEach { (key, value) ->
                 viewmodel.modelMap[key] = value
@@ -214,6 +216,15 @@ class ScanAlertDialogFragment : DialogFragment() {
                 }
             }
 
+            viewmodel.TempHumDataLiveList.clear(true)
+            val temphumDataSet =
+                shared.loadBoardSetData(SaminSharedPreference.TEMPHUM) as MutableList<SetTempHumViewData>
+            if (temphumDataSet.isNotEmpty()) {
+                for (i in temphumDataSet) {
+                    viewmodel.TempHumDataLiveList.add(i)
+                }
+            }
+
 //            viewmodel.oxygenMasterData = null
 //            viewmodel.oxygensData.clear()
 //            val tmpobj =
@@ -232,6 +243,7 @@ class ScanAlertDialogFragment : DialogFragment() {
         }
         createHasKey()
     }
+
     private fun createHasKey() {
         for ((key, value) in viewmodel.modelMapInt) {
             val model = key.toByte()
@@ -271,10 +283,21 @@ class ScanAlertDialogFragment : DialogFragment() {
                             )
                         viewmodel.hasKey.put(createkey, createkey)
                     }
+                } else if (key == 6){
+                    val createkey =
+                        littleEndianConversion(
+                            byteArrayOf(
+                                model,
+                                id,
+                                1.toByte()
+                            )
+                        )
+                    viewmodel.hasKey.put(createkey, createkey)
                 }
             }
         }
     }
+
     private fun littleEndianConversion(bytes: ByteArray): Int {
         var result = 0
         for (i in bytes.indices) {
@@ -282,6 +305,7 @@ class ScanAlertDialogFragment : DialogFragment() {
         }
         return result
     }
+
     private fun getProgressShow() {
         try {
             val str_tittle = "Please Wait ..."
@@ -329,6 +353,7 @@ class ScanAlertDialogFragment : DialogFragment() {
             e.printStackTrace()
         }
     }
+
     companion object {
         /**
          * Use this factory method to create a new instance of

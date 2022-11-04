@@ -263,6 +263,9 @@ class MainFragment : Fragment() {
         mBinding.btnSound.setOnClickListener {
             onClick(mBinding.btnSound)
         }
+        mBinding.tempHumMainStatus.setOnClickListener{
+            onClick(it)
+        }
 //        mBinding.btnHomepage.setOnClickListener {
 //            onClick(it)
 //        }
@@ -304,6 +307,9 @@ class MainFragment : Fragment() {
                     mBinding.btnSound.setImageResource(R.drawable.sound_ic)
                     viewmodel.isSoundAlert = true
                 }
+            }
+            mBinding.tempHumMainStatus ->{
+                activity?.onFragmentChange(MainViewModel.TEMPHUMMAINFRAGMENT)
             }
 //            mBinding.btnHomepage ->{
 //                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.saminsci.com/"))
@@ -381,6 +387,7 @@ class MainFragment : Fragment() {
                     key.equals("WasteLiquor") -> 3
                     key.equals("Oxygen") -> 4
                     key.equals("Steamer") -> 5
+                    key.equals("TempHum") -> 6
                     else -> 1
                 }
 
