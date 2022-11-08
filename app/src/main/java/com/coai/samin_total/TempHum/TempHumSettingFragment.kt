@@ -165,7 +165,7 @@ class TempHumSettingFragment : Fragment() {
         setTempHumInfo.removeAll(setTempHumInfo)
         for ((key, ids) in viewmodel.modelMap) {
             //indices 배열을 인덱스 범위
-            if (key == "WasteLiquor") {
+            if (key == "TempHum") {
                 for (id in ids.indices) {
                     setTempHumInfo.add(
                         SetTempHumViewData(

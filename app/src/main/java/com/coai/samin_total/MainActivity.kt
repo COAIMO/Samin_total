@@ -36,6 +36,7 @@ import com.coai.samin_total.Service.SerialService
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerMainFragment
 import com.coai.samin_total.Steamer.SteamerSettingFragment
+import com.coai.samin_total.TempHum.SetTempHumViewData
 import com.coai.samin_total.TempHum.TempHumMainFragment
 import com.coai.samin_total.TempHum.TempHumSettingFragment
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
@@ -85,7 +86,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var wasteLiquorSettingFragment: WasteWaterSettingFragment
     lateinit var gasRoomLeakTestFragment: RoomLeakTestFragment
     lateinit var alertPopUpFragment: AlertPopUpFragment
-    lateinit var tempHumFragment:TempHumMainFragment
+    lateinit var tempHumFragment: TempHumMainFragment
     lateinit var tempHumSettingFragment: TempHumSettingFragment
     private lateinit var mainViewModel: MainViewModel
     lateinit var db: SaminDataBase
@@ -106,6 +107,7 @@ class MainActivity : AppCompatActivity() {
     private val recvOxygenMSTBuffers = HashMap<Int, ByteArray>()
     private val recvModemapBuffers = HashMap<Int, ByteArray>()
     private val recvLabNameBuffers = HashMap<Int, ByteArray>()
+    private val recvTempHumBuffers = HashMap<Int, ByteArray>()
 
     // 보드별 최종 전송시간
     private val alertsendLastTime = HashMap<Int, Long>()
@@ -706,13 +708,23 @@ class MainActivity : AppCompatActivity() {
                         diffkeys.remove(ledkey)
 
 //                        tmpBits = tmpBits or (1 shl (port - 1)).toByte()
-                        if (model == 4.toByte()) {
+                        if (model == 4.toByte() || model == 6.toByte()) {
                             tmpBits = 0b11111
                         } else if (model == 5.toByte()) {
                             tmpBits = tmpBits or (3 shl (port - 1)).toByte()
                             Log.d("LED", "tmpBits 2 = ${tmpBits}")
 
-                        } else {
+                        }
+//                        else if (model == 6.toByte()){
+//                            if(mainViewModel.temphumAlertState == 0){
+//                                tmpBits = 0b10011
+//                            }else if (mainViewModel.temphumAlertState == 1){
+//                                tmpBits = 0b11100
+//                            }else if (mainViewModel.temphumAlertState == 2){
+//                                tmpBits = 0b11111
+//                            }
+//                        }
+                        else {
                             tmpBits = tmpBits or (1 shl (port - 1)).toByte()
                         }
                         if (id == 8.toByte())
@@ -902,7 +914,6 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-
                     runOnUiThread {
                         try {
                             mainViewModel.gasStorageAlert.value = targets.containsKey(1)
@@ -922,6 +933,10 @@ class MainActivity : AppCompatActivity() {
                         }
                         try {
                             mainViewModel.steamerAlert.value = targets.containsKey(5)
+                        } catch (ex: Exception) {
+                        }
+                        try {
+                            mainViewModel.tempHumAlert.value = targets.containsKey(6)
                         } catch (ex: Exception) {
                         }
                     }
@@ -1147,7 +1162,7 @@ class MainActivity : AppCompatActivity() {
                                 mainViewModel.modelMap["Steamer"] = ids
                                 mainViewModel.modelMapInt[msg.arg1] = ids
                             }
-                            6 ->{
+                            6 -> {
                                 temphum_ids_list.add(msg.arg2.toByte())
                                 val ids = temphum_ids_list.distinct().toByteArray()
                                 mainViewModel.modelMap["TempHum"] = ids
@@ -1373,6 +1388,38 @@ class MainActivity : AppCompatActivity() {
 //                                        allDone = false
 //                                    }
 //                                }
+                                // 온습도 설정 복원
+                                var tmpTempHum = ByteArray(0)
+                                var sortTempHum = sortMapByKey(recvTempHumBuffers)
+                                for (t in sortTempHum.values) {
+                                    tmpTempHum = tmpTempHum.plus(t.sliceArray(8..t.size - 1))
+                                }
+                                //                            Log.d(mainTAG, "tmpSteamer : ${HexDump.dumpHexString(tmpSteamer)}")
+                                try {
+                                    val objgas =
+                                        ProtoBuf.decodeFromByteArray<List<SetTempHumViewData>>(
+                                            tmpTempHum
+                                        )
+                                    mainViewModel.TempHumDataLiveList.clear(true)
+                                    for (t in objgas) {
+                                        t.isAlert = false
+                                        t.isTempAlert = false
+                                        t.isHumAlert = false
+                                        t.temp = 0f
+                                        t.hum = 0f
+                                        t.heartbeatCount = 0u
+                                        mainViewModel.TempHumDataLiveList.add(t)
+                                    }
+                                    val buff = mutableListOf<SetTempHumViewData>()
+                                    for (i in mainViewModel.TempHumDataLiveList.value!!) {
+                                        buff.add(i)
+                                    }
+                                    shared.saveBoardSetData(SaminSharedPreference.TEMPHUM, buff)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    allDone = false
+                                }
+
 
                                 var tmpModemap = ByteArray(0)
                                 var sortModemap = sortMapByKey(recvModemapBuffers)
@@ -1393,6 +1440,7 @@ class MainActivity : AppCompatActivity() {
                                             t.key.equals("WasteLiquor") -> 3
                                             t.key.equals("Oxygen") -> 4
                                             t.key.equals("Steamer") -> 5
+                                            t.key.equals("TempHum") -> 6
                                             else -> 1
                                         }
 
@@ -1443,6 +1491,7 @@ class MainActivity : AppCompatActivity() {
                                     recvSteamerBuffers.clear()
                                     recvOxygenMSTBuffers.clear()
                                     recvModemapBuffers.clear()
+                                    recvTempHumBuffers.clear()
                                     onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
                                 }
                             }
@@ -1528,7 +1577,7 @@ class MainActivity : AppCompatActivity() {
                         tmp.ProcessSteamer(key, temp_data, level_data)
                     }
                 }
-                SerialService.MSG_TEMPHUM ->{
+                SerialService.MSG_TEMPHUM -> {
                     val recvdata = (msg.data.getSerializable("") as ParsingData)
                     val id = recvdata.id
                     val model = recvdata.model
@@ -1538,7 +1587,9 @@ class MainActivity : AppCompatActivity() {
                     val port = 1.toByte()
                     val key = littleEndianConversion(byteArrayOf(model, id.toByte(), port))
                     tmp.hmapLastedDate[key] = time
-                    tmp.ProcessOxygen(key, datas[0])
+                    val hum = String.format("%.1f", (datas[0].toFloat() / 1000000f)).toFloat()
+                    val temp = String.format("%.1f", (datas[1].toFloat() / 1000000f)).toFloat()
+                    tmp.ProcessTempHum(key, temp, hum)
                 }
 
                 else -> super.handleMessage(msg)
@@ -1582,25 +1633,10 @@ class MainActivity : AppCompatActivity() {
         popUpThread?.join()
         isPopUp = true
         popUpThread = Thread {
-            val protocol = SaminProtocol()
             val alertchanged = ArrayList<Short>()
             val alertchangedRemind = ArrayList<Short>()
-            val exContent = ConcurrentHashMap<Int, SetAlertData>()
-            var prevAlertOxygen: Boolean = false
-            val saveContent = ConcurrentHashMap<Int, SetAlertData>()
             val lstValues = ArrayList<Int>()
-            val lstLowValues = ArrayList<Int>()
-
-            val exLowContnet = ConcurrentHashMap<Int, SetAlertData>()
-            val saveLowContent = ConcurrentHashMap<Int, SetAlertData>()
-            val view_list = mutableListOf<SetAlertData>()
-            val lst_list = mutableListOf<SetAlertData>()
-
-            val remove_list = mutableListOf<SetAlertData>()
-
             val exData = ConcurrentHashMap<Int, SetAlertData>()
-            val alertViewData = ConcurrentHashMap<Int, SetAlertData>()
-            val popUpViewData = ConcurrentHashMap<Int, SetAlertData>()
             val alertlist = mutableListOf<SetAlertData>()
             val removelist = mutableListOf<SetAlertData>()
             val removeMap = ConcurrentHashMap<Int, SetAlertData>()
@@ -1614,10 +1650,13 @@ class MainActivity : AppCompatActivity() {
 
                         lstValues.clear()
                         for ((key, value) in mainViewModel.alertMap) {
+                            Log.d("팝업", "알람맵 : ${mainViewModel.alertMap}")
+
                             val aqInfo = HexDump.toByteArray(key)
                             if (exData.containsKey(key)) {
                                 if (exData[key]?.isAlert != value.isAlert ||
-                                        exData[key]?.alertState != value.alertState) {
+                                    exData[key]?.alertState != value.alertState
+                                ) {
                                     removelist.add(exData[key]!!)
                                     Log.d("팝업", "제거 리스트추가 : ${removelist}")
                                     removeMap[key] = exData[key]!!
@@ -1627,7 +1666,7 @@ class MainActivity : AppCompatActivity() {
                             }
 
 
-                            if (!exData.containsKey(key)){
+                            if (!exData.containsKey(key)) {
                                 //  신규
                                 if (value.isAlert) {
                                     if (!lstValues.contains(value.model))
@@ -1641,11 +1680,18 @@ class MainActivity : AppCompatActivity() {
                                         }
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 // 변경
-                                if (
-                                    value.isAlert &&
+//                                if (
+//                                    (value.isAlert &&
+//                                    exData[key]?.isAlert == value.isAlert &&
+//                                    exData[key]?.alertState != value.alertState) ||
+//                                    (value.isAlert &&
+//                                            exData[key]?.isAlert == value.isAlert &&
+//                                            exData[key]?.alertState == value.alertState &&
+//                                            exData[key]?.time != value.time)
+//                                )
+                                if (value.isAlert &&
                                     exData[key]?.isAlert == value.isAlert &&
                                     exData[key]?.alertState != value.alertState
                                 ) {
@@ -1658,120 +1704,28 @@ class MainActivity : AppCompatActivity() {
                                     }
                                 }
                             }
-                            //이전 데이터가 없을 경우
-//                            if (!exContent.containsKey(key) ||
-//                                exContent[key] != value
-//                            ) {
-//
-//
-//                                // 값이 알람 일경우
-////                                if (value.isAlert) {
-////                                    exContent[key] = value
-////                                    if (!lstValues.contains(value.model))
-////                                        lstValues.add(value.model)
-//////                                    runOnUiThread {
-//////                                        try {
-//////                                            //다이얼로그가 떠있고
-//////                                            if (mainViewModel.alertDialogFragment.isAdded) {
-//////                                                //saveContent에 키가 존재할경우
-//////                                                // saveContent 값을 popUpDataLiveList에서 지운다.
-//////                                                if (saveContent.containsKey(key)) {
-//////                                                    Log.d("팝업", "지울리스트 = ${saveContent[key]}")
-//////                                                    saveContent[key]?.let {
-//////                                                        mainViewModel.popUpDataLiveList.remove(it)
-//////                                                        mainViewModel.popUpDataLiveList.notifyChange()
-//////                                                    }
-//////                                                    saveContent.remove(key)
-//////                                                }
-//////
-//////                                            }
-//////                                            Log.d("팝업", "추가 = ${value}")
-//////                                            // 알람 값을 추가한다.
-//////                                            mainViewModel.addPopupMap(key, value)
-//////                                            mainViewModel.popUpDataLiveList.add(value)
-//////                                            mainViewModel.popUpDataLiveList.notifyChange()
-//////
-//////                                        } catch (e: Exception) {
-//////                                            e.printStackTrace()
-//////                                        }
-//////                                    }
-////                                    //이거1111
-//////                                    if (saveContent.containsKey(key)) {
-//////                                        Log.d("pop", "삭제 리스트 삭제 : ${saveContent}")
-//////                                        saveContent[key]?.let { remove_list.add(it) }
-//////                                        saveContent.remove(key)
-//////                                    }
-//////                                    view_list.add(value)
-//////                                    Log.d("pop", "추가되는 리스트 : ${value}")
-////                                }
-//                            }
-                            //이전 값이 존재 할경우
-//                            if (exContent.containsKey(key)) {
-//                                //이전값 알람과 갱신된 알람 값이 다를 경우
-//                                if (exContent[key]!!.isAlert != value.isAlert) {
-////                                    mainViewModel.removePopupMap(key, exContent[key]!!)
-////                                    runOnUiThread {
-////                                        try {
-////                                            if (mainViewModel.alertDialogFragment.isAdded) {
-//////                                                saveContent.ad
-//////                                                Log.d("팝업", "지울리스트 추가 = ${exContent[key]}")
-////
-////                                                // 저장값에 이전 데이터를 넣어준다.
-////                                                saveContent[key] = exContent[key]!!
-////                                            } else {
-////                                                // 팝업에 이전 데이터 삭제
-////                                                mainViewModel.popUpDataLiveList.remove(exContent[key]!!)
-////                                                mainViewModel.popUpDataLiveList.notifyChange()
-////                                            }
-////                                            //이전 데이터 삭제
-////                                            exContent.remove(key)
-////                                        } catch (e: Exception) {
-////                                            e.printStackTrace()
-////                                        }
-////                                    }
-//
-//                                    //이거1111
-////                                    saveContent[key] = exContent[key]!!
-////                                    remove_list.add(exContent[key]!!)
-////                                    exContent.remove(key)
-//
-//                                }
-//                            }
-
-
                         }
-//                        runOnUiThread {
-//                            for (i in remove_list) {
-//                                Log.d("테스트", "삭제되는 데이터 : ${i}")
-//                                mainViewModel.popUpDataLiveList.remove(i)
-//                            }
-//                            Log.d("테스트", "savecontn : ${saveContent}")
-//                            remove_list.clear()
-//
-//                            if (view_list.isNotEmpty()) {
-//                                mainViewModel.popUpDataLiveList.addAll(view_list)
-//                                Log.d("테스트", "추가되는 데이터 : ${view_list}")
-//                                mainViewModel.popUpDataLiveList.notifyChange()
-//                            }
-//
-//                            view_list.clear()
-//                        }
-                        runOnUiThread {
-                            if (!mainViewModel.alertDialogFragment.isAdded) {
-                                for (i in removelist) {
-                                    mainViewModel.popUpDataLiveList.remove(i)
-                                }
-                                removelist.clear()
-                            } else {
-                                for (i in alertremovelist){
-                                    mainViewModel.popUpDataLiveList.remove(i)
-                                }
-                                alertremovelist.clear()
-                            }
 
-                            mainViewModel.popUpDataLiveList.addAll(alertlist)
-                            mainViewModel.popUpDataLiveList.notifyChange()
-                            alertlist.clear()
+                        runOnUiThread {
+                            try {
+                                if (!mainViewModel.alertDialogFragment.isAdded) {
+                                    for (i in removelist) {
+                                        mainViewModel.popUpDataLiveList.remove(i)
+                                    }
+                                    removelist.clear()
+                                } else {
+                                    for (i in alertremovelist) {
+                                        mainViewModel.popUpDataLiveList.remove(i)
+                                    }
+                                    alertremovelist.clear()
+                                }
+
+                                mainViewModel.popUpDataLiveList.addAll(alertlist)
+                                mainViewModel.popUpDataLiveList.notifyChange()
+                                alertlist.clear()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
 
                         }
 
@@ -1804,6 +1758,11 @@ class MainActivity : AppCompatActivity() {
                                             chk = true
                                         }
                                     }
+                                    6 -> {
+                                        if (setFragment != MainViewModel.TEMPHUMMAINFRAGMENT) {
+                                            chk = true
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1817,29 +1776,6 @@ class MainActivity : AppCompatActivity() {
                                     )
                             }
                         }
-
-
-//                        try {
-//                            if (!mainViewModel.alertDialogFragment.isAdded) {
-//                                val removelist: ArrayList<SetAlertData> = ArrayList()
-//                                for (i in saveContent) {
-//                                    Log.d("test", "지울리스트= ${i}")
-//                                    removelist.add(i.value)
-//                                }
-//                                saveContent.clear()
-//                                runOnUiThread {
-//                                    for (i in removelist) {
-//                                        mainViewModel.popUpDataLiveList.remove(
-//                                            i
-//                                        )
-//                                    }
-//                                    mainViewModel.popUpDataLiveList.notifyChange()
-//                                }
-//                            }
-//
-//                        } catch (ex: Exception) {
-//                            ex.printStackTrace()
-//                        }
                     }
                     Thread.sleep(200)
 

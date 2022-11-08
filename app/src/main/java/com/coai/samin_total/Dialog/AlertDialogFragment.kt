@@ -187,6 +187,17 @@ class AlertDialogFragment : DialogFragment() {
 
                 }
             }
+            "TempHum" ->{
+                mBinding.tvTitle.text = "온습도 이벤트 발생 내역"
+                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
+                    val item = it.filter {
+                        it.model == 6
+                    }
+                    recycleAdapter.submitList(item)
+                    recycleAdapter.notifyDataSetChanged()
+
+                }
+            }
         }
 //        recycleAdapter.notifyDataSetChanged()
     }

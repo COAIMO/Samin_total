@@ -103,6 +103,10 @@ class AlertPopUpFragment : DialogFragment() {
                         activity?.onFragmentChange(MainViewModel.STEAMERMAINFRAGMENT)
                         activity?.alertPopUpFragment?.dismiss()
                     }
+                    6 ->{
+                        activity?.onFragmentChange(MainViewModel.TEMPHUMMAINFRAGMENT)
+                        activity?.alertPopUpFragment?.dismiss()
+                    }
                 }
             }
         })

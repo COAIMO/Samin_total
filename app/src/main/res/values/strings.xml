@@ -1,6 +1,5 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Samin_total</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_lab_name">Lab - 015</string>
     <string name="title_gas_storage">가스저장고</string>
@@ -21,7 +20,6 @@
     <string name="title_steamer_event_log">스팀기 이벤트 발생 내역</string>
     <string name="title_oxygen_event_log">산소 이벤트 발생 내역</string>
     <string name="title_wasteliquor_event_log">폐액 이벤트 발생 내역</string>
-
     <string name="text_use_mirror">RS485 미러링 여부</string>
     <string name="text_use_modbus">MODBUS RTU 연동</string>
     <string name="text_modbus_baudrate">MODBUS RTU 통신속도</string>

@@ -13,6 +13,7 @@ import com.coai.samin_total.AlertLog_RecyclerAdapter
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
+import com.coai.samin_total.Logic.Utils
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
@@ -34,7 +35,7 @@ class TempHumMainFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var mBinding: FragmentTempHumMainBinding
-    private lateinit var onBackPressed:OnBackPressedCallback
+    private lateinit var onBackPressed: OnBackPressedCallback
     private var activity: MainActivity? = null
     private val viewmodel by activityViewModels<MainViewModel>()
     lateinit var alertdialogFragment: AlertDialogFragment
@@ -76,6 +77,83 @@ class TempHumMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        isOnTaskRefesh = true
+        taskRefresh = Thread() {
+            try {
+                var lastupdate: Long = System.currentTimeMillis()
+                val lstvalue = mutableListOf<Int>()
+                while (isOnTaskRefesh) {
+                    lstvalue.clear()
+                    heartbeatCount++
+
+                    for (t in newtemphumViewData) {
+                        val idx = newtemphumViewData.indexOf(t)
+                        if (idx > -1) {
+
+
+                            if (temphumViewData[idx].unit != t.unit ||
+                                temphumViewData[idx].isTempAlert != t.isTempAlert ||
+                                temphumViewData[idx].isHumAlert != t.isHumAlert||
+                                temphumViewData[idx].temp != t.temp ||
+                                temphumViewData[idx].hum != t.hum
+                            ) {
+                                if (!lstvalue.contains(idx))
+                                    lstvalue.add(idx)
+                            }
+
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
+                                if (t.isTempAlert || t.isHumAlert) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                }
+//                                else if (temphumViewData[idx].isTemp == 0) {
+//                                    if (!lstvalue.contains(idx))
+//                                        lstvalue.add(idx)
+//                                }
+                            }
+
+                            t.heartbeatCount = heartbeatCount
+                            temphumViewData[idx] = t.copy()
+                        }
+                    }
+
+                    val baseTime = System.currentTimeMillis() - 1000 * 2
+                    if (lastupdate < baseTime) {
+                        lastupdate = System.currentTimeMillis()
+                        for (t in newtemphumViewData) {
+                            val idx = newtemphumViewData.indexOf(t)
+                            temphumViewData[idx] = t.copy()
+                        }
+
+                        synchronized(lockobj) {
+                            activity?.runOnUiThread {
+                                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                            }
+                        }
+                    } else {
+                        val rlist = Utils.ToIntRange(lstvalue, temphumViewData.size)
+                        if (rlist != null) {
+//                            Log.d("debug", "${rlist.size}")
+                            synchronized(lockobj) {
+                                activity?.runOnUiThread() {
+                                    rlist.forEach {
+                                        recycleAdapter.notifyItemRangeChanged(
+                                            it.lower,
+                                            1 + it.upper - it.lower
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Thread.sleep(50)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        taskRefresh?.start()
     }
 
     override fun onPause() {
@@ -89,7 +167,7 @@ class TempHumMainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        mBinding = FragmentTempHumMainBinding.inflate(inflater,container, false)
+        mBinding = FragmentTempHumMainBinding.inflate(inflater, container, false)
         shared = SaminSharedPreference(requireContext())
         itemSpace = SpacesItemDecoration(50)
         initRecycler()
@@ -132,7 +210,6 @@ class TempHumMainFragment : Fragment() {
         }
 
         mBinding.btnAlert.setOnClickListener {
-//            udateAlert()
             alertdialogFragment = viewmodel.alertDialogFragment
             val bundle = Bundle()
             bundle.putString("model", "TempHum")
@@ -151,7 +228,7 @@ class TempHumMainFragment : Fragment() {
 
     private fun initRecycler() {
         mBinding.tempHumRecyclerView.apply {
-            if (!viewmodel.wasteViewZoomState) {
+            if (!viewmodel.tempHumViewZoomState) {
                 layoutManager =
                     GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
                 itemSpace.changeSpace(50, 50, 90, 50)
@@ -175,19 +252,19 @@ class TempHumMainFragment : Fragment() {
         val mm =
             viewmodel.TempHumDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
         newtemphumViewData.clear()
-        for(tmp in mm)
+        for (tmp in mm)
             if (tmp.usable)
                 newtemphumViewData.add(tmp)
 
         temphumViewData.clear()
-        for(t in newtemphumViewData)
+        for (t in newtemphumViewData)
             temphumViewData.add(t.copy())
 
         recycleAdapter.submitList(newtemphumViewData)
 
         if (viewmodel.tempHumViewZoomState) {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
-        }else{
+        } else {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
 
@@ -197,8 +274,9 @@ class TempHumMainFragment : Fragment() {
             }
         }
     }
+
     private fun updateAlert() {
-        viewmodel.wasteAlert.observe(viewLifecycleOwner) {
+        viewmodel.tempHumAlert.observe(viewLifecycleOwner) {
             if (it) {
                 mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
             } else {
@@ -207,6 +285,7 @@ class TempHumMainFragment : Fragment() {
         }
 
     }
+
     companion object {
         /**
          * Use this factory method to create a new instance of

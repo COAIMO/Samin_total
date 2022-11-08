@@ -58,7 +58,7 @@ class MainViewModel : ViewModel() {
         const val STEAMERSETTINGFRAGMENT = 20
         const val WASTELIQUORSETTINGFRAGMENT = 21
         const val GASROOMLEAKTESTFRAGMENT = 22
-        const val TEMPHUMMAINFRAGMENT =23
+        const val TEMPHUMMAINFRAGMENT = 23
         const val TEMPHUMSETTINGFRAGMENT = 24
         const val GasDockStorage = 1.toByte()
         const val GasRoom = 2.toByte()
@@ -75,12 +75,14 @@ class MainViewModel : ViewModel() {
     val OxygenDataLiveList = MutableListLiveData<SetOxygenViewData>()
     val SteamerDataLiveList = MutableListLiveData<SetSteamerViewData>()
     val TempHumDataLiveList = MutableListLiveData<SetTempHumViewData>()
+
     //    var oxygenMasterData = SetOxygenViewData("0",0,0)
 //    var oxygenMasterData: SetOxygenViewData? = null
     val oxygensData = HashMap<Int, SetOxygenViewData>()
 
     val alertInfo = MutableListLiveData<SetAlertData>()
     val alertMap = ConcurrentHashMap<Int, SetAlertData>()
+
 //    val alertLowMap = ConcurrentHashMap<Int, SetAlertData>()//
 
     val portAlertMapLed = ConcurrentHashMap<Short, Byte>()
@@ -90,6 +92,7 @@ class MainViewModel : ViewModel() {
     val gasStorageAlert: MutableLiveData<Boolean> = MutableLiveData()
     val steamerAlert: MutableLiveData<Boolean> = MutableLiveData()
     val gasRoomAlert: MutableLiveData<Boolean> = MutableLiveData()
+    val tempHumAlert: MutableLiveData<Boolean> = MutableLiveData()
 
     var isSoundAlert = true
 
@@ -229,16 +232,18 @@ class MainViewModel : ViewModel() {
                     exalertMap.remove(arg.id)
             } else {
                 // 에러일 경우
-                if (arg.alertState == 0) {
-                    // 매시브릭일 때
-                    if (!exalertMap.containsKey(arg.id))
-                        exalertMap.put(arg.id, arg.alertState)
-                } else {
-                    // 기타 알람
-                    if (exalertMap.containsKey(arg.id) &&
-                        exalertMap[arg.id] != arg.alertState
-                    ) {
-                        return
+                if (arg.model == 2 || arg.model ==6) {
+                    if (arg.alertState == 0) {
+                        // 매시브릭일 때
+                        if (!exalertMap.containsKey(arg.id))
+                            exalertMap.put(arg.id, arg.alertState)
+                    } else {
+                        // 기타 알람
+                        if (exalertMap.containsKey(arg.id) &&
+                            exalertMap[arg.id] != arg.alertState
+                        ) {
+                            return
+                        }
                     }
                 }
                 alertMap[id] = arg
@@ -520,8 +525,10 @@ class MainViewModel : ViewModel() {
 
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일")
     val date = MutableLiveData<String>()
-    fun setCurrnetDate(time: LocalDateTime){
+    fun setCurrnetDate(time: LocalDateTime) {
         date.postValue(time.format(dateFormatter))
     }
+
+    var temphumAlertState = -1
 }
 

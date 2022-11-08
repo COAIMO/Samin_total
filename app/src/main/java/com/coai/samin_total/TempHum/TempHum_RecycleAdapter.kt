@@ -44,9 +44,17 @@ class TempHum_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             view.findViewById<TempHumView>(R.id.tempHum_view)
 
         fun bind(setTempHumViewData: SetTempHumViewData) {
-//            tempHumView.setWasteName(setTempHumViewData.liquidName)
-//            tempHumView.setAlert(setTempHumViewData.isAlert)
-//            tempHumView.heartBeat(setTempHumViewData.heartbeatCount)
+            tempHumView.setTemp(setTempHumViewData.temp)
+            tempHumView.setTempMax(setTempHumViewData.setTempMax)
+            tempHumView.setTempMin(setTempHumViewData.setTempMin)
+            tempHumView.setHum(setTempHumViewData.hum)
+            tempHumView.setHumMax(setTempHumViewData.setHumMax)
+            tempHumView.setHumMin(setTempHumViewData.setHumMin)
+            tempHumView.setTempAlert(setTempHumViewData.isTempAlert)
+            tempHumView.setHumAlert(setTempHumViewData.isHumAlert)
+            tempHumView.setAlert(setTempHumViewData.isAlert)
+            tempHumView.setName(setTempHumViewData.temphumName)
+            tempHumView.heartBeat(setTempHumViewData.heartbeatCount)
         }
     }
 

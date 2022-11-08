@@ -165,6 +165,7 @@ class ScanAlertDialogFragment : DialogFragment() {
                     key.equals("WasteLiquor") -> 3
                     key.equals("Oxygen") -> 4
                     key.equals("Steamer") -> 5
+                    key.equals("TempHum") -> 6
                     else -> 1
                 }
 

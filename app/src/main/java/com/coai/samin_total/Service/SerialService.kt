@@ -356,11 +356,21 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             val model = arg[2]
             val time = System.currentTimeMillis()
             val datas = ArrayList<Int>()
-
-            datas.add(littleEndianConversion(arg.slice(7..8).toByteArray()))
-            datas.add(littleEndianConversion(arg.slice(9..10).toByteArray()))
-            datas.add(littleEndianConversion(arg.slice(11..12).toByteArray()))
-            datas.add(littleEndianConversion(arg.slice(13..14).toByteArray()))
+            if (model == 6.toByte()){
+                datas.add(littleEndianConversion(arg.slice(7..10).toByteArray()))
+                datas.add(littleEndianConversion(arg.slice(11..14).toByteArray()))
+//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[9]).toByteArray()))
+//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[10]).toByteArray()))
+//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[11]).toByteArray()))
+//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[12]).toByteArray()))
+//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[13]).toByteArray()))
+//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[14]).toByteArray()))
+            }else{
+                datas.add(littleEndianConversion(arg.slice(7..8).toByteArray()))
+                datas.add(littleEndianConversion(arg.slice(9..10).toByteArray()))
+                datas.add(littleEndianConversion(arg.slice(11..12).toByteArray()))
+                datas.add(littleEndianConversion(arg.slice(13..14).toByteArray()))
+            }
 
             if (model == 1.toByte() || model == 2.toByte() || model == 5.toByte()) {
                 for (t in 0..3) {
