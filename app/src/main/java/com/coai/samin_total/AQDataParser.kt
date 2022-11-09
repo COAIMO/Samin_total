@@ -10,6 +10,7 @@ import com.coai.samin_total.Logic.AnalyticUtils
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Steamer.SetSteamerViewData
+import com.coai.samin_total.TempHum.SetTempHumViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,6 +36,8 @@ class AQDataParser(viewModel: MainViewModel) {
     val alertMap = HashMap<Int, Boolean>()
     val alertMap2 = HashMap<Int, Boolean>()
     val pressStateMap = HashMap<Int, Int>()
+    val tempStateMap = HashMap<Int, Int>()
+    val humStateMap = HashMap<Int, Int>()
 
     private fun alertMapClear() {
         alertBase.clear()
@@ -65,7 +68,8 @@ class AQDataParser(viewModel: MainViewModel) {
             alertBase.clear()
             alertMap.clear()
             alertMap2.clear()
-
+            tempStateMap.clear()
+            humStateMap.clear()
             for (t in hmapPsis.values)
                 t.clear()
 
@@ -157,6 +161,19 @@ class AQDataParser(viewModel: MainViewModel) {
 //        hmapAQPortSettings[key] = tmp.copy()
 //        setAQport[key] = tmp
 //        hmapLastedDate[key] = System.currentTimeMillis()
+
+        for (tmp in viewModel.TempHumDataLiveList.value!!) {
+            val key = littleEndianConversion(
+                byteArrayOf(
+                    tmp.modelByte,
+                    tmp.id.toByte(),
+                    tmp.port.toByte()
+                )
+            )
+            hmapAQPortSettings[key] = tmp.copy()
+            setAQport[key] = tmp
+            hmapLastedDate[key] = System.currentTimeMillis()
+        }
     }
 
     private fun calcSensor(
@@ -709,7 +726,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     if (alertMap2.containsKey(id)) {
                         alertMap2.remove(id)
                     }
-                    if (pressStateMap.containsKey(id)){
+                    if (pressStateMap.containsKey(id)) {
                         pressStateMap.remove(id)
                     }
                 }
@@ -773,7 +790,7 @@ class AQDataParser(viewModel: MainViewModel) {
                 if (alertMap2.containsKey(id)) {
                     alertMap2.remove(id)
                 }
-                if (pressStateMap.containsKey(id)){
+                if (pressStateMap.containsKey(id)) {
                     pressStateMap.remove(id)
                 }
             }
@@ -872,7 +889,6 @@ class AQDataParser(viewModel: MainViewModel) {
         )
         viewModel.mModelMonitorValues.setErrorsWaste(idx, false)
     }
-
 
     fun ProcessOxygen(id: Int, data: Int) {
         val tmp1 = hmapAQPortSettings[id] ?: return
@@ -1116,7 +1132,6 @@ class AQDataParser(viewModel: MainViewModel) {
         //설정 온도보다 현재 온도가 낮을경우 알람
         if (tmp.tempMax < tmp.isTemp) {
             tmp.isAlertTemp = true
-
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
 //                viewModel.steamerAlert.value = true
@@ -1219,6 +1234,171 @@ class AQDataParser(viewModel: MainViewModel) {
             tmp.isTemp.toInt().toShort()
         )
         viewModel.mModelMonitorValues.setErrorsSteam(idx, false)
+    }
+
+    fun ProcessTempHum(id: Int, temp: Float, hum: Float) {
+        val tmp1 = hmapAQPortSettings[id] ?: return
+        val tmp = (tmp1 as SetTempHumViewData)
+
+        if (!tmp.usable) {
+            return
+        }
+
+        tmp.temp = temp
+        tmp.hum = hum
+        if (tmp.temp > tmp.setTempMax) {
+            tmp.isTempAlert = true
+            if (alertMap[id] == null || tempStateMap[id] != 1) {
+                alertMap.put(id, true)
+                tempStateMap[id] = 1
+                viewModel.addAlertInfo(
+                    id,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "온도 상한 값 초과",
+                        tmp.port,
+                        true,
+                        1
+                    )
+                )
+            }
+        } else if (tmp.temp < tmp.setTempMin) {
+            tmp.isTempAlert = true
+            if (alertMap[id] == null || tempStateMap[id] != 2) {
+                alertMap.put(id, true)
+                tempStateMap[id] = 2
+                viewModel.addAlertInfo(
+                    id,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "온도 하한 값 초과",
+                        tmp.port,
+                        true,
+                        2
+                    )
+                )
+            }
+        } else {
+            tmp.isTempAlert = false
+            if (alertMap.containsKey(id)) {
+                viewModel.addAlertInfo(
+                    id,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "온도 정상",
+                        tmp.port,
+                        false
+                    )
+                )
+                if (alertMap.containsKey(id)) {
+                    alertMap.remove(id)
+                }
+                if (tempStateMap.containsKey(id)) {
+                    tempStateMap.remove(id)
+                }
+            }
+        }
+
+        if (tmp.hum > tmp.setHumMax) {
+            tmp.isHumAlert = true
+            if (alertMap2[id] == null || humStateMap[id] != 1) {
+                alertMap2.put(id, true)
+                humStateMap[id] = 1
+                viewModel.addAlertInfo(
+                    id + 65536,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "습도 상한 값 초과",
+                        tmp.port + 1,
+                        true,
+                        3
+                    )
+                )
+            }
+        } else if (tmp.hum < tmp.setHumMin) {
+            tmp.isHumAlert = true
+            if (alertMap2[id] == null || humStateMap[id] != 2) {
+                alertMap2.put(id, true)
+                humStateMap[id] = 2
+                viewModel.addAlertInfo(
+                    id + 65536,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "습도 하한 값 초과",
+                        tmp.port + 1,
+                        true,
+                        4
+                    )
+                )
+            }
+        } else {
+            tmp.isHumAlert = false
+            if (alertMap2.containsKey(id)) {
+                viewModel.addAlertInfo(
+                    id + 65536,
+                    SetAlertData(
+                        getLatest_time(hmapLastedDate[id]!!),
+                        tmp.modelByte.toInt(),
+                        tmp.id,
+                        "습도 정상",
+                        tmp.port + 1,
+                        false
+                    )
+                )
+                if (alertMap2.containsKey(id)) {
+                    alertMap2.remove(id)
+                }
+                if (humStateMap.containsKey(id)) {
+                    humStateMap.remove(id)
+                }
+            }
+        }
+
+//        if (tmp.isTempAlert && tmp.isHumAlert) {
+//            viewModel.temphumAlertState = 2
+//        } else {
+//            if (tmp.isTempAlert && !tmp.isHumAlert) {
+//                viewModel.temphumAlertState = 0
+//            } else if (!tmp.isTempAlert && tmp.isHumAlert) {
+//                viewModel.temphumAlertState = 1
+//            } else {
+//                viewModel.temphumAlertState = -1
+//            }
+//        }
+        tmp.isAlert = tmp.isHumAlert || tmp.isTempAlert
+        val bro = setAQport[id] as SetTempHumViewData
+        bro.temp = tmp.temp
+        bro.hum = tmp.hum
+        bro.isTempAlert = tmp.isTempAlert
+        bro.isHumAlert = tmp.isHumAlert
+        bro.isAlert = tmp.isAlert
+
+        val idx = KeyUtils.getIndex(
+            tmp.modelByte.toInt(),
+            tmp.id.toByte(),
+            tmp.port.toByte()
+        )
+
+//        viewModel.mModelMonitorValues.setWarningsOxygen(
+//            idx,
+//            tmp.isAlert!!
+//        )
+//
+//        viewModel.mModelMonitorValues.setOxygen(
+//            idx,
+//            tmp.setValue.toInt().toShort()
+//        )
+//        viewModel.mModelMonitorValues.setErrorsOxygen(idx, false)
     }
 
     fun ParserGas(key: Byte, datas: ArrayList<Int>, time: Long) {
@@ -1336,6 +1516,7 @@ class AQDataParser(viewModel: MainViewModel) {
                                         ProcessSingleGasStorage(key, tmp)
                                     }
                                 }
+                        } else {
                         }
                     }
                     0x02.toByte() -> {
@@ -1384,6 +1565,19 @@ class AQDataParser(viewModel: MainViewModel) {
                             ProcessSteamer(key, temp_data, level_data)
 
                         }
+                    }
+                    0x06.toByte() -> {
+                        val port = 1.toByte()
+                        val key = littleEndianConversion(byteArrayOf(model, id.toByte(), port))
+                        hmapLastedDate[key] = time
+                        Log.d(
+                            "temphum",
+                            "data1:${datas[0]},data2:${datas[1]},data3:${datas[2]},data4:${datas[3]}"
+                        )
+//                        ProcessTempHum(key)
+                    }
+                    else -> {
+
                     }
                 }
             } catch (e: Exception) {
@@ -1508,6 +1702,15 @@ class AQDataParser(viewModel: MainViewModel) {
                     viewModel.mModelMonitorValues.setErrorsSteam(idx, true)
                 else
                     continue
+            } else if (current is SetTempHumViewData) {
+                (current as SetTempHumViewData).isAlert = true
+                (current as SetTempHumViewData).isTempAlert = true
+                (current as SetTempHumViewData).isHumAlert = true
+//                    viewModel.temphumAlertState = 2
+                if (current.usable)
+//                    viewModel.mModelMonitorValues.set(idx, true)
+                else
+                    continue
             }
 
             viewModel.addAlertInfo(
@@ -1549,6 +1752,11 @@ class AQDataParser(viewModel: MainViewModel) {
                 } else if (current is SetSteamerViewData) {
                     (current as SetSteamerViewData).isAlertLow = false
                     (current as SetSteamerViewData).isAlertTemp = false
+                } else if (current is SetTempHumViewData) {
+                    (current as SetTempHumViewData).isAlert = false
+                    (current as SetTempHumViewData).isTempAlert = false
+                    (current as SetTempHumViewData).isHumAlert = false
+                    viewModel.temphumAlertState = -1
                 }
             }
 //            alertMapClear()

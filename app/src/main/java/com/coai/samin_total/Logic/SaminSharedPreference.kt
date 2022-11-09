@@ -10,6 +10,7 @@ import com.coai.samin_total.GasRoom.SetGasRoomViewData
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Steamer.SetSteamerViewData
+import com.coai.samin_total.TempHum.SetTempHumViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -28,9 +29,10 @@ class SaminSharedPreference(context: Context) {
         const val STEAMER = "Steamer"
         const val CONTROL = "Control"
         const val LABNAME = "LAB"
-        const val MASTEROXYGEN ="MasterOxygen"
-        const val TIMEOUTSTATE ="TimeOut"
-        const val FEEDBACKTIMING ="FeedbackTiming"
+        const val MASTEROXYGEN = "MasterOxygen"
+        const val TIMEOUTSTATE = "TimeOut"
+        const val FEEDBACKTIMING = "FeedbackTiming"
+        const val TEMPHUM = "TempHum"
 
     }
 
@@ -125,6 +127,13 @@ class SaminSharedPreference(context: Context) {
                     apply()
                 }
             }
+            "TempHum" -> {
+                val listString = Gson().toJson(data)
+                boardSetDataSharedPreference.edit().apply {
+                    putString(key, listString)
+                    apply()
+                }
+            }
         }
     }
 
@@ -192,6 +201,15 @@ class SaminSharedPreference(context: Context) {
                     setdata = Gson().fromJson(data, token)
                 }
             }
+            "TempHum" ->{
+                val data = boardSetDataSharedPreference.getString(key, "")!!
+                var setDataList = ArrayList<SetTempHumViewData>()
+                val token = object : TypeToken<MutableList<SetTempHumViewData>>() {}.type
+                if (data.isNotEmpty()) {
+                    setDataList = Gson().fromJson(data, token)
+                }
+                setdata = setDataList
+            }
         }
         return setdata
     }
@@ -216,29 +234,30 @@ class SaminSharedPreference(context: Context) {
         val token = object : TypeToken<String>() {}.type
         var name = String()
         if (data.isNotEmpty()) {
-           name =  Gson().fromJson(data, token)
+            name = Gson().fromJson(data, token)
         }
         return name
     }
 
-    fun SavecheckTimeOutState(value:Boolean) {
+    fun SavecheckTimeOutState(value: Boolean) {
         boardSetDataSharedPreference.edit().apply {
             putBoolean(TIMEOUTSTATE, value)
             apply()
         }
     }
 
-    fun getTimeOutState():Boolean{
+    fun getTimeOutState(): Boolean {
         return boardSetDataSharedPreference.getBoolean(TIMEOUTSTATE, true)
     }
 
-    fun SaveFeedbackTiming(time:Long){
+    fun SaveFeedbackTiming(time: Long) {
         boardSetDataSharedPreference.edit().apply {
             putLong(FEEDBACKTIMING, time)
             apply()
         }
     }
-    fun getFeedbackTiming():Long{
+
+    fun getFeedbackTiming(): Long {
         return boardSetDataSharedPreference.getLong(FEEDBACKTIMING, 50)
     }
 }

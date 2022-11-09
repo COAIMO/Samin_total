@@ -25,6 +25,7 @@ import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
+import com.coai.samin_total.TempHum.SetTempHumViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentMainBinding
 import java.time.LocalDateTime
@@ -263,6 +264,9 @@ class MainFragment : Fragment() {
         mBinding.btnSound.setOnClickListener {
             onClick(mBinding.btnSound)
         }
+        mBinding.tempHumMainStatus.setOnClickListener{
+            onClick(it)
+        }
 //        mBinding.btnHomepage.setOnClickListener {
 //            onClick(it)
 //        }
@@ -304,6 +308,9 @@ class MainFragment : Fragment() {
                     mBinding.btnSound.setImageResource(R.drawable.sound_ic)
                     viewmodel.isSoundAlert = true
                 }
+            }
+            mBinding.tempHumMainStatus ->{
+                activity?.onFragmentChange(MainViewModel.TEMPHUMMAINFRAGMENT)
             }
 //            mBinding.btnHomepage ->{
 //                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.saminsci.com/"))
@@ -381,6 +388,7 @@ class MainFragment : Fragment() {
                     key.equals("WasteLiquor") -> 3
                     key.equals("Oxygen") -> 4
                     key.equals("Steamer") -> 5
+                    key.equals("TempHum") -> 6
                     else -> 1
                 }
 
@@ -431,6 +439,14 @@ class MainFragment : Fragment() {
                     viewmodel.WasteLiquorDataLiveList.add(i)
                 }
             }
+            viewmodel.TempHumDataLiveList.clear(true)
+            val tempHumDataSet =
+                 shared.loadBoardSetData(SaminSharedPreference.TEMPHUM) as MutableList<SetTempHumViewData>
+            if (tempHumDataSet.isNotEmpty()){
+                for (i in tempHumDataSet){
+                    viewmodel.TempHumDataLiveList.add(i)
+                }
+            }
 
 //            viewmodel.oxygenMasterData = null
 //            viewmodel.oxygensData.clear()
@@ -470,6 +486,9 @@ class MainFragment : Fragment() {
                 }
                 "Steamer" -> {
                     mBinding.steamerMainStatusLayout.visibility = View.VISIBLE
+                }
+                "TempHum" ->{
+                    mBinding.tempHumMainStatusLayout.visibility = View.VISIBLE
                 }
             }
         }
@@ -529,6 +548,7 @@ class MainFragment : Fragment() {
         mBinding.wasteLiquorMainStatusLayout.invalidate()
         mBinding.oxygenMainStatusLayout.invalidate()
         mBinding.steamerMainStatusLayout.invalidate()
+        mBinding.tempHumMainStatusLayout.invalidate()
     }
 
     private fun getProgressShow() {
@@ -617,6 +637,13 @@ class MainFragment : Fragment() {
                 mBinding.gasRoomMainStatus.setAlert(false)
             }
         }
+        viewmodel.tempHumAlert.observe(viewLifecycleOwner){
+            if (it) {
+                mBinding.tempHumMainStatus.setAlert(true)
+            } else {
+                mBinding.tempHumMainStatus.setAlert(false)
+            }
+        }
 
     }
 
@@ -666,7 +693,7 @@ class MainFragment : Fragment() {
                             )
                         viewmodel.hasKey.put(createkey, createkey)
                     }
-                } else if (key == 4) {
+                } else if (key == 4 || key == 6) {
                     val createkey =
                         littleEndianConversion(
                             byteArrayOf(

@@ -74,7 +74,7 @@ class WasteWaterSettingFragment : Fragment() {
         activity = getActivity() as MainActivity
         onBackPressed = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                activity!!.onFragmentChange(MainViewModel.OXYGENMAINFRAGMENT)
+                activity!!.onFragmentChange(MainViewModel.WASTELIQUORMAINFRAGMENT)
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)

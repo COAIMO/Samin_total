@@ -21,6 +21,7 @@ import com.coai.samin_total.Logic.*
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.Steamer.SteamerSettingFragment
+import com.coai.samin_total.TempHum.SetTempHumViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.database.AlertData
 import com.coai.samin_total.database.AlertDatabase
@@ -57,7 +58,8 @@ class MainViewModel : ViewModel() {
         const val STEAMERSETTINGFRAGMENT = 20
         const val WASTELIQUORSETTINGFRAGMENT = 21
         const val GASROOMLEAKTESTFRAGMENT = 22
-
+        const val TEMPHUMMAINFRAGMENT = 23
+        const val TEMPHUMSETTINGFRAGMENT = 24
         const val GasDockStorage = 1.toByte()
         const val GasRoom = 2.toByte()
         const val WasteLiquor = 3.toByte()
@@ -72,6 +74,7 @@ class MainViewModel : ViewModel() {
     val WasteLiquorDataLiveList = MutableListLiveData<SetWasteLiquorViewData>()
     val OxygenDataLiveList = MutableListLiveData<SetOxygenViewData>()
     val SteamerDataLiveList = MutableListLiveData<SetSteamerViewData>()
+    val TempHumDataLiveList = MutableListLiveData<SetTempHumViewData>()
 
     //    var oxygenMasterData = SetOxygenViewData("0",0,0)
 //    var oxygenMasterData: SetOxygenViewData? = null
@@ -79,6 +82,7 @@ class MainViewModel : ViewModel() {
 
     val alertInfo = MutableListLiveData<SetAlertData>()
     val alertMap = ConcurrentHashMap<Int, SetAlertData>()
+
 //    val alertLowMap = ConcurrentHashMap<Int, SetAlertData>()//
 
     val portAlertMapLed = ConcurrentHashMap<Short, Byte>()
@@ -88,6 +92,7 @@ class MainViewModel : ViewModel() {
     val gasStorageAlert: MutableLiveData<Boolean> = MutableLiveData()
     val steamerAlert: MutableLiveData<Boolean> = MutableLiveData()
     val gasRoomAlert: MutableLiveData<Boolean> = MutableLiveData()
+    val tempHumAlert: MutableLiveData<Boolean> = MutableLiveData()
 
     var isSoundAlert = true
 
@@ -227,7 +232,7 @@ class MainViewModel : ViewModel() {
                     exalertMap.remove(arg.id)
             } else {
                 // 에러일 경우
-                if (arg.model == 2){
+                if (arg.model == 2 || arg.model ==6) {
                     if (arg.alertState == 0) {
                         // 매시브릭일 때
                         if (!exalertMap.containsKey(arg.id))
@@ -274,6 +279,7 @@ class MainViewModel : ViewModel() {
     var wasteViewZoomState = false
     var oxygenViewZoomState = false
     var steamerViewZoomState = false
+    var tempHumViewZoomState = false
 
     /**
      *  관제 설정 데이터
@@ -519,8 +525,10 @@ class MainViewModel : ViewModel() {
 
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일")
     val date = MutableLiveData<String>()
-    fun setCurrnetDate(time: LocalDateTime){
+    fun setCurrnetDate(time: LocalDateTime) {
         date.postValue(time.format(dateFormatter))
     }
+
+    var temphumAlertState = -1
 }
 
