@@ -472,6 +472,7 @@ class MainActivity : AppCompatActivity() {
         shared.removeBoardSetData(SaminSharedPreference.OXYGEN)
         shared.removeBoardSetData(SaminSharedPreference.STEAMER)
         shared.removeBoardSetData(SaminSharedPreference.MASTEROXYGEN)
+        shared.removeBoardSetData(SaminSharedPreference.TEMPHUM)
         mainViewModel.removeModelMap()
         mainViewModel.oxygensData.clear()
         idsListClear()
@@ -1653,8 +1654,7 @@ class MainActivity : AppCompatActivity() {
 
                         lstValues.clear()
                         for ((key, value) in mainViewModel.alertMap) {
-                            Log.d("팝업", "알람맵 : ${mainViewModel.alertMap}")
-
+//                            Log.d("팝업", "알람맵 : ${mainViewModel.alertMap}")
                             val aqInfo = HexDump.toByteArray(key)
                             if (exData.containsKey(key)) {
                                 if (exData[key]?.isAlert != value.isAlert ||
@@ -1662,7 +1662,7 @@ class MainActivity : AppCompatActivity() {
                                             exData[key]?.time != value.time
                                 ) {
                                     removelist.add(exData[key]!!)
-                                    Log.d("팝업", "제거 리스트추가 : ${removelist}")
+//                                    Log.d("팝업", "제거 리스트추가 : ${removelist}")
                                     removeMap[key] = exData[key]!!
                                     exData.remove(key)
                                 }
@@ -1677,7 +1677,7 @@ class MainActivity : AppCompatActivity() {
                                         lstValues.add(value.model)
                                     exData[key] = value
                                     alertlist.add(value)
-                                    Log.d("팝업", "팝업 추가 : ${value}")
+//                                    Log.d("팝업", "팝업 추가 : ${value}")
                                     if (removeMap.containsKey(key)) {
                                         for (i in removeMap) {
                                             alertremovelist.add(i.value)

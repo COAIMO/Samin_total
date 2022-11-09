@@ -497,7 +497,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
         if (tmp.pressure_Min!! > tmp.pressureLeft!!) {
 //            tmp.isAlertLeft = true
-                tmp.isLowLeftPressAlert = true
+            tmp.isLowLeftPressAlert = true
             if (alertMap[id] == null) {
                 alertMap.put(id, true)
                 viewModel.addAlertInfo(
@@ -1389,16 +1389,19 @@ class AQDataParser(viewModel: MainViewModel) {
             tmp.port.toByte()
         )
 
-//        viewModel.mModelMonitorValues.setWarningsOxygen(
-//            idx,
-//            tmp.isAlert!!
-//        )
-//
-//        viewModel.mModelMonitorValues.setOxygen(
-//            idx,
-//            tmp.setValue.toInt().toShort()
-//        )
-//        viewModel.mModelMonitorValues.setErrorsOxygen(idx, false)
+        viewModel.mModelMonitorValues.setWarningsTemp(
+            idx,
+            tmp.isAlert
+        )
+        viewModel.mModelMonitorValues.setTemps(
+            idx,
+            tmp.temp.toInt().toShort()
+        )
+        viewModel.mModelMonitorValues.setHum(
+            idx,
+            tmp.hum.toInt().toShort()
+        )
+        viewModel.mModelMonitorValues.setErrorsTemp(idx, false)
     }
 
     fun ParserGas(key: Byte, datas: ArrayList<Int>, time: Long) {
@@ -1708,7 +1711,7 @@ class AQDataParser(viewModel: MainViewModel) {
                 (current as SetTempHumViewData).isHumAlert = true
 //                    viewModel.temphumAlertState = 2
                 if (current.usable)
-//                    viewModel.mModelMonitorValues.set(idx, true)
+                    viewModel.mModelMonitorValues.setErrorsTemp(idx, true)
                 else
                     continue
             }

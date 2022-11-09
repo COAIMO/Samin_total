@@ -232,7 +232,7 @@ class MainViewModel : ViewModel() {
                     exalertMap.remove(arg.id)
             } else {
                 // 에러일 경우
-                if (arg.model == 2 || arg.model ==6) {
+                if (arg.model == 2 || arg.model == 6) {
                     if (arg.alertState == 0) {
                         // 매시브릭일 때
                         if (!exalertMap.containsKey(arg.id))
@@ -467,6 +467,25 @@ class MainViewModel : ViewModel() {
         }
         mModelMonitorValues.setCountSteam(cntSteamer.toShort())
 
+        var cntTempHum = 0
+        TempHumDataLiveList.value?.let {
+            for (tmp in it) {
+                if (tmp.usable) {
+                    KeyUtils.setIndex(
+                        tmp.modelByte.toInt(),
+                        tmp.id.toByte(),
+                        tmp.port.toByte()
+                    )
+                    val idx = KeyUtils.getIndex(
+                        tmp.modelByte.toInt(),
+                        tmp.id.toByte(),
+                        tmp.port.toByte()
+                    )
+                    cntTempHum++
+                }
+            }
+        }
+        mModelMonitorValues.setCountTemp(cntTempHum.toShort())
         isProcessingMonitor = true
     }
 
