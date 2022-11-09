@@ -51,7 +51,7 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="numberDecimal"
-        android:text="35"
+        android:text="32"
         android:textSize="20sp" />
 
     <TextView
@@ -87,7 +87,7 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="numberDecimal"
-        android:text="40"
+        android:text="55"
         android:textSize="20sp" />
 
     <TextView
@@ -105,7 +105,7 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="numberDecimal"
-        android:text="20"
+        android:text="35"
         android:textSize="20sp" />
 
     <TextView

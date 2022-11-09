@@ -197,7 +197,7 @@ class TempHumMainFragment : Fragment() {
                         (layoutManager as GridLayoutManager).let {
                             it.spanCount = 4
                         }
-                        itemSpace.changeSpace(30, 20, 70, 20)
+                        itemSpace.changeSpace(80, 50, 50, 50)
                     }
                 }
             }
@@ -231,7 +231,7 @@ class TempHumMainFragment : Fragment() {
             if (!viewmodel.tempHumViewZoomState) {
                 layoutManager =
                     GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
-                itemSpace.changeSpace(50, 50, 90, 50)
+                itemSpace.changeSpace(80, 50, 50, 50)
             } else {
                 layoutManager =
                     GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)

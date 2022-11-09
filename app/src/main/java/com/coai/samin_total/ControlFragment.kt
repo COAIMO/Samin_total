@@ -65,7 +65,7 @@ class ControlFragment : Fragment() {
 //        "7"
 //    )
     val modbusID = arrayListOf<String>().apply {
-        for (i in 0..255){
+        for (i in 0..255) {
             this.add(i.toString())
         }
     }
@@ -245,7 +245,7 @@ class ControlFragment : Fragment() {
                 var byteOxyzenMst: ByteArray? = null
                 var byteModelmap: ByteArray? = null
                 var byteLabName: ByteArray? = null
-
+                var byteTemphum: ByteArray? = null
                 val labname = SaminSharedPreference(requireContext()).loadLabNameData()
 
                 byteModelmap = ProtoBuf.encodeToByteArray(viewmodel.modelMap)
@@ -275,7 +275,9 @@ class ControlFragment : Fragment() {
 //                viewmodel.oxygenMasterData?.let {
 //                    byteOxyzenMst = ProtoBuf.encodeToByteArray(it)
 //                }
-
+                viewmodel.TempHumDataLiveList.value?.let {
+                    byteTemphum = ProtoBuf.encodeToByteArray(it.toList())
+                }
                 byteLabName = ProtoBuf.encodeToByteArray(labname)
 
                 for (i in 0..50) {
@@ -317,6 +319,10 @@ class ControlFragment : Fragment() {
                     byteModelmap?.let {
                         sendMultipartSend((16 + 7).toByte(), it)
 //                        Thread.sleep(40)
+                    }
+
+                    byteTemphum?.let {
+                        sendMultipartSend((16 + 9).toByte(), it)
                     }
 
                     byteLabName?.let {

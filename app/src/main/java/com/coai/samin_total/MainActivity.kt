@@ -1206,6 +1206,9 @@ class MainActivity : AppCompatActivity() {
                             0x18.toByte() -> {
                                 recvLabNameBuffers[buff.get(7).toInt()] = buff.clone()
                             }
+                            0x19.toByte() ->{
+                                recvTempHumBuffers[buff.get(7).toInt()] = buff.clone()
+                            }
                             0x20.toByte() -> {
                                 // 설정 데이터 전송 완료
                                 Log.d(mainTAG, "설정 데이터 전송 완료 ================")
@@ -1655,7 +1658,8 @@ class MainActivity : AppCompatActivity() {
                             val aqInfo = HexDump.toByteArray(key)
                             if (exData.containsKey(key)) {
                                 if (exData[key]?.isAlert != value.isAlert ||
-                                    exData[key]?.alertState != value.alertState
+                                    exData[key]?.alertState != value.alertState||
+                                            exData[key]?.time != value.time
                                 ) {
                                     removelist.add(exData[key]!!)
                                     Log.d("팝업", "제거 리스트추가 : ${removelist}")
@@ -1794,6 +1798,7 @@ class MainActivity : AppCompatActivity() {
         isPopUp = false
         popUpThread?.interrupt()
         popUpThread?.join()
+        popUpThread = null
     }
 
 }
