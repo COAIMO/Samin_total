@@ -204,7 +204,7 @@ class TempHumSettingFragment : Fragment() {
         recycleAdapter.submitList(setTempHumInfo)
 
         mBinding.tempHumBoardSettingView.mSensorUsable_Sw.setOnClickListener {
-            selectedSensor!!.usable = mBinding.tempHumBoardSettingView.mSensorUsable_Sw.isChecked
+            selectedSensor?.usable = mBinding.tempHumBoardSettingView.mSensorUsable_Sw.isChecked
         }
         mBinding.tempHumBoardSettingView.mMaxTemp_Et.addTextChangedListener(
             mTemp_maxValueWatcher

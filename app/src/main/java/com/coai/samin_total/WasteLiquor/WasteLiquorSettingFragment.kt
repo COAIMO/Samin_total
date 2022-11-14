@@ -162,7 +162,7 @@ class WasteWaterSettingFragment : Fragment() {
         recycleAdapter.submitList(setWasteLiquorInfo)
 
         mBinding.wasteLiquorBoardSettingView.mSensorUsable_Sw.setOnClickListener {
-            selectedSensor!!.usable = mBinding.wasteLiquorBoardSettingView.mSensorUsable_Sw.isChecked
+            selectedSensor?.usable = mBinding.wasteLiquorBoardSettingView.mSensorUsable_Sw.isChecked
         }
         mBinding.wasteLiquorBoardSettingView.mWasteName_Et.addTextChangedListener(
             mWasteNameWatcher
