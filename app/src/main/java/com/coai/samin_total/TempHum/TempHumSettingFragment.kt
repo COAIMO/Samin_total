@@ -94,6 +94,21 @@ class TempHumSettingFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
         }
     }
+    private val mTempHum_NameWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s != null && !s.toString().equals("")) {
+                if (selectedSensor == null) return
+                selectedSensor?.temphumName = s.toString()
+            }
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
@@ -139,6 +154,7 @@ class TempHumSettingFragment : Fragment() {
                 mBinding.tempHumBoardSettingView.mMinTemp_Et.setText(selectedSensor?.setTempMin.toString())
                 mBinding.tempHumBoardSettingView.mMaxHum_Et.setText(selectedSensor?.setHumMax.toString())
                 mBinding.tempHumBoardSettingView.mMinHUm_Et.setText(selectedSensor?.setHumMin.toString())
+                mBinding.tempHumBoardSettingView.mName_Et.setText(selectedSensor?.temphumName.toString())
 
             }
         })
@@ -202,6 +218,7 @@ class TempHumSettingFragment : Fragment() {
         mBinding.tempHumBoardSettingView.mMinHUm_Et.addTextChangedListener(
             mHum_minValueWatcher
         )
+        mBinding.tempHumBoardSettingView.mName_Et.addTextChangedListener(mTempHum_NameWatcher)
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.TEMPHUMMAINFRAGMENT)
         }
