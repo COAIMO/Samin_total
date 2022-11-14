@@ -1213,7 +1213,7 @@ class MainActivity : AppCompatActivity() {
                             0x20.toByte() -> {
                                 // 설정 데이터 전송 완료
                                 Log.d(mainTAG, "설정 데이터 전송 완료 ================")
-
+                                mainViewModel.clearPopUP()
                                 var allDone = true
                                 // 가스독 설정 복원
                                 var tmpgas = ByteArray(0)
