@@ -8,7 +8,7 @@
         android:bottom="3dp">
         <shape android:shape="rectangle">
             <stroke android:width="3dp"
-                android:color="@color/HighLightColor"/>
+                android:color="@color/NewHighLightColor"/>
             <solid android:color="@color/white"/>
             <corners android:topLeftRadius="12dp"
                 android:topRightRadius="12dp"

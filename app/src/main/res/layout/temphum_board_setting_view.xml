@@ -123,6 +123,7 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="text"
+        android:text="온습도"
         android:maxLength="5"
         android:maxLines="1"
         android:textSize="20sp" />

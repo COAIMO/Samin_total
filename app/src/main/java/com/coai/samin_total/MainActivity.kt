@@ -1773,11 +1773,15 @@ class MainActivity : AppCompatActivity() {
 
                         if (chk) {
                             runOnUiThread {
-                                if (!alertPopUpFragment.isAdded)
-                                    alertPopUpFragment.show(
-                                        supportFragmentManager,
-                                        ""
-                                    )
+                                try {
+                                    if (!alertPopUpFragment.isAdded)
+                                        alertPopUpFragment.show(
+                                            supportFragmentManager,
+                                            ""
+                                        )
+                                }catch (e:Exception){
+                                    e.printStackTrace()
+                                }
                             }
                         }
                     }

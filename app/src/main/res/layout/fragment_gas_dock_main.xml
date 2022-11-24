@@ -21,16 +21,18 @@
         android:background="@drawable/ic_top_layer2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/title_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:layout_marginBottom="5dp"
-        android:fontFamily="@font/nexon_font"
+        android:fontFamily="@font/pretendard_font"
         android:text="@string/title_gas_lab"
         android:textColor="@color/PageNumberTextColor"
         android:textSize="35sp"
+        android:textStyle="bold"
         app:flow_horizontalAlign="center"
         app:flow_horizontalBias="0.5"
         app:layout_constraintBottom_toBottomOf="@id/top_layer"
@@ -42,14 +44,15 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:fontFamily="@font/nexon_font"
+        android:fontFamily="@font/pretendard_font"
         android:text="@string/title_lab_name"
         android:textColor="@color/PageNumberTextColor"
         android:textSize="35sp"
+        android:textStyle="bold"
         app:flow_horizontalAlign="center"
         app:layout_constraintBottom_toBottomOf="@id/title_tv"
-        app:layout_constraintTop_toTopOf="@+id/title_tv"
-        app:layout_constraintStart_toEndOf="@id/title_tv"/>
+        app:layout_constraintStart_toEndOf="@id/title_tv"
+        app:layout_constraintTop_toTopOf="@+id/title_tv" />
 
     <TextView
         android:id="@+id/tv_curruntTime"
@@ -66,11 +69,11 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
         android:layout_marginTop="20dp"
-        app:layout_constraintStart_toStartOf="parent"
+        android:gravity="center"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView

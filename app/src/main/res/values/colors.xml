@@ -31,5 +31,6 @@
     <color name="BackgroundContrasText">#1d1d1d</color>
     <color name="TitleTextColor">#eb8c23</color>
     <color name="PageNumberTextColor">#919191</color>
+    <color name="NewHighLightColor">#1C75BB</color>
 
 </resources>

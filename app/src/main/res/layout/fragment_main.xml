@@ -33,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="93dp"
-        android:fontFamily="@font/nexon_font"
+        android:fontFamily="@font/pretendard_font"
         android:text="@string/title_lab_name"
         android:textColor="#000000"
         android:textSize="44sp"

@@ -1,6 +1,7 @@
 package com.coai.samin_total.GasDock
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -19,6 +20,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.*
 import com.coai.samin_total.CustomView.SpaceDecoration
 import com.coai.samin_total.Logic.SaminSharedPreference
+import com.coai.samin_total.Logic.SpinnerColorAdapter
+import com.coai.samin_total.Logic.SpinnerColorItem
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentGasStorageSettingBinding
 import org.json.JSONArray
@@ -723,12 +726,68 @@ class GasStorageSettingFragment : Fragment() {
     }
 
     private fun setGasColorSpinner() {
-        val arrayAdapter = ArrayAdapter(
-            requireContext(),
-            R.layout.support_simple_spinner_dropdown_item,
-            viewmodel.gasColor
-        )
-        mBinding.gasStorageBoardSettingView.mSelectedGasColor_sp.adapter = arrayAdapter
+//        val arrayAdapter = ArrayAdapter(
+//            requireContext(),
+//            R.layout.support_simple_spinner_dropdown_item,
+//            viewmodel.gasColor
+//        )
+//        mBinding.gasStorageBoardSettingView.mSelectedGasColor_sp.adapter = arrayAdapter
+//        mBinding.gasStorageBoardSettingView.mSelectedGasColor_sp.onItemSelectedListener =
+//            object : AdapterView.OnItemSelectedListener {
+//                override fun onItemSelected(
+//                    parent: AdapterView<*>?,
+//                    view: View?,
+//                    position: Int,
+//                    id: Long
+//                ) {
+//
+//                    selectedSensor?.gasColor =
+//                        viewmodel.gasColorMap[viewmodel.gasType[position]]!!
+//                    if (selectedSensor?.ViewType == 1 || selectedSensor?.ViewType == 2) {
+//                        if (selectedSensor?.port == 1) {
+//                            for (i in setGasSensorInfo) {
+//                                if (i.port == 2 && i.id == selectedSensor?.id) {
+//                                    i.gasColor = selectedSensor!!.gasColor
+//                                }
+//                            }
+//                        } else if (selectedSensor?.port == 2) {
+//                            for (i in setGasSensorInfo) {
+//                                if (i.port == 1 && i.id == selectedSensor?.id) {
+//                                    i.gasColor = selectedSensor!!.gasColor
+//                                }
+//                            }
+//                        } else if (selectedSensor?.port == 3) {
+//                            for (i in setGasSensorInfo) {
+//                                if (i.port == 4 && i.id == selectedSensor?.id) {
+//                                    i.gasColor = selectedSensor!!.gasColor
+//                                }
+//                            }
+//                        } else if (selectedSensor?.port == 4) {
+//                            for (i in setGasSensorInfo) {
+//                                if (i.port == 3 && i.id == selectedSensor?.id) {
+//                                    i.gasColor = selectedSensor!!.gasColor
+//                                }
+//                            }
+//                        }
+//
+//                    }
+//                }
+//
+//                override fun onNothingSelected(parent: AdapterView<*>?) {
+//                    Toast.makeText(context, "센서 컬러를 선택해주세요.", Toast.LENGTH_SHORT)
+//                        .show()
+//                }
+//            }
+
+        for (i in viewmodel.gasColor.withIndex()){
+            val color = viewmodel.gasColorValue[i.index]
+            val tmp = SpinnerColorItem(i.value,color)
+            colorList.add(tmp)
+        }
+
+        val adapter = SpinnerColorAdapter(requireContext(), colorList)
+        mBinding.gasStorageBoardSettingView.mSelectedGasColor_sp.adapter = adapter
+
         mBinding.gasStorageBoardSettingView.mSelectedGasColor_sp.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
@@ -775,8 +834,9 @@ class GasStorageSettingFragment : Fragment() {
                         .show()
                 }
             }
-    }
 
+    }
+    val colorList: ArrayList<SpinnerColorItem> = arrayListOf<SpinnerColorItem>()
     private fun setSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
             requireContext(),

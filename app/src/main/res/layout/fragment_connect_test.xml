@@ -13,7 +13,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottom_logo">
+        app:layout_constraintBottom_toTopOf="@id/btn_back">
         <LinearLayout
             android:id="@+id/modelSet_layout"
             android:layout_width="match_parent"
@@ -143,15 +143,15 @@
 
 
 
-    <ImageView
-        android:id="@+id/bottom_logo"
-        android:layout_width="80dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="50dp"
-        android:src="@drawable/ic_smartlab_logo"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+<!--    <ImageView-->
+<!--        android:id="@+id/bottom_logo"-->
+<!--        android:layout_width="80dp"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:layout_marginBottom="50dp"-->
+<!--        android:src="@drawable/ic_smartlab_logo"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent" />-->
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btn_back"

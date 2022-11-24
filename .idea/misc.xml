@@ -41,32 +41,49 @@
         <entry key="..\:/Users/negai/AndroidStudioProjects/Samin_total/app/src/main/res/layout/wasteliquor_board_setting_view.xml" value="0.1925" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/drawable-v24/ic_top_layer.xml" value="0.151" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/drawable/alertlog_ic.xml" value="0.199" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/drawable/border_layout.xml" value="0.305" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/drawable/connectivity_ic.xml" value="0.134" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/drawable/container_border.xml" value="0.134" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/drawable/labsislogo_ic.xml" value="0.1" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/drawable/onalert_ic.xml" value="0.199" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/font/custom_font_family.xml" value="0.2890625" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/font/nexon_font.xml" value="0.2890625" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/font/pretendard_font.xml" value="0.28802083333333334" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/alert_content_view.xml" value="0.25" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/custom_dropdown.xml" value="0.2578125" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_admin.xml" value="0.25885416666666666" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_alert_dialog.xml" value="0.33" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_alert_log.xml" value="0.33" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_alert_pop_up.xml" value="0.33" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_aq_setting.xml" value="0.25" />
-        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_dock_main.xml" value="0.58758109360519" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_connect_test.xml" value="0.23333333333333334" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_control.xml" value="0.23333333333333334" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_dock_main.xml" value="0.25" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_room_main.xml" value="0.2740740740740741" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_room_setting.xml" value="0.18" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_gas_storage_setting.xml" value="0.25885416666666666" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_layout.xml" value="0.18" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_leak_test_dialog.xml" value="0.31927083333333334" />
-        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_main.xml" value="0.33" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_main.xml" value="0.16" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_main_setting.xml" value="0.25885416666666666" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_oxygen_main.xml" value="0.31927083333333334" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_oxygen_setting.xml" value="0.16" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_password.xml" value="0.23333333333333334" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_password_dialog.xml" value="0.6824324324324325" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_room_leak_test.xml" value="0.22" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_scan_alert_dialog.xml" value="0.25" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_scan_dialog.xml" value="0.25885416666666666" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_steamer_main.xml" value="0.31927083333333334" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_steamer_setting.xml" value="0.25885416666666666" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_temp_hum_main.xml" value="0.31927083333333334" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_temp_hum_setting.xml" value="0.16" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_version.xml" value="0.4" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_waste_liquor_main.xml" value="0.31927083333333334" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/fragment_waste_liquor_setting.xml" value="0.31927083333333334" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/gas_room_board_setting_view.xml" value="0.25" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/gas_storage_board_setting_view.xml" value="0.25885416666666666" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/gas_storage_single_view.xml" value="0.25885416666666666" />
+        <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/list_item.xml" value="0.25885416666666666" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/oxygen_board_setting_view.xml" value="0.22" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/oxygen_view.xml" value="0.2875" />
         <entry key="..\:/Users/nuri0/AndroidStudioProjects/Samin_total/app/src/main/res/layout/popup_content_view.xml" value="0.33" />

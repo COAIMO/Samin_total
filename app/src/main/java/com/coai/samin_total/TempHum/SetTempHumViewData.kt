@@ -8,7 +8,7 @@ data class SetTempHumViewData(
     val id: Int,
     val port: Int,
     var usable: Boolean = true,
-    var temphumName: String = "",
+    var temphumName: String = "온습도",
     var unit:Int = 0,
     var setTempMax: Float = 32f,
     var setTempMin: Float = 18f,
