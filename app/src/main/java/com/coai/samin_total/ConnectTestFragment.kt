@@ -2,6 +2,7 @@ package com.coai.samin_total
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -31,13 +32,12 @@ class ConnectTestFragment : Fragment() {
     var activity: MainActivity? = null
     lateinit var mBinding: FragmentConnectTestBinding
     val aqModel = arrayListOf<String>(
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7"
+        "1 : 가스저장고",
+        "2 : 룸가스",
+        "3 : 폐액레벨",
+        "4 : 산소농도모듈",
+        "5 : 스팀기",
+        "6 : 온습도"
     )
     val aqID = arrayListOf<String>(
         "0",
@@ -49,7 +49,7 @@ class ConnectTestFragment : Fragment() {
         "6",
         "7"
     )
-    lateinit var selected_Model: String
+    var selected_Model: Int = -1
     var selected_ID = ""
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -193,7 +193,7 @@ class ConnectTestFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {
-                selected_Model = aqModel[position]
+                selected_Model = position + 1
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
