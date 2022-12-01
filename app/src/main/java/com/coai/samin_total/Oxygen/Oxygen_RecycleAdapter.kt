@@ -64,6 +64,7 @@ class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
             oxygenView.setOxyzenData(setOxygenViewData.setValue)
             oxygenView.setMinOxyzen(setOxygenViewData.setMinValue)
             oxygenView.heartBeat(setOxygenViewData.heartbeatCount)
+            oxygenView.setName(setOxygenViewData.name)
         }
 
     }

@@ -15,5 +15,6 @@ data class SetOxygenViewData(
     var setMaxValue: Float = 23f,
     val modelByte: Byte = 4,
     var heartbeatCount : UByte = 0u,
-    var zeroPoint: Float? = 0f
+    var zeroPoint: Float? = 0f,
+    var name:String = "산소"
 )

@@ -306,8 +306,11 @@ class OxygenMainFragment : Fragment() {
             if (!viewmodel.oxygenViewZoomState) {
                 layoutManager =
                     GridLayoutManager(context, 4, GridLayoutManager.VERTICAL, false)
+//                itemSpace.changeSpace(
+//                    80, 50, 90, 50
+//                )
                 itemSpace.changeSpace(
-                    80, 50, 90, 50
+                    80, 50, 50, 50
                 )
             } else {
                 layoutManager =
