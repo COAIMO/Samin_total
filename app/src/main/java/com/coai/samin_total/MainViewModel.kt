@@ -202,12 +202,14 @@ class MainViewModel : ViewModel() {
         modelMap.remove("WasteLiquor")
         modelMap.remove("Oxygen")
         modelMap.remove("Steamer")
+        modelMap.remove("TempHum")
 
         modelMapInt.remove(1)
         modelMapInt.remove(2)
         modelMapInt.remove(3)
         modelMapInt.remove(4)
         modelMapInt.remove(5)
+        modelMapInt.remove(6)
 
         alertMap.clear()
     }
