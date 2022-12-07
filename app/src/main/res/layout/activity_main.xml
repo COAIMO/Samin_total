@@ -32,58 +32,58 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_templhigh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:layout_marginEnd="50dp"
-        android:text="온도 상한"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+<!--    <androidx.appcompat.widget.AppCompatButton-->
+<!--        android:id="@+id/btn_templhigh"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="100dp"-->
+<!--        android:layout_marginEnd="50dp"-->
+<!--        android:text="온도 상한"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"/>-->
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_templow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="온도 하한"
-        app:layout_constraintTop_toBottomOf="@id/btn_templhigh"
-        app:layout_constraintStart_toStartOf="@id/btn_templhigh"/>
+<!--    <androidx.appcompat.widget.AppCompatButton-->
+<!--        android:id="@+id/btn_templow"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="50dp"-->
+<!--        android:text="온도 하한"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/btn_templhigh"-->
+<!--        app:layout_constraintStart_toStartOf="@id/btn_templhigh"/>-->
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_tempNormal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="온도 정상"
-        app:layout_constraintTop_toBottomOf="@id/btn_templow"
-        app:layout_constraintStart_toStartOf="@id/btn_templhigh"/>
+<!--    <androidx.appcompat.widget.AppCompatButton-->
+<!--        android:id="@+id/btn_tempNormal"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="50dp"-->
+<!--        android:text="온도 정상"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/btn_templow"-->
+<!--        app:layout_constraintStart_toStartOf="@id/btn_templhigh"/>-->
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_humhigh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="습도 상한"
-        app:layout_constraintTop_toBottomOf="@id/btn_tempNormal"
-        app:layout_constraintStart_toStartOf="@id/btn_templhigh"/>
+<!--    <androidx.appcompat.widget.AppCompatButton-->
+<!--        android:id="@+id/btn_humhigh"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="50dp"-->
+<!--        android:text="습도 상한"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/btn_tempNormal"-->
+<!--        app:layout_constraintStart_toStartOf="@id/btn_templhigh"/>-->
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_humlow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="습도 하한"
-        app:layout_constraintTop_toBottomOf="@id/btn_humhigh"
-        app:layout_constraintStart_toStartOf="@id/btn_templhigh"/>
+<!--    <androidx.appcompat.widget.AppCompatButton-->
+<!--        android:id="@+id/btn_humlow"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="50dp"-->
+<!--        android:text="습도 하한"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/btn_humhigh"-->
+<!--        app:layout_constraintStart_toStartOf="@id/btn_templhigh"/>-->
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_humNormal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="습도 정상"
-        app:layout_constraintTop_toBottomOf="@id/btn_humlow"
-        app:layout_constraintStart_toStartOf="@id/btn_templhigh"/>
+<!--    <androidx.appcompat.widget.AppCompatButton-->
+<!--        android:id="@+id/btn_humNormal"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="50dp"-->
+<!--        android:text="습도 정상"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/btn_humlow"-->
+<!--        app:layout_constraintStart_toStartOf="@id/btn_templhigh"/>-->
 </androidx.constraintlayout.widget.ConstraintLayout>
