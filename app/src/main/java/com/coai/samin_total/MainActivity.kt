@@ -193,8 +193,68 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.saminsci.com/"))
             startActivity(intent)
         }
-    }
 
+//        mBinding.btnTemplhigh.setOnClickListener {
+//            isHumChagne = false
+//            istempChange = true
+//            temp = 35f
+//        }
+//        mBinding.btnTemplow.setOnClickListener {
+//            isHumChagne = false
+//            istempChange = true
+//            temp = 10f
+//        }
+//        mBinding.btnHumhigh.setOnClickListener {
+//            istempChange = false
+//            isHumChagne = true
+//            hum = 60f
+//        }
+//        mBinding.btnHumlow.setOnClickListener {
+//            istempChange = false
+//            isHumChagne = true
+//            hum = 30f
+//        }
+//        mBinding.btnTempNormal.setOnClickListener {
+//            isHumChagne = false
+//            istempChange = true
+//            temp = 30f
+//        }
+//        mBinding.btnHumNormal.setOnClickListener {
+//            istempChange = false
+//            isHumChagne = true
+//            hum = 40f
+//        }
+//        CoroutineScope(Dispatchers.IO).launch {
+//            async {
+//                while (true) {
+//                    val port = 1.toByte()
+//                    val key = littleEndianConversion(byteArrayOf(6, 0.toByte(), port))
+//                    tmp.hmapLastedDate[key] = System.currentTimeMillis()
+//                    if (istempChange) {
+//                        for (i in 0..5) {
+//                            tmp.ProcessTempHum(key, 30f, hum)
+//                            delay(50)
+//                        }
+//                        istempChange = false
+//                    } else if (isHumChagne) {
+//                        for (i in 0..5) {
+//                            tmp.ProcessTempHum(key, temp, 40f)
+//                            delay(50)
+//                        }
+//                        isHumChagne = false
+//                    }
+//
+//                    tmp.ProcessTempHum(key, temp, hum)
+//                    delay(200)
+//                }
+//            }
+//        }
+    }
+//
+//    var temp = 30f
+//    var hum = 40f
+//    var istempChange = false
+//    var isHumChagne = false
 //    fun bindSerialService() {
 ////        if (!UsbSerialService.SERVICE_CONNECTED){
 ////            val startSerialService = Intent(this, UsbSerialService::class.java)
@@ -681,57 +741,93 @@ class MainActivity : AppCompatActivity() {
                             )
                         }
 
-                        //isAlert 1개 해결된것을 제외
-                        if (!value.isAlert) {
-                            if (mainViewModel.portAlertMapLed.size == 0)
-                                continue
+                        if (model == 6.toByte()) {
+                            if (!value.isAlert) {
+                                if (mainViewModel.portAlertMapLed.size == 0)
+                                    continue
 
-                            var tmpBits = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
-//                                Log.d("LED", "tmpBits 1 = ${tmpBits}")
-                            if (tmpBits and (1 shl (port - 1)).toByte() > 0) {
-                                tmpBits = tmpBits xor (1 shl (port - 1)).toByte()
-//                                Log.d("LED", "tmpBits 2 = ${tmpBits}")
+                                var tmpBits =
+                                    mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+                                Log.d("LED", "tmpBits 1 = ${tmpBits}")
+                                Log.d("alertstate", "alertstate  = ${value.alertState}")
+
+                                tmpBits = tmpBits and value.humtempAlertBit
+                                Log.d("tmpBits 제거", "${tmpBits}")
+                                if (tmpBits == 16.toByte()) {
+                                    tmpBits = 0b00000.toByte()
+                                }
                                 currentLedState[ledkey] = tmpBits
                                 mainViewModel.portAlertMapLed[ledkey] = tmpBits
 
-                                diffkeys.remove(ledkey)
                                 if (!ledchanged.contains(ledkey))
                                     ledchanged.add(ledkey)
+
+                                continue
                             }
-                            continue
-                        }
+                            // LED 켜짐 유무 확인
+                            // 기존 경고와의 차이점 식별 가능
+                            var tmpBits = currentLedState[ledkey] ?: 0b10000.toByte()
+                            val tmplast = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
 
-                        // LED 켜짐 유무 확인
-                        // 기존 경고와의 차이점 식별 가능
-                        var tmpBits = currentLedState[ledkey] ?: 0b10000.toByte()
-                        val tmplast = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+                            diffkeys.remove(ledkey)
 
-                        diffkeys.remove(ledkey)
+                            //todo
+//                            Log.d("alertstate2", "alertstate  = ${value.alertState}")
+//                            mainViewModel.portAlertMapLed.remove(ledkey)
+//                            if (value.alertState < 3) {
+//                                tmpBits = (tmpBits and 0b11100) or value.humtempAlertBit
+//                            }else{
+//                                tmpBits = (tmpBits and 0b10011) or value.humtempAlertBit
+//                            }
+
+                            tmpBits = tmpBits or value.humtempAlertBit
+                            Log.d("tmpBits 알람", "${tmpBits}")
+
+                            currentLedState[ledkey] = tmpBits
+
+                        } else {
+                            //isAlert 1개 해결된것을 제외
+                            if (!value.isAlert) {
+                                if (mainViewModel.portAlertMapLed.size == 0)
+                                    continue
+
+                                var tmpBits =
+                                    mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+//                                Log.d("LED", "tmpBits 1 = ${tmpBits}")
+                                if (tmpBits and (1 shl (port - 1)).toByte() > 0 && model != 6.toByte()) {
+                                    tmpBits = tmpBits xor (1 shl (port - 1)).toByte()
+//                                Log.d("LED", "tmpBits 2 = ${tmpBits}")
+                                    currentLedState[ledkey] = tmpBits
+                                    mainViewModel.portAlertMapLed[ledkey] = tmpBits
+
+                                    diffkeys.remove(ledkey)
+                                    if (!ledchanged.contains(ledkey))
+                                        ledchanged.add(ledkey)
+                                }
+                                continue
+                            }
+
+                            // LED 켜짐 유무 확인
+                            // 기존 경고와의 차이점 식별 가능
+                            var tmpBits = currentLedState[ledkey] ?: 0b10000.toByte()
+                            val tmplast = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+
+                            diffkeys.remove(ledkey)
 
 //                        tmpBits = tmpBits or (1 shl (port - 1)).toByte()
-                        if (model == 4.toByte() || model == 6.toByte()) {
-                            tmpBits = 0b11111
-                        } else if (model == 5.toByte()) {
-                            tmpBits = tmpBits or (3 shl (port - 1)).toByte()
-                            Log.d("LED", "tmpBits 2 = ${tmpBits}")
+                            if (model == 4.toByte()) {
+                                tmpBits = 0b11111
+                            } else if (model == 5.toByte()) {
+                                tmpBits = tmpBits or (3 shl (port - 1)).toByte()
 
-                        }
-//                        else if (model == 6.toByte()){
-//                            if(mainViewModel.temphumAlertState == 0){
-//                                tmpBits = 0b10011
-//                            }else if (mainViewModel.temphumAlertState == 1){
-//                                tmpBits = 0b11100
-//                            }else if (mainViewModel.temphumAlertState == 2){
-//                                tmpBits = 0b11111
-//                            }
-//                        }
-                        else {
-                            tmpBits = tmpBits or (1 shl (port - 1)).toByte()
-                        }
-                        if (id == 8.toByte())
-                            continue
+                            } else {
+                                tmpBits = tmpBits or (1 shl (port - 1)).toByte()
+                            }
+                            if (id == 8.toByte())
+                                continue
 
-                        currentLedState[ledkey] = tmpBits
+                            currentLedState[ledkey] = tmpBits
+                        }
 
                     }
 
@@ -764,10 +860,17 @@ class MainActivity : AppCompatActivity() {
                                         }
                                     }
                                     if (model.equals(4.toByte())) {
-                                        protocol.buzzer_On(model, id)
-                                        for (cnt in 0..1) {
-                                            sendProtocolToSerial(protocol.mProtocol.clone())
-                                            Thread.sleep(5)
+//                                        protocol.buzzer_On(model, id)
+//                                        for (cnt in 0..1) {
+//                                            sendProtocolToSerial(protocol.mProtocol.clone())
+//                                            Thread.sleep(5)
+//                                        }
+                                        for (t in 0..7) {
+                                            for (cnt in 0..1) {
+                                                protocol.buzzer_On(4, t.toByte())
+                                                sendProtocolToSerial(protocol.mProtocol.clone())
+                                                Thread.sleep(5)
+                                            }
                                         }
                                     }
 
@@ -812,6 +915,7 @@ class MainActivity : AppCompatActivity() {
                             model = (tmp and 0xFF).toByte()
 
                             tmpBits = currentLedState[tmp] ?: 0b10000.toByte()
+                            Log.d("ledtest", "model = ${model}, id = ${id}tmpBits = ${tmpBits}")
                             for (cnt in 0..1) {
                                 protocol.led_AlertStateByte(model, id, tmpBits)
                                 sendProtocolToSerial(protocol.mProtocol.clone())
@@ -831,7 +935,7 @@ class MainActivity : AppCompatActivity() {
                             val aqInfo = HexDump.toByteArray(tmp)
                             val model = aqInfo[1]
                             val id = aqInfo[0]
-
+                            Log.d("diffkeys", "model = ${model}, id = ${id}")
                             mainViewModel.portAlertMapLed.remove(tmp)
                             if (id == 8.toByte())
                                 continue
@@ -1207,7 +1311,7 @@ class MainActivity : AppCompatActivity() {
                             0x18.toByte() -> {
                                 recvLabNameBuffers[buff.get(7).toInt()] = buff.clone()
                             }
-                            0x19.toByte() ->{
+                            0x19.toByte() -> {
                                 recvTempHumBuffers[buff.get(7).toInt()] = buff.clone()
                             }
                             0x20.toByte() -> {
@@ -1658,8 +1762,8 @@ class MainActivity : AppCompatActivity() {
                             val aqInfo = HexDump.toByteArray(key)
                             if (exData.containsKey(key)) {
                                 if (exData[key]?.isAlert != value.isAlert ||
-                                    exData[key]?.alertState != value.alertState||
-                                            exData[key]?.time != value.time
+                                    exData[key]?.alertState != value.alertState ||
+                                    exData[key]?.time != value.time
                                 ) {
                                     removelist.add(exData[key]!!)
 //                                    Log.d("팝업", "제거 리스트추가 : ${removelist}")
@@ -1779,7 +1883,7 @@ class MainActivity : AppCompatActivity() {
                                             supportFragmentManager,
                                             ""
                                         )
-                                }catch (e:Exception){
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                 }
                             }

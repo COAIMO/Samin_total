@@ -7,5 +7,6 @@ data class SetAlertData(
     val content : String,
     val port:Int,
     var isAlert:Boolean,
-    var alertState: Int = 0
+    var alertState: Int = 0,
+    var humtempAlertBit :Byte = 0.toByte()
 )

@@ -1260,7 +1260,8 @@ class AQDataParser(viewModel: MainViewModel) {
                         "온도 상한 값 초과",
                         tmp.port,
                         true,
-                        1
+                        1,
+                        0b10001.toByte()
                     )
                 )
             }
@@ -1278,7 +1279,8 @@ class AQDataParser(viewModel: MainViewModel) {
                         "온도 하한 값 초과",
                         tmp.port,
                         true,
-                        2
+                        2,
+                        0b10010.toByte()
                     )
                 )
             }
@@ -1293,7 +1295,9 @@ class AQDataParser(viewModel: MainViewModel) {
                         tmp.id,
                         "온도 정상",
                         tmp.port,
-                        false
+                        false,
+                        0,
+                        0b11100.toByte()
                     )
                 )
                 if (alertMap.containsKey(id)) {
@@ -1319,7 +1323,8 @@ class AQDataParser(viewModel: MainViewModel) {
                         "습도 상한 값 초과",
                         tmp.port + 1,
                         true,
-                        3
+                        3,
+                        0b10100.toByte()
                     )
                 )
             }
@@ -1337,7 +1342,8 @@ class AQDataParser(viewModel: MainViewModel) {
                         "습도 하한 값 초과",
                         tmp.port + 1,
                         true,
-                        4
+                        4,
+                        0b11000.toByte()
                     )
                 )
             }
@@ -1352,7 +1358,9 @@ class AQDataParser(viewModel: MainViewModel) {
                         tmp.id,
                         "습도 정상",
                         tmp.port + 1,
-                        false
+                        false,
+                        5,
+                        0b10011.toByte()
                     )
                 )
                 if (alertMap2.containsKey(id)) {
