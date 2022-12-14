@@ -20,5 +20,7 @@ data class SetTempHumViewData(
     var isTempAlert: Boolean = false,
     var isHumAlert: Boolean = false,
     val modelByte: Byte = 6,
+    var setTempZeroPoint: Float = 0f,
+    var setHumZeroPoint: Float = 0f,
     var heartbeatCount: UByte = 0u
 )

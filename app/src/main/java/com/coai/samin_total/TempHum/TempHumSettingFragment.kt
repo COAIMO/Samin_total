@@ -108,6 +108,64 @@ class TempHumSettingFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
         }
     }
+    private val mTemp_zeroPointWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s != null && !s.toString().equals("")) {
+                try {
+                    if (selectedSensor == null) return
+                    selectedSensor?.setTempZeroPoint = s.toString().toFloat()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+            if (s == null && s.toString().equals("") ||
+                s.toString().equals("-") || s.toString().equals(".")
+            ) {
+                try {
+                    if (selectedSensor == null) return
+                    selectedSensor?.setTempZeroPoint = 0f
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
+    }
+    private val mHum_zeroPointWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s != null || !s.toString().equals("")) {
+                try {
+                    if (selectedSensor == null) return
+                    selectedSensor?.setHumZeroPoint = s.toString().toFloat()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+            if (s == null && s.toString().equals("") ||
+                s.toString().equals("-") || s.toString().equals(".")
+            ) {
+                try {
+                    if (selectedSensor == null) return
+                    selectedSensor?.setHumZeroPoint = 0f
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -155,6 +213,8 @@ class TempHumSettingFragment : Fragment() {
                 mBinding.tempHumBoardSettingView.mMaxHum_Et.setText(selectedSensor?.setHumMax.toString())
                 mBinding.tempHumBoardSettingView.mMinHUm_Et.setText(selectedSensor?.setHumMin.toString())
                 mBinding.tempHumBoardSettingView.mName_Et.setText(selectedSensor?.temphumName.toString())
+                mBinding.tempHumBoardSettingView.mTemp_zeropoint_Et.setText(selectedSensor?.setTempZeroPoint.toString())
+                mBinding.tempHumBoardSettingView.mHum_zeroposint_Et.setText(selectedSensor?.setHumZeroPoint.toString())
 
             }
         })
@@ -219,6 +279,13 @@ class TempHumSettingFragment : Fragment() {
             mHum_minValueWatcher
         )
         mBinding.tempHumBoardSettingView.mName_Et.addTextChangedListener(mTempHum_NameWatcher)
+        mBinding.tempHumBoardSettingView.mTemp_zeropoint_Et.addTextChangedListener(
+            mTemp_zeroPointWatcher
+        )
+        mBinding.tempHumBoardSettingView.mHum_zeroposint_Et.addTextChangedListener(
+            mHum_zeroPointWatcher
+        )
+
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.TEMPHUMMAINFRAGMENT)
         }

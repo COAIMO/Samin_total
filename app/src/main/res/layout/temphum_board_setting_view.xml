@@ -127,4 +127,47 @@
         android:maxLength="5"
         android:maxLines="1"
         android:textSize="20sp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="온도 영점조절 [단위 : ℃]"
+        android:textSize="15sp" />
+
+    <EditText
+        android:id="@+id/et_temp_zeropoint"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="10dp"
+        android:imeOptions="actionDone"
+        android:inputType="numberDecimal|numberSigned"
+        android:text="0"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_max_cap."
+        app:layout_constraintTop_toBottomOf="@id/tv_max_cap." />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="습도 영점조절 [단위 : %]"
+        android:textSize="15sp" />
+
+    <EditText
+        android:id="@+id/et_hum_zeropoint"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="10dp"
+        android:imeOptions="actionDone"
+        android:inputType="numberDecimal|numberSigned"
+        android:text="0"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_max_cap."
+        app:layout_constraintTop_toBottomOf="@id/tv_max_cap." />
 </LinearLayout>

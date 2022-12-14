@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.Exception
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import kotlin.math.roundToInt
 
 class AQDataParser(viewModel: MainViewModel) {
     val hmapErrorOxygen = HashMap<Int, Boolean>()
@@ -1243,9 +1244,17 @@ class AQDataParser(viewModel: MainViewModel) {
         if (!tmp.usable) {
             return
         }
+        tmp.temp = ((temp + tmp.setTempZeroPoint) * 100.0).roundToInt() / 100.0f
+        tmp.hum = ((hum + tmp.setHumZeroPoint) * 100.0).roundToInt() / 100.0f
+        Log.d(
+            "temphum",
+            "setTempZeroPoint : ${tmp.setTempZeroPoint}, temp : ${temp} , result:${tmp.temp}"
+        )
+        Log.d(
+            "temphum",
+            "setHumZeroPoint : ${tmp.setHumZeroPoint}, hum : ${hum} , result:${tmp.hum}"
+        )
 
-        tmp.temp = temp
-        tmp.hum = hum
         if (tmp.temp > tmp.setTempMax) {
             tmp.isTempAlert = true
             if (alertMap[id] == null || tempStateMap[id] != 1) {

@@ -16,6 +16,8 @@ class TempHumBoardSettingView constructor(context: Context, attrs: AttributeSet?
     var mMaxHum_Et: EditText
     var mMinHUm_Et: EditText
     var mName_Et: EditText
+    var mTemp_zeropoint_Et:EditText
+    var mHum_zeroposint_Et:EditText
 
     private fun setIsSensor() {
         var ret: Boolean
@@ -32,6 +34,8 @@ class TempHumBoardSettingView constructor(context: Context, attrs: AttributeSet?
         mMaxHum_Et = findViewById(R.id.et_hum_MaxAlert)
         mMinHUm_Et = findViewById(R.id.et_hum_MinAlert)
         mName_Et = findViewById(R.id.et_tempHum_name)
+        mTemp_zeropoint_Et = findViewById(R.id.et_temp_zeropoint)
+        mHum_zeroposint_Et = findViewById(R.id.et_hum_zeropoint)
         setIsSensor()
     }
 }
