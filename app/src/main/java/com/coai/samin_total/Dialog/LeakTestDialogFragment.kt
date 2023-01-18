@@ -92,9 +92,15 @@ class LeakTestDialogFragment : DialogFragment() {
     private val setGasSensorInfo = mutableListOf<SetGasRoomViewData>()
     private fun initView() {
         if (!viewmodel.GasRoomDataLiveList.value.isNullOrEmpty()) {
-            for (i in viewmodel.GasRoomDataLiveList.value!!) {
-                setGasSensorInfo.add(i)
+            val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
+            setGasSensorInfo.clear()
+            for (tmp in mm){
+                if (tmp.usable)
+                    setGasSensorInfo.add(tmp)
             }
+//            for (i in viewmodel.GasRoomDataLiveList.value!!) {
+//                setGasSensorInfo.add(i)
+//            }
             recycleAdapter.submitList(setGasSensorInfo)
         } else {
             Toast.makeText(requireContext(), "설정된 데이터가 없습니다.", Toast.LENGTH_SHORT).show()

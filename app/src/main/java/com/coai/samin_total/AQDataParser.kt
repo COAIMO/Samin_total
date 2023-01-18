@@ -391,6 +391,12 @@ class AQDataParser(viewModel: MainViewModel) {
             }
         }
         tmp.pressure = value
+//        Log.d(
+//            "TEST", "port = ${tmp.port}" +
+//                    "pressure = ${tmp.pressure}" +
+//                    "pressure_Min = ${tmp.pressure_Min}" +
+//                    "pressure_Max = ${tmp.pressure_Max}"
+//        )
         if (tmp.pressure_Min!! > tmp.pressure!!) {
 //            tmp.isAlert = true
             tmp.isLowLeftPressAlert = true
@@ -648,7 +654,12 @@ class AQDataParser(viewModel: MainViewModel) {
             }
         }
         tmp.pressure = value
-
+        Log.d(
+            "TEST", "port = ${tmp.port}" +
+                    "pressure = ${tmp.pressure}" +
+                    "pressure_Min = ${tmp.limit_min}" +
+                    "pressure_Max = ${tmp.limit_max}"
+        )
         // 기울기 데이터 값 수집
         val item = TimePSI(hmapLastedDate[id]!!, tmp.pressure, 0x02, tmp.id, tmp.port)
         val basetime = hmapLastedDate[id]!! - 1000 * 2

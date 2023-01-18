@@ -77,6 +77,12 @@ class RoomLeakTestFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
+        if (!viewmodel.GasRoomDataLiveList.value.isNullOrEmpty()) {
+            for (i in viewmodel.GasRoomDataLiveList.value!!) {
+                i.leakTest = false
+            }
+        }
+        inVisibleView = null
         activity = null
         onBackPressed.remove()
     }
@@ -295,8 +301,8 @@ class RoomLeakTestFragment : Fragment() {
         }
     }
 
-    private fun zoomInAndOut(zoomState:Boolean){
-        synchronized(lockobj){
+    private fun zoomInAndOut(zoomState: Boolean) {
+        synchronized(lockobj) {
             activity?.runOnUiThread {
                 mBinding.gasRoomLeakTestGridLayout.removeAllViews()
                 mBinding.gasRoomLeakTestGridLayout.invalidate()
@@ -307,7 +313,7 @@ class RoomLeakTestFragment : Fragment() {
             }
         }
 
-        if (zoomState){
+        if (zoomState) {
             viewmodel.roomViewZoomState = false
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
             synchronized(lockobj) {
@@ -317,7 +323,7 @@ class RoomLeakTestFragment : Fragment() {
                     }
                 }
             }
-        }else{
+        } else {
             viewmodel.roomViewZoomState = true
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
             synchronized(lockobj) {
@@ -330,7 +336,7 @@ class RoomLeakTestFragment : Fragment() {
         }
         synchronized(lockobj) {
             val sortmap = leakTestview_data_Hashmap.toSortedMap(
-                compareBy {it}
+                compareBy { it }
             )
             activity?.runOnUiThread {
                 for (i in sortmap) {
@@ -341,22 +347,25 @@ class RoomLeakTestFragment : Fragment() {
                 }
 
                 mBinding.btnZoomInout.isEnabled = true
-
             }
         }
     }
 
     private fun initGridLayout() {
-        mBinding.gasRoomLeakTestGridLayout.apply {
-            if (!viewmodel.roomViewZoomState) {
-                columnCount = 2
-            } else {
-                columnCount = 1
+        activity?.runOnUiThread {
+            mBinding.gasRoomLeakTestGridLayout.apply {
+                if (!viewmodel.roomViewZoomState) {
+                    columnCount = 2
+                } else {
+                    columnCount = 1
+                }
             }
+
         }
     }
 
     val leakTestview_data_Hashmap = HashMap<Int, LeakTestView>()
+    var inVisibleView :LeakTestView? = null
     private fun initView() {
         val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(
             compareBy({ it.id },
@@ -381,20 +390,50 @@ class RoomLeakTestFragment : Fragment() {
         //
         graphData.clear()
 
-        for ((index, value) in gasRoomViewData.withIndex()) {
-            graphData.add(index, Entry(0f, value.pressure))
-            val testView = LeakTestView(requireContext())
-            val params = GridLayout.LayoutParams().apply {
-
+        if (gasRoomViewData.isNotEmpty() && gasRoomViewData.size < 2){
+            for ((index, value) in gasRoomViewData.withIndex()) {
+                graphData.add(index, Entry(0f, value.pressure))
+                val testView = LeakTestView(requireContext())
+                val params = GridLayout.LayoutParams().apply {
+                    height = 500
+                    width = GridLayout.LayoutParams.WRAP_CONTENT
+                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                    rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                }
+                testView.layoutParams = params
+                mBinding.gasRoomLeakTestGridLayout.addView(testView)
+                leakTestview_data_Hashmap.put(index, testView)
             }
-            params.height = 500
-            params.width = GridLayout.LayoutParams.WRAP_CONTENT
-            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
-            params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
-            testView.layoutParams = params
-            mBinding.gasRoomLeakTestGridLayout.addView(testView)
-//            testView.bind(value)
-            leakTestview_data_Hashmap.put(index, testView)
+            inVisibleView = LeakTestView(requireContext())
+            val params = GridLayout.LayoutParams().apply {
+                height = 500
+                width = GridLayout.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+            }
+            inVisibleView!!.layoutParams = params
+            inVisibleView!!.visibility = View.INVISIBLE
+            mBinding.gasRoomLeakTestGridLayout.addView(inVisibleView)
+            leakTestview_data_Hashmap.put(1, inVisibleView!!)
+
+        }else{
+            for ((index, value) in gasRoomViewData.withIndex()) {
+                graphData.add(index, Entry(0f, value.pressure))
+                val testView = LeakTestView(requireContext())
+                val params = GridLayout.LayoutParams().apply {
+                    height = 500
+                    width = GridLayout.LayoutParams.WRAP_CONTENT
+                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                    rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                }
+//            params.height = 500
+//            params.width = GridLayout.LayoutParams.WRAP_CONTENT
+//            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+//            params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                testView.layoutParams = params
+                mBinding.gasRoomLeakTestGridLayout.addView(testView)
+                leakTestview_data_Hashmap.put(index, testView)
+            }
         }
 
 
@@ -469,7 +508,7 @@ class RoomLeakTestFragment : Fragment() {
                 tmp.write("\uFEFF")
                 tmp.write(String.format("id, port, 시간, 압력(psi)\n"))
                 for (i in leakTestview_data_Hashmap.toSortedMap(
-                    compareBy {it})
+                    compareBy { it })
                 ) {
 //                    val datas = i.value.graphData.dataSets
                     val datas = i.value.graphMap.toSortedMap(compareBy { it })

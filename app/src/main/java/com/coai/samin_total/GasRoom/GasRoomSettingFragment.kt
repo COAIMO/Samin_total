@@ -20,6 +20,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.Logic.SaminSharedPreference
+import com.coai.samin_total.Logic.SpinnerColorAdapter
+import com.coai.samin_total.Logic.SpinnerColorItem
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
@@ -53,11 +55,20 @@ class GasRoomSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("")) {
-                if (selectedSensor == null) return
-                selectedSensor?.pressure_Max = s.toString().toFloat()
+//            if (s != null && !s.toString().equals("")) {
+//                if (selectedSensor == null) return
+//                selectedSensor?.pressure_Max = s.toString().toFloat()
+//            }
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString()
+                    .equals(".")
+            ) {
+                try {
+                    if (selectedSensor == null) return
+                    selectedSensor?.pressure_Max = s.toString().toFloat()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
-
         }
 
         override fun afterTextChanged(s: Editable?) {
@@ -92,7 +103,9 @@ class GasRoomSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("")) {
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString()
+                    .equals(".")
+            ) {
                 try {
                     if (selectedSensor == null) return
                     selectedSensor?.rewardValue = s.toString().toFloat()
@@ -113,7 +126,9 @@ class GasRoomSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("")) {
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString()
+                    .equals(".")
+            ) {
                 try {
                     if (selectedSensor == null) return
                     selectedSensor?.slopeValue = s.toString().toFloat()
@@ -149,7 +164,9 @@ class GasRoomSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("")) {
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString()
+                    .equals(".")
+            ) {
                 try {
                     if (selectedSensor == null) return
                     selectedSensor?.limit_max = s.toString().toFloat()
@@ -167,11 +184,13 @@ class GasRoomSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("")) {
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString()
+                    .equals(".")
+            ) {
                 try {
                     if (selectedSensor == null) return
                     selectedSensor?.limit_min = s.toString().toFloat()
-                }catch (e:Exception){
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
@@ -204,9 +223,10 @@ class GasRoomSettingFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-        activity = null
-        onBackPressed.remove()
+        colorList.clear()
         selectedSensor = null
+        onBackPressed.remove()
+        activity = null
     }
 
     override fun onCreateView(
@@ -315,8 +335,12 @@ class GasRoomSettingFragment : Fragment() {
 //                selectedSensor?.zeroPoint =  mBinding.gasRoomBoardSettingView.mZeroPoint_Et.text.toString().toFloat()
 //            }
 //        }
-        mBinding.gasRoomBoardSettingView.mLimitmaxValue_Et.addTextChangedListener(mLimitMaxtextWatcher)
-        mBinding.gasRoomBoardSettingView.mLimitminValue_Et.addTextChangedListener(mLimitMintextWatcher)
+        mBinding.gasRoomBoardSettingView.mLimitmaxValue_Et.addTextChangedListener(
+            mLimitMaxtextWatcher
+        )
+        mBinding.gasRoomBoardSettingView.mLimitminValue_Et.addTextChangedListener(
+            mLimitMintextWatcher
+        )
     }
 
     private fun initRecycler() {
@@ -392,13 +416,38 @@ class GasRoomSettingFragment : Fragment() {
             }
     }
 
+    val colorList: ArrayList<SpinnerColorItem> = arrayListOf<SpinnerColorItem>()
     private fun setGasColorSpinner() {
-        val arrayAdapter = ArrayAdapter(
-            requireContext(),
-            R.layout.support_simple_spinner_dropdown_item,
-            viewmodel.gasColor
-        )
-        mBinding.gasRoomBoardSettingView.mSelectedGasColor_sp.adapter = arrayAdapter
+//        val arrayAdapter = ArrayAdapter(
+//            requireContext(),
+//            R.layout.support_simple_spinner_dropdown_item,
+//            viewmodel.gasColor
+//        )
+//        mBinding.gasRoomBoardSettingView.mSelectedGasColor_sp.adapter = arrayAdapter
+//        mBinding.gasRoomBoardSettingView.mSelectedGasColor_sp.onItemSelectedListener =
+//            object : AdapterView.OnItemSelectedListener {
+//                override fun onItemSelected(
+//                    parent: AdapterView<*>?,
+//                    view: View?,
+//                    position: Int,
+//                    id: Long
+//                ) {
+//                    selectedSensor?.gasColor =
+//                        viewmodel.gasColorMap[viewmodel.gasType[position]]!!
+//                }
+//
+//                override fun onNothingSelected(parent: AdapterView<*>?) {
+//                    Toast.makeText(context, "센서 컬러을 선택해주세요.", Toast.LENGTH_SHORT)
+//                        .show()
+//                }
+//            }
+        for (i in viewmodel.gasColor.withIndex()) {
+            val color = viewmodel.gasColorValue[i.index]
+            val tmp = SpinnerColorItem(i.value, color)
+            colorList.add(tmp)
+        }
+        val adapter = SpinnerColorAdapter(requireContext(), colorList)
+        mBinding.gasRoomBoardSettingView.mSelectedGasColor_sp.adapter = adapter
         mBinding.gasRoomBoardSettingView.mSelectedGasColor_sp.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
@@ -412,7 +461,7 @@ class GasRoomSettingFragment : Fragment() {
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-                    Toast.makeText(context, "센서 컬러을 선택해주세요.", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "센서 컬러를 선택해주세요.", Toast.LENGTH_SHORT)
                         .show()
                 }
             }
@@ -440,7 +489,6 @@ class GasRoomSettingFragment : Fragment() {
         //설정값 저장
         val buff = mutableListOf<SetGasRoomViewData>()
         for (i in viewmodel.GasRoomDataLiveList.value!!) {
-//            Log.d("테스트", "viewmodel: $i")
             buff.add(i)
         }
         shared.saveBoardSetData(SaminSharedPreference.GASROOM, buff)

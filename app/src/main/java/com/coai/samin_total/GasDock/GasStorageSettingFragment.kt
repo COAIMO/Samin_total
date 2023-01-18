@@ -54,39 +54,45 @@ class GasStorageSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("")) {
-                if (selectedSensor == null) return
-                if (selectedSensor?.ViewType == 1 || selectedSensor?.ViewType == 2) {
-                    selectedSensor?.pressure_Min = s.toString().toFloat()
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString()
+                    .equals(".")
+            ) {
+                try {
+                    if (selectedSensor == null) return
+                    if (selectedSensor?.ViewType == 1 || selectedSensor?.ViewType == 2) {
+                        selectedSensor?.pressure_Min = s.toString().toFloat()
 
-                    if (selectedSensor?.port == 1) {
-                        for (i in setGasSensorInfo) {
-                            if (i.port == 2 && i.id == selectedSensor?.id) {
-                                i.pressure_Min = selectedSensor?.pressure_Min
+                        if (selectedSensor?.port == 1) {
+                            for (i in setGasSensorInfo) {
+                                if (i.port == 2 && i.id == selectedSensor?.id) {
+                                    i.pressure_Min = selectedSensor?.pressure_Min
+                                }
+                            }
+                        } else if (selectedSensor?.port == 2) {
+                            for (i in setGasSensorInfo) {
+                                if (i.port == 1 && i.id == selectedSensor?.id) {
+                                    i.pressure_Min = selectedSensor?.pressure_Min
+                                }
+                            }
+                        } else if (selectedSensor?.port == 3) {
+                            for (i in setGasSensorInfo) {
+                                if (i.port == 4 && i.id == selectedSensor?.id) {
+                                    i.pressure_Min = selectedSensor?.pressure_Min
+                                }
+                            }
+                        } else if (selectedSensor?.port == 4) {
+                            for (i in setGasSensorInfo) {
+                                if (i.port == 3 && i.id == selectedSensor?.id) {
+                                    i.pressure_Min = selectedSensor?.pressure_Min
+                                }
                             }
                         }
-                    } else if (selectedSensor?.port == 2) {
-                        for (i in setGasSensorInfo) {
-                            if (i.port == 1 && i.id == selectedSensor?.id) {
-                                i.pressure_Min = selectedSensor?.pressure_Min
-                            }
-                        }
-                    } else if (selectedSensor?.port == 3) {
-                        for (i in setGasSensorInfo) {
-                            if (i.port == 4 && i.id == selectedSensor?.id) {
-                                i.pressure_Min = selectedSensor?.pressure_Min
-                            }
-                        }
-                    } else if (selectedSensor?.port == 4) {
-                        for (i in setGasSensorInfo) {
-                            if (i.port == 3 && i.id == selectedSensor?.id) {
-                                i.pressure_Min = selectedSensor?.pressure_Min
-                            }
-                        }
+                    } else {
+                        selectedSensor?.pressure_Min = s.toString().toFloat()
                     }
 
-                } else {
-                    selectedSensor?.pressure_Min = s.toString().toFloat()
+                }catch (e:Exception){
+                    e.printStackTrace()
                 }
             }
         }
@@ -100,39 +106,45 @@ class GasStorageSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("")) {
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString()
+                    .equals(".")) {
 //                selectedSensor.pressure_Max = s.toString().toFloat()
-                if (selectedSensor == null) return
-                if (selectedSensor?.ViewType == 1 || selectedSensor?.ViewType == 2) {
-                    selectedSensor?.pressure_Max = s.toString().toFloat()
+                try {
+                    if (selectedSensor == null) return
+                    if (selectedSensor?.ViewType == 1 || selectedSensor?.ViewType == 2) {
+                        selectedSensor?.pressure_Max = s.toString().toFloat()
 
-                    if (selectedSensor?.port == 1) {
-                        for (i in setGasSensorInfo) {
-                            if (i.port == 2 && i.id == selectedSensor?.id) {
-                                i.pressure_Max = selectedSensor?.pressure_Max
+                        if (selectedSensor?.port == 1) {
+                            for (i in setGasSensorInfo) {
+                                if (i.port == 2 && i.id == selectedSensor?.id) {
+                                    i.pressure_Max = selectedSensor?.pressure_Max
+                                }
+                            }
+                        } else if (selectedSensor?.port == 2) {
+                            for (i in setGasSensorInfo) {
+                                if (i.port == 1 && i.id == selectedSensor?.id) {
+                                    i.pressure_Max = selectedSensor?.pressure_Max
+                                }
+                            }
+                        } else if (selectedSensor?.port == 3) {
+                            for (i in setGasSensorInfo) {
+                                if (i.port == 4 && i.id == selectedSensor?.id) {
+                                    i.pressure_Max = selectedSensor?.pressure_Max
+                                }
+                            }
+                        } else if (selectedSensor?.port == 4) {
+                            for (i in setGasSensorInfo) {
+                                if (i.port == 3 && i.id == selectedSensor?.id) {
+                                    i.pressure_Max = selectedSensor?.pressure_Max
+                                }
                             }
                         }
-                    } else if (selectedSensor?.port == 2) {
-                        for (i in setGasSensorInfo) {
-                            if (i.port == 1 && i.id == selectedSensor?.id) {
-                                i.pressure_Max = selectedSensor?.pressure_Max
-                            }
-                        }
-                    } else if (selectedSensor?.port == 3) {
-                        for (i in setGasSensorInfo) {
-                            if (i.port == 4 && i.id == selectedSensor?.id) {
-                                i.pressure_Max = selectedSensor?.pressure_Max
-                            }
-                        }
-                    } else if (selectedSensor?.port == 4) {
-                        for (i in setGasSensorInfo) {
-                            if (i.port == 3 && i.id == selectedSensor?.id) {
-                                i.pressure_Max = selectedSensor?.pressure_Max
-                            }
-                        }
+                    } else {
+                        selectedSensor?.pressure_Max = s.toString().toFloat()
                     }
-                } else {
-                    selectedSensor?.pressure_Max = s.toString().toFloat()
+
+                }catch (e:Exception){
+                    e.printStackTrace()
                 }
 
             }
@@ -148,7 +160,8 @@ class GasStorageSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("")) {
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString()
+                    .equals(".")) {
 //                selectedSensor.zeroPoint = s.toString().toFloat()
                 if (selectedSensor == null) return
                 try {
@@ -193,7 +206,7 @@ class GasStorageSettingFragment : Fragment() {
                             selectedSensor?.right_zeroPoint = s.toString().toFloat()
                             for (i in setGasSensorInfo) {
                                 if (i.port == 1 && i.id == selectedSensor?.id) {
-                                    i.right_zeroPoint =  s.toString().toFloat()
+                                    i.right_zeroPoint = s.toString().toFloat()
                                 }
                             }
 
@@ -203,7 +216,7 @@ class GasStorageSettingFragment : Fragment() {
                             selectedSensor?.right_zeroPoint = s.toString().toFloat()
                             for (i in setGasSensorInfo) {
                                 if (i.port == 3 && i.id == selectedSensor?.id) {
-                                    i.right_zeroPoint =  s.toString().toFloat()
+                                    i.right_zeroPoint = s.toString().toFloat()
                                 }
                             }
                         }
@@ -228,7 +241,8 @@ class GasStorageSettingFragment : Fragment() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (s != null && !s.toString().equals("")) {
+            if (s != null && !s.toString().equals("") && !s.toString().equals("-") && !s.toString()
+                    .equals(".")) {
 //                selectedSensor.rewardValue = s.toString().toFloat()
                 if (selectedSensor == null) return
                 try {
@@ -273,7 +287,7 @@ class GasStorageSettingFragment : Fragment() {
                             selectedSensor?.right_rewardValue = s.toString().toFloat()
                             for (i in setGasSensorInfo) {
                                 if (i.port == 1 && i.id == selectedSensor?.id) {
-                                    i.right_rewardValue =  s.toString().toFloat()
+                                    i.right_rewardValue = s.toString().toFloat()
                                 }
                             }
                         } else if (selectedSensor?.port == 3) {
@@ -282,7 +296,7 @@ class GasStorageSettingFragment : Fragment() {
                             selectedSensor?.right_rewardValue = s.toString().toFloat()
                             for (i in setGasSensorInfo) {
                                 if (i.port == 3 && i.id == selectedSensor?.id) {
-                                    i.right_rewardValue =  s.toString().toFloat()
+                                    i.right_rewardValue = s.toString().toFloat()
                                 }
                             }
                         }
@@ -366,9 +380,10 @@ class GasStorageSettingFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-        activity = null
+        colorList.clear()
         selectedSensor = null
         onBackPressed.remove()
+        activity = null
     }
 
     override fun onCreateView(
@@ -409,10 +424,10 @@ class GasStorageSettingFragment : Fragment() {
                 mBinding.gasStorageBoardSettingView.mCapaAlert_Et.setText(selectedSensor!!.pressure_Min.toString())
                 mBinding.gasStorageBoardSettingView.mMaxCapa_Et.setText(selectedSensor!!.pressure_Max.toString())
 
-                if (selectedSensor!!.port ==1 || selectedSensor!!.port==3 ){
+                if (selectedSensor!!.port == 1 || selectedSensor!!.port == 3) {
                     mBinding.gasStorageBoardSettingView.mRewardValue_Et.setText(selectedSensor!!.left_rewardValue.toString())
                     mBinding.gasStorageBoardSettingView.mZeroPoint_Et.setText(selectedSensor!!.left_zeroPoint.toString())
-                }else{
+                } else {
                     mBinding.gasStorageBoardSettingView.mRewardValue_Et.setText(selectedSensor!!.right_rewardValue.toString())
                     mBinding.gasStorageBoardSettingView.mZeroPoint_Et.setText(selectedSensor!!.right_zeroPoint.toString())
                 }
@@ -779,9 +794,9 @@ class GasStorageSettingFragment : Fragment() {
 //                }
 //            }
 
-        for (i in viewmodel.gasColor.withIndex()){
+        for (i in viewmodel.gasColor.withIndex()) {
             val color = viewmodel.gasColorValue[i.index]
-            val tmp = SpinnerColorItem(i.value,color)
+            val tmp = SpinnerColorItem(i.value, color)
             colorList.add(tmp)
         }
 
@@ -836,6 +851,7 @@ class GasStorageSettingFragment : Fragment() {
             }
 
     }
+
     val colorList: ArrayList<SpinnerColorItem> = arrayListOf<SpinnerColorItem>()
     private fun setSensorTypeSpinner() {
         val arrayAdapter = ArrayAdapter(
