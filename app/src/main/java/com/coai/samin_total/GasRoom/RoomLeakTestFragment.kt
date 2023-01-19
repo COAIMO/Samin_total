@@ -103,11 +103,9 @@ class RoomLeakTestFragment : Fragment() {
             try {
                 var lastupdate: Long = System.currentTimeMillis()
                 val lstvalue = mutableListOf<Int>()
-                var count: Float = 0f
                 var startmill: Long = System.currentTimeMillis()
-                var bftestTime: Float = 0f
                 var testTime: Float = 0f
-                var isFirst = false
+
                 while (isOnTaskRefesh) {
                     lstvalue.clear()
                     heartbeatCount++
@@ -118,7 +116,9 @@ class RoomLeakTestFragment : Fragment() {
                             if (idx > -1) {
                                 if (newgasRoomViewData[idx].pressure != t.pressure ||
                                     newgasRoomViewData[idx].isAlert != t.isAlert ||
-                                    newgasRoomViewData[idx].unit != t.unit
+                                    newgasRoomViewData[idx].unit != t.unit ||
+                                    newgasRoomViewData[idx].isSlopeAlert != t.isSlopeAlert ||
+                                    newgasRoomViewData[idx].isPressAlert != t.isPressAlert
                                 ) {
                                     if (!lstvalue.contains(idx))
                                         lstvalue.add(idx)
@@ -130,7 +130,6 @@ class RoomLeakTestFragment : Fragment() {
                                             lstvalue.add(idx)
                                     }
                                 }
-
                                 newgasRoomViewData[idx].heartbeatCount = heartbeatCount
                             }
                         }
@@ -139,11 +138,18 @@ class RoomLeakTestFragment : Fragment() {
                             if (gasRoomViewData[t].pressure != newgasRoomViewData[t].pressure)
                                 gasRoomViewData[t].pressure = newgasRoomViewData[t].pressure
 
+                            if (gasRoomViewData[t].isSlopeAlert != newgasRoomViewData[t].isSlopeAlert)
+                                gasRoomViewData[t].isSlopeAlert = newgasRoomViewData[t].isSlopeAlert
+
+                            if (gasRoomViewData[t].isPressAlert != newgasRoomViewData[t].isPressAlert)
+                                gasRoomViewData[t].isPressAlert = newgasRoomViewData[t].isPressAlert
+
                             if (gasRoomViewData[t].isAlert != newgasRoomViewData[t].isAlert)
                                 gasRoomViewData[t].isAlert = newgasRoomViewData[t].isAlert
 
                             if (gasRoomViewData[t].unit != newgasRoomViewData[t].unit)
                                 gasRoomViewData[t].unit = newgasRoomViewData[t].unit
+
 
                             gasRoomViewData[t].heartbeatCount = newgasRoomViewData[t].heartbeatCount
                             leakTestview_data_Hashmap[t]?.bind(gasRoomViewData[t])
@@ -365,7 +371,7 @@ class RoomLeakTestFragment : Fragment() {
     }
 
     val leakTestview_data_Hashmap = HashMap<Int, LeakTestView>()
-    var inVisibleView :LeakTestView? = null
+    var inVisibleView: LeakTestView? = null
     private fun initView() {
         val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(
             compareBy({ it.id },
@@ -390,7 +396,7 @@ class RoomLeakTestFragment : Fragment() {
         //
         graphData.clear()
 
-        if (gasRoomViewData.isNotEmpty() && gasRoomViewData.size < 2){
+        if (gasRoomViewData.isNotEmpty() && gasRoomViewData.size < 2) {
             for ((index, value) in gasRoomViewData.withIndex()) {
                 graphData.add(index, Entry(0f, value.pressure))
                 val testView = LeakTestView(requireContext())
@@ -416,7 +422,7 @@ class RoomLeakTestFragment : Fragment() {
             mBinding.gasRoomLeakTestGridLayout.addView(inVisibleView)
             leakTestview_data_Hashmap.put(1, inVisibleView!!)
 
-        }else{
+        } else {
             for ((index, value) in gasRoomViewData.withIndex()) {
                 graphData.add(index, Entry(0f, value.pressure))
                 val testView = LeakTestView(requireContext())

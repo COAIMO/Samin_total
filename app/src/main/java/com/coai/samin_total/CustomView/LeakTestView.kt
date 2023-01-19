@@ -45,6 +45,10 @@ class LeakTestView(context: Context, attrs: AttributeSet? = null) :
         gasRoomView.setGasIndex(setGasRoomViewData.gasIndex)
         gasRoomView.setAlert(setGasRoomViewData.isAlert)
         gasRoomView.heartBeat(setGasRoomViewData.heartbeatCount)
+        gasRoomView.setLimitMax(setGasRoomViewData.limit_max)
+        gasRoomView.setLimitMin(setGasRoomViewData.limit_min)
+        gasRoomView.setSlopeAlert(setGasRoomViewData.isSlopeAlert)
+        gasRoomView.setPressureAlert(setGasRoomViewData.isPressAlert)
     }
 
     private fun setChart() {
