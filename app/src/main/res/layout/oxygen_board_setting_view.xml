@@ -52,6 +52,7 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="numberDecimal"
+        android:maxLength="8"
         android:text="23"
         android:textSize="20sp" />
 
@@ -70,6 +71,7 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="numberDecimal"
+        android:maxLength="8"
         android:text="19.2"
         android:textSize="20sp" />
 
@@ -88,8 +90,10 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="numberDecimal|numberSigned"
+        android:maxLength="8"
         android:text="0.0"
         android:textSize="20sp" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -105,8 +109,8 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="10dp"
         android:inputType="text"
-        android:text="산소"
         android:maxLength="5"
         android:maxLines="1"
+        android:text="산소"
         android:textSize="20sp" />
 </LinearLayout>
