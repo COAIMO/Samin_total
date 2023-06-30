@@ -14,7 +14,7 @@ include ':UIKit'
 include ':libmodbus'
 include ':libsaminmodbus'
 
-project(':UIKit').projectDir = new File('../../SmartLABPROTOTYPE/UIKit')
-project(':libmodbus').projectDir = new File('../../saminmodbustest/libmodbus')
-project(':libsaminmodbus').projectDir = new File('../../saminmodbustest/libsaminmodbus')
+project(':UIKit').projectDir = new File('../SmartLABPROTOTYPE/UIKit')
+project(':libmodbus').projectDir = new File('../saminmodbustest/libmodbus')
+project(':libsaminmodbus').projectDir = new File('../saminmodbustest/libsaminmodbus')
 

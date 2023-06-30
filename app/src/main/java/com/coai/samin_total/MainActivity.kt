@@ -3,6 +3,7 @@ package com.coai.samin_total
 import android.annotation.SuppressLint
 import android.app.Service
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.net.Uri
@@ -10,6 +11,8 @@ import android.os.*
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -44,9 +47,12 @@ import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
 import com.coai.samin_total.database.*
 import com.coai.samin_total.databinding.ActivityMainBinding
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.*
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
+import java.io.PrintWriter
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -194,6 +200,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+//        throw RuntimeException("Test Crash")
+
 //        mBinding.btnTemplhigh.setOnClickListener {
 //            isHumChagne = false
 //            istempChange = true
@@ -249,6 +257,27 @@ class MainActivity : AppCompatActivity() {
 //                }
 //            }
 //        }
+
+        Thread.setDefaultUncaughtExceptionHandler { thread, ex ->
+            try {
+                ex.message?.let {
+                    Firebase.crashlytics.log(it)
+                }
+
+//                val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+//                val filename = "crash_$timestamp.log"
+//
+//                openFileOutput(filename, Context.MODE_PRIVATE).use { output ->
+//                    PrintWriter(output).use { writer ->
+//                        writer.println("Crash detected on thread ${thread.name}")
+//                        ex.printStackTrace(writer)
+//                    }
+//                }
+            } catch (e: Exception) {
+                // If we couldn't write the crash report, there's not much we can do.
+                e.printStackTrace()
+            }
+        }
     }
 //
 //    var temp = 30f

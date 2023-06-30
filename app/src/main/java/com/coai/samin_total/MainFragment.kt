@@ -263,6 +263,7 @@ class MainFragment : Fragment() {
         }
         mBinding.btnSound.setOnClickListener {
             onClick(mBinding.btnSound)
+//            throw RuntimeException("Test Crash")
         }
         mBinding.tempHumMainStatus.setOnClickListener{
             onClick(it)
