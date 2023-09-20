@@ -185,7 +185,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     //SerialInputOutputManager.Listener
     override fun onNewData(data: ByteArray?) {
-        Log.d("로그", "onNewData : ${HexDump.dumpHexString(data)}")
+//        Log.d("로그", "onNewData : ${HexDump.dumpHexString(data)}")
 //        Log.d("로그", "onNewData recived ======")
         if (data != null) {
             parseReceiveData(data)
@@ -307,7 +307,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     private fun sendData(data: ByteArray) {
 //        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
         usbIoManager?.writeAsync(data)
-        Log.d("태그", "send data : \n${HexDump.dumpHexString(data)}")
+//        Log.d("태그", "send data : \n${HexDump.dumpHexString(data)}")
     }
 
     fun checkModelandID() {

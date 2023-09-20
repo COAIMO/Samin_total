@@ -111,11 +111,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/top_layer">
 
-        <GridLayout
-            android:id="@+id/gasRoomLeakTestGridLayout"
+<!--        <GridLayout-->
+<!--            android:id="@+id/gasRoomLeakTestGridLayout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal"></GridLayout>-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/gasRoomLeakTestRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"></GridLayout>
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
     </androidx.core.widget.NestedScrollView>
 
 

@@ -3,6 +3,8 @@ package com.coai.samin_total.Dialog
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.text.InputFilter
+import android.text.Spanned
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -91,6 +93,7 @@ class LeakTestDialogFragment : DialogFragment() {
 
     private val setGasSensorInfo = mutableListOf<SetGasRoomViewData>()
     private fun initView() {
+        mBinding.etTestTime.filters = arrayOf(InputFilterMinMax("1", "600"))
         if (!viewmodel.GasRoomDataLiveList.value.isNullOrEmpty()) {
             val mm = viewmodel.GasRoomDataLiveList.value!!.sortedWith(compareBy({ it.id }, { it.port }))
             setGasSensorInfo.clear()
@@ -98,6 +101,8 @@ class LeakTestDialogFragment : DialogFragment() {
                 if (tmp.usable)
                     setGasSensorInfo.add(tmp)
             }
+//            mBinding.
+
 //            for (i in viewmodel.GasRoomDataLiveList.value!!) {
 //                setGasSensorInfo.add(i)
 //            }
@@ -174,5 +179,25 @@ class LeakTestDialogFragment : DialogFragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+}
+
+class InputFilterMinMax(private val min: String, private val max: String) : InputFilter {
+
+    override fun filter(
+        source: CharSequence,
+        start: Int,
+        end: Int,
+        dest: Spanned,
+        dstart: Int,
+        dend: Int
+    ): CharSequence? {
+        try {
+            val input = (dest.subSequence(0, dstart).toString() + source + dest.subSequence(dend, dest.length)).toInt()
+            if (input in min.toInt()..max.toInt())
+                return null
+        } catch (nfe: NumberFormatException) {
+        }
+        return ""
     }
 }

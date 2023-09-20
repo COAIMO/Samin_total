@@ -1021,7 +1021,7 @@ class MainActivity : AppCompatActivity() {
                         tabletSoundAlertOff()
                     }
                 }
-                Log.d("sendAlert", "measureTimeMillis : $elapsed")
+//                Log.d("sendAlert", "measureTimeMillis : $elapsed")
 
                 Thread.sleep(200)
             }
