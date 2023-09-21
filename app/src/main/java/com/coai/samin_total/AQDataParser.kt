@@ -650,11 +650,11 @@ class AQDataParser(viewModel: MainViewModel) {
         }
         tmp.pressure = value
 
-        if (tmp.port == 1) {
-            tmp.pressure = tmp.pressure
-        } else {
-            tmp.pressure = 100f + random.nextInt(5)
-        }
+//        if (tmp.port == 1) {
+//            tmp.pressure = tmp.pressure
+//        } else {
+//            tmp.pressure = 100f + random.nextInt(5)
+//        }
 
         // 기울기 데이터 값 수집
         val item = TimePSI(hmapLastedDate[id]!!, tmp.pressure, 0x02, tmp.id, tmp.port)
