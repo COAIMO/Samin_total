@@ -532,17 +532,17 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    val popUpDataLiveList = MutableListLiveData<SetAlertData>()
+//    val popUpDataLiveList = MutableListLiveData<SetAlertData>()
 
     fun clearPopUP() {
         popUpHashMap.clear()
         _popUpList.value?.clear()
-        popUpDataLiveList.clear(true)
+//        popUpDataLiveList.clear(true)
     }
 
-    val alertDialogLiveData = MutableListLiveData<SetAlertData>()
+//    val alertDialogLiveData = MutableListLiveData<SetAlertData>()
     val alertDialogFragment = AlertDialogFragment()
-    val saveConetMap = ConcurrentHashMap<Int, SetAlertData>()
+//    val saveConetMap = ConcurrentHashMap<Int, SetAlertData>()
 
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일")
     val date = MutableLiveData<String>()
@@ -551,5 +551,10 @@ class MainViewModel : ViewModel() {
     }
 
     var temphumAlertState = -1
+
+    /**
+     * 실시간 에러 내역
+     */
+    val errorlivelist = mutableListOf<SetAlertData>()
 }
 

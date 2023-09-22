@@ -13,6 +13,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="320dp"
         android:layout_marginEnd="320dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -115,12 +117,35 @@
             android:gravity="center"
             app:layout_constraintStart_toEndOf="@id/tv_scan"
             app:layout_constraintTop_toTopOf="@id/tv_scan"/>
+        <TextView
+            android:id="@+id/tv_Baudrate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:gravity="center_vertical"
+            android:text="통신속도"
+            android:textSize="18pt"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_scan" />
+        <Spinner
+            android:id="@+id/sp_baudrate"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="50dp"
+            android:background="@drawable/spinner_background"
+            android:inputType="number"
+            android:textSize="20sp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            app:layout_constraintStart_toEndOf="@id/tv_Baudrate"
+            app:layout_constraintTop_toTopOf="@id/tv_Baudrate" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/save_btn"
         style="@style/saveButton"
-        android:layout_marginBottom="138dp"
+        android:layout_marginBottom="40dp"
         android:text="@string/text_PasswordChange"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/cancel_btn"

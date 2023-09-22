@@ -4,10 +4,13 @@ import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
+import android.os.Message
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
@@ -15,6 +18,7 @@ import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.Dialog.ScanAlertDialogFragment
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
+import com.coai.samin_total.Service.SerialService
 import com.coai.samin_total.databinding.FragmentAqSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -33,6 +37,24 @@ class AqSettingFragment : Fragment() {
     lateinit var progress_Dialog: ProgressDialog
     lateinit var sendThread: Thread
     private val scanAlertDialogFragment = ScanAlertDialogFragment()
+
+    val baudrate = arrayListOf<String>(
+        "2400",
+        "4800",
+        "9600",
+        "14400",
+        "19200",
+        "28800",
+        "38400",
+        "57600",
+        "76800",
+        "115200",
+        "230400",
+        "250000",
+        "500000",
+        "1000000",
+    )
+    var selected_baudrate = 1000000
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -67,7 +89,12 @@ class AqSettingFragment : Fragment() {
         shared = SaminSharedPreference(requireContext())
 
         initView()
+        setBaudrateSpinner()
         setButtonClickEvent()
+
+        selected_baudrate = activity?.baudrate!!.value
+        val ididx = baudrate.indexOf(selected_baudrate.toString())
+        mBinding.spBaudrate.setSelection(ididx)
 
         return mBinding.root
     }
@@ -108,6 +135,14 @@ class AqSettingFragment : Fragment() {
                 } else {
                     activity?.callTimemout()
                 }
+//                shared.saveBoardSetData(SaminSharedPreference.BAUDRATE, selected_baudrate)
+//                val msg = Message.obtain(null, SerialService.MSG_SERIAL_SEND)
+//                val bundle = Bundle()
+//                bundle.putByteArray("", data)
+//                msg.data = bundle
+//                serialSVCIPCService?.send(msg)
+                activity?.setBaudrate(selected_baudrate)
+
                 shared.SaveFeedbackTiming(mBinding.etFeedbackTiming.text.toString().toLong())
                 Thread.sleep(500)
                 getActivity()?.let { ActivityCompat.finishAffinity(it) }
@@ -128,6 +163,31 @@ class AqSettingFragment : Fragment() {
             }
         }
 
+    }
+
+    private fun setBaudrateSpinner() {
+        val arrayAdapter = ArrayAdapter(
+            requireContext(),
+            R.layout.support_simple_spinner_dropdown_item,
+            baudrate
+        )
+        mBinding.spBaudrate.adapter = arrayAdapter
+        mBinding.spBaudrate.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    selected_baudrate = baudrate[position].toInt()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    Toast.makeText(context, "통신속도를 선택해주세요.", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
     }
 
     companion object {

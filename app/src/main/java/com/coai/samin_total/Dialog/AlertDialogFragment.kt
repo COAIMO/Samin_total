@@ -36,6 +36,10 @@ class AlertDialogFragment : DialogFragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private val alertData = mutableListOf<SetAlertData>()
 
+    private var taskRefresh: Thread? = null
+    private var isOnTaskRefesh: Boolean = true
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -56,150 +60,102 @@ class AlertDialogFragment : DialogFragment() {
         return mBinding.root
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        isOnTaskRefesh = false
+        taskRefresh?.interrupt()
+        taskRefresh?.join()
+    }
+
     override fun onResume() {
         val width: Int = resources.getDimensionPixelSize(R.dimen.DialogView_width)
         val height: Int = resources.getDimensionPixelSize(R.dimen.DialogView_height)
         dialog?.window?.setLayout(width, height)
         dialog?.window?.setBackgroundDrawableResource(R.drawable.border_layout)
-
         super.onResume()
+
+        taskRefresh = Thread{
+            try {
+                while (isOnTaskRefesh) {
+                    val tmplist = viewmodel.errorlivelist.toMutableList()
+
+                    var cmodel = -1
+                    when(model) {
+                        "Main" -> {
+                            cmodel = -1
+                        }
+                        "GasStorage" -> {
+                            cmodel = 1
+                        }
+                        "GasRoom" -> {
+                            cmodel = 2
+                        }
+                        "WasteLiquor" -> {
+                            cmodel = 3
+                        }
+                        "Oxygen" -> {
+                            cmodel = 4
+                        }
+                        "Steamer" -> {
+                            cmodel = 5
+                        }
+                        "TempHum" ->{
+                            cmodel = 6
+                        }
+                    }
+                    val filteredList = tmplist.filter { it.model == (if (cmodel == -1) it.model else cmodel) }.toMutableList()
+                    alertData.clear()
+                    filteredList.forEach {
+                        alertData.add(it)
+                    }
+                    filteredList.clear()
+                    tmplist.clear()
+                    activity?.runOnUiThread {
+                        recycleAdapter.notifyDataSetChanged()
+
+                        val cnt = recycleAdapter.itemCount
+                        if (cnt <= 0) {
+                            recycleAdapter.notifyItemRemoved(0)
+                        } else {
+                            recycleAdapter.notifyItemRangeChanged(0, cnt)
+                        }
+                    }
+
+                    Thread.sleep(500)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        isOnTaskRefesh = true
+        taskRefresh?.start()
     }
 
     private fun initVieiw() {
         when (model) {
             "Main" -> {
                 mBinding.tvTitle.setText(R.string.title_event_log)
-//                for ((key, value) in viewmodel.alertMap) {
-//                    val aqInfo = HexDump.toByteArray(key)
-//                    val portNum = aqInfo[1]
-//                    val id = aqInfo[2]
-//                    val model = aqInfo[3]
-//
-//                    if (value.isAlert) {
-//                        alertData.add(value)
-//                        recycleAdapter.submitList(alertData)
-//                    }
-//                }
-                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
-                    recycleAdapter.submitList(it)
-                    recycleAdapter.notifyDataSetChanged()
-                }
             }
             "GasStorage" -> {
                 mBinding.tvTitle.setText(R.string.title_gasstorage_event_log)
-//                for ((key, value) in viewmodel.alertMap) {
-//                    val aqInfo = HexDump.toByteArray(key)
-//                    val model = aqInfo[3]
-//                    if (model == 1.toByte()) {
-//                        if (value.isAlert) {
-//                            alertData.add(value)
-//                            recycleAdapter.submitList(alertData)
-//                        }
-//                    }
-//                }
-                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
-                    val item = it.filter {
-                        it.model == 1
-                    }
-                    recycleAdapter.submitList(item)
-                    recycleAdapter.notifyDataSetChanged()
-                }
             }
             "GasRoom" -> {
                 mBinding.tvTitle.setText(R.string.title_gasroom_event_log)
-//                for ((key, value) in viewmodel.alertMap) {
-//                    val aqInfo = HexDump.toByteArray(key)
-//                    val model = aqInfo[3]
-//                    if (model == 2.toByte()) {
-//                        if (value.isAlert) {
-//                            alertData.add(value)
-//                            recycleAdapter.submitList(alertData)
-//                        }
-//                    }
-//                }
-                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
-                    val item = it.filter {
-                        it.model == 2
-                    }
-                    recycleAdapter.submitList(item)
-                    recycleAdapter.notifyDataSetChanged()
-                }
             }
             "WasteLiquor" -> {
                 mBinding.tvTitle.setText(R.string.title_wasteliquor_event_log)
-//                for ((key, value) in viewmodel.alertMap) {
-//                    val aqInfo = HexDump.toByteArray(key)
-//                    val model = aqInfo[3]
-//                    if (model == 3.toByte()) {
-//                        if (value.isAlert) {
-//                            alertData.add(value)
-//                            recycleAdapter.submitList(alertData)
-//                        }
-//                    }
-//                }
-                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
-                    val item = it.filter {
-                        it.model == 3
-                    }
-                    recycleAdapter.submitList(item)
-                    recycleAdapter.notifyDataSetChanged()
-                }
             }
             "Oxygen" -> {
                 mBinding.tvTitle.setText(R.string.title_oxygen_event_log)
-//                for ((key, value) in viewmodel.alertMap) {
-//                    val aqInfo = HexDump.toByteArray(key)
-//                    val model = aqInfo[3]
-//                    if (model == 4.toByte()) {
-//                        if (value.isAlert) {
-//                            alertData.add(value)
-//                            recycleAdapter.submitList(alertData)
-//                        }
-//                    }
-//                }
-
-                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
-                    val item = it.filter {
-                        it.model == 4
-                    }
-                    recycleAdapter.submitList(item)
-                    recycleAdapter.notifyDataSetChanged()
-                }
             }
             "Steamer" -> {
                 mBinding.tvTitle.setText(R.string.title_steamer_event_log)
-//                for ((key, value) in viewmodel.alertMap) {
-//                    val aqInfo = HexDump.toByteArray(key)
-//                    val model = aqInfo[3]
-//                    if (model == 5.toByte()) {
-//                        if (value.isAlert) {
-//                            alertData.add(value)
-//                            recycleAdapter.submitList(alertData)
-//                        }
-//                    }
-//                }
-                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
-                    val item = it.filter {
-                        it.model == 5
-                    }
-                    recycleAdapter.submitList(item)
-                    recycleAdapter.notifyDataSetChanged()
-
-                }
             }
             "TempHum" ->{
                 mBinding.tvTitle.text = "온습도 이벤트 발생 내역"
-                viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
-                    val item = it.filter {
-                        it.model == 6
-                    }
-                    recycleAdapter.submitList(item)
-                    recycleAdapter.notifyDataSetChanged()
-
-                }
             }
         }
-//        recycleAdapter.notifyDataSetChanged()
     }
 
     private fun initRecycler() {
@@ -214,6 +170,8 @@ class AlertDialogFragment : DialogFragment() {
             recycleAdapter = AlertDialog_RecyclerAdapter()
 //            recycleAdapter.submitList(singleDockViewData)
             adapter = recycleAdapter
+
+            recycleAdapter.submitList(alertData)
         }
 
     }

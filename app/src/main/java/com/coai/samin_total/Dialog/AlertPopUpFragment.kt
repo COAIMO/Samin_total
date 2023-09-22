@@ -81,7 +81,7 @@ class AlertPopUpFragment : DialogFragment() {
         recycleAdapter.setButtonClickListener(object :
             AlertPopUP_RecyclerAdapter.OnButtonClickListener {
             override fun onClick(v: View, position: Int) {
-                val aa = viewmodel.popUpDataLiveList.value!!.get(position)
+                val aa = viewmodel.errorlivelist[position]
                 when (aa.model) {
                     1 -> {
                         activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
@@ -115,34 +115,50 @@ class AlertPopUpFragment : DialogFragment() {
 //            alertData = it
 //            recycleAdapter.submitList(alertData)
 //        }
-        viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
-            Log.d("라이브", "${it}")
-            recycleAdapter.submitList(it)
-            recycleAdapter.notifyDataSetChanged()
-        }
+//        viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
+//            Log.d("라이브", "${it}")
+////            synchronized(lockobj) {
+//                recycleAdapter.submitList(it)
+////            }
+////            recycleAdapter.notifyDataSetChanged()
+//        }
         return mBinding.root
     }
 
+    val lockobj = object {}
     override fun onResume() {
         val width: Int = resources.getDimensionPixelSize(R.dimen.PopUpView_width)
         val height: Int = resources.getDimensionPixelSize(R.dimen.PopUpView_height)
         dialog?.window?.setLayout(width, height)
         dialog?.window?.setBackgroundDrawableResource(R.drawable.border_layout)
         super.onResume()
-//        taskRefresh = Thread{
-//            try {
+        taskRefresh = Thread{
+            try {
 //                var lastupdate: Long = System.currentTimeMillis()
 //                val lstvalue = mutableListOf<Int>()
-//                while (isOnTaskRefesh){
-//
-//
-//                    Thread.sleep(50)
-//                }
-//            }catch (e:Exception){
-//                e.printStackTrace()
-//            }
-//        }
-//        taskRefresh?.start()
+                while (isOnTaskRefesh){
+                    activity?.runOnUiThread {
+                        try {
+                            recycleAdapter.notifyDataSetChanged()
+
+                            val cnt = recycleAdapter.itemCount
+                            if (cnt <= 0) {
+                                recycleAdapter.notifyItemRemoved(0)
+                            } else {
+                                recycleAdapter.notifyItemRangeChanged(0, cnt)
+                            }
+                        } catch (ee: Exception){
+                            ee.printStackTrace()
+                        }
+                    }
+
+                    Thread.sleep(500)
+                }
+            }catch (e:Exception){
+                e.printStackTrace()
+            }
+        }
+        taskRefresh?.start()
     }
 
     private fun initRecycler() {
@@ -156,6 +172,8 @@ class AlertPopUpFragment : DialogFragment() {
 
             recycleAdapter = AlertPopUP_RecyclerAdapter()
             adapter = recycleAdapter
+
+            recycleAdapter.submitList(viewmodel.errorlivelist)
         }
 
     }

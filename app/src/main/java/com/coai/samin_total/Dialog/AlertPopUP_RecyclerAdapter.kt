@@ -15,7 +15,7 @@ import com.coai.uikit.samin.status.GasRoomView
 
 class AlertPopUP_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var alertData = listOf<SetAlertData>()
+    var alertData = mutableListOf<SetAlertData>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding = AlertViewHodler(
@@ -31,18 +31,24 @@ class AlertPopUP_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 
     @SuppressLint("NotifyDataSetChanged")
-    fun submitList(viewData: List<SetAlertData>) {
+    fun submitList(viewData: MutableList<SetAlertData>) {
         this.alertData = viewData
-        notifyDataSetChanged()
+//        notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as AlertViewHodler).bind(alertData[position])
-        holder.setIsRecyclable(false)
+        try {
+            val tmp = alertData[position].copy()
+            (holder as AlertViewHodler).bind(tmp)
+            holder.setIsRecyclable(false)
 
-        val btn = holder.itemView.findViewById<Button>(R.id.btn_move)
-        btn.setOnClickListener {
-            buttonClickListener.onClick(it, position)
+            val btn = holder.itemView.findViewById<Button>(R.id.btn_move)
+            btn.setOnClickListener {
+                buttonClickListener.onClick(it, position)
+            }
+        }
+        catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

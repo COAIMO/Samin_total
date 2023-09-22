@@ -678,8 +678,9 @@ class GasStorageSettingFragment : Fragment() {
             val model = aqInfo[3].toInt()
             if (model == 1) {
                 viewmodel.alertMap.remove(i.key)
-                viewmodel.popUpDataLiveList.remove(i.value)
-                viewmodel.popUpDataLiveList.notifyChange()
+                viewmodel.errorlivelist.remove(i.value)
+//                viewmodel.popUpDataLiveList.remove(i.value)
+//                viewmodel.popUpDataLiveList.notifyChange()
             }
         }
         viewmodel.GasStorageDataLiveList.clear(true)

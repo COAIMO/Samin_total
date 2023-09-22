@@ -148,10 +148,20 @@ class SaminProtocol {
         buildProtocol(model, id, 0xCD.toByte(),null)
     }
 
+    /**
+     * Tab. 송신 - 통신속도 변경
+     */
+    fun setBaudrate(model: Byte, id: Byte, baud: Byte) {
+        buildProtocol(model, id, 0xCE.toByte(), baud)
+    }
+
     @ExperimentalUnsignedTypes
     fun parse(data: ByteArray): Boolean {
         var ret = false
         try {
+            if (data.size < 5)
+                return ret
+
             mProtocol = ByteArray(data.size)
 //            Log.d("로그", "parse : ${HexDump.dumpHexString(mProtocol)}")
 

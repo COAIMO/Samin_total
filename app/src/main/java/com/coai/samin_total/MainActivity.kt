@@ -137,6 +137,7 @@ class MainActivity : AppCompatActivity() {
         const val START_SERIAL_SERVICE = 9
         const val ANOTHERJOB_SLEEP: Long = 40
     }
+    var baudrate: Baudrate = Baudrate.BPS_1000000
 
     private var setFragment: Int = -1
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -161,6 +162,8 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.controlData =
             shared.loadBoardSetData(SaminSharedPreference.CONTROL) as ControlData
         tmp = AQDataParser(mainViewModel)
+        baudrate = Baudrate.codesMap.get(shared.loadBoardSetData(SaminSharedPreference.BAUDRATE) as Int)!!;
+        Log.d("Activity", "baudrate : ${baudrate.value}")
 
         mainViewModel.isCheckTimeOut =
             shared.getTimeOutState()
@@ -1763,6 +1766,15 @@ class MainActivity : AppCompatActivity() {
         unbindService(serialSVCIPCServiceConnection)
     }
 
+    fun setBaudrate(baudrate: Int) {
+        shared.saveBoardSetData(SaminSharedPreference.BAUDRATE, baudrate)
+        val msg = Message.obtain(null, SerialService.MSG_BAUDRATE_CHANGE)
+        val bundle = Bundle()
+        bundle.putInt("", baudrate)
+        msg.data = bundle
+        serialSVCIPCService?.send(msg)
+    }
+
     var popUpThread: Thread? = null
     var isPopUp = false
     fun popUpAlertSend() {
@@ -1843,6 +1855,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
 
+                        /**
                         runOnUiThread {
                             try {
                                 if (!mainViewModel.alertDialogFragment.isAdded) {
@@ -1863,7 +1876,33 @@ class MainActivity : AppCompatActivity() {
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
+                        }
+                        */
+                        try {
+                            val tmp = mainViewModel.errorlivelist
+                            if (!mainViewModel.alertDialogFragment.isAdded) {
+                                for (i in removelist) {
+//                                    val beforecnt = tmp.size
+                                    tmp.remove(i)
+//                                    Log.d("error처리 루틴", "제거전 : ${beforecnt}, 제거 후 : ${tmp.size}")
 
+                                }
+                                removelist.clear()
+                            }
+                            else {
+                                for (i in alertremovelist) {
+//                                    val beforecnt = tmp.size
+                                    tmp.remove(i)
+//                                    Log.d("error처리 루틴", "제거전 : ${beforecnt}, 제거 후 : ${tmp.size}")
+                                }
+                                alertremovelist.clear()
+                            }
+                            tmp.addAll(alertlist)
+                            alertlist.clear()
+                        } catch (e : Exception) {
+                            e.printStackTrace()
+                            removelist.clear()
+                            alertlist.clear()
                         }
 
                         var chk = false
@@ -1918,6 +1957,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
+//                    Log.d("error처리 루틴", "처리시간 : ${elapsed}")
                     Thread.sleep(200)
 
                 } catch (e: Exception) {

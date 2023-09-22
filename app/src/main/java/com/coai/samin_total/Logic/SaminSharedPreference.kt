@@ -33,7 +33,7 @@ class SaminSharedPreference(context: Context) {
         const val TIMEOUTSTATE = "TimeOut"
         const val FEEDBACKTIMING = "FeedbackTiming"
         const val TEMPHUM = "TempHum"
-
+        const val BAUDRATE = "Baudrate"
     }
 
     val labName = "Lab - 015"
@@ -134,6 +134,13 @@ class SaminSharedPreference(context: Context) {
                     apply()
                 }
             }
+            "Baudrate" -> {
+                val listString = Gson().toJson(data)
+                boardSetDataSharedPreference.edit().apply {
+                    putString(key, listString)
+                    apply()
+                }
+            }
         }
     }
 
@@ -209,6 +216,15 @@ class SaminSharedPreference(context: Context) {
                     setDataList = Gson().fromJson(data, token)
                 }
                 setdata = setDataList
+            }
+            "Baudrate" -> {
+                val data = boardSetDataSharedPreference.getString(key, "")!!
+                val token = object : TypeToken<Int>() {}.type
+                if (data.isNotEmpty()) {
+                    setdata = Gson().fromJson(data, token)
+                } else {
+                    setdata = 1000000
+                }
             }
         }
         return setdata

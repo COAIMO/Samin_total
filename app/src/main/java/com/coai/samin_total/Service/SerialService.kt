@@ -12,9 +12,7 @@ import android.hardware.usb.UsbManager
 import android.os.*
 import android.util.Log
 import com.coai.samin_total.BuildConfig
-import com.coai.samin_total.Logic.ParsingData
-import com.coai.samin_total.Logic.SaminProtocol
-import com.coai.samin_total.Logic.SaminProtocolMode
+import com.coai.samin_total.Logic.*
 import com.hoho.android.usbserial.driver.UsbSerialDriver
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
@@ -53,9 +51,11 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         const val MSG_OXYGEN = 15
         const val MSG_STEMER = 16
         const val MSG_TEMPHUM = 17
+        const val MSG_BAUDRATE_CHANGE = 18
     }
 
     private lateinit var messenger: Messenger
+    var currentBaudrate: Int = 1000000
 
     inner class IncomingHandler(
         service: Service,
@@ -71,6 +71,13 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 MSG_UNBIND_CLIENT -> clients.remove(msg.replyTo)
                 MSG_SERIAL_SEND -> {
                     msg.data.getByteArray("")?.let { sendData(it) }
+                }
+                MSG_BAUDRATE_CHANGE-> {
+                    // 통신속도 변경
+                    msg.data.getInt("")?.let {
+                        val shared: SaminSharedPreference  = SaminSharedPreference(context)
+                        shared.saveBoardSetData(SaminSharedPreference.BAUDRATE, it)
+                    }
                 }
                 else -> super.handleMessage(msg)
             }
@@ -201,6 +208,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     override fun onCreate() {
 //        Log.d(serviceTAG, "SerialService : onCreate")
+        val shared: SaminSharedPreference  = SaminSharedPreference(this)
+        currentBaudrate = shared.loadBoardSetData(SaminSharedPreference.BAUDRATE) as Int
+        Log.d("Service", "baudrate : ${currentBaudrate}")
+
         GlobalScope.launch {
             delay(1000L)
             findUSBSerialDevice()
@@ -223,6 +234,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //    fun setHandler(mHandler: Handler) {
 //        this.mHandler = mHandler
 //    }
+
 
     private fun setFilter() {
         val filter = IntentFilter()
@@ -272,7 +284,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
             usbSerialPort!!.open(usbConnection)
             usbSerialPort!!.setParameters(
-                BAUD_RATE,
+                currentBaudrate,
                 UsbSerialPort.DATABITS_8,
                 UsbSerialPort.STOPBITS_1,
                 UsbSerialPort.PARITY_NONE

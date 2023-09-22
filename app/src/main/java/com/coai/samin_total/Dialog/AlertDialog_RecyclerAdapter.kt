@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +14,7 @@ import com.coai.uikit.samin.status.GasRoomView
 
 class AlertDialog_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var alertData = listOf<SetAlertData>()
+    var alertData = mutableListOf<SetAlertData>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return AlertViewHodler(
@@ -27,13 +28,21 @@ class AlertDialog_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    fun submitList(viewData: List<SetAlertData>) {
+    fun submitList(viewData: MutableList<SetAlertData>) {
         this.alertData = viewData
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as AlertViewHodler).bind(alertData[position])
-        holder.setIsRecyclable(false)
+//        (holder as AlertViewHodler).bind(alertData[position])
+//        holder.setIsRecyclable(false)
+        try {
+            val tmp = alertData[position].copy()
+            (holder as AlertViewHodler).bind(tmp)
+            holder.setIsRecyclable(false)
+        }
+        catch (e: Exception) {
+
+        }
     }
 
     inner class AlertViewHodler(view: View) : RecyclerView.ViewHolder(view) {

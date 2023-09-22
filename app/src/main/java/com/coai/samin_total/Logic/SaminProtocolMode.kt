@@ -8,7 +8,8 @@ enum class SaminProtocolMode(val byte: Byte) {
     CheckProductPing(0x00.toByte()),
     RequestFeedBackPing(0x01.toByte()),
     SettingShare(0xB0.toByte()),
-    CheckVersion(0xFD.toByte());
+    CheckVersion(0xFD.toByte()),
+    SetBaudrate(0xCE.toByte());
     companion object : EnumCodesMap<SaminProtocolMode, Byte> by EnumCodesMap({ it.byte })
 
 }

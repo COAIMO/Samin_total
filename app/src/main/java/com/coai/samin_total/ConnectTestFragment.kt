@@ -2,7 +2,6 @@ package com.coai.samin_total
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -49,8 +48,29 @@ class ConnectTestFragment : Fragment() {
         "6",
         "7"
     )
+
     var selected_Model: Int = -1
     var selected_ID = ""
+//    val baudrate: Baudrate
+    val baudrate = arrayListOf<String>(
+        "2400",
+        "4800",
+        "9600",
+        "14400",
+        "19200",
+        "28800",
+        "38400",
+        "57600",
+        "76800",
+        "115200",
+        "230400",
+        "250000",
+        "500000",
+        "1000000",
+    )
+    var selected_baudrate = 1000000
+
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
@@ -83,7 +103,12 @@ class ConnectTestFragment : Fragment() {
         mBinding = FragmentConnectTestBinding.inflate(inflater, container, false)
         setAQIDSpinner()
         setAQmdoelSpinner()
+        setBaudrateSpinner()
 
+        selected_baudrate = activity?.baudrate!!.value
+        mBinding.serailBaudRate.text = selected_baudrate.toString()
+        val ididx = baudrate.indexOf(selected_baudrate.toString())
+        mBinding.spBaudrate.setSelection(ididx)
         mBinding.btnBuzzerOn.setOnClickListener {
             activity?.isAnotherJob = true
             Thread.sleep(100)
@@ -225,6 +250,31 @@ class ConnectTestFragment : Fragment() {
                     .show()
             }
         }
+    }
+
+    private fun setBaudrateSpinner() {
+        val arrayAdapter = ArrayAdapter(
+            requireContext(),
+            R.layout.support_simple_spinner_dropdown_item,
+            baudrate
+        )
+        mBinding.spBaudrate.adapter = arrayAdapter
+        mBinding.spBaudrate.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    selected_baudrate = baudrate[position].toInt()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    Toast.makeText(context, "통신속도를 선택해주세요.", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
     }
 
     companion object {

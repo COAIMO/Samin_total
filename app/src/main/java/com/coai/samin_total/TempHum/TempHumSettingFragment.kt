@@ -303,8 +303,9 @@ class TempHumSettingFragment : Fragment() {
             val model = aqInfo[3].toInt()
             if (model == 6) {
                 viewmodel.alertMap.remove(i.key)
-                viewmodel.popUpDataLiveList.remove(i.value)
-                viewmodel.popUpDataLiveList.notifyChange()
+                viewmodel.errorlivelist.remove(i.value)
+//                viewmodel.popUpDataLiveList.remove(i.value)
+//                viewmodel.popUpDataLiveList.notifyChange()
             }
         }
         viewmodel.TempHumDataLiveList.clear(true)
