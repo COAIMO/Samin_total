@@ -217,11 +217,13 @@ public class CoAISerialInputOutputManager implements Runnable {
         int len = mSerialPort.read(buffer, mReadTimeout);
         if (len > 0) {
             if (DEBUG) Log.d(TAG, "Read data len=" + len);
+
             final SerialInputOutputManager.Listener listener = getListener();
             if (listener != null) {
                 final byte[] data = new byte[len];
                 System.arraycopy(buffer, 0, data, 0, len);
                 listener.onNewData(data);
+//                Log.d(TAG, HexDump.dumpHexString(data));
             }
         }
 

@@ -274,6 +274,10 @@ class SaminSharedPreference(context: Context) {
     }
 
     fun getFeedbackTiming(): Long {
-        return boardSetDataSharedPreference.getLong(FEEDBACKTIMING, 50)
+        var tmp = boardSetDataSharedPreference.getLong(FEEDBACKTIMING, -1)
+        if (tmp == -1.toLong()) {
+            tmp = boardSetDataSharedPreference.getLong(FEEDBACKTIMING, 50)
+        }
+        return tmp
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Message
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.Dialog.ScanAlertDialogFragment
+import com.coai.samin_total.Logic.InputFilterMinMax
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Service.SerialService
@@ -105,6 +107,7 @@ class AqSettingFragment : Fragment() {
         }
         mBinding.swCheckTimeout.isChecked = shared.getTimeOutState()
         mBinding.etFeedbackTiming.setText(shared.getFeedbackTiming().toString())
+        mBinding.etFeedbackTiming.filters = arrayOf(InputFilterMinMax("0", "400"))
     }
 
     private fun setButtonClickEvent() {
@@ -135,16 +138,35 @@ class AqSettingFragment : Fragment() {
                 } else {
                     activity?.callTimemout()
                 }
-//                shared.saveBoardSetData(SaminSharedPreference.BAUDRATE, selected_baudrate)
-//                val msg = Message.obtain(null, SerialService.MSG_SERIAL_SEND)
-//                val bundle = Bundle()
-//                bundle.putByteArray("", data)
-//                msg.data = bundle
-//                serialSVCIPCService?.send(msg)
-                activity?.setBaudrate(selected_baudrate)
 
-                shared.SaveFeedbackTiming(mBinding.etFeedbackTiming.text.toString().toLong())
+                val baud = selected_baudrate
+                var feedbacktimeValue: Long = 50
+                val feedbacktime = mBinding.etFeedbackTiming.text.toString().trim()
+                if (!feedbacktime.isNullOrEmpty()) {
+                    feedbacktimeValue = feedbacktime.toLong()
+                }
+
+//                Log.d("이상해", "selected_baudrate: ${baud}, feedbacktimeValue: ${feedbacktimeValue}")
+                when(baud) {
+                    2400 -> {
+                        if (feedbacktimeValue < 200) {
+                            feedbacktimeValue = 200
+                        }
+                    }
+                    4800 -> {
+                        if (feedbacktimeValue < 100) {
+                            feedbacktimeValue = 100
+                        }
+                    }
+                }
+
+                if (feedbacktimeValue < 20) feedbacktimeValue = 20
+
+                shared.SaveFeedbackTiming(feedbacktimeValue)
+                Thread.sleep(1000)
+                activity?.setBaudrate(baud)
                 Thread.sleep(500)
+
                 getActivity()?.let { ActivityCompat.finishAffinity(it) }
                 System.exit(0)
 //                activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)

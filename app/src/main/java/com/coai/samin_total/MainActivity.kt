@@ -1,9 +1,7 @@
 package com.coai.samin_total
 
-import android.annotation.SuppressLint
 import android.app.Service
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.net.Uri
@@ -11,18 +9,12 @@ import android.os.*
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
-import com.coai.samin_total.Dialog.AlertDialogFragment
-import com.coai.samin_total.Dialog.AlertPopUpFragment
-import com.coai.samin_total.Dialog.ScanDialogFragment
-import com.coai.samin_total.Dialog.SetAlertData
+import com.coai.samin_total.Dialog.*
 import com.coai.samin_total.GasDock.GasDockMainFragment
 import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasDock.SetGasStorageViewData
@@ -52,8 +44,6 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.*
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
-import java.io.PrintWriter
-import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
@@ -100,7 +90,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var tmp: AQDataParser
 
     lateinit var viewModel: PageViewModel
-    private lateinit var pageListAdapter: PageListAdapter
+//    private lateinit var pageListAdapter: PageListAdapter
 
     private var protocolBuffers = ConcurrentHashMap<Short, ByteArray>()
 
@@ -116,26 +106,26 @@ class MainActivity : AppCompatActivity() {
     private val recvTempHumBuffers = HashMap<Int, ByteArray>()
 
     // 보드별 최종 전송시간
-    private val alertsendLastTime = HashMap<Int, Long>()
+//    private val alertsendLastTime = HashMap<Int, Long>()
     private val alertBoardsendLastTime = HashMap<Short, Long>()
 
     // 요청주기
     private var FEEDBACK_SLEEP: Long? = null
 
     companion object {
-        var SERVICE_CONNECTED = false
-
-        const val SETTING_TCP_PORT = 0
-        const val SETTING_UDP_PORT = 1
-        const val SETTING_SLAVE_ID = 2
-        const val SETTING_SERIAL_BAUD = 3
-        const val SETTING_SERIAL_DATABIT = 4
-        const val SETTING_SERIAL_STOPBIT = 5
-        const val SETTING_SERIAL_PARITYBIT = 6
-        const val CHANGE_INPUT_DATA = 7
-        const val CHANGE_INPUT_REGISTER = 8
-        const val START_SERIAL_SERVICE = 9
-        const val ANOTHERJOB_SLEEP: Long = 40
+//        var SERVICE_CONNECTED = false
+//
+//        const val SETTING_TCP_PORT = 0
+//        const val SETTING_UDP_PORT = 1
+//        const val SETTING_SLAVE_ID = 2
+//        const val SETTING_SERIAL_BAUD = 3
+//        const val SETTING_SERIAL_DATABIT = 4
+//        const val SETTING_SERIAL_STOPBIT = 5
+//        const val SETTING_SERIAL_PARITYBIT = 6
+//        const val CHANGE_INPUT_DATA = 7
+//        const val CHANGE_INPUT_REGISTER = 8
+//        const val START_SERIAL_SERVICE = 9
+//        const val ANOTHERJOB_SLEEP: Long = 40
     }
     var baudrate: Baudrate = Baudrate.BPS_1000000
 
@@ -162,12 +152,13 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.controlData =
             shared.loadBoardSetData(SaminSharedPreference.CONTROL) as ControlData
         tmp = AQDataParser(mainViewModel)
-        baudrate = Baudrate.codesMap.get(shared.loadBoardSetData(SaminSharedPreference.BAUDRATE) as Int)!!;
+        baudrate = Baudrate.codesMap.get(shared.loadBoardSetData(SaminSharedPreference.BAUDRATE) as Int)!!
         Log.d("Activity", "baudrate : ${baudrate.value}")
 
         mainViewModel.isCheckTimeOut =
             shared.getTimeOutState()
         FEEDBACK_SLEEP = shared.getFeedbackTiming()
+        Log.d("Activity", "FEEDBACK_SLEEP : ${FEEDBACK_SLEEP}")
         this.viewModel = ViewModelProvider(
             this,
             ViewModelFactory(application)
@@ -199,8 +190,8 @@ class MainActivity : AppCompatActivity() {
         ).build().alertDAO()
 
         mBinding.btnHomepage.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.saminsci.com/"))
-            startActivity(intent)
+            val intentr = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.saminsci.com/"))
+            startActivity(intentr)
         }
 
 //        throw RuntimeException("Test Crash")
@@ -592,9 +583,10 @@ class MainActivity : AppCompatActivity() {
             callTimeoutThread = Thread {
                 while (isCallTimeout) {
                     try {
-                        val elapsed: Long = measureTimeMillis {
-                            tmp.timeoutAQCheckStep()
-                        }
+//                        val elapsed: Long = measureTimeMillis {
+//                            tmp.timeoutAQCheckStep()
+//                        }
+                        tmp.timeoutAQCheckStep()
 //                    Log.d("callTimeoutThread", "Time : $elapsed")
 
                         Thread.sleep(50)
@@ -641,18 +633,29 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                                 val model = md.toByte()
-                                val elapsed: Long = measureTimeMillis {
-                                    val id = ids.get(index)
-                                    val key =
-                                        littleEndianConversion(byteArrayOf(model, id)).toShort()
+//                                val elapsed: Long = measureTimeMillis {
+//                                    val id = ids.get(index)
+//                                    val key =
+//                                        littleEndianConversion(byteArrayOf(model, id)).toShort()
+//
+//                                    if (!protocolBuffers.containsKey(key)) {
+//                                        protocol.feedBack(model, id)
+//                                        protocolBuffers[key] = protocol.mProtocol.clone()
+//                                    }
+//                                    protocolBuffers[key]?.let {
+//                                        sendProtocolToSerial(it)
+//                                    }
+//                                }
+                                val id = ids.get(index)
+                                val key =
+                                    littleEndianConversion(byteArrayOf(model, id)).toShort()
 
-                                    if (!protocolBuffers.containsKey(key)) {
-                                        protocol.feedBack(model, id)
-                                        protocolBuffers[key] = protocol.mProtocol.clone()
-                                    }
-                                    protocolBuffers[key]?.let {
-                                        sendProtocolToSerial(it)
-                                    }
+                                if (!protocolBuffers.containsKey(key)) {
+                                    protocol.feedBack(model, id)
+                                    protocolBuffers[key] = protocol.mProtocol.clone()
+                                }
+                                protocolBuffers[key]?.let {
+                                    sendProtocolToSerial(it)
                                 }
                                 Thread.sleep(FEEDBACK_SLEEP!!)
 //                                if (model == 4.toByte())
@@ -676,8 +679,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var alertTask: Timer? = null
-    private var alertCheckTask: Timer? = null
-    private var alertSoundTask: Timer? = null
+//    private var alertCheckTask: Timer? = null
+//    private var alertSoundTask: Timer? = null
 
     var mediaPlayer: android.media.MediaPlayer? = null
     fun tabletSoundAlertOn() {
@@ -689,11 +692,11 @@ class MainActivity : AppCompatActivity() {
                             this@MainActivity,
                             R.raw.tada
                         )
-                if (mainViewModel.isSoundAlert)
-                    mediaPlayer?.let {
-                        if (!it.isPlaying)
-                            it.start()
-                    }
+//                if (mainViewModel.isSoundAlert)
+                mediaPlayer?.let {
+                    if (!it.isPlaying)
+                    it.start()
+                }
 
             }
         }
@@ -705,8 +708,8 @@ class MainActivity : AppCompatActivity() {
         mediaPlayer = null
     }
 
-    var isTabletAlert = false
-    val exData = HashMap<Int, Boolean>()
+//    var isTabletAlert = false
+//    val exData = HashMap<Int, Boolean>()
     val exLastErorr = HashMap<Int, String>()
 
     private fun littleEndianConversion(bytes: ByteArray): Int {
@@ -718,7 +721,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     var alertThread: Thread? = null
-    lateinit var alertAQThread: Thread
+//    lateinit var alertAQThread: Thread
 
     fun sendProtocolToSerial(data: ByteArray) {
         if (!mainViewModel.controlData.isMirrorMode) {
@@ -742,7 +745,7 @@ class MainActivity : AppCompatActivity() {
             val alertchanged = ArrayList<Short>()
             val alertchangedRemind = ArrayList<Short>()
             val currentLedState = HashMap<Short, Byte>()
-            var prevAlertOxygen: Boolean = false
+//            var prevAlertOxygen: Boolean = false
             while (true) {
 
                 val elapsed: Long = measureTimeMillis {
@@ -799,7 +802,7 @@ class MainActivity : AppCompatActivity() {
                             // LED 켜짐 유무 확인
                             // 기존 경고와의 차이점 식별 가능
                             var tmpBits = currentLedState[ledkey] ?: 0b10000.toByte()
-                            val tmplast = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+//                            val tmplast = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
 
                             diffkeys.remove(ledkey)
 
@@ -842,7 +845,7 @@ class MainActivity : AppCompatActivity() {
                             // LED 켜짐 유무 확인
                             // 기존 경고와의 차이점 식별 가능
                             var tmpBits = currentLedState[ledkey] ?: 0b10000.toByte()
-                            val tmplast = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+//                            val tmplast = mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
 
                             diffkeys.remove(ledkey)
 
@@ -867,8 +870,8 @@ class MainActivity : AppCompatActivity() {
                     if (currentLedState.size > 0) {
                         isAnotherJob = true
                         Thread.sleep(FEEDBACK_SLEEP!!)
-                        var model: Byte = 0
-                        var id: Byte = 0
+                        var model: Byte
+                        var id: Byte
                         try {
                             for ((k, v) in currentLedState) {
                                 id = (k.toInt() shr 8 and 0xFF).toByte()
@@ -883,8 +886,11 @@ class MainActivity : AppCompatActivity() {
                                         Thread.sleep(5)
                                     }
 
-                                    if (mainViewModel.isSoundAlert && !model.equals(4.toByte())) {
+                                    if (!model.equals((4.toByte())))
                                         tabletSoundAlertOn()
+
+                                    if (mainViewModel.isSoundAlert && !model.equals(4.toByte())) {
+//                                        tabletSoundAlertOn()
                                         protocol.buzzer_On(model, id)
                                         for (cnt in 0..1) {
                                             sendProtocolToSerial(protocol.mProtocol.clone())
@@ -892,11 +898,6 @@ class MainActivity : AppCompatActivity() {
                                         }
                                     }
                                     if (model.equals(4.toByte())) {
-//                                        protocol.buzzer_On(model, id)
-//                                        for (cnt in 0..1) {
-//                                            sendProtocolToSerial(protocol.mProtocol.clone())
-//                                            Thread.sleep(5)
-//                                        }
                                         for (t in 0..7) {
                                             for (cnt in 0..1) {
                                                 protocol.buzzer_On(4, t.toByte())
@@ -913,7 +914,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                         } catch (ex: Exception) {
-
+                            Log.d("MainActivity", ex.toString())
                         }
 
                         try {
@@ -930,7 +931,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                         } catch (ex: Exception) {
-
+                            Log.d("MainActivity", ex.toString())
                         }
                         isAnotherJob = false
                     }
@@ -939,9 +940,9 @@ class MainActivity : AppCompatActivity() {
                     if (ledchanged.size > 0) {
                         isAnotherJob = true
                         Thread.sleep(FEEDBACK_SLEEP!!)
-                        var model: Byte = 0
-                        var id: Byte = 0
-                        var tmpBits: Byte = 0
+                        var model: Byte
+                        var id: Byte
+                        var tmpBits: Byte
                         for (tmp in ledchanged) {
                             id = (tmp.toInt() shr 8 and 0xFF).toByte()
                             model = (tmp and 0xFF).toByte()
@@ -1024,7 +1025,7 @@ class MainActivity : AppCompatActivity() {
                         tabletSoundAlertOff()
                     }
                 }
-//                Log.d("sendAlert", "measureTimeMillis : $elapsed")
+                Log.d("sendAlert", "measureTimeMillis : $elapsed")
 
                 Thread.sleep(200)
             }
@@ -1055,36 +1056,45 @@ class MainActivity : AppCompatActivity() {
                         try {
                             mainViewModel.gasStorageAlert.value = targets.containsKey(1)
                         } catch (ex: Exception) {
+                            Log.d("MainActivity", ex.toString())
                         }
                         try {
                             mainViewModel.gasRoomAlert.value = targets.containsKey(2)
                         } catch (ex: Exception) {
+                            Log.d("MainActivity", ex.toString())
                         }
                         try {
                             mainViewModel.wasteAlert.value = targets.containsKey(3)
                         } catch (ex: Exception) {
+                            Log.d("MainActivity", ex.toString())
                         }
                         try {
                             mainViewModel.oxyenAlert.value = targets.containsKey(4)
                         } catch (ex: Exception) {
+                            Log.d("MainActivity", ex.toString())
                         }
                         try {
                             mainViewModel.steamerAlert.value = targets.containsKey(5)
                         } catch (ex: Exception) {
+                            Log.d("MainActivity", ex.toString())
                         }
                         try {
                             mainViewModel.tempHumAlert.value = targets.containsKey(6)
                         } catch (ex: Exception) {
+                            Log.d("MainActivity", ex.toString())
                         }
                     }
 
                     Thread.sleep(100)
                 }
             } catch (e: Exception) {
-
+                Log.d("MainActivity", e.toString())
             }
         }
-        thUIError?.start()
+        thUIError.start()
+//        thUIError?.let {
+//            it.start()
+//        }
     }
 
     //    private var modbusService: SaminModbusService? = null
@@ -1096,7 +1106,7 @@ class MainActivity : AppCompatActivity() {
         override fun onServiceConnected(arg0: ComponentName, arg1: IBinder) {
             mainViewModel.modbusService =
                 (arg1 as SaminModbusService.SaminModbusServiceBinder).getService()
-            mHandler?.let { mainViewModel.modbusService?.setHandler(it) }
+            mHandler.let { mainViewModel.modbusService?.setHandler(it) }
 
             mainViewModel.modbusService?.setSlaveID(mainViewModel.controlData.modbusRTUID)
 
@@ -1135,7 +1145,7 @@ class MainActivity : AppCompatActivity() {
             startService(startService)
         }
         val bindingIntent = Intent(this, service)
-        bindService(bindingIntent, serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
+        bindService(bindingIntent, serviceConnection, BIND_AUTO_CREATE)
     }
 
     private val mHandler = object : Handler(Looper.getMainLooper()) {
@@ -1207,7 +1217,7 @@ class MainActivity : AppCompatActivity() {
 //                .build()
 //                .alertDAO()
 
-            var data: AlertData = AlertData(
+            val data = AlertData(
                 time,
                 model,
                 id,
@@ -1222,7 +1232,7 @@ class MainActivity : AppCompatActivity() {
     inner class ExceptionHandler : Thread.UncaughtExceptionHandler {
         override fun uncaughtException(t: Thread, e: Throwable) {
             e.printStackTrace()
-            android.os.Process.killProcess(android.os.Process.myPid())
+            Process.killProcess(Process.myPid())
             System.exit(10)
         }
     }
@@ -1242,7 +1252,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 SerialService.MSG_SERIAL_DISCONNECT -> {
-                    val date: Date = Date(System.currentTimeMillis())
+                    val date = Date(System.currentTimeMillis())
                     val latesttime: String = dateformat.format(date)
                     mainViewModel.alertInfo.add(
                         SetAlertData(
@@ -1474,7 +1484,7 @@ class MainActivity : AppCompatActivity() {
 
                                 // 스팀기 설정 복원
                                 var tmpSteamer = ByteArray(0)
-                                var sortSteamer = sortMapByKey(recvSteamerBuffers)
+                                val sortSteamer = sortMapByKey(recvSteamerBuffers)
                                 for (t in sortSteamer.values) {
                                     tmpSteamer = tmpSteamer.plus(t.sliceArray(8..t.size - 1))
                                 }
@@ -1530,7 +1540,7 @@ class MainActivity : AppCompatActivity() {
 //                                }
                                 // 온습도 설정 복원
                                 var tmpTempHum = ByteArray(0)
-                                var sortTempHum = sortMapByKey(recvTempHumBuffers)
+                                val sortTempHum = sortMapByKey(recvTempHumBuffers)
                                 for (t in sortTempHum.values) {
                                     tmpTempHum = tmpTempHum.plus(t.sliceArray(8..t.size - 1))
                                 }
@@ -1562,7 +1572,7 @@ class MainActivity : AppCompatActivity() {
 
 
                                 var tmpModemap = ByteArray(0)
-                                var sortModemap = sortMapByKey(recvModemapBuffers)
+                                val sortModemap = sortMapByKey(recvModemapBuffers)
                                 for (t in sortModemap.values) {
                                     tmpModemap = tmpModemap.plus(t.sliceArray(8..t.size - 1))
                                 }
@@ -1574,7 +1584,7 @@ class MainActivity : AppCompatActivity() {
                                         )
                                     for (t in objgas) {
                                         mainViewModel.modelMap[t.key] = t.value
-                                        var id = when {
+                                        val id = when {
                                             t.key.equals("GasDock") -> 1
                                             t.key.equals("GasRoom") -> 2
                                             t.key.equals("WasteLiquor") -> 3
@@ -1593,7 +1603,7 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                                 var tmpLabname = ByteArray(0)
-                                var sortLabname = sortMapByKey(recvLabNameBuffers)
+                                val sortLabname = sortMapByKey(recvLabNameBuffers)
                                 for (t in sortLabname.values) {
                                     tmpLabname = tmpLabname.plus(t.sliceArray(8..t.size - 1))
                                 }
@@ -1641,7 +1651,7 @@ class MainActivity : AppCompatActivity() {
                 SerialService.MSG_GASDOCK -> {
                     val recvdata = (msg.data.getSerializable("") as ParsingData)
                     val id = recvdata.id
-                    val model = recvdata.model
+//                    val model = recvdata.model
                     val time = recvdata.time
                     val datas = recvdata.datas
 
@@ -1660,7 +1670,7 @@ class MainActivity : AppCompatActivity() {
                         val port = loop++.toByte()
                         //키는 아이디 포트
                         val key =
-                            littleEndianConversion(byteArrayOf(model, id.toByte(), port))
+                            littleEndianConversion(byteArrayOf(model, id, port))
                         tmp.hmapLastedDate[key] = time
                         tmp.ProcessGasRoom(key, t)
                     }
@@ -1678,7 +1688,7 @@ class MainActivity : AppCompatActivity() {
                         val port = loop++.toByte()
                         //키는 아이디 포트
                         val key =
-                            littleEndianConversion(byteArrayOf(model, id.toByte(), port))
+                            littleEndianConversion(byteArrayOf(model, id, port))
                         tmp.hmapLastedDate[key] = time
                         tmp.ProcessWasteLiquor(key, t)
                     }
@@ -1691,7 +1701,7 @@ class MainActivity : AppCompatActivity() {
                     val datas = recvdata.datas
 
                     val port = 1.toByte()
-                    val key = littleEndianConversion(byteArrayOf(model, id.toByte(), port))
+                    val key = littleEndianConversion(byteArrayOf(model, id, port))
                     tmp.hmapLastedDate[key] = time
                     tmp.ProcessOxygen(key, datas[0])
                 }
@@ -1709,7 +1719,7 @@ class MainActivity : AppCompatActivity() {
                             littleEndianConversion(
                                 byteArrayOf(
                                     model,
-                                    id.toByte(),
+                                    id,
                                     loop.toByte()
                                 )
                             )
@@ -1725,7 +1735,7 @@ class MainActivity : AppCompatActivity() {
                     val datas = recvdata.datas
 
                     val port = 1.toByte()
-                    val key = littleEndianConversion(byteArrayOf(model, id.toByte(), port))
+                    val key = littleEndianConversion(byteArrayOf(model, id, port))
                     tmp.hmapLastedDate[key] = time
                     val hum = String.format("%.1f", (datas[0].toFloat() / 1000000f)).toFloat()
                     val temp = String.format("%.1f", (datas[1].toFloat() / 1000000f)).toFloat()
@@ -1800,7 +1810,7 @@ class MainActivity : AppCompatActivity() {
                         lstValues.clear()
                         for ((key, value) in mainViewModel.alertMap) {
 //                            Log.d("팝업", "알람맵 : ${mainViewModel.alertMap}")
-                            val aqInfo = HexDump.toByteArray(key)
+//                            val aqInfo = HexDump.toByteArray(key)
                             if (exData.containsKey(key)) {
                                 if (exData[key]?.isAlert != value.isAlert ||
                                     exData[key]?.alertState != value.alertState ||
@@ -1957,7 +1967,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
-//                    Log.d("error처리 루틴", "처리시간 : ${elapsed}")
+                    Log.d("error처리 루틴", "처리시간 : ${elapsed}")
                     Thread.sleep(200)
 
                 } catch (e: Exception) {

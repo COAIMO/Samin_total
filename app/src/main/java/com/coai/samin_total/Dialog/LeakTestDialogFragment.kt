@@ -17,6 +17,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coai.samin_total.CustomView.SpaceDecoration
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
+import com.coai.samin_total.Logic.InputFilterMinMax
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
@@ -124,7 +125,6 @@ class LeakTestDialogFragment : DialogFragment() {
             addItemDecoration(decoration)
 
             recycleAdapter = LeakTest_RecycleAdapter()
-
             adapter = recycleAdapter
         }
     }
@@ -182,22 +182,3 @@ class LeakTestDialogFragment : DialogFragment() {
     }
 }
 
-class InputFilterMinMax(private val min: String, private val max: String) : InputFilter {
-
-    override fun filter(
-        source: CharSequence,
-        start: Int,
-        end: Int,
-        dest: Spanned,
-        dstart: Int,
-        dend: Int
-    ): CharSequence? {
-        try {
-            val input = (dest.subSequence(0, dstart).toString() + source + dest.subSequence(dend, dest.length)).toInt()
-            if (input in min.toInt()..max.toInt())
-                return null
-        } catch (nfe: NumberFormatException) {
-        }
-        return ""
-    }
-}

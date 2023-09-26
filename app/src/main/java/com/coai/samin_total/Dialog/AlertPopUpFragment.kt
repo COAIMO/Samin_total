@@ -81,32 +81,37 @@ class AlertPopUpFragment : DialogFragment() {
         recycleAdapter.setButtonClickListener(object :
             AlertPopUP_RecyclerAdapter.OnButtonClickListener {
             override fun onClick(v: View, position: Int) {
-                val aa = viewmodel.errorlivelist[position]
-                when (aa.model) {
-                    1 -> {
-                        activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
-                        activity?.alertPopUpFragment?.dismiss()
+                try {
+                    val aa = viewmodel.errorlivelist[position]
+                    when (aa.model) {
+                        1 -> {
+                            activity?.onFragmentChange(MainViewModel.GASDOCKMAINFRAGMENT)
+                            activity?.alertPopUpFragment?.dismiss()
+                        }
+                        2 -> {
+                            activity?.onFragmentChange(MainViewModel.GASROOMMAINFRAGMENT)
+                            activity?.alertPopUpFragment?.dismiss()
+                        }
+                        3 -> {
+                            activity?.onFragmentChange(MainViewModel.WASTELIQUORMAINFRAGMENT)
+                            activity?.alertPopUpFragment?.dismiss()
+                        }
+                        4 -> {
+                            activity?.onFragmentChange(MainViewModel.OXYGENMAINFRAGMENT)
+                            activity?.alertPopUpFragment?.dismiss()
+                        }
+                        5 -> {
+                            activity?.onFragmentChange(MainViewModel.STEAMERMAINFRAGMENT)
+                            activity?.alertPopUpFragment?.dismiss()
+                        }
+                        6 ->{
+                            activity?.onFragmentChange(MainViewModel.TEMPHUMMAINFRAGMENT)
+                            activity?.alertPopUpFragment?.dismiss()
+                        }
                     }
-                    2 -> {
-                        activity?.onFragmentChange(MainViewModel.GASROOMMAINFRAGMENT)
-                        activity?.alertPopUpFragment?.dismiss()
-                    }
-                    3 -> {
-                        activity?.onFragmentChange(MainViewModel.WASTELIQUORMAINFRAGMENT)
-                        activity?.alertPopUpFragment?.dismiss()
-                    }
-                    4 -> {
-                        activity?.onFragmentChange(MainViewModel.OXYGENMAINFRAGMENT)
-                        activity?.alertPopUpFragment?.dismiss()
-                    }
-                    5 -> {
-                        activity?.onFragmentChange(MainViewModel.STEAMERMAINFRAGMENT)
-                        activity?.alertPopUpFragment?.dismiss()
-                    }
-                    6 ->{
-                        activity?.onFragmentChange(MainViewModel.TEMPHUMMAINFRAGMENT)
-                        activity?.alertPopUpFragment?.dismiss()
-                    }
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         })
@@ -136,20 +141,32 @@ class AlertPopUpFragment : DialogFragment() {
             try {
 //                var lastupdate: Long = System.currentTimeMillis()
 //                val lstvalue = mutableListOf<Int>()
+                var cnt = 0
                 while (isOnTaskRefesh){
-                    activity?.runOnUiThread {
-                        try {
-                            recycleAdapter.notifyDataSetChanged()
+                    try {
+                        val tmplist = viewmodel.errorlivelist.toMutableList()
 
-                            val cnt = recycleAdapter.itemCount
-                            if (cnt <= 0) {
-                                recycleAdapter.notifyItemRemoved(0)
-                            } else {
-                                recycleAdapter.notifyItemRangeChanged(0, cnt)
-                            }
-                        } catch (ee: Exception){
-                            ee.printStackTrace()
+                        cnt = alertData.size
+                        alertData.clear()
+                        tmplist.forEach {
+                            alertData.add(it.copy())
                         }
+                        tmplist.clear()
+
+                        activity?.runOnUiThread {
+                            recycleAdapter.notifyDataSetChanged()
+                            try {
+                                if (cnt <= 0) {
+                                    recycleAdapter.notifyItemRemoved(0)
+                                } else {
+                                    recycleAdapter.notifyItemRangeChanged(0, cnt)
+                                }
+                            } catch (ee: Exception){
+                                ee.printStackTrace()
+                            }
+                        }
+                    } catch (ca: Exception) {
+                        ca.printStackTrace()
                     }
 
                     Thread.sleep(500)
@@ -158,6 +175,7 @@ class AlertPopUpFragment : DialogFragment() {
                 e.printStackTrace()
             }
         }
+        isOnTaskRefesh = true
         taskRefresh?.start()
     }
 
@@ -173,7 +191,7 @@ class AlertPopUpFragment : DialogFragment() {
             recycleAdapter = AlertPopUP_RecyclerAdapter()
             adapter = recycleAdapter
 
-            recycleAdapter.submitList(viewmodel.errorlivelist)
+            recycleAdapter.submitList(alertData)
         }
 
     }

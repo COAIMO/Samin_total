@@ -1,5 +1,7 @@
 package com.coai.samin_total
 
+import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -30,6 +32,8 @@ class ConnectTestFragment : Fragment() {
     private lateinit var onBackPressed: OnBackPressedCallback
     var activity: MainActivity? = null
     lateinit var mBinding: FragmentConnectTestBinding
+    lateinit var progress_Dialog: AlertDialog
+    var sendThread: Thread? = null
     val aqModel = arrayListOf<String>(
         "1 : 가스저장고",
         "2 : 룸가스",
@@ -69,7 +73,7 @@ class ConnectTestFragment : Fragment() {
         "1000000",
     )
     var selected_baudrate = 1000000
-
+    var selected_baudrate_index = 0xd
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -107,8 +111,8 @@ class ConnectTestFragment : Fragment() {
 
         selected_baudrate = activity?.baudrate!!.value
         mBinding.serailBaudRate.text = selected_baudrate.toString()
-        val ididx = baudrate.indexOf(selected_baudrate.toString())
-        mBinding.spBaudrate.setSelection(ididx)
+        selected_baudrate_index = baudrate.indexOf(selected_baudrate.toString())
+        mBinding.spBaudrate.setSelection(selected_baudrate_index)
         mBinding.btnBuzzerOn.setOnClickListener {
             activity?.isAnotherJob = true
             Thread.sleep(100)
@@ -201,6 +205,39 @@ class ConnectTestFragment : Fragment() {
 
             activity?.isAnotherJob = false
         }
+        mBinding.btnBaudChange.setOnClickListener {
+            activity?.runOnUiThread {
+                getProgressShow()
+            }
+            if (sendThread != null && sendThread!!.isAlive) {
+                sendThread?.interrupt()
+                sendThread?.join()
+            }
+            sendThread = Thread {
+                activity?.isAnotherJob = true
+
+                val protocol = SaminProtocol()
+                for (model in 0..6) {
+                    for (t in 0..7) {
+                        val id: Byte = t.toByte()
+
+                        for (cnt in 0..1) {
+                            protocol.setBaudrate(model.toByte(), t.toByte(), selected_baudrate_index.toByte())
+                            activity?.sendProtocolToSerial(protocol.mProtocol.clone())
+                            Thread.sleep(5)
+                        }
+                    }
+                }
+
+                Thread.sleep(500)
+                activity?.isAnotherJob = false
+                getProgressHidden()
+                sendThread = null
+            }
+            sendThread?.start()
+        }
+
+        mBinding.btnBaudChange.isEnabled = true
         return mBinding.root
     }
 
@@ -267,6 +304,7 @@ class ConnectTestFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
+                    selected_baudrate_index = position
                     selected_baudrate = baudrate[position].toInt()
                 }
 
@@ -275,6 +313,23 @@ class ConnectTestFragment : Fragment() {
                         .show()
                 }
             }
+    }
+
+    fun getProgressShow() {
+        val builder = AlertDialog.Builder(context)
+        val inflater = LayoutInflater.from(context)
+        builder.setView(inflater.inflate(R.layout.progress_dialog, null))
+        builder.setCancelable(true)
+        progress_Dialog = builder.create()
+        progress_Dialog.show()
+    }
+
+    private fun getProgressHidden() {
+        try {
+            progress_Dialog.dismiss()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     companion object {

@@ -75,8 +75,8 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 MSG_BAUDRATE_CHANGE-> {
                     // 통신속도 변경
                     msg.data.getInt("")?.let {
-                        val shared: SaminSharedPreference  = SaminSharedPreference(context)
-                        shared.saveBoardSetData(SaminSharedPreference.BAUDRATE, it)
+                        val shared: SaminSVCSharedPreference  = SaminSVCSharedPreference(context)
+                        shared.saveBoardSetData(SaminSVCSharedPreference.BAUDRATE, it)
                     }
                 }
                 else -> super.handleMessage(msg)
@@ -208,8 +208,8 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     override fun onCreate() {
 //        Log.d(serviceTAG, "SerialService : onCreate")
-        val shared: SaminSharedPreference  = SaminSharedPreference(this)
-        currentBaudrate = shared.loadBoardSetData(SaminSharedPreference.BAUDRATE) as Int
+        val shared: SaminSVCSharedPreference  = SaminSVCSharedPreference(this)
+        currentBaudrate = shared.loadBoardSetData(SaminSVCSharedPreference.BAUDRATE) as Int
         Log.d("Service", "baudrate : ${currentBaudrate}")
 
         GlobalScope.launch {
@@ -453,12 +453,13 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     private fun recvData(data: ByteArray) {
         val receiveParser = SaminProtocol()
+//        Log.d("SerialService", "data : \n${HexDump.dumpHexString(data)}")
         if (!receiveParser.parse(data))
             return
 
         when (receiveParser.packet) {
             SaminProtocolMode.CheckProductPing.byte -> {
-                Log.d("SerialService", "CheckProductPing data : \n${HexDump.dumpHexString(data)}")
+
                 val message = Message.obtain(
                     null,
                     MSG_CHECK_PING,
@@ -507,15 +508,15 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
             while (true) {
                 val chkPos = indexOfBytes(tmpdata, idx, tmpdata.size)
-                val num = tmpdata[chkPos + 4] + 4 + 1
-                num
+//                val num = tmpdata[chkPos + 4] + 4 + 1
+//                num
                 if (chkPos != -1) {
                     //해더 유무 체크 및 헤더 몇 번째 있는지 반환
                     val scndpos = indexOfBytes(tmpdata, chkPos + 1, tmpdata.size)
                     //다음 헤더가 없는 경우 -1 변환(헤더 중복 체크)
                     if (scndpos == -1) {
                         // 다음 데이터 없음
-                        if (chkPos + 3 < tmpdata.size && tmpdata[chkPos + 3] + 4 <= tmpdata.size - chkPos) {
+                        if (chkPos + 4 < tmpdata.size && tmpdata[chkPos + 4] + 4 + 1 <= tmpdata.size - chkPos) {
 //                        if (tmpdata[chkPos + 4] + 4 + 1 <= tmpdata.size - chkPos) {
                             // 해당 전문을 다 받았을 경우 ,또는 크거나
                             val focusdata: ByteArray =
@@ -524,6 +525,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //                            mHandler.obtainMessage(RECEIVED_SERERIAL_DATA, focusdata)
 //                                .sendToTarget()
                             recvData(focusdata)
+//                            Log.d("태그", "chkPos=${chkPos}, chkPos + 4 = ${chkPos + 4}, tmpdata.size= ${tmpdata.size}, tmpdata[chkPos + 4] + 4 + 1 = ${tmpdata[chkPos + 4] + 4 + 1}, tmpdata.size - chkPos= ${tmpdata.size - chkPos} , focusdata = ${HexDump.dumpHexString(focusdata)}")
 
                             bufferIndex = 0;
 

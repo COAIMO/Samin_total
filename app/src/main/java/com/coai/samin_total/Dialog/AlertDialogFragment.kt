@@ -111,9 +111,9 @@ class AlertDialogFragment : DialogFragment() {
                     }
                     filteredList.clear()
                     tmplist.clear()
+
                     activity?.runOnUiThread {
                         recycleAdapter.notifyDataSetChanged()
-
                         val cnt = recycleAdapter.itemCount
                         if (cnt <= 0) {
                             recycleAdapter.notifyItemRemoved(0)

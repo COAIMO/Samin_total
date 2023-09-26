@@ -33,7 +33,7 @@ class AlertPopUP_RecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
     @SuppressLint("NotifyDataSetChanged")
     fun submitList(viewData: MutableList<SetAlertData>) {
         this.alertData = viewData
-//        notifyDataSetChanged()
+        notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

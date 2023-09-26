@@ -60,6 +60,7 @@ class MainViewModel : ViewModel() {
         const val GASROOMLEAKTESTFRAGMENT = 22
         const val TEMPHUMMAINFRAGMENT = 23
         const val TEMPHUMSETTINGFRAGMENT = 24
+        const val CUSTOMPROGRESSDIALOGFRAGMENT = 25
         const val GasDockStorage = 1.toByte()
         const val GasRoom = 2.toByte()
         const val WasteLiquor = 3.toByte()
