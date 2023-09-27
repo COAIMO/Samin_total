@@ -117,11 +117,11 @@ class RoomLeakTestFragment : Fragment() {
                 var lastupdate2: Long = System.currentTimeMillis()
                 val lstvalue = mutableListOf<Int>()
                 var startmill: Long = System.currentTimeMillis()
-                var testTime: Float = 0f
-                val collectTime: Int = Math.max(1000, viewmodel.isLeakTestTime / 60)
+                var testTime: Float
+                val collectTime: Int = Math.max(1000f, viewmodel.isLeakTestTime * 60 * 1000 / 600f).toInt()
 
 //                val hashmapPsi = hashMapOf<Int, ArrayList<PSIData>>()
-                var firstChk = true
+//                var firstChk = true
                 var heartbeatCount: UByte = 0u
 
                 while (isOnTaskRefesh) {
@@ -154,12 +154,14 @@ class RoomLeakTestFragment : Fragment() {
                             }
                         }
 
-                        testTime = ((System.currentTimeMillis() - startmill) / 1000f).toFloat()
+                        testTime = ((System.currentTimeMillis() - startmill) / 1000f)
                         if (lastupdate2 <= System.currentTimeMillis() - collectTime) {
                             if (viewmodel.isLeakTestTime * 60 > testTime) {
                                 for(t in graphData) {
                                     val idx = graphData.indexOf(t)
                                     t.data.add(Entry(testTime, newgasRoomViewData[idx].pressure))
+//                                    for(tmp in 0 until 10)
+//                                        t.data.add(Entry(testTime + (0.01f * tmp), newgasRoomViewData[idx].pressure))
                                 }
                             }
                             lastupdate2 = System.currentTimeMillis()

@@ -62,7 +62,7 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
         curr.bind(setGasRoomViewData[position])
 
         val currentTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(Date().time)
-        val collectTime: Int = Math.max(1000, testTime / 60)
+        val collectTime: Int = Math.max(1000f, testTime * 60 * 1000 / 600f).toInt()
         val maxcount = (testTime * 60 * 1000) / collectTime
 
         if (setGraphData[position].data.size < 10) {
