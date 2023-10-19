@@ -175,16 +175,18 @@ class RoomLeakTestFragment : Fragment() {
                                 gasRoomViewData[idx] = t.copy()
                             }
 
-                            synchronized(lockobj) {
+//                            synchronized(lockobj) {
                                 activity?.runOnUiThread {
                                     recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                                 }
-                            }
+//                            }
                         }
                         else {
+
+
                             val rlist = Utils.ToIntRange(lstvalue, gasRoomViewData.size)
                             if (rlist != null) {
-                                synchronized(lockobj) {
+//                                synchronized(lockobj) {
                                     activity?.runOnUiThread() {
                                         rlist.forEach {
                                             recycleAdapter.notifyItemRangeChanged(
@@ -193,7 +195,9 @@ class RoomLeakTestFragment : Fragment() {
                                             )
                                         }
                                     }
-                                }
+//                                }
+                            } else {
+
                             }
                         }
                     } catch (ex: Exception) {
@@ -302,7 +306,7 @@ class RoomLeakTestFragment : Fragment() {
     }
 
     private fun zoomInAndOut(zoomState: Boolean) {
-        synchronized(lockobj) {
+//        synchronized(lockobj) {
             mBinding.gasRoomLeakTestRecyclerView.apply {
                 if (zoomState) {
                     mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
@@ -318,7 +322,7 @@ class RoomLeakTestFragment : Fragment() {
                         GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
                 }
             }
-        }
+//        }
     }
 
     private fun initView() {
@@ -357,11 +361,11 @@ class RoomLeakTestFragment : Fragment() {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
 
-        synchronized(lockobj) {
+//        synchronized(lockobj) {
             activity?.runOnUiThread {
                 recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
             }
-        }
+//        }
     }
 
     private fun updateAlert() {

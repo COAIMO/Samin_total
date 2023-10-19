@@ -60,29 +60,35 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
 
         var curr = (holder as gasRoomLeakTestViewHodler)
         curr.bind(setGasRoomViewData[position])
+        curr.graphBind(setGraphData[position])
 
-        val currentTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(Date().time)
-        val collectTime: Int = Math.max(1000f, testTime * 60 * 1000 / 600f).toInt()
-        val maxcount = (testTime * 60 * 1000) / collectTime
-
-        if (setGraphData[position].data.size < 10) {
-            curr.graphBind(setGraphData[position])
-        }
-        else if (setGraphData[position].data.size < maxcount) {
-            if (((currentTimeSeconds / 2) % 3).toInt() == (position % 2).toInt()) {
-                if (beforepos != position) {
-                    curr.graphBind(setGraphData[position])
-//                    Log.d("onBindViewHolder", "${position}")
-                    beforepos = position
-                }
-            }
-        }
-        else {
-            if (curr.count !== maxcount) {
-                curr.graphBind(setGraphData[position])
-//                Log.d("onBindViewHolder", "Done")
-            }
-        }
+//        val currentTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(Date().time)
+//        val collectTime: Int = Math.max(1000f, testTime * 60 * 1000 / 600f).toInt()
+//        val maxcount = (testTime * 60 * 1000) / collectTime
+//
+//        if (setGraphData[position].data.size < 10) {
+//            curr.graphBind(setGraphData[position])
+//        }
+//        else if (setGraphData[position].data.size < maxcount) {
+////            if (((currentTimeSeconds / 2) % 3).toInt() == (position % 2).toInt()) {
+////                if (beforepos != position) {
+////                    curr.graphBind(setGraphData[position])
+//////                    Log.d("onBindViewHolder", "${position}")
+////                    beforepos = position
+////                }
+////            }
+//            if (beforepos != position) {
+//                curr.graphBind(setGraphData[position])
+////                    Log.d("onBindViewHolder", "${position}")
+//                beforepos = position
+//            }
+//        }
+//        else {
+//            if (curr.count !== maxcount) {
+//                curr.graphBind(setGraphData[position])
+////                Log.d("onBindViewHolder", "Done")
+//            }
+//        }
 //        Log.d("datas", "${setGraphData[position].data.count()}")
         holder.setIsRecyclable(false)
     }
