@@ -465,6 +465,10 @@ class MainFragment : Fragment() {
             activity?.callTimemout()
 
         }
+        else {
+            activity?.callTimemout()
+        }
+
 
         createHasKey()
         mainLayoutIconVisibility()

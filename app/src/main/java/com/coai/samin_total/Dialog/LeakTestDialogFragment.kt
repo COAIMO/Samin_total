@@ -126,6 +126,8 @@ class LeakTestDialogFragment : DialogFragment() {
 
             recycleAdapter = LeakTest_RecycleAdapter()
             adapter = recycleAdapter
+
+            mBinding.swExportData.isChecked = viewmodel.isSaveLeakTestData;
         }
     }
 
@@ -151,9 +153,16 @@ class LeakTestDialogFragment : DialogFragment() {
                 recycleAdapter.notifyDataSetChanged()
             }
             mBinding.btnTestStart -> {
-                viewmodel.isLeakTestTime = mBinding.etTestTime.text.toString().toInt()
-                activity?.onFragmentChange(MainViewModel.GASROOMLEAKTESTFRAGMENT)
-                this.dismiss()
+                val select = viewmodel.GasRoomDataLiveList.value!!.filter {
+                    it.leakTest
+                }
+                if (select.size > 0) {
+                    viewmodel.isLeakTestTime = mBinding.etTestTime.text.toString().toInt()
+                    activity?.onFragmentChange(MainViewModel.GASROOMLEAKTESTFRAGMENT)
+                    this.dismiss()
+                } else {
+                    Toast.makeText(requireContext(), "리크테스트 대상을 선택하세요.", Toast.LENGTH_SHORT).show()
+                }
             }
             mBinding.swExportData ->{
                 viewmodel.isSaveLeakTestData =  mBinding.swExportData.isChecked

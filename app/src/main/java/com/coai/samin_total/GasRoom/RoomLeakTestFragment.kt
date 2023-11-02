@@ -29,6 +29,11 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStreamWriter
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.collections.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -57,7 +62,8 @@ class RoomLeakTestFragment : Fragment() {
     private var isOnTaskRefesh: Boolean = true
 
     private val gasRoomViewData = arrayListOf<SetGasRoomViewData>()
-    private val graphData = arrayListOf<ChartDatas>()
+//    private val _graphData = arrayListOf<ChartDatas>()
+    private val graphData = CopyOnWriteArrayList<ChartDatas>()
     val END_LEAKTEST = 1
     val CREATE_FILE = 2
     override fun onAttach(context: Context) {
@@ -157,11 +163,14 @@ class RoomLeakTestFragment : Fragment() {
                         testTime = ((System.currentTimeMillis() - startmill) / 1000f)
                         if (lastupdate2 <= System.currentTimeMillis() - collectTime) {
                             if (viewmodel.isLeakTestTime * 60 > testTime) {
-                                for(t in graphData) {
+                                for (t in graphData) {
                                     val idx = graphData.indexOf(t)
-                                    t.data.add(Entry(testTime, newgasRoomViewData[idx].pressure))
-//                                    for(tmp in 0 until 10)
-//                                        t.data.add(Entry(testTime + (0.01f * tmp), newgasRoomViewData[idx].pressure))
+                                    t.data.add(
+                                        Entry(
+                                            testTime,
+                                            newgasRoomViewData[idx].pressure
+                                        )
+                                    )
                                 }
                             }
                             lastupdate2 = System.currentTimeMillis()
@@ -347,7 +356,7 @@ class RoomLeakTestFragment : Fragment() {
             temp.isAlert = false
             gasRoomViewData.add(temp)
 
-            var tmplist =  ArrayList<Entry>()
+            var tmplist = CopyOnWriteArrayList<Entry>()
             tmplist.add(0, Entry(0f, tmp.pressure))
             graphData.add(ChartDatas(tmplist))
         }
@@ -393,11 +402,16 @@ class RoomLeakTestFragment : Fragment() {
                     isOnTaskRefesh = false
                     taskRefresh?.interrupt()
                     taskRefresh?.join()
+
                     if (viewmodel.isSaveLeakTestData) {
+                        val current = LocalDateTime.now()
+                        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
+                        val formatted = current.format(formatter)
+                        val fileName = "leaktest_${formatted}.csv"
                         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                             addCategory(Intent.CATEGORY_OPENABLE)
                             type = "text/csv"
-                            putExtra(Intent.EXTRA_TITLE, "leaktest.csv")
+                            putExtra(Intent.EXTRA_TITLE, fileName)
                         }
                         startActivityForResult(intent, CREATE_FILE)
                     }
@@ -416,9 +430,13 @@ class RoomLeakTestFragment : Fragment() {
                     alterDocument(it)
 
                 }
+
+                activity?.onFragmentChange(MainViewModel.GASROOMMAINFRAGMENT)
             }
         }
-        activity?.onFragmentChange(MainViewModel.GASROOMMAINFRAGMENT)
+        Log.d("graphData", "requestCode : ${requestCode}, resultCode : ${resultCode}")
+
+
     }
     //lateinit var datas: List<ILineDataSet>
 
@@ -431,19 +449,34 @@ class RoomLeakTestFragment : Fragment() {
                 tmp.write("\uFEFF")
                 tmp.write(String.format("id, port, 시간, 압력(psi)\n"))
 
+                Log.d("graphData", "size : ${graphData.size}")
+                var count = 0
+                var idx = 0
                 for (t in graphData) {
-                    val idx = graphData.indexOf(t)
-                    val keydata = gasRoomViewData[idx]
-                    for(tt in t.data) {
-                        tmp.write(String.format("${keydata.id},${keydata.port},${tt.x}, ${tt.y}\n"))
+                    try {
+                        val keydata = newgasRoomViewData[idx++]
+                        for (tt in t.data) {
+                            tmp.write(String.format("${keydata.id},${keydata.port},${tt.x}, ${tt.y}\n"))
+                            count += 1
+                        }
+                        tmp.flush()
+                    } catch (en: java.lang.Exception) {
+                        en.printStackTrace()
+                        Log.e("graphData", en.toString())
                     }
+                Log.d("graphData", "write size : ${count}")
                 }
                 tmp.flush()
             }
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
+            Log.e("graphData", e.toString())
         } catch (e: IOException) {
             e.printStackTrace()
+            Log.e("graphData", e.toString())
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("graphData", e.toString())
         }
     }
 

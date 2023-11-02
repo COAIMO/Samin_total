@@ -17,6 +17,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
@@ -48,11 +49,11 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
         testTime = mins
     }
 
-    fun setEntry(entries: List<ChartDatas>) {
+    fun setEntry(entries: CopyOnWriteArrayList<ChartDatas>) {
         setGraphData = entries
     }
 
-    var setGraphData = listOf<ChartDatas>()
+    var setGraphData = CopyOnWriteArrayList<ChartDatas>()
     var beforepos: Int = -1
 
 
@@ -115,7 +116,7 @@ class GasRoomLeakTest_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewH
         }
 
         fun graphBind(arg: ChartDatas) {
-            val tmpdatas = arg.data.clone() as ArrayList<Entry>
+            val tmpdatas = arg.data.toList()
             val lineDataSet = LineDataSet(tmpdatas, "Data Set")
             lineDataSet.apply {
                 axisDependency = YAxis.AxisDependency.LEFT

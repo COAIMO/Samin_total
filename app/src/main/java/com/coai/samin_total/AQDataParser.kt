@@ -1705,6 +1705,7 @@ class AQDataParser(viewModel: MainViewModel) {
                     continue
             } else if (current is SetGasRoomViewData) {
                 (current as SetGasRoomViewData).isAlert = true
+                (current as SetGasRoomViewData).pressure = 0f
                 if (current.usable)
                     viewModel.mModelMonitorValues.setErrorsRoom(idx, true)
                 else
