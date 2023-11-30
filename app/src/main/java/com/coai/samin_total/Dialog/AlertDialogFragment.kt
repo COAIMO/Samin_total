@@ -15,6 +15,7 @@ import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentAlertDialogBinding
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.collections.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
@@ -37,7 +38,8 @@ class AlertDialogFragment : DialogFragment() {
     private val alertData = mutableListOf<SetAlertData>()
 
     private var taskRefresh: Thread? = null
-    private var isOnTaskRefesh: Boolean = true
+//    private var isOnTaskRefesh: Boolean = true
+    private var isOnTaskRefesh = AtomicBoolean(true)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +65,8 @@ class AlertDialogFragment : DialogFragment() {
     override fun onPause() {
         super.onPause()
 
-        isOnTaskRefesh = false
+//        isOnTaskRefesh = false
+        isOnTaskRefesh.set(false)
         taskRefresh?.interrupt()
         taskRefresh?.join()
     }
@@ -77,7 +80,8 @@ class AlertDialogFragment : DialogFragment() {
 
         taskRefresh = Thread{
             try {
-                while (isOnTaskRefesh) {
+//                while (isOnTaskRefesh) {
+                while (isOnTaskRefesh.get()) {
                     val tmplist = viewmodel.errorlivelist.toMutableList()
 
                     var cmodel = -1
@@ -116,7 +120,8 @@ class AlertDialogFragment : DialogFragment() {
                         recycleAdapter.notifyDataSetChanged()
                         val cnt = recycleAdapter.itemCount
                         if (cnt <= 0) {
-                            recycleAdapter.notifyItemRemoved(0)
+//                            recycleAdapter.notifyItemRemoved(0)
+                            recycleAdapter.notifyDataSetChanged()
                         } else {
                             recycleAdapter.notifyItemRangeChanged(0, cnt)
                         }
@@ -128,7 +133,8 @@ class AlertDialogFragment : DialogFragment() {
                 e.printStackTrace()
             }
         }
-        isOnTaskRefesh = true
+        isOnTaskRefesh.set(true)
+//        isOnTaskRefesh = true
         taskRefresh?.start()
     }
 

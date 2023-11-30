@@ -106,6 +106,10 @@ class ScanAlertDialogFragment : DialogFragment() {
         getProgressShow()
         activity?.popUpThreadInterrupt()
         viewmodel.clearPopUP()
+        viewmodel.alertMap.clear()
+        viewmodel.alertInfo.clear(true)
+        viewmodel.errorlivelist.clear()
+
         sendThread = Thread {
             try {
                 viewmodel.isScanmode = true

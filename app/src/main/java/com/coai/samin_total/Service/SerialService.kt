@@ -22,6 +22,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.lang.ref.WeakReference
 
 class SerialService : Service(), SerialInputOutputManager.Listener {
     //    SerialInputOutputManager.Listener
@@ -64,6 +65,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         Handler(Looper.getMainLooper()) {
 
         private val clients = mutableListOf<Messenger>()
+        private val weakClients: WeakReference<MutableList<Messenger>> = WeakReference(clients)
 
         override fun handleMessage(msg: Message) {
             when (msg.what) {
@@ -85,7 +87,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
         fun sendConnected() {
             val message = Message.obtain(null, MSG_SERIAL_CONNECT, null)
-            clients.forEach {
+//            clients.forEach {
+//                it.send(message)
+//            }
+            weakClients.get()?.forEach {
                 it.send(message)
             }
         }
@@ -95,7 +100,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             val bundle = Bundle()
             bundle.putByteArray("", data)
             message.data = bundle
-            clients.forEach {
+//            clients.forEach {
+//                it.send(message)
+//            }
+            weakClients.get()?.forEach {
                 it.send(message)
             }
         }
@@ -105,27 +113,39 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             val bundle = Bundle()
             bundle.putByteArray("", data)
             message.data = bundle
-            clients.forEach {
+//            clients.forEach {
+//                it.send(message)
+//            }
+            weakClients.get()?.forEach {
                 it.send(message)
             }
         }
 
         fun sendMSG_SERIAL_DISCONNECT() {
             val message = Message.obtain(null, MSG_SERIAL_DISCONNECT)
-            clients.forEach {
+//            clients.forEach {
+//                it.send(message)
+//            }
+            weakClients.get()?.forEach {
                 it.send(message)
             }
         }
 
         fun sendMSG_NO_SERIAL() {
             val message = Message.obtain(null, MSG_NO_SERIAL)
-            clients.forEach {
+//            clients.forEach {
+//                it.send(message)
+//            }
+            weakClients.get()?.forEach {
                 it.send(message)
             }
         }
 
         fun sendMSG(msg: Message) {
-            clients.forEach {
+//            clients.forEach {
+//                it.send(msg)
+//            }
+            weakClients.get()?.forEach {
                 it.send(msg)
             }
         }
@@ -342,6 +362,14 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         return result
     }
 
+    private fun littleEndianConversion(bytes: ByteArray, start: Int, end: Int): Int {
+        var result = 0
+        for (i in start..end) {
+            result = result or (bytes[i].toUByte().toInt() shl 8 * (i - start))
+        }
+        return result
+    }
+
     val exSensorData = HashMap<Int, Int>()
     val alphavalue = 0.25
 
@@ -362,26 +390,23 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         return ret.toInt()
     }
 
+    private var datas: ArrayList<Int> = ArrayList()
     private fun preprocessParser(arg: ByteArray) {
         try {
             val id = arg[3]
             val model = arg[2]
             val time = System.currentTimeMillis()
-            val datas = ArrayList<Int>()
+//            val datas = ArrayList<Int>()
+            datas.clear()
+
             if (model == 6.toByte()){
-                datas.add(littleEndianConversion(arg.slice(7..10).toByteArray()))
-                datas.add(littleEndianConversion(arg.slice(11..14).toByteArray()))
-//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[9]).toByteArray()))
-//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[10]).toByteArray()))
-//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[11]).toByteArray()))
-//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[12]).toByteArray()))
-//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[13]).toByteArray()))
-//                datas.add(littleEndianConversion(arrayListOf<Byte>(arg[14]).toByteArray()))
+                datas.add(littleEndianConversion(arg,7, 8))
+                datas.add(littleEndianConversion(arg,11, 14))
             }else{
-                datas.add(littleEndianConversion(arg.slice(7..8).toByteArray()))
-                datas.add(littleEndianConversion(arg.slice(9..10).toByteArray()))
-                datas.add(littleEndianConversion(arg.slice(11..12).toByteArray()))
-                datas.add(littleEndianConversion(arg.slice(13..14).toByteArray()))
+                datas.add(littleEndianConversion(arg,7, 8))
+                datas.add(littleEndianConversion(arg,9, 10))
+                datas.add(littleEndianConversion(arg,11, 12))
+                datas.add(littleEndianConversion(arg,13, 14))
             }
 
             if (model == 1.toByte() || model == 2.toByte() || model == 5.toByte()) {
@@ -404,6 +429,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                     }
                 }
             }
+
             val tmp: ParsingData = ParsingData(
                 id,
                 model,
@@ -413,39 +439,54 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             val bundle = Bundle()
             bundle.putSerializable("", tmp)
 
-            when (model) {
-                0x01.toByte() -> {
-                    val message = Message.obtain(null, MSG_GASDOCK)
-                    message.data = bundle
-                    incomingHandler?.sendMSG(message)
-                }
-                0x02.toByte() -> {
-                    val message = Message.obtain(null, MSG_GASROOM)
-                    message.data = bundle
-                    incomingHandler?.sendMSG(message)
-                }
-                0x03.toByte() -> {
-                    val message = Message.obtain(null, MSG_WASTE)
-                    message.data = bundle
-                    incomingHandler?.sendMSG(message)
-                }
-                0x04.toByte() -> {
-                    val message = Message.obtain(null, MSG_OXYGEN)
-                    message.data = bundle
-                    incomingHandler?.sendMSG(message)
-                }
-                0x05.toByte() -> {
-                    val message = Message.obtain(null, MSG_STEMER)
-                    message.data = bundle
-                    incomingHandler?.sendMSG(message)
-                }
-                0x06.toByte() -> {
-                    val message = Message.obtain(null, MSG_TEMPHUM)
-                    message.data = bundle
-                    incomingHandler?.sendMSG(message)
-                }
-            }
+//            when (model) {
+//                0x01.toByte() -> {
+//                    val message = Message.obtain(null, MSG_GASDOCK)
+//                    message.data = bundle
+//                    incomingHandler?.sendMSG(message)
+//                }
+//                0x02.toByte() -> {
+//                    val message = Message.obtain(null, MSG_GASROOM)
+//                    message.data = bundle
+//                    incomingHandler?.sendMSG(message)
+//                }
+//                0x03.toByte() -> {
+//                    val message = Message.obtain(null, MSG_WASTE)
+//                    message.data = bundle
+//                    incomingHandler?.sendMSG(message)
+//                }
+//                0x04.toByte() -> {
+//                    val message = Message.obtain(null, MSG_OXYGEN)
+//                    message.data = bundle
+//                    incomingHandler?.sendMSG(message)
+//                }
+//                0x05.toByte() -> {
+//                    val message = Message.obtain(null, MSG_STEMER)
+//                    message.data = bundle
+//                    incomingHandler?.sendMSG(message)
+//                }
+//                0x06.toByte() -> {
+//                    val message = Message.obtain(null, MSG_TEMPHUM)
+//                    message.data = bundle
+//                    incomingHandler?.sendMSG(message)
+//                }
+//            }
 
+            incomingHandler?.let {
+                val msgType = when(model) {
+                    0x01.toByte() -> MSG_GASDOCK
+                    0x02.toByte() -> MSG_GASROOM
+                    0x03.toByte() -> MSG_WASTE
+                    0x04.toByte() -> MSG_OXYGEN
+                    0x05.toByte() -> MSG_STEMER
+                    0x06.toByte() -> MSG_TEMPHUM
+                    // 다른 모델에 대한 메시지 타입 매핑
+                    else -> MSG_GASDOCK
+                }
+                val message = Message.obtain(null, msgType)
+                message.data = bundle
+                it.sendMSG(message)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }

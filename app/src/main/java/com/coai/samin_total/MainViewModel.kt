@@ -227,6 +227,7 @@ class MainViewModel : ViewModel() {
             alertInfo.notifyChange()
         } catch (e: Exception) {
         }
+
         try {
             if (!arg.isAlert) {
                 // 정상일 경우
@@ -234,18 +235,33 @@ class MainViewModel : ViewModel() {
                 if (exalertMap.containsKey(arg.id))
                     exalertMap.remove(arg.id)
             } else {
-                // 에러일 경우
-                if (arg.model == 2 || arg.model == 6) {
-                    if (arg.alertState == 0) {
-                        // 매시브릭일 때
-                        if (!exalertMap.containsKey(arg.id))
-                            exalertMap.put(arg.id, arg.alertState)
-                    } else {
-                        // 기타 알람
-                        if (exalertMap.containsKey(arg.id) &&
-                            exalertMap[arg.id] != arg.alertState
-                        ) {
-                            return
+                if (arg.alertState == 4) {
+                    if (arg.model == 1) {
+                        Log.d("테스트1", "arg = ${arg}")
+                    }
+
+                    if (!exalertMap.containsKey(arg.id))
+                        exalertMap.put(arg.id, arg.alertState)
+                }
+                else {
+                    // 에러일 경우
+                    if (arg.model == 2 || arg.model == 6) {
+                        if (arg.alertState == 0) {
+                            // 매시브릭일 때
+                            if (!exalertMap.containsKey(arg.id))
+                                exalertMap.put(arg.id, arg.alertState)
+                        }
+                        else if (arg.alertState == 4) {
+                            if (!exalertMap.containsKey(arg.id))
+                                exalertMap.put(arg.id, arg.alertState)
+                        }
+                        else {
+                            // 기타 알람
+                            if (exalertMap.containsKey(arg.id) &&
+                                exalertMap[arg.id] != arg.alertState
+                            ) {
+                                return
+                            }
                         }
                     }
                 }

@@ -20,6 +20,7 @@ import com.coai.samin_total.R
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentAlertDialogBinding
 import com.coai.samin_total.databinding.FragmentAlertPopUpBinding
+import java.util.concurrent.atomic.AtomicBoolean
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -41,7 +42,8 @@ class AlertPopUpFragment : DialogFragment() {
     private var alertData = mutableListOf<SetAlertData>()
     private var activity: MainActivity? = null
     private var taskRefresh: Thread? = null
-    private var isOnTaskRefesh: Boolean = true
+//    private var isOnTaskRefesh: Boolean = true
+    private var isOnTaskRefesh = AtomicBoolean(true)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -55,7 +57,8 @@ class AlertPopUpFragment : DialogFragment() {
 
     override fun onPause() {
         super.onPause()
-        isOnTaskRefesh = false
+//        isOnTaskRefesh = false
+        isOnTaskRefesh.set(false)
         taskRefresh?.interrupt()
         taskRefresh?.join()
     }
@@ -137,12 +140,20 @@ class AlertPopUpFragment : DialogFragment() {
         dialog?.window?.setLayout(width, height)
         dialog?.window?.setBackgroundDrawableResource(R.drawable.border_layout)
         super.onResume()
+//        isOnTaskRefesh = false
+        isOnTaskRefesh.set(false)
+        taskRefresh?.interrupt()
+        taskRefresh?.join()
+
+//        isOnTaskRefesh = true
+        isOnTaskRefesh.set(true)
         taskRefresh = Thread{
             try {
 //                var lastupdate: Long = System.currentTimeMillis()
 //                val lstvalue = mutableListOf<Int>()
                 var cnt = 0
-                while (isOnTaskRefesh){
+//                while (isOnTaskRefesh){
+                while (isOnTaskRefesh.get()) {
                     try {
                         val tmplist = viewmodel.errorlivelist.toMutableList()
 
@@ -157,7 +168,8 @@ class AlertPopUpFragment : DialogFragment() {
                             recycleAdapter.notifyDataSetChanged()
                             try {
                                 if (cnt <= 0) {
-                                    recycleAdapter.notifyItemRemoved(0)
+//                                    recycleAdapter.notifyItemRemoved(0)
+                                    recycleAdapter.notifyDataSetChanged()
                                 } else {
                                     recycleAdapter.notifyItemRangeChanged(0, cnt)
                                 }
@@ -175,8 +187,10 @@ class AlertPopUpFragment : DialogFragment() {
                 e.printStackTrace()
             }
         }
-        isOnTaskRefesh = true
+//        isOnTaskRefesh = true
         taskRefresh?.start()
+
+
     }
 
     private fun initRecycler() {

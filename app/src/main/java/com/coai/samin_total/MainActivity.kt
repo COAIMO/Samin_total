@@ -1809,15 +1809,12 @@ class MainActivity : AppCompatActivity() {
 
                         lstValues.clear()
                         for ((key, value) in mainViewModel.alertMap) {
-//                            Log.d("팝업", "알람맵 : ${mainViewModel.alertMap}")
-//                            val aqInfo = HexDump.toByteArray(key)
                             if (exData.containsKey(key)) {
                                 if (exData[key]?.isAlert != value.isAlert ||
                                     exData[key]?.alertState != value.alertState ||
                                     exData[key]?.time != value.time
                                 ) {
                                     removelist.add(exData[key]!!)
-//                                    Log.d("팝업", "제거 리스트추가 : ${removelist}")
                                     removeMap[key] = exData[key]!!
                                     exData.remove(key)
                                 }
@@ -1832,7 +1829,6 @@ class MainActivity : AppCompatActivity() {
                                         lstValues.add(value.model)
                                     exData[key] = value
                                     alertlist.add(value)
-//                                    Log.d("팝업", "팝업 추가 : ${value}")
                                     if (removeMap.containsKey(key)) {
                                         for (i in removeMap) {
                                             alertremovelist.add(i.value)
@@ -1841,15 +1837,6 @@ class MainActivity : AppCompatActivity() {
                                 }
                             } else {
                                 // 변경
-//                                if (
-//                                    (value.isAlert &&
-//                                    exData[key]?.isAlert == value.isAlert &&
-//                                    exData[key]?.alertState != value.alertState) ||
-//                                    (value.isAlert &&
-//                                            exData[key]?.isAlert == value.isAlert &&
-//                                            exData[key]?.alertState == value.alertState &&
-//                                            exData[key]?.time != value.time)
-//                                )
                                 if (value.isAlert &&
                                     exData[key]?.isAlert == value.isAlert &&
                                     exData[key]?.alertState != value.alertState
@@ -1865,45 +1852,18 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
 
-                        /**
-                        runOnUiThread {
-                            try {
-                                if (!mainViewModel.alertDialogFragment.isAdded) {
-                                    for (i in removelist) {
-                                        mainViewModel.popUpDataLiveList.remove(i)
-                                    }
-                                    removelist.clear()
-                                } else {
-                                    for (i in alertremovelist) {
-                                        mainViewModel.popUpDataLiveList.remove(i)
-                                    }
-                                    alertremovelist.clear()
-                                }
-
-                                mainViewModel.popUpDataLiveList.addAll(alertlist)
-                                mainViewModel.popUpDataLiveList.notifyChange()
-                                alertlist.clear()
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                        */
                         try {
                             val tmp = mainViewModel.errorlivelist
                             if (!mainViewModel.alertDialogFragment.isAdded) {
                                 for (i in removelist) {
-//                                    val beforecnt = tmp.size
                                     tmp.remove(i)
-//                                    Log.d("error처리 루틴", "제거전 : ${beforecnt}, 제거 후 : ${tmp.size}")
 
                                 }
                                 removelist.clear()
                             }
                             else {
                                 for (i in alertremovelist) {
-//                                    val beforecnt = tmp.size
                                     tmp.remove(i)
-//                                    Log.d("error처리 루틴", "제거전 : ${beforecnt}, 제거 후 : ${tmp.size}")
                                 }
                                 alertremovelist.clear()
                             }

@@ -1753,6 +1753,26 @@ class AQDataParser(viewModel: MainViewModel) {
                     4
                 )
             )
+
+            if (current is SetGasStorageViewData) {
+                if (current.usable) {
+                    if (current.ViewType != 0) {
+                        viewModel.addAlertInfo(
+                            tmp.key + 65536,
+                            SetAlertData(
+                                getLatest_time(System.currentTimeMillis()),
+                                model,
+                                id,
+                                "AQ 신호 이상(통신불가)",
+                                port + 1,
+                                true,
+                                4
+                            )
+                        )
+                    }
+                }
+            }
+
             lostConnectAQs[tmp.key] = true
         }
 
@@ -1808,6 +1828,24 @@ class AQDataParser(viewModel: MainViewModel) {
                     false
                 )
             )
+
+            if (current is SetGasStorageViewData) {
+                if (current.usable) {
+                    if (current.ViewType != 0) {
+                        viewModel.addAlertInfo(
+                            tmp + 65536,
+                            SetAlertData(
+                                getLatest_time(System.currentTimeMillis()),
+                                model,
+                                id,
+                                "AQ 신호 정상",
+                                port + 1,
+                                false
+                            )
+                        )
+                    }
+                }
+            }
         }
     }
 
