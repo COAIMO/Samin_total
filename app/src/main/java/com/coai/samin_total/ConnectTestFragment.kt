@@ -1,7 +1,7 @@
 package com.coai.samin_total
 
 import android.app.AlertDialog
-import android.app.ProgressDialog
+//import android.app.ProgressDialog
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -114,7 +114,8 @@ class ConnectTestFragment : Fragment() {
         selected_baudrate_index = baudrate.indexOf(selected_baudrate.toString())
         mBinding.spBaudrate.setSelection(selected_baudrate_index)
         mBinding.btnBuzzerOn.setOnClickListener {
-            activity?.isAnotherJob = true
+//            activity?.isAnotherJob = true
+            activity?.isAnotherJob?.set(true)
             Thread.sleep(100)
             for (i in 0..1) {
                 val protocol = SaminProtocol()
@@ -122,11 +123,13 @@ class ConnectTestFragment : Fragment() {
                 activity?.sendProtocolToSerial(protocol.mProtocol)
                 Thread.sleep(30)
             }
-            activity?.isAnotherJob = false
+//            activity?.isAnotherJob = false
+            activity?.isAnotherJob?.set(false)
 
         }
         mBinding.btnBuzzerOff.setOnClickListener {
-            activity?.isAnotherJob = true
+//            activity?.isAnotherJob = true
+            activity?.isAnotherJob?.set(true)
             Thread.sleep(100)
             for (i in 0..1) {
                 val protocol = SaminProtocol()
@@ -134,10 +137,12 @@ class ConnectTestFragment : Fragment() {
                 activity?.sendProtocolToSerial(protocol.mProtocol)
                 Thread.sleep(30)
             }
-            activity?.isAnotherJob = false
+            //            activity?.isAnotherJob = false
+            activity?.isAnotherJob?.set(false)
         }
         mBinding.btnLedAlert.setOnClickListener {
-            activity?.isAnotherJob = true
+//            activity?.isAnotherJob = true
+            activity?.isAnotherJob?.set(true)
             Thread.sleep(100)
             for (i in 0..1) {
                 val protocol = SaminProtocol()
@@ -152,10 +157,12 @@ class ConnectTestFragment : Fragment() {
                 activity?.sendProtocolToSerial(protocol.mProtocol)
                 Thread.sleep(30)
             }
-            activity?.isAnotherJob = false
+            //            activity?.isAnotherJob = false
+            activity?.isAnotherJob?.set(false)
         }
         mBinding.btnLedNomarl.setOnClickListener {
-            activity?.isAnotherJob = true
+//            activity?.isAnotherJob = true
+            activity?.isAnotherJob?.set(true)
             Thread.sleep(100)
             for (i in 0..1){
                 val protocol = SaminProtocol()
@@ -166,14 +173,16 @@ class ConnectTestFragment : Fragment() {
                 activity?.sendProtocolToSerial(protocol.mProtocol)
                 Thread.sleep(30)
             }
-            activity?.isAnotherJob = false
+            //            activity?.isAnotherJob = false
+            activity?.isAnotherJob?.set(false)
         }
         mBinding.btnBack.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
         }
 
         mBinding.btnCheckVersion.setOnClickListener {
-            activity?.isAnotherJob = true
+//            activity?.isAnotherJob = true
+            activity?.isAnotherJob?.set(true)
             Thread.sleep(100)
             for (i in 0..1){
                 val protocol = SaminProtocol()
@@ -184,11 +193,14 @@ class ConnectTestFragment : Fragment() {
                 activity?.sendProtocolToSerial(protocol.mProtocol)
                 Thread.sleep(30)
             }
-            activity?.isAnotherJob = false
+//            activity?.isAnotherJob = false
+            //            activity?.isAnotherJob = false
+            activity?.isAnotherJob?.set(false)
         }
 
         mBinding.btnOxygenAlertOff.setOnClickListener {
-            activity?.isAnotherJob = true
+//            activity?.isAnotherJob = true
+            activity?.isAnotherJob?.set(true)
             Thread.sleep(100)
 
             val protocol = SaminProtocol()
@@ -203,7 +215,8 @@ class ConnectTestFragment : Fragment() {
                 }
             }
 
-            activity?.isAnotherJob = false
+//            activity?.isAnotherJob = false
+            activity?.isAnotherJob?.set(false)
         }
         mBinding.btnBaudChange.setOnClickListener {
             activity?.runOnUiThread {
@@ -214,12 +227,13 @@ class ConnectTestFragment : Fragment() {
                 sendThread?.join()
             }
             sendThread = Thread {
-                activity?.isAnotherJob = true
+//                activity?.isAnotherJob = true
+                activity?.isAnotherJob?.set(true)
 
                 val protocol = SaminProtocol()
                 for (model in 0..6) {
                     for (t in 0..7) {
-                        val id: Byte = t.toByte()
+//                        val id: Byte = t.toByte()
 
                         for (cnt in 0..1) {
                             protocol.setBaudrate(model.toByte(), t.toByte(), selected_baudrate_index.toByte())
@@ -230,7 +244,9 @@ class ConnectTestFragment : Fragment() {
                 }
 
                 Thread.sleep(500)
-                activity?.isAnotherJob = false
+//                activity?.isAnotherJob = false
+                //            activity?.isAnotherJob = false
+                activity?.isAnotherJob?.set(false)
                 getProgressHidden()
                 sendThread = null
             }

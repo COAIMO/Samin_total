@@ -50,4 +50,6 @@
     <string name="text_gasleaktest">가스 누출 테스트</string>
     <string name="text_select_all">모두 선택</string>
     <string name="title_tempHum">온습도</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

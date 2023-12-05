@@ -34,6 +34,7 @@ class SaminSharedPreference(context: Context) {
         const val FEEDBACKTIMING = "FeedbackTiming"
         const val TEMPHUM = "TempHum"
         const val BAUDRATE = "Baudrate"
+        const val ALARMSOUND = "ALARMSOUND"
     }
 
     val labName = "Lab - 015"
@@ -279,5 +280,16 @@ class SaminSharedPreference(context: Context) {
             tmp = boardSetDataSharedPreference.getLong(FEEDBACKTIMING, 50)
         }
         return tmp
+    }
+
+    fun saveAlarmSound(value: Boolean) {
+        boardSetDataSharedPreference.edit().apply {
+            putBoolean(ALARMSOUND, value)
+            apply()
+        }
+    }
+
+    fun getAlarmSound(): Boolean {
+        return boardSetDataSharedPreference.getBoolean(ALARMSOUND, false)
     }
 }

@@ -1,11 +1,13 @@
 package com.coai.samin_total
 
-import android.app.ProgressDialog
+//import android.app.ProgressDialog
+import android.app.PendingIntent
 import android.content.Context
-import android.content.DialogInterface
+import android.content.Intent
+//import android.content.DialogInterface
 import android.os.Bundle
-import android.os.Message
-import android.util.Log
+//import android.os.Message
+//import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -18,9 +20,9 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.Dialog.ScanAlertDialogFragment
 import com.coai.samin_total.Logic.InputFilterMinMax
-import com.coai.samin_total.Logic.SaminProtocol
+//import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
-import com.coai.samin_total.Service.SerialService
+//import com.coai.samin_total.Service.SerialService
 import com.coai.samin_total.databinding.FragmentAqSettingBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -36,8 +38,8 @@ class AqSettingFragment : Fragment() {
     private lateinit var mBinding: FragmentAqSettingBinding
     lateinit var shared: SaminSharedPreference
     private val viewmodel: MainViewModel by activityViewModels()
-    lateinit var progress_Dialog: ProgressDialog
-    lateinit var sendThread: Thread
+//    lateinit var progress_Dialog: ProgressDialog
+//    lateinit var sendThread: Thread
     private val scanAlertDialogFragment = ScanAlertDialogFragment()
 
     val baudrate = arrayListOf<String>(
@@ -130,8 +132,9 @@ class AqSettingFragment : Fragment() {
             mBinding.saveBtn -> {
                 val labName = mBinding.etNewName.text.toString()
                 activity?.shared?.labNameSave(SaminSharedPreference.LABNAME, labName)
-                viewmodel.isCheckTimeOut = mBinding.swCheckTimeout.isChecked
-                activity?.shared?.SavecheckTimeOutState(viewmodel.isCheckTimeOut)
+//                viewmodel.isCheckTimeOut = mBinding.swCheckTimeout.isChecked
+                viewmodel.isCheckTimeOut.set(mBinding.swCheckTimeout.isChecked)
+                activity?.shared?.SavecheckTimeOutState(viewmodel.isCheckTimeOut.get())
 
                 if (shared.getTimeOutState()) {
                     activity?.discallTimemout()
@@ -167,8 +170,12 @@ class AqSettingFragment : Fragment() {
                 activity?.setBaudrate(baud)
                 Thread.sleep(500)
 
-                getActivity()?.let { ActivityCompat.finishAffinity(it) }
-                System.exit(0)
+                val intent = Intent(context, AppRestartReceiver::class.java)
+                val pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
+                    PendingIntent.FLAG_IMMUTABLE)
+                pendingIntent.send()
+//                getActivity()?.let { ActivityCompat.finishAffinity(it) }
+//                System.exit(0)
 //                activity?.onFragmentChange(MainViewModel.ADMINFRAGMENT)
             }
             mBinding.cancelBtn -> {

@@ -23,8 +23,9 @@ import com.coai.samin_total.RecyclerDecoration_Height
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentOxygenMainBinding
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
- // TODO: Rename parameter arguments, choose names that match
+// TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -59,7 +60,8 @@ class OxygenMainFragment : Fragment() {
     val lockobj = object {}
     lateinit var itemSpace: SpacesItemDecoration
     private var taskRefresh: Thread? = null
-    private var isOnTaskRefesh: Boolean = true
+//    private var isOnTaskRefesh: Boolean = true
+    private val isOnTaskRefesh = AtomicBoolean(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,7 +97,8 @@ class OxygenMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        isOnTaskRefesh = true
+//        isOnTaskRefesh = true
+        isOnTaskRefesh.set(true)
 //        taskRefresh = Thread() {
 //            try {
 //                var lastupdate: Long = System.currentTimeMillis()
@@ -153,7 +156,7 @@ class OxygenMainFragment : Fragment() {
             try {
                 var lastupdate: Long = System.currentTimeMillis()
                 val lstvalue = mutableListOf<Int>()
-                while (isOnTaskRefesh){
+                while (isOnTaskRefesh.get()){
                     lstvalue.clear()
                     heartbeatCount++
 
@@ -212,7 +215,8 @@ class OxygenMainFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        isOnTaskRefesh = false
+//        isOnTaskRefesh = false
+        isOnTaskRefesh.set(false)
         taskRefresh?.interrupt()
         taskRefresh?.join()
     }

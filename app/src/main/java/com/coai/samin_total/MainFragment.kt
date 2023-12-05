@@ -30,6 +30,7 @@ import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentMainBinding
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -55,9 +56,10 @@ class MainFragment : Fragment() {
     lateinit var shared: SaminSharedPreference
     private lateinit var onBackPressed: OnBackPressedCallback
     var backKeyPressedTime: Long = 0
-    private var taskRefresh: Thread? = null
+//    private var taskRefresh: Thread? = null
     private var btn_Count = 0
-    private var isOnTaskRefesh: Boolean = true
+//    private var isOnTaskRefesh: Boolean = true
+//    private val isOnTaskRefesh = AtomicBoolean(true)
     var heartbeatCount: UByte = 0u
     //    lateinit var db: SaminDataBase
 
@@ -93,11 +95,13 @@ class MainFragment : Fragment() {
     }
 
     lateinit var thUIError: Thread
-    var isrunthUIError = true
+//    var isrunthUIError = true
+    private var isrunthUIError = AtomicBoolean(true)
     override fun onResume() {
         super.onResume()
         uiError()
-        isOnTaskRefesh = true
+//        isOnTaskRefesh = true
+//        isOnTaskRefesh.set(true)
 //        taskRefresh = Thread() {
 //            try {
 //                while (isOnTaskRefesh) {
@@ -166,11 +170,15 @@ class MainFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        isrunthUIError = false
-        thUIError?.interrupt()
+//        isrunthUIError = false
+        isrunthUIError.set(false)
+//        thUIError?.interrupt()
         thUIError?.join()
 
-        isOnTaskRefesh = false
+        Log.d("MainFragment", "onPause ============================")
+
+//        isOnTaskRefesh = false
+//        isOnTaskRefesh.set(false)
 //        taskRefresh?.interrupt()
 //        taskRefresh?.join()
     }
@@ -309,6 +317,7 @@ class MainFragment : Fragment() {
                     mBinding.btnSound.setImageResource(R.drawable.sound_ic)
                     viewmodel.isSoundAlert = true
                 }
+                activity?.shared?.saveAlarmSound(viewmodel.isSoundAlert)
             }
             mBinding.tempHumMainStatus ->{
                 activity?.onFragmentChange(MainViewModel.TEMPHUMMAINFRAGMENT)
@@ -328,7 +337,8 @@ class MainFragment : Fragment() {
         getProgressShow()
         sendThread = Thread {
             try {
-                viewmodel.isScanmode = true
+//                viewmodel.isScanmode = true
+                viewmodel?.isScanmode?.set(true)
                 activity?.deleteExDataSet()
                 activity?.feedBackThreadInterrupt()
                 for (model in 1..5) {
@@ -343,8 +353,8 @@ class MainFragment : Fragment() {
                     }
                 }
                 Thread.sleep(400)
-                viewmodel.isScanmode = false
-
+//                viewmodel.isScanmode = false
+                viewmodel?.isScanmode?.set(false)
             } catch (e: Exception) {
             }
 
@@ -355,9 +365,11 @@ class MainFragment : Fragment() {
                 initView()
             }
 //            createHasKey()
-            if (!activity?.isSending!!) {
+            if (activity?.isSending?.get() == false) {
                 activity?.callFeedback()
-                activity?.isSending = true
+//                activity?.isSending = true
+                activity?.isSending?.set(true)
+                viewmodel?.isScanmode?.set(true)
             }
             shared.saveHashMap(viewmodel.modelMap)
             getProgressHidden()
@@ -459,7 +471,8 @@ class MainFragment : Fragment() {
 //            val oxygenMasterDataSet =
 //                (shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)) as SetOxygenViewData
 
-            activity?.isSending = true
+//            activity?.isSending = true
+            activity?.isSending?.set(true)
             activity?.tmp?.LoadSetting()
             activity?.callFeedback()
             activity?.callTimemout()
@@ -570,16 +583,16 @@ class MainFragment : Fragment() {
             progress_Dialog.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
             progress_Dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER) //프로그레스 원형 표시 설정
             progress_Dialog.setButton(
-                DialogInterface.BUTTON_POSITIVE,
-                str_buttonOK,
-                DialogInterface.OnClickListener { dialog, which ->
-                    try {
-                        sendThread.interrupt()
-                        viewmodel.removeModelMap()
-                        getProgressHidden()
-                    } catch (e: Exception) {
-                    }
-                })
+                /* whichButton = */ DialogInterface.BUTTON_POSITIVE,
+                /* text = */ str_buttonOK,
+            ) { _, _ ->
+                try {
+                    sendThread.interrupt()
+                    viewmodel.removeModelMap()
+                    getProgressHidden()
+                } catch (e: Exception) {
+                }
+            }
 //            progress_Dialog.setButton(
 //                DialogInterface.BUTTON_NEGATIVE,
 //                str_buttonNO,
@@ -653,10 +666,10 @@ class MainFragment : Fragment() {
     }
 
     private fun uiError() {
-        isrunthUIError = true
+        isrunthUIError.set(true)
         thUIError = Thread {
             try {
-                while (isrunthUIError) {
+                while (isrunthUIError.get()) {
                     // 메인화면 경고 유무 변화
                     val targets = HashMap<Int, Int>()
                     for (t in viewmodel.alertMap.values) {

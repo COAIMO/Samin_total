@@ -8,6 +8,7 @@ plugins {
 }
 
 android {
+    namespace 'com.coai.samin_totoal'
     signingConfigs {
         release {
             storeFile file('C:\\Workspace\\saminstore.jks')
@@ -16,16 +17,15 @@ android {
             keyPassword 'samin8940'
         }
     }
-    compileSdk 30
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.coai.samin_total"
         minSdk 26
 
-        //noinspection ExpiredTargetSdkVersion,ExpiringTargetSdkVersion,ExpiringTargetSdkVersion
-        targetSdk 30
-        versionCode 47
-        versionName "1.47"
+        targetSdk 33
+        versionCode 48
+        versionName "1.48"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
@@ -38,11 +38,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
 //    viewBinding {
 //        enabled = true
@@ -55,10 +55,11 @@ android {
         viewBinding = true
         dataBinding = true
     }
-
-    lintOptions {
+    namespace 'com.coai.samin_total'
+    lint {
         checkReleaseBuilds false
     }
+
 }
 
 dependencies {
@@ -78,7 +79,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation 'com.github.mik3y:usb-serial-for-android:3.6.0'
+    implementation 'com.github.mik3y:usb-serial-for-android:3.7.0'
 //    implementation 'com.github.felHR85:UsbSerial:6.1.0'
 
     def nav_version = "2.3.3"

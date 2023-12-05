@@ -23,6 +23,7 @@ import com.coai.samin_total.R
 import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.databinding.FragmentGasRoomMainBinding
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -49,7 +50,8 @@ class GasRoomMainFragment : Fragment() {
     lateinit var shared: SaminSharedPreference
     lateinit var itemSpace: SpacesItemDecoration
     private var taskRefresh: Thread? = null
-    private var isOnTaskRefesh: Boolean = true
+//    private var isOnTaskRefesh: Boolean = true
+    private var isOnTaskRefesh = AtomicBoolean(true)
     lateinit var leaktestdialogFragment: LeakTestDialogFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,12 +82,13 @@ class GasRoomMainFragment : Fragment() {
     val lockobj = object {}
     override fun onResume() {
         super.onResume()
-        isOnTaskRefesh = true
+//        isOnTaskRefesh = true
+        isOnTaskRefesh.set(true)
         taskRefresh = Thread() {
             try {
                 var lastupdate: Long = System.currentTimeMillis()
                 val lstvalue = mutableListOf<Int>()
-                while (isOnTaskRefesh) {
+                while (isOnTaskRefesh.get()) {
                     lstvalue.clear()
                     heartbeatCount++
 
@@ -153,7 +156,8 @@ class GasRoomMainFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        isOnTaskRefesh = false
+//        isOnTaskRefesh = false
+        isOnTaskRefesh.set(false)
         taskRefresh?.interrupt()
         taskRefresh?.join()
     }

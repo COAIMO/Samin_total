@@ -1,5 +1,6 @@
 package com.coai.samin_total
 
+import android.app.ActivityManager
 import android.app.Service
 import android.content.*
 import android.os.*
@@ -13,6 +14,7 @@ import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.Service.SerialService
 import com.coai.samin_total.databinding.ActivityLoadingBinding
 import java.util.ArrayList
+import kotlin.system.exitProcess
 
 val loadingTAG = "로딩 태그"
 val mainTAG = "태그"
@@ -89,23 +91,77 @@ class LoadingActivity : AppCompatActivity() {
 //    }
 
 
+    private val handler = Handler(Looper.getMainLooper())
+    private val runnable = Runnable {
+//        finish() // 액티비티 종료
+//        Process.killProcess(Process.myPid())
+//        exitProcess(10)
+        finishAndRemoveTask()
+//        android.os.Process.killProcess(android.os.Process.myPid())
+//        System.runFinalization()
+//        System.exit(0)
+    }
+
+//    fun finishAffinity() {
+//        android.os.Process.killProcess(android.os.Process.myPid())
+//
+//        System.runFinalization()
+//
+//        System.exit(0)
+//    }
+
+    fun checkProcess(): Boolean {
+        val activityManager = getSystemService(ActivityManager::class.java)
+        val runningAppProcesses = activityManager.runningAppProcesses
+
+        Log.d("TAG",  "process list ==")
+        for (runningAppProcess in runningAppProcesses) {
+            Log.d("TAG",  runningAppProcess.processName)
+            val processName = runningAppProcess.processName
+
+            if (processName == "com.coai.samin_total") {
+                // 같은 프로세스가 있습니다.
+                return true
+            }
+        }
+
+// 같은 프로세스가 없습니다.
+        return false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        checkProcess()
+//        if (checkProcess()) {
+//            Log.d("TAG",  "process remove ==")
+//            android.os.Process.killProcess(android.os.Process.myPid())
+//            System.runFinalization()
+//            System.exit(0)
+//        }
+
         mBinding = ActivityLoadingBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(mBinding.root)
+
+        handler.postDelayed(runnable, 10000)
     }
 
     override fun onResume() {
-        hideNavigationBar()
+        AppManager.currentActivity = this
+//        hideNavigationBar()
 //        bindSerialService()
         super.onResume()
         bindMessengerService()
     }
 
+    override fun onPause() {
+        super.onPause()
+        AppManager.currentActivity = null
+    }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
-        if (hasFocus) {
-            hideNavigationBar()
-        }
+//        if (hasFocus) {
+//            hideNavigationBar()
+//        }
         super.onWindowFocusChanged(hasFocus)
     }
 
@@ -117,31 +173,32 @@ class LoadingActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-
+        handler.removeCallbacks(runnable)
     }
 
-    fun hideNavigationBar() {
-        window.decorView.apply {
-            // Hide both the navigation bar and the status bar.
-            // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
-            // a general rule, you should design your app to hide the status bar whenever you
-            // hide the navigation bar.
-            systemUiVisibility =
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-//                        View.STATUS_BAR_VISIBLE or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-//                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-//                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
-
-
-        }
-//        window.navigationBarColor = Color.parseColor("#FF0000")
-    }
+//    fun hideNavigationBar() {
+//        window.decorView.apply {
+//            // Hide both the navigation bar and the status bar.
+//            // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
+//            // a general rule, you should design your app to hide the status bar whenever you
+//            // hide the navigation bar.
+//            systemUiVisibility =
+//                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+////                        View.STATUS_BAR_VISIBLE or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+////                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+////                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
+//
+//
+//        }
+////        window.navigationBarColor = Color.parseColor("#FF0000")
+//    }
 
     private val serialSVCIPCHandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 SerialService.MSG_SERIAL_CONNECT -> {
                     val next = Intent(this@LoadingActivity, MainActivity::class.java)
+                    next.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                     startActivity(next)
                     finish();
                 }

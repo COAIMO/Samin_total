@@ -19,6 +19,7 @@ import com.coai.samin_total.Logic.SpacesItemDecoration
 import com.coai.samin_total.Logic.Utils
 import com.coai.samin_total.databinding.FragmentGasDockMainBinding
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -39,7 +40,7 @@ class GasDockMainFragment : Fragment() {
     private val gasStorageViewData = arrayListOf<SetGasStorageViewData>()
     private lateinit var recycleAdapter: GasStorage_RecycleAdapter
     private lateinit var onBackPressed: OnBackPressedCallback
-    var sending = false
+//    var sending = false
     private val mainViewModel by activityViewModels<MainViewModel>()
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
@@ -47,7 +48,8 @@ class GasDockMainFragment : Fragment() {
     val lockobj = object {}
     lateinit var itemSpace: SpacesItemDecoration
     private var taskRefresh: Thread? = null
-    private var isOnTaskRefesh: Boolean = true
+//    private var isOnTaskRefesh: Boolean = true
+    private val isOnTaskRefesh = AtomicBoolean(true)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -77,15 +79,15 @@ class GasDockMainFragment : Fragment() {
         }
     }
 
-    lateinit var thUIError: Thread
-    var isrunthUIError = true
+//    lateinit var thUIError: Thread
+//    var isrunthUIError = true
 
     inner class ThreadRefresh : Thread() {
         override fun run() {
             try {
                 var lastupdate: Long = System.currentTimeMillis()
                 val lstvalue = mutableListOf<Int>()
-                while (isOnTaskRefesh) {
+                while (isOnTaskRefesh.get()) {
                     lstvalue.clear()
                     heartbeatCount++
 
@@ -164,14 +166,16 @@ class GasDockMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        isOnTaskRefesh = true
+//        isOnTaskRefesh = true
+        isOnTaskRefesh.set(true)
         taskRefresh = ThreadRefresh()
         taskRefresh?.start()
     }
 
     override fun onPause() {
         super.onPause()
-        isOnTaskRefesh = false
+//        isOnTaskRefesh = false
+        isOnTaskRefesh.set(false)
         taskRefresh?.interrupt()
         taskRefresh?.join()
     }
@@ -252,7 +256,7 @@ class GasDockMainFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        sending = false
+//        sending = false
     }
 
     private fun initView() {

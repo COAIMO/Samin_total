@@ -33,6 +33,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.collections.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
@@ -59,7 +60,8 @@ class RoomLeakTestFragment : Fragment() {
     private val newgasRoomViewData = arrayListOf<SetGasRoomViewData>()
     lateinit var alertdialogFragment: AlertDialogFragment
     private var taskRefresh: Thread? = null
-    private var isOnTaskRefesh: Boolean = true
+//    private var isOnTaskRefesh: Boolean = true
+    private val isOnTaskRefesh = AtomicBoolean(true)
 
     private val gasRoomViewData = arrayListOf<SetGasRoomViewData>()
 //    private val _graphData = arrayListOf<ChartDatas>()
@@ -71,7 +73,7 @@ class RoomLeakTestFragment : Fragment() {
         activity = getActivity() as MainActivity
         onBackPressed = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (viewmodel.isSaveLeakTestData) {
+                if (viewmodel.isSaveLeakTestData.get()) {
                     val msg = handler.obtainMessage(
                         END_LEAKTEST
                     )
@@ -116,7 +118,8 @@ class RoomLeakTestFragment : Fragment() {
 //        }
         recycleAdapter.setLeakTestTime(viewmodel.isLeakTestTime)
 
-        isOnTaskRefesh = true
+//        isOnTaskRefesh = true
+        isOnTaskRefesh.set(true)
         taskRefresh = Thread() {
             try {
                 var lastupdate: Long = System.currentTimeMillis()
@@ -130,7 +133,7 @@ class RoomLeakTestFragment : Fragment() {
 //                var firstChk = true
                 var heartbeatCount: UByte = 0u
 
-                while (isOnTaskRefesh) {
+                while (isOnTaskRefesh.get()) {
                     lstvalue.clear()
                     heartbeatCount++
                     try {
@@ -288,7 +291,7 @@ class RoomLeakTestFragment : Fragment() {
                 alertdialogFragment.show(childFragmentManager, "GasRoom")
             }
             mBinding.btnBack -> {
-                if (viewmodel.isSaveLeakTestData) {
+                if (viewmodel.isSaveLeakTestData.get()) {
                     val msg = handler.obtainMessage(
                         END_LEAKTEST
                     )
@@ -390,7 +393,8 @@ class RoomLeakTestFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        isOnTaskRefesh = false
+//        isOnTaskRefesh = false
+        isOnTaskRefesh.set(false)
         taskRefresh?.interrupt()
         taskRefresh?.join()
     }
@@ -399,11 +403,12 @@ class RoomLeakTestFragment : Fragment() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 END_LEAKTEST -> {
-                    isOnTaskRefesh = false
+//                    isOnTaskRefesh = false
+                    isOnTaskRefesh.set(false)
                     taskRefresh?.interrupt()
                     taskRefresh?.join()
 
-                    if (viewmodel.isSaveLeakTestData) {
+                    if (viewmodel.isSaveLeakTestData.get()) {
                         val current = LocalDateTime.now()
                         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
                         val formatted = current.format(formatter)

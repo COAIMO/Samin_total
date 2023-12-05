@@ -1,16 +1,18 @@
 package com.coai.samin_total
 
-import android.app.Activity
+//import android.app.Activity
+import android.app.PendingIntent
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+//import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
+//import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -21,7 +23,7 @@ import com.coai.samin_total.Logic.*
 import com.coai.samin_total.databinding.FragmentControlBinding
 import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
-import kotlin.system.exitProcess
+//import kotlin.system.exitProcess
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -113,9 +115,12 @@ class ControlFragment : Fragment() {
         Thread.sleep(500)
 
 //        android.os.Process.killProcess(android.os.Process.myPid())
-        getActivity()?.let { finishAffinity(it) }
-        System.exit(0)
-
+//        getActivity()?.let { finishAffinity(it) }
+//        System.exit(0)
+        val intent = Intent(context, AppRestartReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE)
+        pendingIntent.send()
     }
 
     override fun onCreateView(
@@ -211,7 +216,7 @@ class ControlFragment : Fragment() {
         val protocol = SaminProtocol()
 
         if (data != null) {
-            val chunked = data!!.asSequence().chunked(40) { t ->
+            val chunked = data.asSequence().chunked(40) { t ->
                 t.toByteArray()
             }
             var idx = 0
@@ -234,7 +239,8 @@ class ControlFragment : Fragment() {
     private fun sendSettingValues() {
         getProgressShow()
         sendThread = Thread {
-            activity?.isAnotherJob = true
+//            activity?.isAnotherJob = true
+            activity?.isAnotherJob?.set(true)
             Thread.sleep(100)
             try {
                 var bytes: ByteArray? = null
@@ -282,25 +288,25 @@ class ControlFragment : Fragment() {
 
                 for (i in 0..50) {
                     // 가스 스토리지
-                    bytes?.let {
+                    bytes.let {
                         sendMultipartSend((16 + 1).toByte(), it)
 //                        Thread.sleep(40)
                     }
 
                     // 가스 룸
-                    byteRoom?.let {
+                    byteRoom.let {
                         sendMultipartSend((16 + 2).toByte(), it)
 //                        Thread.sleep(40)
                     }
 
                     // 폐액통
-                    byteWaste?.let {
+                    byteWaste.let {
                         sendMultipartSend((16 + 3).toByte(), it)
 //                        Thread.sleep(40)
                     }
 
                     // 산소
-                    byteOxyzen?.let {
+                    byteOxyzen.let {
                         sendMultipartSend((16 + 4).toByte(), it)
 //                        if (viewmodel.oxygenMasterData != null) {
 //                            byteOxyzenMst?.let {
@@ -311,21 +317,21 @@ class ControlFragment : Fragment() {
                     }
 
                     // 스팀
-                    byteSteamer?.let {
+                    byteSteamer.let {
                         sendMultipartSend((16 + 5).toByte(), it)
 //                        Thread.sleep(40)
                     }
 
-                    byteModelmap?.let {
+                    byteModelmap.let {
                         sendMultipartSend((16 + 7).toByte(), it)
-//                        Thread.sleep(40)
+                  //                        Thread.sleep(40)
                     }
 
-                    byteTemphum?.let {
+                    byteTemphum.let {
                         sendMultipartSend((16 + 9).toByte(), it)
                     }
 
-                    byteLabName?.let {
+                    byteLabName.let {
                         sendMultipartSend((16 + 8).toByte(), it)
                     }
                     Thread.sleep(40)
@@ -337,7 +343,8 @@ class ControlFragment : Fragment() {
             }
 
 
-            activity?.isAnotherJob = false
+//            activity?.isAnotherJob = false
+            activity?.isAnotherJob?.set(false)
             getProgressHidden()
         }
 
@@ -358,15 +365,15 @@ class ControlFragment : Fragment() {
             progress_Dialog.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
             progress_Dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER) //프로그레스 원형 표시 설정
             progress_Dialog.setButton(
-                DialogInterface.BUTTON_POSITIVE,
-                str_buttonOK,
-                DialogInterface.OnClickListener { dialog, which ->
-                    try {
-                        sendThread?.interrupt()
-                        getProgressHidden()
-                    } catch (e: Exception) {
-                    }
-                })
+                /* whichButton = */ DialogInterface.BUTTON_POSITIVE,
+                /* text = */ str_buttonOK,
+            ) { _, _ ->
+                try {
+                    sendThread?.interrupt()
+                    getProgressHidden()
+                } catch (e: Exception) {
+                }
+            }
 //            progress_Dialog.setButton(
 //                DialogInterface.BUTTON_NEGATIVE,
 //                str_buttonNO,

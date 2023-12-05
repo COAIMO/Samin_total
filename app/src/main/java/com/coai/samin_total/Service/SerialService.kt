@@ -70,7 +70,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 MSG_BIND_CLIENT -> clients.add(msg.replyTo)
-                MSG_UNBIND_CLIENT -> clients.remove(msg.replyTo)
+                MSG_UNBIND_CLIENT -> {
+                    clients.remove(msg.replyTo)
+                    disconnect()
+                }
                 MSG_SERIAL_SEND -> {
                     msg.data.getByteArray("")?.let { sendData(it) }
                 }
@@ -163,7 +166,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     var usbConnection: UsbDeviceConnection? = null
     private var usbIoManager: CoAISerialInputOutputManager? = null
     var mHandler = Handler()
-    lateinit var checkThread: Thread
+//    lateinit var checkThread: Thread
 
     val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -245,9 +248,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
 
     override fun onDestroy() {
-//        Log.d(serviceTAG, "SerialService : onDestroy")
         unregisterReceiver(broadcastReceiver)
         super.onDestroy()
+        Log.d("Service", "SerialService : onDestroy")
     }
 
 //    //activity랑 연결해줄 핸들러 셋 fun

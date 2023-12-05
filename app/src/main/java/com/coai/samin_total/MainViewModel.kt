@@ -32,6 +32,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 
 class MainViewModel : ViewModel() {
     companion object {
@@ -61,6 +62,7 @@ class MainViewModel : ViewModel() {
         const val TEMPHUMMAINFRAGMENT = 23
         const val TEMPHUMSETTINGFRAGMENT = 24
         const val CUSTOMPROGRESSDIALOGFRAGMENT = 25
+        const val LOADINGFRAGMENT = 26
         const val GasDockStorage = 1.toByte()
         const val GasRoom = 2.toByte()
         const val WasteLiquor = 3.toByte()
@@ -95,7 +97,7 @@ class MainViewModel : ViewModel() {
     val gasRoomAlert: MutableLiveData<Boolean> = MutableLiveData()
     val tempHumAlert: MutableLiveData<Boolean> = MutableLiveData()
 
-    var isSoundAlert = true
+    var isSoundAlert = false
 
     val modelMap = HashMap<String, ByteArray>()
     val modelMapInt = HashMap<Int, ByteArray>()
@@ -286,12 +288,12 @@ class MainViewModel : ViewModel() {
      * 경고 상태 전달
      * AQ에 LED/Beep음 제어는 제한한다.
      */
-    fun addAlertInfoNoNoti(id: Int, arg: SetAlertData) {
-        try {
-            alertInfo.add(arg)
-        } catch (e: Exception) {
-        }
-    }
+//    fun addAlertInfoNoNoti(id: Int, arg: SetAlertData) {
+//        try {
+//            alertInfo.add(arg)
+//        } catch (e: Exception) {
+//        }
+//    }
 
     var storageViewZoomState = false
     var roomViewZoomState = false
@@ -319,7 +321,7 @@ class MainViewModel : ViewModel() {
 
     // 모드버스용 가스 구분 코드 변환
     private fun getModbusGASNum(arg: String): Short {
-        var ret: Short = 0
+        var ret: Short
 
         ret = when (arg) {
             gasType[0] -> 1
@@ -435,11 +437,11 @@ class MainViewModel : ViewModel() {
                         tmp.id.toByte(),
                         tmp.port.toByte()
                     )
-                    val idx = KeyUtils.getIndex(
-                        tmp.modelByte.toInt(),
-                        tmp.id.toByte(),
-                        tmp.port.toByte()
-                    )
+//                    val idx = KeyUtils.getIndex(
+//                        tmp.modelByte.toInt(),
+//                        tmp.id.toByte(),
+//                        tmp.port.toByte()
+//                    )
                     cntWaste++
                 }
             }
@@ -455,11 +457,11 @@ class MainViewModel : ViewModel() {
                         tmp.id.toByte(),
                         tmp.port.toByte()
                     )
-                    val idx = KeyUtils.getIndex(
-                        tmp.modelByte.toInt(),
-                        tmp.id.toByte(),
-                        tmp.port.toByte()
-                    )
+//                    val idx = KeyUtils.getIndex(
+//                        tmp.modelByte.toInt(),
+//                        tmp.id.toByte(),
+//                        tmp.port.toByte()
+//                    )
                     cntOxygen++
                 }
             }
@@ -475,11 +477,11 @@ class MainViewModel : ViewModel() {
                         tmp.id.toByte(),
                         tmp.port.toByte()
                     )
-                    val idx = KeyUtils.getIndex(
-                        tmp.modelByte.toInt(),
-                        tmp.id.toByte(),
-                        tmp.port.toByte()
-                    )
+//                    val idx = KeyUtils.getIndex(
+//                        tmp.modelByte.toInt(),
+//                        tmp.id.toByte(),
+//                        tmp.port.toByte()
+//                    )
                     cntSteamer++
                 }
             }
@@ -495,11 +497,11 @@ class MainViewModel : ViewModel() {
                         tmp.id.toByte(),
                         tmp.port.toByte()
                     )
-                    val idx = KeyUtils.getIndex(
-                        tmp.modelByte.toInt(),
-                        tmp.id.toByte(),
-                        tmp.port.toByte()
-                    )
+//                    val idx = KeyUtils.getIndex(
+//                        tmp.modelByte.toInt(),
+//                        tmp.id.toByte(),
+//                        tmp.port.toByte()
+//                    )
                     cntTempHum++
                 }
             }
@@ -511,11 +513,15 @@ class MainViewModel : ViewModel() {
     /**
      * 스캔 모드 여부
      */
-    var isScanmode: Boolean = false
+//    var isScanmode: Boolean = false
+    val isScanmode = AtomicBoolean(false)
 
     var isLeakTestTime: Int = -1
-    var isSaveLeakTestData: Boolean = false
-    var isCheckTimeOut: Boolean = true
+//    var isSaveLeakTestData: Boolean = false
+//    var isCheckTimeOut: Boolean = true
+    val isSaveLeakTestData = AtomicBoolean(false)
+
+    val isCheckTimeOut = AtomicBoolean(true)
     val isPopUp: MutableLiveData<Boolean> = MutableLiveData()
 
     //    val popUpHashMap: LiveData<HashMap<Int, SetAlertData>> = _popUpHashMap
@@ -573,5 +579,6 @@ class MainViewModel : ViewModel() {
      * 실시간 에러 내역
      */
     val errorlivelist = mutableListOf<SetAlertData>()
+    val scanDone: MutableLiveData<Boolean> = MutableLiveData()
 }
 

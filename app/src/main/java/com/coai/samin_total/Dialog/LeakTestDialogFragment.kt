@@ -127,7 +127,7 @@ class LeakTestDialogFragment : DialogFragment() {
             recycleAdapter = LeakTest_RecycleAdapter()
             adapter = recycleAdapter
 
-            mBinding.swExportData.isChecked = viewmodel.isSaveLeakTestData;
+            mBinding.swExportData.isChecked = viewmodel.isSaveLeakTestData.get();
         }
     }
 
@@ -165,7 +165,8 @@ class LeakTestDialogFragment : DialogFragment() {
                 }
             }
             mBinding.swExportData ->{
-                viewmodel.isSaveLeakTestData =  mBinding.swExportData.isChecked
+//                viewmodel.isSaveLeakTestData =  mBinding.swExportData.isChecked
+                viewmodel.isSaveLeakTestData.set(mBinding.swExportData.isChecked)
             }
         }
     }

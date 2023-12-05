@@ -20,10 +20,10 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.math.roundToInt
 
-class AQDataParser(viewModel: MainViewModel) {
+class AQDataParser(private val viewModel: MainViewModel) {
     val hmapErrorOxygen = HashMap<Int, Boolean>()
     val hmapAQPortSettings = HashMap<Int, Any>()
-    val viewModel: MainViewModel = viewModel
+//    val viewModel: MainViewModel = viewModel
     val setAQport = HashMap<Int, Any>()
 
 
@@ -373,7 +373,7 @@ class AQDataParser(viewModel: MainViewModel) {
         if (!tmp.usable) {
             return
         }
-        var value: Float = 0f
+        var value: Float
         when (tmp.sensorType) {
             "Sensts 142PSI" -> {
                 value = calcPSI142(data.toFloat(), tmp.left_rewardValue, tmp.left_zeroPoint)
@@ -460,8 +460,8 @@ class AQDataParser(viewModel: MainViewModel) {
         if (!tmp.usable) {
             return
         }
-        var left_pressure: Float = 0f
-        var right_pressure: Float = 0f
+        var left_pressure: Float
+        var right_pressure: Float
 
         when (tmp.sensorType) {
             "Sensts 142PSI" -> {
@@ -631,7 +631,7 @@ class AQDataParser(viewModel: MainViewModel) {
         }
 
         // 대상 센서에 맞는 데이터 변환 함수 호출
-        var value: Float = 0f
+        var value: Float
         when (tmp.sensorType) {
             "Sensts 142PSI" -> {
                 value = calcPSI142(data.toFloat(), tmp.rewardValue, tmp.zeroPoint)
@@ -668,15 +668,15 @@ class AQDataParser(viewModel: MainViewModel) {
         } // 대상 없으면
 
         tmppsis.add(item)
-        val tempremove = tmppsis!!.filter {
+        val tempremove = tmppsis.filter {
             it.Ticks < basetime
         }
         tmppsis.removeAll(tempremove)
 
-        val lstTicks = tmppsis!!.map {
+        val lstTicks = tmppsis.map {
             (it.Ticks / 100).toDouble()
         }
-        val lstPsi = tmppsis!!.map {
+        val lstPsi = tmppsis.map {
             (it.Psi).toDouble()
         }
 
@@ -820,7 +820,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
         viewModel.mModelMonitorValues.setRoomPressurePSI(
             idx,
-            (tmp.pressure ?: 0f).toInt().toShort()
+            tmp.pressure.toInt().toShort()
         )
         viewModel.mModelMonitorValues.setWarningsRoom(
             idx,
@@ -838,8 +838,8 @@ class AQDataParser(viewModel: MainViewModel) {
         if (!tmp.usable) {
             return
         }
-        val key =
-            littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
+//        val key =
+//            littleEndianConversion(byteArrayOf(tmp.modelByte, tmp.id.toByte())).toShort()
 //        Log.d(
 //            "ProcessWasteLiquor",
 //            "Model:${tmp.model} ID: ${tmp.id} Port:${tmp.port}}// data:${data}"
@@ -893,7 +893,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
         viewModel.mModelMonitorValues.setWarningsWaste(
             idx,
-            tmp.isAlert!!
+            tmp.isAlert
         )
         viewModel.mModelMonitorValues.setErrorsWaste(idx, false)
     }
@@ -1034,7 +1034,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
         viewModel.mModelMonitorValues.setWarningsOxygen(
             idx,
-            tmp.isAlert!!
+            tmp.isAlert
         )
 
         viewModel.mModelMonitorValues.setOxygen(
@@ -1043,9 +1043,9 @@ class AQDataParser(viewModel: MainViewModel) {
         )
         viewModel.mModelMonitorValues.setErrorsOxygen(idx, false)
 
-        val oxygenAQ = setAQport.filter {
-            HexDump.toByteArray(it.key).get(3) == 4.toByte()
-        }
+//        val oxygenAQ = setAQport.filter {
+//            HexDump.toByteArray(it.key).get(3) == 4.toByte()
+//        }
 
 //        val masterKey = littleEndianConversion(
 //            byteArrayOf(
@@ -1430,7 +1430,7 @@ class AQDataParser(viewModel: MainViewModel) {
 
     fun ParserGas(key: Byte, datas: ArrayList<Int>, time: Long) {
         for (t in 1..4) {
-            val key = littleEndianConversion(
+            val Titlekey = littleEndianConversion(
                 byteArrayOf(
                     1,
                     key.toByte(),
@@ -1440,18 +1440,18 @@ class AQDataParser(viewModel: MainViewModel) {
 
 //            datas[t-1]
 
-            val tmp1 = hmapAQPortSettings[key] ?: continue
+            val tmp1 = hmapAQPortSettings[Titlekey] ?: continue
             val tmp = (tmp1 as SetGasStorageViewData)
 
             if (!tmp.usable)
                 continue
 
             if (tmp.ViewType in 1..2) {
-                hmapLastedDate[key] = time
-                ProcessDualGasStorage(key, datas[t - 1], datas[t])
+                hmapLastedDate[Titlekey] = time
+                ProcessDualGasStorage(Titlekey, datas[t - 1], datas[t])
             } else {
-                hmapLastedDate[key] = time
-                ProcessSingleGasStorage(key, datas[t - 1])
+                hmapLastedDate[Titlekey] = time
+                ProcessSingleGasStorage(Titlekey, datas[t - 1])
             }
         }
     }

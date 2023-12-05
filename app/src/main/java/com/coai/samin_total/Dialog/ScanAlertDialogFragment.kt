@@ -112,7 +112,8 @@ class ScanAlertDialogFragment : DialogFragment() {
 
         sendThread = Thread {
             try {
-                viewmodel.isScanmode = true
+//                viewmodel.isScanmode = true
+                viewmodel.isScanmode.set(true)
                 activity?.deleteExDataSet()
                 activity?.feedBackThreadInterrupt()
                 for (model in 1..6) {
@@ -127,7 +128,8 @@ class ScanAlertDialogFragment : DialogFragment() {
                     }
                 }
                 Thread.sleep(400)
-                viewmodel.isScanmode = false
+//                viewmodel.isScanmode = false
+                viewmodel.isScanmode.set(false)
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -143,13 +145,18 @@ class ScanAlertDialogFragment : DialogFragment() {
                 }
                 clearLiveData()
             }
-            if (!activity?.isSending!!) {
+//            if (!activity?.isSending!!) {
+            if (activity?.isSending?.get() == false) {
                 activity?.callFeedback()
-                activity?.isSending = true
+//                activity?.isSending = true
+                activity?.isSending?.set(true)
             }
-            if (!activity?.isPopUp!!) {
+
+//            if (!activity?.isPopUp!!) {
+            if (activity?.isPopup?.get() == false) {
                 activity?.popUpAlertSend()
-                activity?.isPopUp = true
+//                activity?.isPopUp = true
+                activity?.isPopup?.set(true)
             }
             shared.saveHashMap(viewmodel.modelMap)
             getProgressHidden()
@@ -240,7 +247,8 @@ class ScanAlertDialogFragment : DialogFragment() {
 //            val oxygenMasterDataSet =
 //                (shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)) as SetOxygenViewData
 
-            activity?.isSending = true
+//            activity?.isSending = true
+            activity?.isSending?.set(true)
             activity?.tmp?.LoadSetting()
             activity?.callFeedback()
             activity?.callTimemout()
