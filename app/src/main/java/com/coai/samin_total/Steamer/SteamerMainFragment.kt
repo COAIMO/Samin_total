@@ -90,6 +90,8 @@ class SteamerMainFragment : Fragment() {
         isOnTaskRefesh = false
         taskRefresh?.interrupt()
         taskRefresh?.join()
+
+        activity?.shared?.setFragment(MainViewModel.STEAMERMAINFRAGMENT)
     }
 
     override fun onResume() {

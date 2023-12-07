@@ -35,6 +35,7 @@ class SaminSharedPreference(context: Context) {
         const val TEMPHUM = "TempHum"
         const val BAUDRATE = "Baudrate"
         const val ALARMSOUND = "ALARMSOUND"
+        const val LASTFRAGMENT = "LASTFRAGMENT"
     }
 
     val labName = "Lab - 015"
@@ -290,6 +291,17 @@ class SaminSharedPreference(context: Context) {
     }
 
     fun getAlarmSound(): Boolean {
-        return boardSetDataSharedPreference.getBoolean(ALARMSOUND, false)
+        return boardSetDataSharedPreference.getBoolean(ALARMSOUND, true)
+    }
+
+    fun getFragment(): Int {
+        return boardSetDataSharedPreference.getInt(LASTFRAGMENT, 0)
+    }
+
+    fun setFragment(value: Int) {
+        boardSetDataSharedPreference.edit().apply {
+            putInt(LASTFRAGMENT, value)
+            apply()
+        }
     }
 }

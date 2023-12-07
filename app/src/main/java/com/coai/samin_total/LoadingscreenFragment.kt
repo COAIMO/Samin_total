@@ -49,7 +49,15 @@ class LoadingscreenFragment : Fragment() {
   ): View? {
     _binding = FragmentLoadingscreenBinding.inflate(inflater, container, false)
     viewmodel.scanDone.observe(viewLifecycleOwner) {
-      activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
+      if (activity?.shared?.getFragment() != null) {
+        activity?.let { it1 ->
+          it1.shared?.let {it2 ->
+            it1.onFragmentChange(it2.getFragment())
+          }
+        }
+      }
+      else
+        activity?.onFragmentChange(MainViewModel.MAINFRAGMENT)
     }
     return binding.root
   }

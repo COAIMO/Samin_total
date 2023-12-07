@@ -178,6 +178,8 @@ class GasDockMainFragment : Fragment() {
         isOnTaskRefesh.set(false)
         taskRefresh?.interrupt()
         taskRefresh?.join()
+
+        activity?.shared?.setFragment(MainViewModel.GASDOCKMAINFRAGMENT)
     }
 
     override fun onCreateView(

@@ -218,6 +218,8 @@ class OxygenMainFragment : Fragment() {
         isOnTaskRefesh.set(false)
         taskRefresh?.interrupt()
         taskRefresh?.join()
+
+        activity?.shared?.setFragment(MainViewModel.OXYGENMAINFRAGMENT)
     }
 
 

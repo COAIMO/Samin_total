@@ -161,6 +161,8 @@ class TempHumMainFragment : Fragment() {
         isOnTaskRefesh = false
         taskRefresh?.interrupt()
         taskRefresh?.join()
+
+        activity?.shared?.setFragment(MainViewModel.TEMPHUMMAINFRAGMENT)
     }
 
     override fun onCreateView(

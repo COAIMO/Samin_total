@@ -181,6 +181,7 @@ class MainFragment : Fragment() {
 //        isOnTaskRefesh.set(false)
 //        taskRefresh?.interrupt()
 //        taskRefresh?.join()
+        activity?.shared?.setFragment(MainViewModel.MAINFRAGMENT)
     }
 
     var isFirst = true

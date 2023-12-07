@@ -154,6 +154,8 @@ class WasteLiquorMainFragment : Fragment() {
         isOnTaskRefesh = false
         taskRefresh?.interrupt()
         taskRefresh?.join()
+
+        activity?.shared?.setFragment(MainViewModel.WASTELIQUORMAINFRAGMENT)
     }
 
     @SuppressLint("NotifyDataSetChanged")

@@ -168,9 +168,10 @@ class MainActivity : AppCompatActivity() {
             PendingIntent.FLAG_IMMUTABLE)
 
         val calendar = Calendar.getInstance().apply {
-//            set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
             set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
             set(Calendar.HOUR_OF_DAY, 0)
+//            set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY)
+//            set(Calendar.HOUR_OF_DAY, 21)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
