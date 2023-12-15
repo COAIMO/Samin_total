@@ -403,7 +403,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             datas.clear()
 
             if (model == 6.toByte()){
-                datas.add(littleEndianConversion(arg,7, 8))
+                datas.add(littleEndianConversion(arg,7, 10))
                 datas.add(littleEndianConversion(arg,11, 14))
             }else{
                 datas.add(littleEndianConversion(arg,7, 8))
