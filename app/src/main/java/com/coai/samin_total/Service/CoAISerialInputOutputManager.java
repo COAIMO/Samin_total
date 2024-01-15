@@ -51,6 +51,12 @@ public class CoAISerialInputOutputManager implements Runnable {
         void onRunError(Exception e);
     }
 
+    public void clearWriteBuff() {
+        synchronized (mWriteBufferLock) {
+            mWriteBuffers.clear();
+        }
+    }
+
     public CoAISerialInputOutputManager(UsbSerialPort serialPort) {
         mSerialPort = serialPort;
         mReadBuffer = ByteBuffer.allocate(serialPort.getReadEndpoint().getMaxPacketSize());

@@ -37,15 +37,33 @@
 <!--        android:largeHeap="true"-->
         <service
             android:name=".Service.SerialService"
-            android:enabled="true"
             android:process=":remote"
             android:exported="true">
         </service>
 
         <service android:name="com.coai.libmodbus.service.SaminModbusService"
-            android:enabled="true"
             android:exported="true">
         </service>
+<!--        <receiver android:name=".Service.ShutdownReceiver"-->
+<!--            android:process=":shutdown"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.coai.samin_total.ACTION_SHUTDOWN"/>-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
+<!--        <receiver android:name=".AppRestartReceiver"-->
+<!--            android:process=":auto"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true"/>-->
+        <receiver android:name=".AppRestartReceiver"/>
+        <receiver android:name=".AppStartReceiver"/>
+
+<!--        <service android:name=".Watchdog"-->
+<!--            android:process=":watchdog"-->
+<!--            android:exported="true"-->
+<!--            android:foregroundServiceType="dataSync"-->
+<!--            />-->
 
 <!--        <activity-->
 <!--            android:name=".LoadingActivity"-->
@@ -59,11 +77,11 @@
 <!--        </activity>-->
         <activity
             android:name=".MainActivity"
-            android:exported="true"
             android:launchMode="singleTask"
             android:isScrollContainer="true"
             android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -75,16 +93,6 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-<!--        <receiver android:name=".Service.ShutdownReceiver"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="com.coai.samin_total.ACTION_SHUTDOWN"/>-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
-        <receiver android:name=".AppRestartReceiver"
-            android:enabled="true"
-            android:exported="true"/>
     </application>
 
 </manifest>

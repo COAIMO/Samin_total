@@ -298,7 +298,7 @@ class AlertLogFragment : Fragment() {
 //            recycleAdapter.submitList(singleDockViewData)
             adapter = recycleAdapter
         }
-        viewmodel.alertInfo
+//        viewmodel.alertInfo
     }
 
     companion object {

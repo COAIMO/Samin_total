@@ -61,9 +61,16 @@ class SaminProtocol {
         //                                   4 + 1
         //                                   ========================================
         // Checksum(1) + Mode(1) + Data(?) + Header(2) + Model(1) + ID(1) + Length(1)
+        if (mProtocol.size < 6)
+            return 0.toByte()
+
         var result:Byte = 0.toByte()
+        var datacount:Int = 0
         try {
-            val datacount = mProtocol[4] + 4 + 1
+            datacount = mProtocol[4].toUByte().toInt() + 4 + 1
+            if (datacount > mProtocol.size)
+                return 0.toByte()
+
             result = (mProtocol.toUByteArray().take(datacount).sum()
                     - mProtocol[0].toUByte()
                     - mProtocol[1].toUByte()
@@ -74,7 +81,7 @@ class SaminProtocol {
                 .toByte()
 
         }catch (e:Exception){
-            Log.e("Error","$e")
+            Log.e("Error 이거","${mProtocol.size} ${datacount} ${mProtocol[4].toUByte().toInt()}$e ")
         }
         return result
     }
@@ -159,7 +166,7 @@ class SaminProtocol {
     fun parse(data: ByteArray): Boolean {
         var ret = false
         try {
-            if (data.size < 5)
+            if (data.size < 7)
                 return ret
 
             mProtocol = ByteArray(data.size)

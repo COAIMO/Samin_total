@@ -10,16 +10,26 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.net.Uri
-import android.os.*
+import android.os.Bundle
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
+import android.os.Message
+import android.os.Messenger
+import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
-import com.coai.samin_total.Dialog.*
+import com.coai.samin_total.Dialog.AlertDialogFragment
+import com.coai.samin_total.Dialog.AlertPopUpFragment
+import com.coai.samin_total.Dialog.ScanDialogFragment
+import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.GasDockMainFragment
 import com.coai.samin_total.GasDock.GasStorageSettingFragment
 import com.coai.samin_total.GasDock.SetGasStorageViewData
@@ -27,7 +37,11 @@ import com.coai.samin_total.GasRoom.GasRoomMainFragment
 import com.coai.samin_total.GasRoom.GasRoomSettingFragment
 import com.coai.samin_total.GasRoom.RoomLeakTestFragment
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
-import com.coai.samin_total.Logic.*
+import com.coai.samin_total.Logic.Baudrate
+import com.coai.samin_total.Logic.ControlData
+import com.coai.samin_total.Logic.ParsingData
+import com.coai.samin_total.Logic.SaminProtocol
+import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Oxygen.OxygenMainFragment
 import com.coai.samin_total.Oxygen.OxygenSettingFragment
 import com.coai.samin_total.Oxygen.SetOxygenViewData
@@ -42,26 +56,42 @@ import com.coai.samin_total.TempHum.TempHumSettingFragment
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.WasteLiquor.WasteLiquorMainFragment
 import com.coai.samin_total.WasteLiquor.WasteWaterSettingFragment
-import com.coai.samin_total.database.*
+import com.coai.samin_total.database.AlertDAO
+import com.coai.samin_total.database.AlertData
+import com.coai.samin_total.database.AlertDatabase
+import com.coai.samin_total.database.PageViewModel
+import com.coai.samin_total.database.SaminDataBase
+import com.coai.samin_total.database.ViewModelFactory
 import com.coai.samin_total.databinding.ActivityMainBinding
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
+import java.lang.RuntimeException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.LinkedList
+import java.util.Locale
+import java.util.Timer
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.experimental.and
 import kotlin.experimental.or
 import kotlin.experimental.xor
-import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -124,6 +154,12 @@ class MainActivity : AppCompatActivity() {
 
     // 요청주기
     private var FEEDBACK_SLEEP: Long? = null
+    val mainTAG = "태그"
+
+    val isReStartApp = AtomicBoolean(false)
+    val restartCount = AtomicInteger(0)
+    private val executorService = Executors.newSingleThreadScheduledExecutor()
+
 
     companion object {
 //        var SERVICE_CONNECTED = false
@@ -204,14 +240,15 @@ class MainActivity : AppCompatActivity() {
         cancelAllAlarms(this)
         setRestartAlarm(this)
 
+
+//        val ttt = Intent(this, Watchdog::class.java)
+//        ContextCompat.startForegroundService(this, ttt)
+
         receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if ("com.coai.samin_total.ACTION_SHUTDOWN" == intent.action) {
                     Log.d("SHUTDOWN", " SHUTDOWN : 앱 꺼짐 ============================================")
                     finishAndRemoveTask()
-
-//                    Process.killProcess(Process.myPid())
-//                    exitProcess(10)
                 }
             }
         }
@@ -258,7 +295,7 @@ class MainActivity : AppCompatActivity() {
         sendAlert()
         popUpAlertSend()
 
-        Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler())
+//        Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler())
         dao = Room.databaseBuilder(
             application,
             AlertDatabase::class.java,
@@ -270,16 +307,90 @@ class MainActivity : AppCompatActivity() {
             startActivity(intentr)
         }
 
+        val restartIntent = Intent(applicationContext, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
+
         Thread.setDefaultUncaughtExceptionHandler { _, ex ->
             try {
-                ex.message?.let {
-                    Firebase.crashlytics.log(it)
-                }
+                ex.printStackTrace()
+//                ex.message?.let {
+//                    Firebase.crashlytics.log(it)
+//                }
             } catch (e: Exception) {
                 // If we couldn't write the crash report, there's not much we can do.
                 e.printStackTrace()
             }
+
+            applicationContext.startActivity(restartIntent)
+
+            // 프로세스 종료
+            android.os.Process.killProcess(android.os.Process.myPid())
+            System.exit(10)
+//            Log.d("SHUTDOWN", " SHUTDOWN : 앱 꺼짐 ============================================")
+//            unbindMessengerService()
+//            finishAndRemoveTask()
+
+//            Log.d("Delayed", "100 seconds passed!")
+//            Log.d("Delayed", "1000 seconds passed!")
+//            val intent = Intent(applicationContext, AppRestartReceiver::class.java)
+//            val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent,
+//                PendingIntent.FLAG_IMMUTABLE)
+//            pendingIntent.send()
+//            try {
+//                val date = Date(System.currentTimeMillis())
+//                val latesttime: String = dateformat.format(date)
+//                mainViewModel.usbdetachetime.set(System.currentTimeMillis())
+//                mainViewModel.addAlertInfo(
+//                    0,
+//                    SetAlertData(
+//                        latesttime,
+//                        0,
+//                        0,
+//                        "${ex.stackTrace}\n${ex.message.toString()}",
+//                        0,
+//                        true
+//                    )
+//                )
+//
+//            } catch (ex: Exception) {}
+//
+
+//            isReStartApp.set(true)
+//            val handler = Handler(Looper.getMainLooper())
+//            handler.postDelayed({
+//                // 이 부분에 1000초 후에 실행하고 싶은 코드를 작성하세요.
+//                // 예: Log.d("Delayed", "1000 seconds passed!")
+//                Log.d("Delayed", "1000 seconds passed!")
+//                val intent = Intent(applicationContext, AppRestartReceiver::class.java)
+//                val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent,
+//                    PendingIntent.FLAG_IMMUTABLE)
+//                pendingIntent.send()
+//            }, 1000 * 5)
         }
+
+
+
+//        executorService.scheduleAtFixedRate({
+//            if (isReStartApp.get()) {
+//                if (restartCount.getAndAdd(1) > 5) {
+//                    Log.d("Watchdog","start App =========================================================<<<<<<<<<<<<<<<");
+//
+////                    val intent = Intent(applicationContext, AppStartReceiver::class.java)
+////                    val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent,
+////                        PendingIntent.FLAG_IMMUTABLE)
+////                    pendingIntent.send()
+//                    finishAndRemoveTask()
+//                    val restartIntent = applicationContext.packageManager.getLaunchIntentForPackage(applicationContext.packageName)
+//                    restartIntent?.let {
+//                        it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+//                        applicationContext.startActivity(it)
+//                    }
+//
+//                    executorService.shutdown()
+//                }
+//            }
+//        }, 0, 1, TimeUnit.SECONDS)
     }
 
     var gasdock_ids_list = mutableListOf<Byte>()
@@ -529,6 +640,9 @@ class MainActivity : AppCompatActivity() {
         callTimeoutThread = null
     }
 
+    private fun triggerException() {
+        val result = 2 / 0 // 이 코드는 ArithmeticException을 발생시킵니다.
+    }
     fun callTimemout() {
 //        isCallTimeout = false
         isCallTimeout.set(false)
@@ -546,11 +660,39 @@ class MainActivity : AppCompatActivity() {
 //                        }
                         tmp.timeoutAQCheckStep()
 //                    Log.d("callTimeoutThread", "Time : $elapsed")
+                        val usbdetach = mainViewModel.usbdetachetime.get()
+                        if (usbdetach != 0L) {
+                            if ((usbdetach + 1000L * 15) < System.currentTimeMillis()) {
+                                Log.d(
+                                    "usbdetachetime",
+                                    "=================== Time : ${mainViewModel.usbdetachetime.get()} current : ${System.currentTimeMillis()}"
+                                )
+
+                                val intent = Intent(applicationContext, AppRestartReceiver::class.java)
+                                val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent,
+                                    PendingIntent.FLAG_IMMUTABLE)
+                                pendingIntent.send()
+                                break;
+                            }
+                        }
 
                         Thread.sleep(50)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
+
+//                    val usbdetach = mainViewModel.usbdetachetime.get()
+//                    if (usbdetach != 0L) {
+//                        if ((usbdetach + 1000L * 5) < System.currentTimeMillis()) {
+//                            Log.d(
+//                                "usbdetachetime",
+//                                "=================== Time : ${mainViewModel.usbdetachetime.get()} current : ${System.currentTimeMillis()}"
+//                            )
+//
+//                            throw RuntimeException("runtimeException입니다.")
+//                            break;
+//                        }
+//                    }
                 }
             }
             callTimeoutThread?.start()
@@ -1149,15 +1291,37 @@ class MainActivity : AppCompatActivity() {
 
     inner class ExceptionHandler : Thread.UncaughtExceptionHandler {
         override fun uncaughtException(t: Thread, e: Throwable) {
-            e.printStackTrace()
-            finishAndRemoveTask()
-            Process.killProcess(Process.myPid())
-            exitProcess(10)
+//            e.printStackTrace()
+//            finishAndRemoveTask()
+//            Process.killProcess(Process.myPid())
+//            exitProcess(10)
+            try {
+                val date = Date(System.currentTimeMillis())
+                val latesttime: String = dateformat.format(date)
+                mainViewModel.usbdetachetime.set(System.currentTimeMillis())
+                mainViewModel.addAlertInfo(
+                    0,
+                    SetAlertData(
+                        latesttime,
+                        0,
+                        0,
+                        e.message.toString(),
+                        0,
+                        true
+                    )
+                )
+
+            } catch (ex: Exception) {}
+            Thread.sleep(1000)
+            val intent = Intent(applicationContext, AppRestartReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE)
+            pendingIntent.send()
         }
     }
 
     val dateformat: SimpleDateFormat =
-        SimpleDateFormat("yyyy-mm-dd kk:mm:ss", Locale("ko", "KR"))
+        SimpleDateFormat("yyyy-MM-dd kk:mm:ss", Locale("ko", "KR"))
     private val serialSVCIPCHandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
@@ -1178,7 +1342,20 @@ class MainActivity : AppCompatActivity() {
 //                        }
 //                    }
                     mainViewModel.scanDone.value = true
-
+                    mainViewModel.usbdetachetime.set(0)
+                    val date = Date(System.currentTimeMillis())
+                    val latesttime: String = dateformat.format(date)
+                    mainViewModel.addAlertInfo(
+                        0,
+                        SetAlertData(
+                            latesttime,
+                            0,
+                            0,
+                            "시리얼 통신 연결이 되었습니다.",
+                            0,
+                            false
+                        )
+                    )
                 }
                 SerialService.MSG_SERIAL_RECV -> {
                     val buff = msg.data.getByteArray("")
@@ -1190,9 +1367,12 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 SerialService.MSG_SERIAL_DISCONNECT -> {
+                    Log.d(mainTAG, "MSG_SERIAL_DISCONNECT ")
                     val date = Date(System.currentTimeMillis())
                     val latesttime: String = dateformat.format(date)
-                    mainViewModel.alertInfo.add(
+                    mainViewModel.usbdetachetime.set(System.currentTimeMillis())
+                    mainViewModel.addAlertInfo(
+                        0,
                         SetAlertData(
                             latesttime,
                             0,
@@ -1202,6 +1382,15 @@ class MainActivity : AppCompatActivity() {
                             true
                         )
                     )
+
+//                    addLogs(
+//                        latesttime,
+//                        0,
+//                        0,
+//                        "시리얼 통신 연결이 끊겼습니다.",
+//                        0,
+//                        true
+//                    )
                 }
                 SerialService.MSG_NO_SERIAL -> {
                     Toast.makeText(
@@ -1652,6 +1841,14 @@ class MainActivity : AppCompatActivity() {
                     val hum = String.format("%.1f", (datas[0].toFloat() / 1000000f)).toFloat()
                     val temp = String.format("%.1f", (datas[1].toFloat() / 1000000f)).toFloat()
                     tmp.ProcessTempHum(key, temp, hum)
+                }
+                SerialService.MSG_ERROR -> {
+
+                    Log.d("MSG_ERROR", " MSG_ERROR ================================================================================")
+                    val intent = Intent(applicationContext, AppRestartReceiver::class.java)
+                    val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent,
+                        PendingIntent.FLAG_IMMUTABLE)
+                    pendingIntent.send()
                 }
 
                 else -> super.handleMessage(msg)

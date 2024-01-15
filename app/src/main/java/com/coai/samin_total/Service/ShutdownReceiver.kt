@@ -10,12 +10,13 @@ import kotlin.system.exitProcess
 
 class ShutdownReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent) {
+    Log.d("SHUTDOWN", " ============================================================================ onRECIVE")
     if ("com.coai.samin_total.ACTION_SHUTDOWN".equals(intent.action)) {
       Log.d("SHUTDOWN", " SHUTDOWN : 앱 꺼짐")
       // 장치가 꺼질 때 수행할 작업
       AppManager.currentActivity?.finishAndRemoveTask()
-      Process.killProcess(Process.myPid())
-      exitProcess(10)
+//      Process.killProcess(Process.myPid())
+//      exitProcess(10)
     }
 
     Log.d("SHUTDOWN", " intent.action : ${intent.action}")

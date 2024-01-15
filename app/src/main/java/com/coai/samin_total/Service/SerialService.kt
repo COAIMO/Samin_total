@@ -22,6 +22,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.lang.RuntimeException
 import java.lang.ref.WeakReference
 
 class SerialService : Service(), SerialInputOutputManager.Listener {
@@ -53,6 +54,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         const val MSG_STEMER = 16
         const val MSG_TEMPHUM = 17
         const val MSG_BAUDRATE_CHANGE = 18
+        const val MSG_ERROR = 19
     }
 
     private lateinit var messenger: Messenger
@@ -126,9 +128,13 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
         fun sendMSG_SERIAL_DISCONNECT() {
             val message = Message.obtain(null, MSG_SERIAL_DISCONNECT)
-//            clients.forEach {
-//                it.send(message)
-//            }
+            weakClients.get()?.forEach {
+                it.send(message)
+            }
+        }
+
+        fun sendMSG_SERIAL_CONNECT() {
+            val message = Message.obtain(null, MSG_SERIAL_CONNECT)
             weakClients.get()?.forEach {
                 it.send(message)
             }
@@ -136,14 +142,17 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
         fun sendMSG_NO_SERIAL() {
             val message = Message.obtain(null, MSG_NO_SERIAL)
-//            clients.forEach {
-//                it.send(message)
-//            }
             weakClients.get()?.forEach {
                 it.send(message)
             }
         }
 
+        fun sendMSG_ERROR() {
+            val message = Message.obtain(null, MSG_ERROR)
+            weakClients.get()?.forEach {
+                it.send(message)
+            }
+        }
         fun sendMSG(msg: Message) {
 //            clients.forEach {
 //                it.send(msg)
@@ -185,12 +194,19 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 if (!serialPortConnected) {
                     findUSBSerialDevice()
                 }
+                incomingHandler?.sendMSG_SERIAL_CONNECT();
+                Log.d("로그", "ACTION_USB_DEVICE_ATTACHED ======")
             } else if (intent?.action == UsbManager.ACTION_USB_DEVICE_DETACHED) {
+                Log.d("로그", "ACTION_USB_DEVICE_DETACHED ======")
                 val detachedIntent = Intent(ACTION_USB_DEVICE_DETACHED)
                 context?.sendBroadcast(detachedIntent)
-                if (serialPortConnected) {
-                    usbSerialPort?.close()
-                    serialPortConnected = false
+                try {
+                    if (serialPortConnected) {
+                        usbSerialPort?.close()
+                        serialPortConnected = false
+                    }
+                } catch ( ex: Exception ){
+
                 }
                 incomingHandler?.sendMSG_SERIAL_DISCONNECT()
             }
@@ -235,6 +251,12 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         currentBaudrate = shared.loadBoardSetData(SaminSVCSharedPreference.BAUDRATE) as Int
         Log.d("Service", "baudrate : ${currentBaudrate}")
 
+        Thread.setDefaultUncaughtExceptionHandler { _, ex ->
+            incomingHandler?.sendMSG_ERROR()
+            android.os.Process.killProcess(android.os.Process.myPid())
+            System.exit(10)
+        }
+
         GlobalScope.launch {
             delay(1000L)
             findUSBSerialDevice()
@@ -243,6 +265,12 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             }
         }
         setFilter()
+
+//        val handler = Handler(Looper.getMainLooper())
+//        handler.postDelayed({
+//            throw RuntimeException("runtimeException입니다.")
+//        }, 1000 * 30)
+
         super.onCreate()
     }
 
@@ -263,7 +291,8 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         val filter = IntentFilter()
         filter.addAction(INTENT_ACTION_GRANT_USB)
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
-        filter.addAction(ACTION_USB_DEVICE_DETACHED)
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+//        filter.addAction(ACTION_USB_DEVICE_DETACHED)
         filter.addAction(ACTION_USB_PERMISSION_GRANTED)
         filter.addAction(ACTION_USB_PERMISSION_NOT_GRANTED)
         registerReceiver(broadcastReceiver, filter)
@@ -316,7 +345,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             usbSerialPort!!.rts = true
 //
             usbIoManager = CoAISerialInputOutputManager(usbSerialPort, this)
-            usbIoManager!!.readTimeout = 10
+            usbIoManager!!.readTimeout = 100
 //            usbIoManager!!.writeTimeout = 200
 //            usbIoManager!!.readBufferSize = 1000
             usbIoManager!!.start()
@@ -328,12 +357,15 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     private fun disconnect() {
         serialPortConnected = false
         if (usbIoManager != null) {
-            usbIoManager!!.listener = null
-            usbIoManager!!.stop()
+            usbIoManager?.clearWriteBuff()
+            usbIoManager?.listener = null
+            usbIoManager?.stop()
         }
+
         usbIoManager = null
         try {
-            usbSerialPort!!.close()
+            usbSerialPort?.close()
+//            usbSerialPort!!.close()
         } catch (ignored: IOException) {
         }
         usbSerialPort = null
@@ -341,7 +373,8 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     private fun sendData(data: ByteArray) {
 //        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
-        usbIoManager?.writeAsync(data)
+        if (usbSerialPort?.isOpen == true)
+            usbIoManager?.writeAsync(data)
 //        Log.d("태그", "send data : \n${HexDump.dumpHexString(data)}")
     }
 

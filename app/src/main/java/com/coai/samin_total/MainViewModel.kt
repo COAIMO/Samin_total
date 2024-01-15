@@ -33,6 +33,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 
 class MainViewModel : ViewModel() {
     companion object {
@@ -580,5 +581,7 @@ class MainViewModel : ViewModel() {
      */
     val errorlivelist = mutableListOf<SetAlertData>()
     val scanDone: MutableLiveData<Boolean> = MutableLiveData()
+
+    val usbdetachetime: AtomicLong = AtomicLong(0);
 }
 

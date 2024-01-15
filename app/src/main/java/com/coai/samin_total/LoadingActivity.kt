@@ -17,7 +17,7 @@ import java.util.ArrayList
 import kotlin.system.exitProcess
 
 val loadingTAG = "로딩 태그"
-val mainTAG = "태그"
+//val mainTAG = "태그"
 val serviceTAG = "서비스 태그"
 
 class LoadingActivity : AppCompatActivity() {
