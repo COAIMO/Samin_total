@@ -24,6 +24,8 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.lang.RuntimeException
 import java.lang.ref.WeakReference
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 
 class SerialService : Service(), SerialInputOutputManager.Listener {
     //    SerialInputOutputManager.Listener
@@ -175,7 +177,8 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     var usbConnection: UsbDeviceConnection? = null
     private var usbIoManager: CoAISerialInputOutputManager? = null
     var mHandler = Handler()
-//    lateinit var checkThread: Thread
+    lateinit var checkThread: Thread
+    private var isruncheckThread = AtomicBoolean(true)
 
     val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -240,6 +243,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     //    SerialInputOutputManager.Listener
     override fun onRunError(e: Exception?) {
+        Log.d(
+            "svc OnRunError",
+            "================= current : ${System.currentTimeMillis()} ${e?.message}"
+        )
         mHandler.post(Runnable {
             disconnect()
         })
@@ -271,12 +278,38 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //            throw RuntimeException("runtimeException입니다.")
 //        }, 1000 * 30)
 
+        lastRecvProtocol.set(System.currentTimeMillis())
+        checkThread = Thread {
+            while (isruncheckThread.get()) {
+                try {
+                    val lastrecv = lastRecvProtocol.get()
+                    if ((lastrecv + 1000L * 30) < System.currentTimeMillis()) {
+                        Log.d(
+                            "Serial Fail",
+                            "================= Time : $lastrecv current : ${System.currentTimeMillis()} ===================="
+                        )
+                        disconnect()
+                        findUSBSerialDevice()
+
+                        lastRecvProtocol.set(System.currentTimeMillis())
+
+                    }
+                    Thread.sleep(10)
+                } catch (ex: Exception) {
+
+                }
+            }
+        }
+        checkThread.start()
         super.onCreate()
     }
 
 
     override fun onDestroy() {
         unregisterReceiver(broadcastReceiver)
+        isruncheckThread.set(false)
+        checkThread.interrupt()
+        checkThread.join()
         super.onDestroy()
         Log.d("Service", "SerialService : onDestroy")
     }
@@ -321,6 +354,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 serialPortConnect()
                 incomingHandler?.sendConnected()
             }
+        } else {
+            incomingHandler?.sendMSG_NO_SERIAL()
+            return
         }
     }
 
@@ -389,6 +425,8 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     private var lastRecvTime: Long = System.currentTimeMillis()
     private var bufferIndex: Int = 0
     private var recvBuffer: ByteArray = ByteArray(1024)
+
+    private val lastRecvProtocol: AtomicLong = AtomicLong()
 
     private fun littleEndianConversion(bytes: ByteArray): Int {
         var result = 0
@@ -475,39 +513,6 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             val bundle = Bundle()
             bundle.putSerializable("", tmp)
 
-//            when (model) {
-//                0x01.toByte() -> {
-//                    val message = Message.obtain(null, MSG_GASDOCK)
-//                    message.data = bundle
-//                    incomingHandler?.sendMSG(message)
-//                }
-//                0x02.toByte() -> {
-//                    val message = Message.obtain(null, MSG_GASROOM)
-//                    message.data = bundle
-//                    incomingHandler?.sendMSG(message)
-//                }
-//                0x03.toByte() -> {
-//                    val message = Message.obtain(null, MSG_WASTE)
-//                    message.data = bundle
-//                    incomingHandler?.sendMSG(message)
-//                }
-//                0x04.toByte() -> {
-//                    val message = Message.obtain(null, MSG_OXYGEN)
-//                    message.data = bundle
-//                    incomingHandler?.sendMSG(message)
-//                }
-//                0x05.toByte() -> {
-//                    val message = Message.obtain(null, MSG_STEMER)
-//                    message.data = bundle
-//                    incomingHandler?.sendMSG(message)
-//                }
-//                0x06.toByte() -> {
-//                    val message = Message.obtain(null, MSG_TEMPHUM)
-//                    message.data = bundle
-//                    incomingHandler?.sendMSG(message)
-//                }
-//            }
-
             incomingHandler?.let {
                 val msgType = when(model) {
                     0x01.toByte() -> MSG_GASDOCK
@@ -529,6 +534,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     }
 
     private fun recvData(data: ByteArray) {
+        // 정상 프로토콜 수신 시간
+        lastRecvProtocol.set(System.currentTimeMillis())
+
         val receiveParser = SaminProtocol()
 //        Log.d("SerialService", "data : \n${HexDump.dumpHexString(data)}")
         if (!receiveParser.parse(data))

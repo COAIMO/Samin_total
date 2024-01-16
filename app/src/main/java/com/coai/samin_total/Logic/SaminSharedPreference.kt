@@ -15,6 +15,7 @@ import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.json.JSONObject
+import kotlin.math.max
 
 class SaminSharedPreference(context: Context) {
     companion object {
@@ -36,6 +37,7 @@ class SaminSharedPreference(context: Context) {
         const val BAUDRATE = "Baudrate"
         const val ALARMSOUND = "ALARMSOUND"
         const val LASTFRAGMENT = "LASTFRAGMENT"
+        const val NOSERIALCOUNT = "NOSERIALCOUNT"
     }
 
     val labName = "Lab - 015"
@@ -276,10 +278,11 @@ class SaminSharedPreference(context: Context) {
     }
 
     fun getFeedbackTiming(): Long {
-        var tmp = boardSetDataSharedPreference.getLong(FEEDBACKTIMING, -1)
-        if (tmp == -1.toLong()) {
-            tmp = boardSetDataSharedPreference.getLong(FEEDBACKTIMING, 50)
-        }
+        var tmp = boardSetDataSharedPreference.getLong(FEEDBACKTIMING, 50)
+        tmp = max(20, tmp)
+//        if (tmp == -1.toLong()) {
+//            tmp = boardSetDataSharedPreference.getLong(FEEDBACKTIMING, 50)
+//        }
         return tmp
     }
 
@@ -301,6 +304,16 @@ class SaminSharedPreference(context: Context) {
     fun setFragment(value: Int) {
         boardSetDataSharedPreference.edit().apply {
             putInt(LASTFRAGMENT, value)
+            apply()
+        }
+    }
+
+    fun getNoSerialCount(): Int {
+        return boardSetDataSharedPreference.getInt(NOSERIALCOUNT, 0)
+    }
+    fun setNoSerialCount(value: Int) {
+        boardSetDataSharedPreference.edit().apply {
+            putInt(NOSERIALCOUNT, value)
             apply()
         }
     }

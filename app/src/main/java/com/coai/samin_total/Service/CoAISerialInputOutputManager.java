@@ -147,6 +147,11 @@ public class CoAISerialInputOutputManager implements Runnable {
     public void writeAsync(byte[] data) {
         synchronized (mWriteBufferLock) {
             mWriteBuffers.offer(ByteBuffer.wrap(data));
+
+            if (mWriteBuffers.size() > 20) {
+                Log.i(TAG, "mWriteBuffers.size : " + mWriteBuffers.size());
+                mWriteBuffers.clear();
+            }
         }
     }
 

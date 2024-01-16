@@ -74,6 +74,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
+import java.lang.Math.min
 import java.lang.RuntimeException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -126,6 +127,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var tempHumSettingFragment: TempHumSettingFragment
 
     lateinit var loadingscreenFragment: LoadingscreenFragment
+//    lateinit var resetscreenFragment: ResetFragment
 
     private lateinit var mainViewModel: MainViewModel
     lateinit var db: SaminDataBase
@@ -314,62 +316,37 @@ class MainActivity : AppCompatActivity() {
         Thread.setDefaultUncaughtExceptionHandler { _, ex ->
             try {
                 ex.printStackTrace()
-//                ex.message?.let {
-//                    Firebase.crashlytics.log(it)
-//                }
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    val date = Date(System.currentTimeMillis())
+                    val latesttime: String = dateformat.format(date)
+                    val data = AlertData(
+                        latesttime,
+                        0,
+                        0,
+                        "${ex.stackTrace}\n${ex.message.toString()}",
+                        0,
+                        true
+                    )
+
+                    dao.insertData(data)
+                    applicationContext.startActivity(restartIntent)
+
+                    android.os.Process.killProcess(android.os.Process.myPid())
+                    System.exit(10)
+                }
             } catch (e: Exception) {
                 // If we couldn't write the crash report, there's not much we can do.
                 e.printStackTrace()
             }
 
-            applicationContext.startActivity(restartIntent)
-
-            // 프로세스 종료
-            android.os.Process.killProcess(android.os.Process.myPid())
-            System.exit(10)
-//            Log.d("SHUTDOWN", " SHUTDOWN : 앱 꺼짐 ============================================")
-//            unbindMessengerService()
-//            finishAndRemoveTask()
-
-//            Log.d("Delayed", "100 seconds passed!")
-//            Log.d("Delayed", "1000 seconds passed!")
-//            val intent = Intent(applicationContext, AppRestartReceiver::class.java)
-//            val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent,
-//                PendingIntent.FLAG_IMMUTABLE)
-//            pendingIntent.send()
-//            try {
-//                val date = Date(System.currentTimeMillis())
-//                val latesttime: String = dateformat.format(date)
-//                mainViewModel.usbdetachetime.set(System.currentTimeMillis())
-//                mainViewModel.addAlertInfo(
-//                    0,
-//                    SetAlertData(
-//                        latesttime,
-//                        0,
-//                        0,
-//                        "${ex.stackTrace}\n${ex.message.toString()}",
-//                        0,
-//                        true
-//                    )
-//                )
-//
-//            } catch (ex: Exception) {}
-//
-
-//            isReStartApp.set(true)
-//            val handler = Handler(Looper.getMainLooper())
-//            handler.postDelayed({
-//                // 이 부분에 1000초 후에 실행하고 싶은 코드를 작성하세요.
-//                // 예: Log.d("Delayed", "1000 seconds passed!")
-//                Log.d("Delayed", "1000 seconds passed!")
-//                val intent = Intent(applicationContext, AppRestartReceiver::class.java)
-//                val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent,
-//                    PendingIntent.FLAG_IMMUTABLE)
-//                pendingIntent.send()
-//            }, 1000 * 5)
         }
 
 
+//        val handler = Handler(Looper.getMainLooper())
+//        handler.postDelayed({
+//            throw RuntimeException("이거 잡히나?")
+//        }, 1000 * 10)
 
 //        executorService.scheduleAtFixedRate({
 //            if (isReStartApp.get()) {
@@ -518,6 +495,7 @@ class MainActivity : AppCompatActivity() {
         alertPopUpFragment = AlertPopUpFragment()
         tempHumFragment = TempHumMainFragment()
         tempHumSettingFragment = TempHumSettingFragment()
+//        resetscreenFragment = ResetFragment()
     }
 
     fun onFragmentChange(index: Int) {
@@ -856,7 +834,7 @@ class MainActivity : AppCompatActivity() {
             val currentLedState = HashMap<Short, Byte>()
 //            var prevAlertOxygen: Boolean = false
             while (isrunthAlert.get()) {
-
+                FEEDBACK_SLEEP = shared.getFeedbackTiming()
                 val elapsed: Long = measureTimeMillis {
                     val diffkeys = mainViewModel.portAlertMapLed.keys.toMutableList()
 
@@ -1266,7 +1244,6 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var dao: AlertDAO
 
-
     // 알람 로그 생성
     private suspend fun addAlertLogs(
         time: String,
@@ -1341,6 +1318,7 @@ class MainActivity : AppCompatActivity() {
 //                            }
 //                        }
 //                    }
+                    shared.setNoSerialCount(0)
                     mainViewModel.scanDone.value = true
                     mainViewModel.usbdetachetime.set(0)
                     val date = Date(System.currentTimeMillis())
@@ -1393,11 +1371,40 @@ class MainActivity : AppCompatActivity() {
 //                    )
                 }
                 SerialService.MSG_NO_SERIAL -> {
-                    Toast.makeText(
-                        applicationContext,
-                        "connection failed: device not found",
-                        Toast.LENGTH_SHORT
-                    ).show()
+
+
+                    val noserialcount = shared.getNoSerialCount()
+                    shared.setNoSerialCount(min(noserialcount + 1, 10))
+
+                    if (noserialcount > 5) {
+                        Toast.makeText(
+                            applicationContext,
+                            "connection failed: 전원 스위치를 껏다 켜 주세요.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    else {
+                        Toast.makeText(
+                            applicationContext,
+                            "connection failed: device not found",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val date = Date(System.currentTimeMillis())
+                        val latesttime: String = dateformat.format(date)
+                        val data = AlertData(
+                            latesttime,
+                            0,
+                            0,
+                            "연결할 수 있는 시리얼 통신이 없습니다.\n전원 스위치를 껏다켜면 문제가 해결될 수 있습니다.(USBHUB)",
+                            0,
+                            true
+                        )
+
+                        dao.insertData(data)
+                    }
                 }
                 SerialService.MSG_CHECK_VERSION -> {
                     Toast.makeText(this@MainActivity, "펌웨어 버전 : ${msg.arg1}", Toast.LENGTH_SHORT)
@@ -1844,11 +1851,26 @@ class MainActivity : AppCompatActivity() {
                 }
                 SerialService.MSG_ERROR -> {
 
-                    Log.d("MSG_ERROR", " MSG_ERROR ================================================================================")
-                    val intent = Intent(applicationContext, AppRestartReceiver::class.java)
-                    val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent,
-                        PendingIntent.FLAG_IMMUTABLE)
-                    pendingIntent.send()
+//                    Log.d("MSG_ERROR", " MSG_ERROR ================================================================================")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val date = Date(System.currentTimeMillis())
+                        val latesttime: String = dateformat.format(date)
+                        val data = AlertData(
+                            latesttime,
+                            0,
+                            0,
+                            "시리얼통신 서비스에서 예외처리되지 않은 에러 발생",
+                            0,
+                            true
+                        )
+
+                        dao.insertData(data)
+                        val intent = Intent(applicationContext, AppRestartReceiver::class.java)
+                        val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent,
+                            PendingIntent.FLAG_IMMUTABLE)
+                        pendingIntent.send()
+                    }
+
                 }
 
                 else -> super.handleMessage(msg)
