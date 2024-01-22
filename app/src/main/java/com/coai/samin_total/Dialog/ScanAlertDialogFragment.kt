@@ -13,6 +13,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
+import com.coai.samin_total.Logic.Baudrate
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.MainActivity
@@ -112,6 +113,26 @@ class ScanAlertDialogFragment : DialogFragment() {
 
         sendThread = Thread {
             try {
+                val baudrate = Baudrate.codesMap.get(shared.loadBoardSetData(SaminSharedPreference.BAUDRATE) as Int)!!
+                var feedbacks:Long = 20
+                when(baudrate) {
+                    Baudrate.BPS_2400 -> {
+                        feedbacks = Math.max(200, shared.getFeedbackTiming())
+                    }
+                    Baudrate.BPS_4800 -> {
+                        feedbacks = Math.max(100, shared.getFeedbackTiming())
+                    }
+                    Baudrate.BPS_9600 -> {
+                        feedbacks = Math.max(60, shared.getFeedbackTiming())
+                    }
+                    Baudrate.BPS_14400 -> {
+                        feedbacks = Math.max(40, shared.getFeedbackTiming())
+                    }
+                    else -> {
+                        feedbacks = Math.max(40, shared.getFeedbackTiming())
+                    }
+                }
+
 //                viewmodel.isScanmode = true
                 viewmodel.isScanmode.set(true)
                 activity?.deleteExDataSet()
@@ -123,7 +144,7 @@ class ScanAlertDialogFragment : DialogFragment() {
                             protocol.checkModel(model.toByte(), id.toByte())
 //                            activity?.serialService?.sendData(protocol.mProtocol)
                             sendAlertProtocol(protocol.mProtocol)
-                            Thread.sleep(40)
+                            Thread.sleep(feedbacks)
                         }
                     }
                 }
@@ -354,8 +375,11 @@ class ScanAlertDialogFragment : DialogFragment() {
         }
     }
 
+//    private fun sendAlertProtocol(data: ByteArray) {
+//        activity?.sendProtocolToSerial(data)
+//    }
     private fun sendAlertProtocol(data: ByteArray) {
-        activity?.sendProtocolToSerial(data)
+        activity?.sendFeedbackProtocolToSerial(data)
     }
 
     private fun getProgressHidden() {

@@ -22,7 +22,6 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
@@ -63,8 +62,6 @@ import com.coai.samin_total.database.PageViewModel
 import com.coai.samin_total.database.SaminDataBase
 import com.coai.samin_total.database.ViewModelFactory
 import com.coai.samin_total.databinding.ActivityMainBinding
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -74,8 +71,8 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
+import java.lang.Math.max
 import java.lang.Math.min
-import java.lang.RuntimeException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.Calendar
@@ -84,10 +81,8 @@ import java.util.LinkedList
 import java.util.Locale
 import java.util.Timer
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.experimental.and
 import kotlin.experimental.or
 import kotlin.experimental.xor
@@ -155,12 +150,12 @@ class MainActivity : AppCompatActivity() {
     private val alertBoardsendLastTime = HashMap<Short, Long>()
 
     // 요청주기
-    private var FEEDBACK_SLEEP: Long? = null
+    val FEEDBACK_SLEEP = AtomicLong(20)
     val mainTAG = "태그"
 
-    val isReStartApp = AtomicBoolean(false)
-    val restartCount = AtomicInteger(0)
-    private val executorService = Executors.newSingleThreadScheduledExecutor()
+//    val isReStartApp = AtomicBoolean(false)
+//    val restartCount = AtomicInteger(0)
+//    private val executorService = Executors.newSingleThreadScheduledExecutor()
 
 
     companion object {
@@ -179,6 +174,7 @@ class MainActivity : AppCompatActivity() {
 //        const val ANOTHERJOB_SLEEP: Long = 40
     }
     var baudrate: Baudrate = Baudrate.BPS_1000000
+    val writesleep = AtomicLong(1)
 
     private var setFragment: Int = -1
     private lateinit var receiver: BroadcastReceiver
@@ -279,14 +275,46 @@ class MainActivity : AppCompatActivity() {
             shared.loadBoardSetData(SaminSharedPreference.CONTROL) as ControlData
         tmp = AQDataParser(mainViewModel)
         baudrate = Baudrate.codesMap.get(shared.loadBoardSetData(SaminSharedPreference.BAUDRATE) as Int)!!
+        FEEDBACK_SLEEP.set(shared.getFeedbackTiming())
+
         Log.d("Activity", "baudrate : ${baudrate.value}")
+        var feedbacks:Long = 20
+        when(baudrate) {
+            Baudrate.BPS_2400 -> {
+                feedbacks = max(100, shared.getFeedbackTiming())
+                writesleep.set(31)
+            }
+            Baudrate.BPS_4800 -> {
+                feedbacks = max(50, shared.getFeedbackTiming())
+                writesleep.set(16)
+            }
+            Baudrate.BPS_9600 -> {
+                feedbacks = max(30, shared.getFeedbackTiming())
+                writesleep.set(9)
+            }
+            Baudrate.BPS_14400 -> {
+                feedbacks = max(20, shared.getFeedbackTiming())
+                writesleep.set(6)
+            }
+            else -> {
+                feedbacks = max(20, shared.getFeedbackTiming())
+                writesleep.set(5)
+            }
+        }
+
+        if (feedbacks != shared.getFeedbackTiming()) {
+            FEEDBACK_SLEEP.set(feedbacks)
+            shared.SaveFeedbackTiming(feedbacks)
+        }
+
+        Log.d("Activity", "FEEDBACK_SLEEP : ${FEEDBACK_SLEEP.get()}")
 //
 //        mainViewModel.isCheckTimeOut =
 //            shared.getTimeOutState()
         mainViewModel.isCheckTimeOut.set(shared.getTimeOutState())
         mainViewModel.isSoundAlert = shared.getAlarmSound()
-        FEEDBACK_SLEEP = shared.getFeedbackTiming()
-        Log.d("Activity", "FEEDBACK_SLEEP : ${FEEDBACK_SLEEP}")
+
+
         this.viewModel = ViewModelProvider(
             this,
             ViewModelFactory(application)
@@ -693,6 +721,7 @@ class MainActivity : AppCompatActivity() {
 //        isSending = true
         isSending.set((true))
         callbackThread = Thread {
+            protocolBuffers.clear()
             val protocol = SaminProtocol()
             while (isSending.get()) {
                 try {
@@ -714,19 +743,6 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                                 val model = md.toByte()
-//                                val elapsed: Long = measureTimeMillis {
-//                                    val id = ids.get(index)
-//                                    val key =
-//                                        littleEndianConversion(byteArrayOf(model, id)).toShort()
-//
-//                                    if (!protocolBuffers.containsKey(key)) {
-//                                        protocol.feedBack(model, id)
-//                                        protocolBuffers[key] = protocol.mProtocol.clone()
-//                                    }
-//                                    protocolBuffers[key]?.let {
-//                                        sendProtocolToSerial(it)
-//                                    }
-//                                }
                                 val id = ids.get(index)
                                 val key =
                                     littleEndianConversion(byteArrayOf(model, id)).toShort()
@@ -736,12 +752,9 @@ class MainActivity : AppCompatActivity() {
                                     protocolBuffers[key] = protocol.mProtocol.clone()
                                 }
                                 protocolBuffers[key]?.let {
-                                    sendProtocolToSerial(it)
+                                    sendFeedbackProtocolToSerial(it)
                                 }
-                                Thread.sleep(FEEDBACK_SLEEP!!)
-//                                if (model == 4.toByte())
-//                                    Thread.sleep(15)
-//                            Log.d(mainTAG, "sleep ============= " )
+                                Thread.sleep(FEEDBACK_SLEEP.get())
                             }
                         }
                     }
@@ -750,7 +763,6 @@ class MainActivity : AppCompatActivity() {
                         Thread.sleep(sleeptime)
                     }
 
-//                    sendProtocolToSerial(byteArrayOf(0.toByte()))
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -818,6 +830,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun sendFeedbackProtocolToSerial(data: ByteArray) {
+        if (!mainViewModel.controlData.isMirrorMode) {
+            val msg = Message.obtain(null, SerialService.MSG_SERIAL_FEEDBACK_SEND)
+            val bundle = Bundle()
+            bundle.putByteArray("", data)
+            msg.data = bundle
+            serialSVCIPCService?.send(msg)
+        }
+    }
+
     private var isrunthAlert = AtomicBoolean(true)
     private fun sendAlert() {
 
@@ -834,7 +856,7 @@ class MainActivity : AppCompatActivity() {
             val currentLedState = HashMap<Short, Byte>()
 //            var prevAlertOxygen: Boolean = false
             while (isrunthAlert.get()) {
-                FEEDBACK_SLEEP = shared.getFeedbackTiming()
+//                FEEDBACK_SLEEP = shared.getFeedbackTiming()
                 val elapsed: Long = measureTimeMillis {
                     val diffkeys = mainViewModel.portAlertMapLed.keys.toMutableList()
 
@@ -956,7 +978,7 @@ class MainActivity : AppCompatActivity() {
                     // 경고 처리
                     if (currentLedState.size > 0) {
                         isAnotherJob.set(true)
-                        Thread.sleep(FEEDBACK_SLEEP!!)
+                        Thread.sleep(FEEDBACK_SLEEP.get())
                         var model: Byte
                         var id: Byte
                         try {
@@ -970,7 +992,7 @@ class MainActivity : AppCompatActivity() {
                                         protocol.led_AlertStateByte(model, id, v)
 //                                        Log.d("LED", "v = ${v}")
                                         sendProtocolToSerial(protocol.mProtocol.clone())
-                                        Thread.sleep(5)
+                                        Thread.sleep(writesleep.get())
                                     }
 
                                     if (!model.equals((4.toByte())))
@@ -981,7 +1003,7 @@ class MainActivity : AppCompatActivity() {
                                         protocol.buzzer_On(model, id)
                                         for (cnt in 0..1) {
                                             sendProtocolToSerial(protocol.mProtocol.clone())
-                                            Thread.sleep(5)
+                                            Thread.sleep(writesleep.get())
                                         }
                                     }
                                     if (model.equals(4.toByte())) {
@@ -989,7 +1011,7 @@ class MainActivity : AppCompatActivity() {
                                             for (cnt in 0..1) {
                                                 protocol.buzzer_On(4, t.toByte())
                                                 sendProtocolToSerial(protocol.mProtocol.clone())
-                                                Thread.sleep(5)
+                                                Thread.sleep(writesleep.get())
                                             }
                                         }
                                     }
@@ -1014,7 +1036,7 @@ class MainActivity : AppCompatActivity() {
                                 for (cnt in 0..1) {
                                     protocol.led_AlertStateByte(model, id, tmplast)
                                     sendProtocolToSerial(protocol.mProtocol.clone())
-                                    Thread.sleep(5)
+                                    Thread.sleep(writesleep.get())
                                 }
                             }
                         } catch (ex: Exception) {
@@ -1028,7 +1050,7 @@ class MainActivity : AppCompatActivity() {
                     if (ledchanged.size > 0) {
 //                        isAnotherJob = true
                         isAnotherJob.set(true)
-                        Thread.sleep(FEEDBACK_SLEEP!!)
+                        Thread.sleep(FEEDBACK_SLEEP.get())
                         var model: Byte
                         var id: Byte
                         var tmpBits: Byte
@@ -1041,7 +1063,7 @@ class MainActivity : AppCompatActivity() {
                             for (cnt in 0..1) {
                                 protocol.led_AlertStateByte(model, id, tmpBits)
                                 sendProtocolToSerial(protocol.mProtocol.clone())
-                                Thread.sleep(5)
+                                Thread.sleep(writesleep.get())
                             }
                             mainViewModel.portAlertMapLed[tmp] = tmpBits
                         }
@@ -1054,7 +1076,7 @@ class MainActivity : AppCompatActivity() {
                     if (diffkeys.size > 0) {
 //                        isAnotherJob = true
                         isAnotherJob.set(true)
-                        Thread.sleep(FEEDBACK_SLEEP!!)
+                        Thread.sleep(FEEDBACK_SLEEP.get())
                         for (tmp in diffkeys) {
                             val aqInfo = HexDump.toByteArray(tmp)
                             val model = aqInfo[1]
@@ -1068,14 +1090,14 @@ class MainActivity : AppCompatActivity() {
                                 for (cnt in 0..1) {
                                     protocol.buzzer_Off(model, id)
                                     sendProtocolToSerial(protocol.mProtocol.clone())
-                                    Thread.sleep(5)
+                                    Thread.sleep(writesleep.get())
                                 }
                             }
 
                             for (cnt in 0..1) {
                                 protocol.led_AlertStateByte(model, id, 0.toByte())
                                 sendProtocolToSerial(protocol.mProtocol.clone())
-                                Thread.sleep(5)
+                                Thread.sleep(writesleep.get())
                             }
                         }
 //                        isAnotherJob = false
@@ -1093,7 +1115,7 @@ class MainActivity : AppCompatActivity() {
                         tabletSoundAlertOff()
                     }
                 }
-                Log.d("sendAlert", "measureTimeMillis : $elapsed")
+//                Log.d("sendAlert", "measureTimeMillis : $elapsed")
 
                 Thread.sleep(200)
             }
@@ -2061,7 +2083,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    Log.d("error처리 루틴", "처리시간 : ${elapsed}")
+//                    Log.d("error처리 루틴", "처리시간 : ${elapsed}")
                     Thread.sleep(200)
 
                 } catch (e: Exception) {

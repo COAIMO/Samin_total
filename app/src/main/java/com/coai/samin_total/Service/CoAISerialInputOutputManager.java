@@ -21,12 +21,16 @@ public class CoAISerialInputOutputManager implements Runnable {
     private int mReadTimeout = 0;
     private int mWriteTimeout = 0;
 
+    private int mBaudrate = 1000000;
+    private int mWriteSleep = 1;
+
     private final Object mReadBufferLock = new Object();
     private final Object mWriteBufferLock = new Object();
 
     private ByteBuffer mReadBuffer; // default size = getReadEndpoint().getMaxPacketSize()
 //    private ByteBuffer mWriteBuffer = ByteBuffer.allocate(BUFSIZ);
     private ConcurrentLinkedQueue<ByteBuffer> mWriteBuffers = new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<ByteBuffer> mWriteFeedbackBuffers = new ConcurrentLinkedQueue<>();
 
     public enum State {
         STOPPED,
@@ -54,6 +58,12 @@ public class CoAISerialInputOutputManager implements Runnable {
     public void clearWriteBuff() {
         synchronized (mWriteBufferLock) {
             mWriteBuffers.clear();
+        }
+    }
+
+    public void clearWriteFeedbackBuff() {
+        synchronized (mWriteBufferLock) {
+            mWriteFeedbackBuffers.clear();
         }
     }
 
@@ -95,6 +105,49 @@ public class CoAISerialInputOutputManager implements Runnable {
         if(mReadTimeout == 0 && timeout != 0 && mState != SerialInputOutputManager.State.STOPPED)
             throw new IllegalStateException("readTimeout only configurable before SerialInputOutputManager is started");
         mReadTimeout = timeout;
+    }
+
+    public void setBaudrate(int baud) {
+        mBaudrate = baud;
+        mReadTimeout = 20;
+        switch (baud) {
+            case 1000000:
+            case 500000:
+                mWriteSleep = 1;
+                break;
+            case 250000:
+            case 230400:
+            case 115200:
+            case 76800:
+                mWriteSleep = 2;
+                break;
+            case 57600:
+            case 38400:
+                mWriteSleep = 3;
+                break;
+            case 28800:
+                mWriteSleep = 4;
+                break;
+            case 19200:
+                mWriteSleep = 5;
+                break;
+            case 14400:
+                mWriteSleep = 6;
+                break;
+            case 9600:
+                mWriteSleep = 9;
+                mReadTimeout = 30;
+                break;
+            case 4800:
+                mWriteSleep = 16;
+                mReadTimeout = 50;
+                break;
+            case 2400:
+            default:
+                mReadTimeout = 100;
+                mWriteSleep = 31;
+                break;
+        }
     }
 
     public int getReadTimeout() {
@@ -148,9 +201,20 @@ public class CoAISerialInputOutputManager implements Runnable {
         synchronized (mWriteBufferLock) {
             mWriteBuffers.offer(ByteBuffer.wrap(data));
 
+            Log.i(TAG, "mWriteBuffers.size : " + mWriteBuffers.size());
             if (mWriteBuffers.size() > 20) {
-                Log.i(TAG, "mWriteBuffers.size : " + mWriteBuffers.size());
                 mWriteBuffers.clear();
+            }
+        }
+    }
+
+    public void writeFeedbackAsync(byte[] data) {
+        synchronized (mWriteBufferLock) {
+            mWriteFeedbackBuffers.offer(ByteBuffer.wrap(data));
+
+            Log.i(TAG, "mWriteFeedbackBuffers.size : " + mWriteFeedbackBuffers.size());
+            if (mWriteFeedbackBuffers.size() > 20) {
+                mWriteFeedbackBuffers.clear();
             }
         }
     }
@@ -250,12 +314,24 @@ public class CoAISerialInputOutputManager implements Runnable {
 
                     mSerialPort.write(tmp.array(), mWriteTimeout);
                     tmp.clear();
-                    Thread.sleep(0);
+                    Thread.sleep(mWriteSleep);
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
         }
+         synchronized (mWriteBufferLock) {
+             try {
+                 ByteBuffer tmp = mWriteFeedbackBuffers.poll();
+                 if (tmp != null) {
+                     mSerialPort.write(tmp.array(), mWriteTimeout);
+                     tmp.clear();
+                     Thread.sleep(mReadTimeout);
+                 }
+             } catch (Exception ex) {
+                 ex.printStackTrace();
+             }
+         }
     }
 }

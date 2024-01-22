@@ -150,25 +150,42 @@ class AqSettingFragment : Fragment() {
                 }
 
 //                Log.d("이상해", "selected_baudrate: ${baud}, feedbacktimeValue: ${feedbacktimeValue}")
+                var chk = false
                 when(baud) {
                     2400 -> {
-                        if (feedbacktimeValue < 200) {
-                            feedbacktimeValue = 200
-                        }
-                    }
-                    4800 -> {
                         if (feedbacktimeValue < 100) {
+                            chk = true
                             feedbacktimeValue = 100
                         }
                     }
+                    4800 -> {
+                        if (feedbacktimeValue < 50) {
+                            chk = true
+                            feedbacktimeValue = 50
+                        }
+                    }
+                    9600 -> {
+                        if (feedbacktimeValue < 30) {
+                            chk = true
+                            feedbacktimeValue = 30
+                        }
+                    }
+                    else -> {
+                        if (feedbacktimeValue < 20) {
+                            chk = true
+                            feedbacktimeValue = 20
+                        }
+                    }
                 }
-
-                if (feedbacktimeValue < 20) feedbacktimeValue = 20
 
                 shared.SaveFeedbackTiming(feedbacktimeValue)
                 Thread.sleep(1000)
                 activity?.setBaudrate(baud)
                 Thread.sleep(500)
+                if (chk) {
+                    Toast.makeText(context, "통신속도를 기준으로 통신요청주기를 수정했습니다.", Toast.LENGTH_SHORT)
+                        .show()
+                }
 
                 val intent = Intent(context, AppRestartReceiver::class.java)
                 val pendingIntent = PendingIntent.getBroadcast(context, 0, intent,

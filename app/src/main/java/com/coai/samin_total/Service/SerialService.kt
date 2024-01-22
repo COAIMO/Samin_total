@@ -57,6 +57,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         const val MSG_TEMPHUM = 17
         const val MSG_BAUDRATE_CHANGE = 18
         const val MSG_ERROR = 19
+        const val MSG_SERIAL_FEEDBACK_SEND = 20
     }
 
     private lateinit var messenger: Messenger
@@ -80,6 +81,9 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 }
                 MSG_SERIAL_SEND -> {
                     msg.data.getByteArray("")?.let { sendData(it) }
+                }
+                MSG_SERIAL_FEEDBACK_SEND-> {
+                    msg.data.getByteArray("")?.let { sendFeedbackData(it) }
                 }
                 MSG_BAUDRATE_CHANGE-> {
                     // 통신속도 변경
@@ -384,6 +388,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             usbIoManager!!.readTimeout = 100
 //            usbIoManager!!.writeTimeout = 200
 //            usbIoManager!!.readBufferSize = 1000
+            usbIoManager!!.setBaudrate(currentBaudrate)
             usbIoManager!!.start()
             serialPortConnected = true
 
@@ -408,10 +413,13 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     }
 
     private fun sendData(data: ByteArray) {
-//        usbSerialPort?.write(data, WRITE_WAIT_MILLIS)
         if (usbSerialPort?.isOpen == true)
             usbIoManager?.writeAsync(data)
-//        Log.d("태그", "send data : \n${HexDump.dumpHexString(data)}")
+    }
+
+    private fun sendFeedbackData(data: ByteArray) {
+        if (usbSerialPort?.isOpen == true)
+            usbIoManager?.writeFeedbackAsync(data)
     }
 
     fun checkModelandID() {
