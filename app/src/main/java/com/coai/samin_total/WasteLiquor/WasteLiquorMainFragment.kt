@@ -21,7 +21,13 @@ import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.RecyclerDecoration_Height
 import com.coai.samin_total.databinding.FragmentWasteLiquorMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -50,10 +56,13 @@ class WasteLiquorMainFragment : Fragment() {
     lateinit var shared: SaminSharedPreference
     private var timerTaskRefresh: Timer? = null
     var heartbeatCount: UByte = 0u
-    val lockobj = object {}
+//    val lockobj = object {}
     lateinit var itemSpace: SpacesItemDecoration
-    private var taskRefresh: Thread? = null
-    private var isOnTaskRefesh: Boolean = true
+//    private var taskRefresh: Thread? = null
+//    private var isOnTaskRefesh: Boolean = true
+
+    private var isOnTaskRefesh = AtomicBoolean(true)
+    private var updateJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,17 +81,23 @@ class WasteLiquorMainFragment : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
+
+        isOnTaskRefesh.set(true)
+        startUpdateTask()
     }
 
     override fun onDetach() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+
+        isOnTaskRefesh.set(false)
+        stopUpdateTask()
     }
 
     override fun onResume() {
         super.onResume()
-        isOnTaskRefesh = true
+        /*isOnTaskRefesh = true
         taskRefresh = Thread() {
             try {
                 var lastupdate: Long = System.currentTimeMillis()
@@ -146,14 +161,14 @@ class WasteLiquorMainFragment : Fragment() {
                 e.printStackTrace()
             }
         }
-        taskRefresh?.start()
+        taskRefresh?.start()*/
     }
 
     override fun onPause() {
         super.onPause()
-        isOnTaskRefesh = false
+/*        isOnTaskRefesh = false
         taskRefresh?.interrupt()
-        taskRefresh?.join()
+        taskRefresh?.join()*/
 
         activity?.shared?.setFragment(MainViewModel.WASTELIQUORMAINFRAGMENT)
     }
@@ -177,31 +192,25 @@ class WasteLiquorMainFragment : Fragment() {
             if (!viewmodel.wasteViewZoomState) {
                 viewmodel.wasteViewZoomState = true
                 mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
-                synchronized(lockobj) {
-                    mBinding.wasteLiquorRecyclerView.apply {
-                        (layoutManager as GridLayoutManager).let {
-                            it.spanCount = 2
-                        }
-                        itemSpace.changeSpace(180, 150, 180, 150)
+                mBinding.wasteLiquorRecyclerView.apply {
+                    (layoutManager as GridLayoutManager).let {
+                        it.spanCount = 2
                     }
+                    itemSpace.changeSpace(180, 150, 180, 150)
                 }
             } else {
                 viewmodel.wasteViewZoomState = false
                 mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
-                synchronized(lockobj) {
-                    mBinding.wasteLiquorRecyclerView.apply {
-                        (layoutManager as GridLayoutManager).let {
-                            it.spanCount = 4
-                        }
-                        itemSpace.changeSpace(30, 20, 70, 20)
+                mBinding.wasteLiquorRecyclerView.apply {
+                    (layoutManager as GridLayoutManager).let {
+                        it.spanCount = 4
                     }
+                    itemSpace.changeSpace(30, 20, 70, 20)
                 }
             }
 
-            synchronized(lockobj) {
-                activity?.runOnUiThread {
-                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-                }
+            activity?.runOnUiThread {
+                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
             }
         }
 
@@ -268,10 +277,8 @@ class WasteLiquorMainFragment : Fragment() {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
 
-        synchronized(lockobj) {
-            activity?.runOnUiThread {
-                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-            }
+        activity?.runOnUiThread {
+            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
         }
     }
 
@@ -305,5 +312,66 @@ class WasteLiquorMainFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    private fun startUpdateTask() {
+        updateJob = CoroutineScope(Dispatchers.Main).launch {
+            var lastupdate: Long = System.currentTimeMillis()
+            val lstvalue = mutableListOf<Int>()
+            while (isOnTaskRefesh.get()) {
+                lstvalue.clear()
+                heartbeatCount++
+
+                try {
+                    for (t in newwasteLiquorViewData) {
+                        val idx = newwasteLiquorViewData.indexOf(t)
+                        if (idx > -1) {
+                            if (wasteLiquorViewData[idx].isAlert != t.isAlert)
+                                lstvalue.add(idx)
+
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u )/ 10u) % 2u) == 0u)) {
+                                if (t.isAlert)
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                            }
+                            t.heartbeatCount = heartbeatCount
+                            wasteLiquorViewData[idx] = t.copy()
+                        }
+                    }
+
+                    val baseTime = System.currentTimeMillis() - 1000 * 2
+                    if (lastupdate < baseTime) {
+                        lastupdate = System.currentTimeMillis()
+                        for (t in newwasteLiquorViewData) {
+                            val idx = newwasteLiquorViewData.indexOf(t)
+                            wasteLiquorViewData[idx] = t.copy()
+                        }
+
+                        recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                    }
+                    else {
+                        val rlist = Utils.ToIntRange(lstvalue, wasteLiquorViewData.size)
+                        if (rlist != null) {
+                            Log.d("debug", "${rlist.size}")
+                            rlist.forEach {
+                                recycleAdapter.notifyItemRangeChanged(
+                                    it.lower,
+                                    1 + it.upper - it.lower
+                                )
+                            }
+                        }
+                    }
+                }
+                catch (ex:Exception) {
+                    ex.printStackTrace()
+                }
+
+                delay(50)
+            }
+        }
+    }
+
+    private fun stopUpdateTask() {
+        updateJob?.cancel()
     }
 }

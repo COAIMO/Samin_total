@@ -1,5 +1,6 @@
 package com.coai.samin_total.Dialog
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,6 +14,11 @@ import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentAlertDialogBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
@@ -37,10 +43,10 @@ class AlertDialogFragment : DialogFragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private val alertData = mutableListOf<SetAlertData>()
 
-    private var taskRefresh: Thread? = null
+//    private var taskRefresh: Thread? = null
 //    private var isOnTaskRefesh: Boolean = true
     private var isOnTaskRefesh = AtomicBoolean(true)
-
+    private var updateJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,11 +70,6 @@ class AlertDialogFragment : DialogFragment() {
 
     override fun onPause() {
         super.onPause()
-
-//        isOnTaskRefesh = false
-        isOnTaskRefesh.set(false)
-        taskRefresh?.interrupt()
-        taskRefresh?.join()
     }
 
     override fun onResume() {
@@ -77,65 +78,6 @@ class AlertDialogFragment : DialogFragment() {
         dialog?.window?.setLayout(width, height)
         dialog?.window?.setBackgroundDrawableResource(R.drawable.border_layout)
         super.onResume()
-
-        taskRefresh = Thread{
-            try {
-//                while (isOnTaskRefesh) {
-                while (isOnTaskRefesh.get()) {
-                    val tmplist = viewmodel.errorlivelist.toMutableList()
-
-                    var cmodel = -1
-                    when(model) {
-                        "Main" -> {
-                            cmodel = -1
-                        }
-                        "GasStorage" -> {
-                            cmodel = 1
-                        }
-                        "GasRoom" -> {
-                            cmodel = 2
-                        }
-                        "WasteLiquor" -> {
-                            cmodel = 3
-                        }
-                        "Oxygen" -> {
-                            cmodel = 4
-                        }
-                        "Steamer" -> {
-                            cmodel = 5
-                        }
-                        "TempHum" ->{
-                            cmodel = 6
-                        }
-                    }
-                    val filteredList = tmplist.filter { it.model == (if (cmodel == -1) it.model else cmodel) }.toMutableList()
-                    alertData.clear()
-                    filteredList.forEach {
-                        alertData.add(it)
-                    }
-                    filteredList.clear()
-                    tmplist.clear()
-
-                    activity?.runOnUiThread {
-                        recycleAdapter.notifyDataSetChanged()
-                        val cnt = recycleAdapter.itemCount
-                        if (cnt <= 0) {
-//                            recycleAdapter.notifyItemRemoved(0)
-                            recycleAdapter.notifyDataSetChanged()
-                        } else {
-                            recycleAdapter.notifyItemRangeChanged(0, cnt)
-                        }
-                    }
-
-                    Thread.sleep(500)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        isOnTaskRefesh.set(true)
-//        isOnTaskRefesh = true
-        taskRefresh?.start()
     }
 
     private fun initVieiw() {
@@ -182,13 +124,6 @@ class AlertDialogFragment : DialogFragment() {
 
     }
 
-    fun getLatest_time(time: Long): String {
-        val dateformat: SimpleDateFormat =
-            SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale("ko", "KR"))
-        val date: Date = Date(time)
-        return dateformat.format(date)
-    }
-
     companion object {
         /**
          * Use this factory method to create a new instance of
@@ -207,5 +142,73 @@ class AlertDialogFragment : DialogFragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        isOnTaskRefesh.set(true)
+        startUpdateTask()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+
+        isOnTaskRefesh.set(false)
+        stopUpdateTask()
+    }
+
+    private fun startUpdateTask() {
+        updateJob = CoroutineScope(Dispatchers.Main).launch {
+            while (isOnTaskRefesh.get()) {
+                try {
+                    val tmplist = viewmodel.errorlivelist.toMutableList()
+
+                    var cmodel = -1
+                    when(model) {
+                        "Main" -> {
+                            cmodel = -1
+                        }
+                        "GasStorage" -> {
+                            cmodel = 1
+                        }
+                        "GasRoom" -> {
+                            cmodel = 2
+                        }
+                        "WasteLiquor" -> {
+                            cmodel = 3
+                        }
+                        "Oxygen" -> {
+                            cmodel = 4
+                        }
+                        "Steamer" -> {
+                            cmodel = 5
+                        }
+                        "TempHum" ->{
+                            cmodel = 6
+                        }
+                    }
+                    val filteredList = tmplist.filter { it.model == (if (cmodel == -1) it.model else cmodel) }.toMutableList()
+                    alertData.clear()
+                    filteredList.forEach {
+                        alertData.add(it)
+                    }
+                    filteredList.clear()
+                    tmplist.clear()
+
+                    recycleAdapter.notifyDataSetChanged()
+                }
+                catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
+
+                delay(500)
+            }
+
+        }
+    }
+
+    private fun stopUpdateTask() {
+        updateJob?.cancel()
     }
 }

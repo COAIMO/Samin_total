@@ -20,6 +20,11 @@ import com.coai.samin_total.R
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentAlertDialogBinding
 import com.coai.samin_total.databinding.FragmentAlertPopUpBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
 // TODO: Rename parameter arguments, choose names that match
@@ -41,26 +46,31 @@ class AlertPopUpFragment : DialogFragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private var alertData = mutableListOf<SetAlertData>()
     private var activity: MainActivity? = null
-    private var taskRefresh: Thread? = null
+//    private var taskRefresh: Thread? = null
 //    private var isOnTaskRefesh: Boolean = true
     private var isOnTaskRefesh = AtomicBoolean(true)
+    private var updateJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
+
+        isOnTaskRefesh.set(true)
+        startUpdateTask()
     }
 
     override fun onDetach() {
         super.onDetach()
         activity = null
+
+        isOnTaskRefesh.set(false)
+        stopUpdateTask()
     }
 
     override fun onPause() {
         super.onPause()
 //        isOnTaskRefesh = false
-        isOnTaskRefesh.set(false)
-        taskRefresh?.interrupt()
-        taskRefresh?.join()
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,7 +90,7 @@ class AlertPopUpFragment : DialogFragment() {
     ): View? {
         mBinding = FragmentAlertPopUpBinding.inflate(inflater, container, false)
         initRecycler()
-        initView()
+//        initView()
         recycleAdapter.setButtonClickListener(object :
             AlertPopUP_RecyclerAdapter.OnButtonClickListener {
             override fun onClick(v: View, position: Int) {
@@ -118,18 +128,7 @@ class AlertPopUpFragment : DialogFragment() {
                 }
             }
         })
-//        viewmodel._popUpList.observe(viewLifecycleOwner){
-//            Log.d("라이브","${it}")
-//            alertData = it
-//            recycleAdapter.submitList(alertData)
-//        }
-//        viewmodel.popUpDataLiveList.observe(viewLifecycleOwner) {
-//            Log.d("라이브", "${it}")
-////            synchronized(lockobj) {
-//                recycleAdapter.submitList(it)
-////            }
-////            recycleAdapter.notifyDataSetChanged()
-//        }
+
         return mBinding.root
     }
 
@@ -140,57 +139,6 @@ class AlertPopUpFragment : DialogFragment() {
         dialog?.window?.setLayout(width, height)
         dialog?.window?.setBackgroundDrawableResource(R.drawable.border_layout)
         super.onResume()
-//        isOnTaskRefesh = false
-        isOnTaskRefesh.set(false)
-        taskRefresh?.interrupt()
-        taskRefresh?.join()
-
-//        isOnTaskRefesh = true
-        isOnTaskRefesh.set(true)
-        taskRefresh = Thread{
-            try {
-//                var lastupdate: Long = System.currentTimeMillis()
-//                val lstvalue = mutableListOf<Int>()
-                var cnt = 0
-//                while (isOnTaskRefesh){
-                while (isOnTaskRefesh.get()) {
-                    try {
-                        val tmplist = viewmodel.errorlivelist.toMutableList()
-
-                        cnt = alertData.size
-                        alertData.clear()
-                        tmplist.forEach {
-                            alertData.add(it.copy())
-                        }
-                        tmplist.clear()
-
-                        activity?.runOnUiThread {
-                            recycleAdapter.notifyDataSetChanged()
-                            try {
-                                if (cnt <= 0) {
-//                                    recycleAdapter.notifyItemRemoved(0)
-                                    recycleAdapter.notifyDataSetChanged()
-                                } else {
-                                    recycleAdapter.notifyItemRangeChanged(0, cnt)
-                                }
-                            } catch (ee: Exception){
-                                ee.printStackTrace()
-                            }
-                        }
-                    } catch (ca: Exception) {
-                        ca.printStackTrace()
-                    }
-
-                    Thread.sleep(500)
-                }
-            }catch (e:Exception){
-                e.printStackTrace()
-            }
-        }
-//        isOnTaskRefesh = true
-        taskRefresh?.start()
-
-
     }
 
     private fun initRecycler() {
@@ -207,24 +155,6 @@ class AlertPopUpFragment : DialogFragment() {
 
             recycleAdapter.submitList(alertData)
         }
-
-    }
-
-    private fun initView() {
-//        alertData.removeAll(alertData)
-//        mBinding.tvTitle.setText(R.string.title_event_log)
-//        for ((key, value) in viewmodel.alertMap) {
-//            val aqInfo = HexDump.toByteArray(key)
-//            val portNum = aqInfo[1]
-//            val id = aqInfo[2]
-//            val model = aqInfo[3]
-//
-//            if (value.isAlert) {
-//                alertData.add(value)
-//                recycleAdapter.submitList(alertData)
-//            }
-//        }
-//        recycleAdapter.notifyDataSetChanged()
 
     }
 
@@ -246,5 +176,33 @@ class AlertPopUpFragment : DialogFragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    private fun startUpdateTask() {
+        updateJob = CoroutineScope(Dispatchers.Main).launch {
+            var cnt = 0
+            while (isOnTaskRefesh.get()) {
+                try {
+                    val tmplist = viewmodel.errorlivelist.toMutableList()
+
+                    cnt = alertData.size
+                    alertData.clear()
+                    tmplist.forEach {
+                        alertData.add(it.copy())
+                    }
+                    tmplist.clear()
+
+                    recycleAdapter.notifyDataSetChanged()
+                } catch (ca: Exception) {
+                    ca.printStackTrace()
+                }
+
+                delay(500)
+            }
+        }
+    }
+
+    private fun stopUpdateTask() {
+        updateJob?.cancel()
     }
 }

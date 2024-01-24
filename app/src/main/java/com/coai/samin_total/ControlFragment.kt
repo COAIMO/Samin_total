@@ -334,10 +334,10 @@ class ControlFragment : Fragment() {
                     byteLabName.let {
                         sendMultipartSend((16 + 8).toByte(), it)
                     }
-                    Thread.sleep(40)
+                    Thread.sleep(100)
                 }
                 sendMultipartSend(32.toByte())
-                Thread.sleep(40)
+                Thread.sleep(100)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

@@ -20,6 +20,12 @@ import com.coai.samin_total.R
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.WasteLiquor.WasteLiquor_RecycleAdapter
 import com.coai.samin_total.databinding.FragmentTempHumMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -41,14 +47,17 @@ class TempHumMainFragment : Fragment() {
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
     var heartbeatCount: UByte = 0u
-    val lockobj = object {}
+//    val lockobj = object {}
     lateinit var itemSpace: SpacesItemDecoration
-    private var taskRefresh: Thread? = null
-    private var isOnTaskRefesh: Boolean = true
+//    private var taskRefresh: Thread? = null
+//    private var isOnTaskRefesh: Boolean = true
     private lateinit var recycleAdapter: TempHum_RecycleAdapter
 
     private val temphumViewData = arrayListOf<SetTempHumViewData>()
     private val newtemphumViewData = arrayListOf<SetTempHumViewData>()
+
+    private var isOnTaskRefesh = AtomicBoolean(true)
+    private var updateJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -59,12 +68,18 @@ class TempHumMainFragment : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
+
+        isOnTaskRefesh.set(true)
+        startUpdateTask()
     }
 
     override fun onDetach() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+
+        isOnTaskRefesh.set(false)
+        stopUpdateTask()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,7 +92,7 @@ class TempHumMainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        isOnTaskRefesh = true
+        /*isOnTaskRefesh = true
         taskRefresh = Thread() {
             try {
                 var lastupdate: Long = System.currentTimeMillis()
@@ -153,14 +168,14 @@ class TempHumMainFragment : Fragment() {
                 e.printStackTrace()
             }
         }
-        taskRefresh?.start()
+        taskRefresh?.start()*/
     }
 
     override fun onPause() {
         super.onPause()
-        isOnTaskRefesh = false
+/*        isOnTaskRefesh = false
         taskRefresh?.interrupt()
-        taskRefresh?.join()
+        taskRefresh?.join()*/
 
         activity?.shared?.setFragment(MainViewModel.TEMPHUMMAINFRAGMENT)
     }
@@ -183,31 +198,25 @@ class TempHumMainFragment : Fragment() {
             if (!viewmodel.tempHumViewZoomState) {
                 viewmodel.tempHumViewZoomState = true
                 mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
-                synchronized(lockobj) {
-                    mBinding.tempHumRecyclerView.apply {
-                        (layoutManager as GridLayoutManager).let {
-                            it.spanCount = 2
-                        }
-                        itemSpace.changeSpace(180, 150, 180, 150)
+                mBinding.tempHumRecyclerView.apply {
+                    (layoutManager as GridLayoutManager).let {
+                        it.spanCount = 2
                     }
+                    itemSpace.changeSpace(180, 150, 180, 150)
                 }
             } else {
                 viewmodel.tempHumViewZoomState = false
                 mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
-                synchronized(lockobj) {
-                    mBinding.tempHumRecyclerView.apply {
-                        (layoutManager as GridLayoutManager).let {
-                            it.spanCount = 4
-                        }
-                        itemSpace.changeSpace(80, 50, 50, 50)
+                mBinding.tempHumRecyclerView.apply {
+                    (layoutManager as GridLayoutManager).let {
+                        it.spanCount = 4
                     }
+                    itemSpace.changeSpace(80, 50, 50, 50)
                 }
             }
 
-            synchronized(lockobj) {
-                activity?.runOnUiThread {
-                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-                }
+            activity?.runOnUiThread {
+                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
             }
         }
 
@@ -270,10 +279,8 @@ class TempHumMainFragment : Fragment() {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
 
-        synchronized(lockobj) {
-            activity?.runOnUiThread {
-                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-            }
+        activity?.runOnUiThread {
+            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
         }
     }
 
@@ -306,5 +313,74 @@ class TempHumMainFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+    private fun startUpdateTask() {
+        updateJob = CoroutineScope(Dispatchers.Main).launch {
+            var lastupdate: Long = System.currentTimeMillis()
+            val lstvalue = mutableListOf<Int>()
+            while (isOnTaskRefesh.get()) {
+                lstvalue.clear()
+                heartbeatCount++
+                try {
+                    for (t in newtemphumViewData) {
+                        val idx = newtemphumViewData.indexOf(t)
+                        if (idx > -1) {
+
+
+                            if (temphumViewData[idx].unit != t.unit ||
+                                temphumViewData[idx].isTempAlert != t.isTempAlert ||
+                                temphumViewData[idx].isHumAlert != t.isHumAlert||
+                                temphumViewData[idx].temp != t.temp ||
+                                temphumViewData[idx].hum != t.hum
+                            ) {
+                                if (!lstvalue.contains(idx))
+                                    lstvalue.add(idx)
+                            }
+
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
+                                if (t.isTempAlert || t.isHumAlert) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                }
+                            }
+
+                            t.heartbeatCount = heartbeatCount
+                            temphumViewData[idx] = t.copy()
+                        }
+                    }
+
+                    val baseTime = System.currentTimeMillis() - 1000 * 2
+                    if (lastupdate < baseTime) {
+                        lastupdate = System.currentTimeMillis()
+                        for (t in newtemphumViewData) {
+                            val idx = newtemphumViewData.indexOf(t)
+                            temphumViewData[idx] = t.copy()
+                        }
+
+                        recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                    } else {
+                        val rlist = Utils.ToIntRange(lstvalue, temphumViewData.size)
+                        if (rlist != null) {
+                            rlist.forEach {
+                                recycleAdapter.notifyItemRangeChanged(
+                                    it.lower,
+                                    1 + it.upper - it.lower
+                                )
+                            }
+                        }
+                    }
+                }
+                catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
+
+                delay(50)
+            }
+        }
+    }
+
+
+    private fun stopUpdateTask() {
+        updateJob?.cancel()
     }
 }

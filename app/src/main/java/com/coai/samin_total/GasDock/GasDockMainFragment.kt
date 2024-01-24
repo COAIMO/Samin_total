@@ -18,6 +18,11 @@ import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
 import com.coai.samin_total.Logic.Utils
 import com.coai.samin_total.databinding.FragmentGasDockMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -45,11 +50,13 @@ class GasDockMainFragment : Fragment() {
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
     var heartbeatCount: UByte = 0u
-    val lockobj = object {}
+//    val lockobj = object {}
     lateinit var itemSpace: SpacesItemDecoration
-    private var taskRefresh: Thread? = null
+//    private var taskRefresh: Thread? = null
 //    private var isOnTaskRefesh: Boolean = true
     private val isOnTaskRefesh = AtomicBoolean(true)
+
+    private var updateJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -61,13 +68,17 @@ class GasDockMainFragment : Fragment() {
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
 
-
+        isOnTaskRefesh.set(true)
+        startUpdateTask()
     }
 
     override fun onDetach() {
         super.onDetach()
         activity = null
         onBackPressed.remove()
+
+        isOnTaskRefesh.set(false)
+        stopUpdateTask()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,106 +90,13 @@ class GasDockMainFragment : Fragment() {
         }
     }
 
-//    lateinit var thUIError: Thread
-//    var isrunthUIError = true
-
-    inner class ThreadRefresh : Thread() {
-        override fun run() {
-            try {
-                var lastupdate: Long = System.currentTimeMillis()
-                val lstvalue = mutableListOf<Int>()
-                while (isOnTaskRefesh.get()) {
-                    lstvalue.clear()
-                    heartbeatCount++
-
-                    for (t in newgasStorageViewData) {
-                        val idx = newgasStorageViewData.indexOf(t)
-                        if (idx > -1) {
-                            if (gasStorageViewData[idx].pressure != t.pressure ||
-                                gasStorageViewData[idx].pressureLeft != t.pressureLeft ||
-                                gasStorageViewData[idx].pressureRight != t.pressureRight ||
-                                gasStorageViewData[idx].isAlert != t.isAlert ||
-                                gasStorageViewData[idx].isAlertRight != t.isAlertRight ||
-                                gasStorageViewData[idx].isAlertLeft != t.isAlertLeft ||
-                                gasStorageViewData[idx].unit != t.unit
-                            ) {
-                                if (!lstvalue.contains(idx))
-                                    lstvalue.add(idx)
-                            }
-
-                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
-                                if (t.isAlert == true ||
-                                    t.isAlertLeft == true ||
-                                    t.isAlertRight == true
-                                ) {
-                                    if (!lstvalue.contains(idx))
-                                        lstvalue.add(idx)
-                                } else if (gasStorageViewData[idx].ViewType == 0 && gasStorageViewData[idx].pressure == null) {
-                                    if (!lstvalue.contains(idx))
-                                        lstvalue.add(idx)
-                                } else if (gasStorageViewData[idx].ViewType != 0 && (gasStorageViewData[idx].pressureLeft == null || gasStorageViewData[idx].pressureRight == null)) {
-                                    if (!lstvalue.contains(idx))
-                                        lstvalue.add(idx)
-                                }
-                            }
-                            t.heartbeatCount = heartbeatCount
-                            gasStorageViewData[idx] = t.copy()
-                        }
-                    }
-
-                    val baseTime = System.currentTimeMillis() - 1000 * 2
-                    if (lastupdate < baseTime) {
-                        lastupdate = System.currentTimeMillis()
-                        for (t in newgasStorageViewData) {
-                            val idx = newgasStorageViewData.indexOf(t)
-                            gasStorageViewData[idx] = t.copy()
-                        }
-
-                        synchronized(lockobj) {
-                            activity?.runOnUiThread {
-                                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-                            }
-                        }
-                    } else {
-                        val rlist = Utils.ToIntRange(lstvalue, gasStorageViewData.size)
-                        if (rlist != null) {
-//                            Log.d("debug", "${lstvalue.size}")
-                            synchronized(lockobj) {
-                                activity?.runOnUiThread() {
-                                    rlist.forEach {
-                                        recycleAdapter.notifyItemRangeChanged(
-                                            it.lower,
-                                            1 + it.upper - it.lower
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Thread.sleep(50)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     override fun onResume() {
         super.onResume()
-//        isOnTaskRefesh = true
         isOnTaskRefesh.set(true)
-        taskRefresh = ThreadRefresh()
-        taskRefresh?.start()
     }
 
     override fun onPause() {
         super.onPause()
-//        isOnTaskRefesh = false
-        isOnTaskRefesh.set(false)
-        taskRefresh?.interrupt()
-        taskRefresh?.join()
-
         activity?.shared?.setFragment(MainViewModel.GASDOCKMAINFRAGMENT)
     }
 
@@ -191,7 +109,7 @@ class GasDockMainFragment : Fragment() {
         itemSpace = SpacesItemDecoration(50)
         initRecycler()
         initView()
-        updateView()
+//        updateView()
 
         mBinding.btnSetting.setOnClickListener {
             activity?.onFragmentChange(MainViewModel.GASSTORAGESETTINGFRAGMENT)
@@ -200,31 +118,31 @@ class GasDockMainFragment : Fragment() {
             if (!mainViewModel.storageViewZoomState) {
                 mainViewModel.storageViewZoomState = true
                 mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
-                synchronized(lockobj) {
-                    mBinding.gasStorageRecyclerView.apply {
-                        (layoutManager as GridLayoutManager).let {
-                            it.spanCount = 2
-                        }
-                        itemSpace.changeSpace(200, 300, 200, 300)
+//                synchronized(lockobj) {
+                mBinding.gasStorageRecyclerView.apply {
+                    (layoutManager as GridLayoutManager).let {
+                        it.spanCount = 2
                     }
+                    itemSpace.changeSpace(200, 300, 200, 300)
                 }
+//                }
             } else {
                 mainViewModel.storageViewZoomState = false
                 mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
-                synchronized(lockobj) {
-                    mBinding.gasStorageRecyclerView.apply {
-                        (layoutManager as GridLayoutManager).let {
-                            it.spanCount = 4
-                        }
-                        itemSpace.changeSpace(50, 100, 50, 100)
+//                synchronized(lockobj) {
+                mBinding.gasStorageRecyclerView.apply {
+                    (layoutManager as GridLayoutManager).let {
+                        it.spanCount = 4
                     }
+                    itemSpace.changeSpace(50, 100, 50, 100)
                 }
+//                }
             }
-            synchronized(lockobj) {
-                activity?.runOnUiThread {
-                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-                }
+//            synchronized(lockobj) {
+            activity?.runOnUiThread {
+                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
             }
+//            }
         }
         mBinding.btnUnit.setOnClickListener {
             for ((index, data) in mainViewModel.GasStorageDataLiveList.value!!.sortedWith(
@@ -290,21 +208,12 @@ class GasDockMainFragment : Fragment() {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
 
-        synchronized(lockobj) {
-            activity?.runOnUiThread {
-                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-            }
+//        synchronized(lockobj) {
+        activity?.runOnUiThread {
+            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
         }
-
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun updateView() {
-//        mainViewModel.GasStorageDataLiveList.observe(viewLifecycleOwner) {
-//            val mm = it.sortedWith(compareBy({ it.id }, { it.port }))
-//            recycleAdapter.submitList(mm)
-//            recycleAdapter.notifyDataSetChanged()
 //        }
+
     }
 
     companion object {
@@ -359,6 +268,83 @@ class GasDockMainFragment : Fragment() {
                 mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
             }
         }
+    }
 
+    private fun startUpdateTask() {
+        updateJob = CoroutineScope(Dispatchers.Main).launch {
+            var lastupdate: Long = System.currentTimeMillis() - 1000 * 2
+            val lstvalue = mutableListOf<Int>()
+            while (isOnTaskRefesh.get()) {
+                lstvalue.clear()
+                heartbeatCount++
+
+                try {
+                    for (t in newgasStorageViewData) {
+                        val idx = newgasStorageViewData.indexOf(t)
+                        if (idx > -1) {
+                            if (gasStorageViewData[idx].pressure != t.pressure ||
+                                gasStorageViewData[idx].pressureLeft != t.pressureLeft ||
+                                gasStorageViewData[idx].pressureRight != t.pressureRight ||
+                                gasStorageViewData[idx].isAlert != t.isAlert ||
+                                gasStorageViewData[idx].isAlertRight != t.isAlertRight ||
+                                gasStorageViewData[idx].isAlertLeft != t.isAlertLeft ||
+                                gasStorageViewData[idx].unit != t.unit
+                            ) {
+                                if (!lstvalue.contains(idx))
+                                    lstvalue.add(idx)
+                            }
+
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
+                                if (t.isAlert == true ||
+                                    t.isAlertLeft == true ||
+                                    t.isAlertRight == true
+                                ) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                } else if (gasStorageViewData[idx].ViewType == 0 && gasStorageViewData[idx].pressure == null) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                } else if (gasStorageViewData[idx].ViewType != 0 && (gasStorageViewData[idx].pressureLeft == null || gasStorageViewData[idx].pressureRight == null)) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                }
+                            }
+                            t.heartbeatCount = heartbeatCount
+                            gasStorageViewData[idx] = t.copy()
+                        }
+                    }
+
+                    val baseTime = System.currentTimeMillis() - 1000 * 2
+                    if (lastupdate < baseTime) {
+                        lastupdate = System.currentTimeMillis()
+                        for (t in newgasStorageViewData) {
+                            val idx = newgasStorageViewData.indexOf(t)
+                            gasStorageViewData[idx] = t.copy()
+                        }
+
+                        recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                    } else {
+                        val rlist = Utils.ToIntRange(lstvalue, gasStorageViewData.size)
+                        if (rlist != null) {
+                            rlist.forEach {
+                                recycleAdapter.notifyItemRangeChanged(
+                                    it.lower,
+                                    1 + it.upper - it.lower
+                                )
+                            }
+                        }
+                    }
+                }
+                catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
+
+                delay(50)
+            }
+        }
+    }
+
+    private fun stopUpdateTask() {
+        updateJob?.cancel()
     }
 }

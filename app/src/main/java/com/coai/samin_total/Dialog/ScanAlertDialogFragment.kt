@@ -170,14 +170,14 @@ class ScanAlertDialogFragment : DialogFragment() {
             if (activity?.isSending?.get() == false) {
                 activity?.callFeedback()
 //                activity?.isSending = true
-                activity?.isSending?.set(true)
+//                activity?.isSending?.set(true)
             }
 
 //            if (!activity?.isPopUp!!) {
             if (activity?.isPopup?.get() == false) {
                 activity?.popUpAlertSend()
 //                activity?.isPopUp = true
-                activity?.isPopup?.set(true)
+//                activity?.isPopup?.set(true)
             }
             shared.saveHashMap(viewmodel.modelMap)
             getProgressHidden()
@@ -269,7 +269,7 @@ class ScanAlertDialogFragment : DialogFragment() {
 //                (shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)) as SetOxygenViewData
 
 //            activity?.isSending = true
-            activity?.isSending?.set(true)
+//            activity?.isSending?.set(true)
             activity?.tmp?.LoadSetting()
             activity?.callFeedback()
             activity?.callTimemout()

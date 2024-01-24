@@ -305,6 +305,15 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             }
         }
         checkThread.start()
+
+//        val memoutThread = Thread {
+//            val largeList = mutableListOf<String>()
+//            while (true) {
+//                largeList.add("메모리 부족 테스트".repeat(1000))
+//                Thread.sleep(10)
+//            }
+//        }
+//        memoutThread.start()
         super.onCreate()
     }
 

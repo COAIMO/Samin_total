@@ -28,6 +28,11 @@ import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.TempHum.SetTempHumViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import com.coai.samin_total.databinding.FragmentMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicBoolean
@@ -50,8 +55,8 @@ class MainFragment : Fragment() {
     lateinit var mBinding: FragmentMainBinding
     var activity: MainActivity? = null
     private val viewmodel: MainViewModel by activityViewModels()
-    lateinit var progress_Dialog: ProgressDialog
-    lateinit var sendThread: Thread
+//    lateinit var progress_Dialog: ProgressDialog
+//    lateinit var sendThread: Thread
     lateinit var alertdialogFragment: AlertDialogFragment
     lateinit var shared: SaminSharedPreference
     private lateinit var onBackPressed: OnBackPressedCallback
@@ -62,6 +67,9 @@ class MainFragment : Fragment() {
 //    private val isOnTaskRefesh = AtomicBoolean(true)
     var heartbeatCount: UByte = 0u
     //    lateinit var db: SaminDataBase
+
+    private var isOnTaskRefesh = AtomicBoolean(true)
+    private var updateJob: Job? = null
 
     override fun onAttach(context: Context) {
         activity = getActivity() as MainActivity
@@ -79,11 +87,17 @@ class MainFragment : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
+
+        isOnTaskRefesh.set(true)
+        startUpdateTask()
     }
 
     override fun onDetach() {
         activity = null
         super.onDetach()
+
+        isOnTaskRefesh.set(false)
+        stopUpdateTask()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,97 +108,18 @@ class MainFragment : Fragment() {
         }
     }
 
-    lateinit var thUIError: Thread
-//    var isrunthUIError = true
-    private var isrunthUIError = AtomicBoolean(true)
     override fun onResume() {
         super.onResume()
-        uiError()
-//        isOnTaskRefesh = true
-//        isOnTaskRefesh.set(true)
-//        taskRefresh = Thread() {
-//            try {
-//                while (isOnTaskRefesh) {
-//                    heartbeatCount++
-//                    activity?.runOnUiThread() {
-//                        mBinding.gasDockMainStatus.heartBeat(heartbeatCount)
-//                        mBinding.gasRoomMainStatus.heartBeat(heartbeatCount)
-//                        mBinding.oxygenMainStatus.heartBeat(heartbeatCount)
-//                        mBinding.steamerMainStatus.heartBeat(heartbeatCount)
-//                        mBinding.wasteLiquorMainStatus.heartBeat(heartbeatCount)
-//                    }
-//                    Thread.sleep(50)
-//                }
-//
-//            } catch (e: Exception) {
-////                e.printStackTrace()
-//            }
-//        }
-//        taskRefresh?.start()
-
-//        isrunthUIError = true
-//        viewmodel.steamerAlert.value = false
-//        thUIError = Thread {
-//            try {
-//                while (isrunthUIError) {
-//                    // 메인화면 경고 유무 변화
-//                    val targets = HashMap<Int, Int>()
-//                    for (t in viewmodel.alertMap.values) {
-//                        if (t.isAlert && !targets.containsKey(t.model)) {
-//                            targets[t.model] = t.model
-//                        }
-//                    }
-//
-//
-//                    activity?.runOnUiThread {
-//                        try {
-//                            viewmodel.gasStorageAlert.value = targets.containsKey(1)
-//                        } catch (ex: Exception) {
-//                        }
-//                        try {
-//                            viewmodel.gasRoomAlert.value = targets.containsKey(2)
-//                        } catch (ex: Exception) {
-//                        }
-//                        try {
-//                            viewmodel.wasteAlert.value = targets.containsKey(3)
-//                        } catch (ex: Exception) {
-//                        }
-//                        try {
-//                            viewmodel.oxyenAlert.value = targets.containsKey(4)
-//                        } catch (ex: Exception) {
-//                        }
-//                        try {
-//                            viewmodel.steamerAlert.value = targets.containsKey(5)
-//                        } catch (ex: Exception) {
-//                        }
-//                    }
-//
-//                    Thread.sleep(100)
-//                }
-//            } catch (e : Exception) {
-//
-//            }
-//        }
-//        thUIError?.start()
     }
 
     override fun onPause() {
         super.onPause()
-//        isrunthUIError = false
-        isrunthUIError.set(false)
-//        thUIError?.interrupt()
-        thUIError?.join()
-
         Log.d("MainFragment", "onPause ============================")
 
-//        isOnTaskRefesh = false
-//        isOnTaskRefesh.set(false)
-//        taskRefresh?.interrupt()
-//        taskRefresh?.join()
         activity?.shared?.setFragment(MainViewModel.MAINFRAGMENT)
     }
 
-    var isFirst = true
+//    var isFirst = true
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -192,15 +127,9 @@ class MainFragment : Fragment() {
         mBinding = FragmentMainBinding.inflate(inflater, container, false)
         shared = SaminSharedPreference(requireContext())
         setButtonClickEvent()
-//            mBinding.gasDockMainStatusLayout.visibility = View.VISIBLE
-//            mBinding.gasRoomMainStatusLayout.visibility = View.VISIBLE
-//            mBinding.wasteLiquorMainStatusLayout.visibility = View.VISIBLE
-//            mBinding.oxygenMainStatusLayout.visibility = View.VISIBLE
-//            mBinding.steamerMainStatusLayout.visibility = View.VISIBLE
-//            mBinding.tempHumMainStatusLayout.visibility = View.VISIBLE
-//            mBinding.tempHumMainStatus.setAlert(true)
-        if (isFirst) {
-            isFirst = false
+
+        if (activity?.isFirstRun?.get() == true) {
+            activity?.isFirstRun?.set(false)
             initView()
         }
         mainLayoutIconVisibility()
@@ -210,13 +139,6 @@ class MainFragment : Fragment() {
             mBinding.labIDTextView.text = shared.loadLabNameData()
         }
 
-//        mBinding.labIDTextView.setOnClickListener {
-//            shared.removeBoardSetData(SaminSharedPreference.GASSTORAGE)
-//            shared.removeBoardSetData(SaminSharedPreference.GASROOM)
-//            shared.removeBoardSetData(SaminSharedPreference.WASTELIQUOR)
-//            shared.removeBoardSetData(SaminSharedPreference.OXYGEN)
-//            shared.removeBoardSetData(SaminSharedPreference.STEAMER)
-//        }
         if (viewmodel.isSoundAlert) {
             mBinding.btnSound.setImageResource(R.drawable.sound_ic)
         } else {
@@ -272,14 +194,10 @@ class MainFragment : Fragment() {
         }
         mBinding.btnSound.setOnClickListener {
             onClick(mBinding.btnSound)
-//            throw RuntimeException("Test Crash")
         }
         mBinding.tempHumMainStatus.setOnClickListener{
             onClick(it)
         }
-//        mBinding.btnHomepage.setOnClickListener {
-//            onClick(it)
-//        }
     }
 
     private fun onClick(view: View) {
@@ -323,63 +241,8 @@ class MainFragment : Fragment() {
             mBinding.tempHumMainStatus ->{
                 activity?.onFragmentChange(MainViewModel.TEMPHUMMAINFRAGMENT)
             }
-//            mBinding.btnHomepage ->{
-//                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.saminsci.com/"))
-//                startActivity(intent)
-//            }
         }
     }
-
-    private fun sendAlertProtocol(data: ByteArray) {
-        activity?.sendProtocolToSerial(data)
-    }
-
-    private fun scanModel() {
-        getProgressShow()
-        sendThread = Thread {
-            try {
-//                viewmodel.isScanmode = true
-                viewmodel?.isScanmode?.set(true)
-                activity?.deleteExDataSet()
-                activity?.feedBackThreadInterrupt()
-                for (model in 1..5) {
-                    for (id in 0..7) {
-                        for (count in 0..2) {
-                            val protocol = SaminProtocol()
-                            protocol.checkModel(model.toByte(), id.toByte())
-//                            activity?.serialService?.sendData(protocol.mProtocol)
-                            sendAlertProtocol(protocol.mProtocol)
-                            Thread.sleep(40)
-                        }
-                    }
-                }
-                Thread.sleep(400)
-//                viewmodel.isScanmode = false
-                viewmodel?.isScanmode?.set(false)
-            } catch (e: Exception) {
-            }
-
-            activity?.runOnUiThread {
-                if (viewmodel.modelMap.isEmpty()) {
-                    Toast.makeText(requireContext(), "연결된 AQ보드가 없습니다.", Toast.LENGTH_SHORT).show()
-                }
-                initView()
-            }
-//            createHasKey()
-            if (activity?.isSending?.get() == false) {
-                activity?.callFeedback()
-//                activity?.isSending = true
-                activity?.isSending?.set(true)
-                viewmodel?.isScanmode?.set(true)
-            }
-            shared.saveHashMap(viewmodel.modelMap)
-            getProgressHidden()
-
-        }
-        sendThread.start()
-
-    }
-
 
     private fun initView() {
         mBinding.gasDockMainStatusLayout.visibility = View.GONE
@@ -387,11 +250,7 @@ class MainFragment : Fragment() {
         mBinding.wasteLiquorMainStatusLayout.visibility = View.GONE
         mBinding.oxygenMainStatusLayout.visibility = View.GONE
         mBinding.steamerMainStatusLayout.visibility = View.GONE
-//        if (viewmodel.isSoundAlert){
-//            mBinding.btnSound.setImageResource(R.drawable.sound_ic)
-//        }else{
-//            mBinding.btnSound.setImageResource(R.drawable.sound_mute_ic)
-//        }
+
         invalidateView()
         if (!shared.loadHashMap().isNullOrEmpty()) {
             shared.loadHashMap().forEach { (key, value) ->
@@ -462,18 +321,7 @@ class MainFragment : Fragment() {
                 }
             }
 
-//            viewmodel.oxygenMasterData = null
-//            viewmodel.oxygensData.clear()
-//            val tmpobj =
-//                shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)
-//            if (tmpobj is SetOxygenViewData) {
-//                viewmodel.oxygenMasterData = tmpobj
-//            }
-//            val oxygenMasterDataSet =
-//                (shared.loadBoardSetData(SaminSharedPreference.MASTEROXYGEN)) as SetOxygenViewData
-
-//            activity?.isSending = true
-            activity?.isSending?.set(true)
+//            activity?.isSending?.set(true)
             activity?.tmp?.LoadSetting()
             activity?.callFeedback()
             activity?.callTimemout()
@@ -482,6 +330,8 @@ class MainFragment : Fragment() {
         else {
             activity?.callTimemout()
         }
+
+        Log.d("MainFag", "callTimemout ================================>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<")
 
 
         createHasKey()
@@ -570,54 +420,6 @@ class MainFragment : Fragment() {
         mBinding.tempHumMainStatusLayout.invalidate()
     }
 
-    private fun getProgressShow() {
-        try {
-            val str_tittle = "Please Wait ..."
-            val str_message = "잠시만 기다려주세요 ...\n진행 중입니다 ..."
-            val str_buttonOK = "종료"
-            val str_buttonNO = "취소"
-
-            progress_Dialog = ProgressDialog(context)
-            progress_Dialog.setTitle(str_tittle) //팝업창 타이틀 지정
-            progress_Dialog.setIcon(R.mipmap.samin_launcher_ic) //팝업창 아이콘 지정
-            progress_Dialog.setMessage(str_message) //팝업창 내용 지정
-            progress_Dialog.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
-            progress_Dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER) //프로그레스 원형 표시 설정
-            progress_Dialog.setButton(
-                /* whichButton = */ DialogInterface.BUTTON_POSITIVE,
-                /* text = */ str_buttonOK,
-            ) { _, _ ->
-                try {
-                    sendThread.interrupt()
-                    viewmodel.removeModelMap()
-                    getProgressHidden()
-                } catch (e: Exception) {
-                }
-            }
-//            progress_Dialog.setButton(
-//                DialogInterface.BUTTON_NEGATIVE,
-//                str_buttonNO,
-//                DialogInterface.OnClickListener { dialog, which ->
-//                    getProgressHidden()
-//                })
-            try {
-                progress_Dialog.show()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun getProgressHidden() {
-        try {
-            progress_Dialog.dismiss()
-            progress_Dialog.cancel()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
 
     fun updateAlert() {
         viewmodel.wasteAlert.observe(viewLifecycleOwner) {
@@ -664,35 +466,6 @@ class MainFragment : Fragment() {
             }
         }
 
-    }
-
-    private fun uiError() {
-        isrunthUIError.set(true)
-        thUIError = Thread {
-            try {
-                while (isrunthUIError.get()) {
-                    // 메인화면 경고 유무 변화
-                    val targets = HashMap<Int, Int>()
-                    for (t in viewmodel.alertMap.values) {
-                        if (t.isAlert && !targets.containsKey(t.model)) {
-                            targets[t.model] = t.model
-                        }
-                    }
-
-                    activity?.runOnUiThread {
-                        if (targets.isNotEmpty()) {
-                            mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
-                        } else {
-                            mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
-                        }
-                    }
-                    Thread.sleep(100)
-                }
-            } catch (e: Exception) {
-
-            }
-        }
-        thUIError?.start()
     }
 
     private fun createHasKey() {
@@ -745,5 +518,32 @@ class MainFragment : Fragment() {
             result = result or (bytes[i].toUByte().toInt() shl 8 * i)
         }
         return result
+    }
+
+    private fun startUpdateTask() {
+        updateJob = CoroutineScope(Dispatchers.Main).launch {
+            while (isOnTaskRefesh.get()) {
+                // 메인화면 경고 유무 변화
+                val targets = HashMap<Int, Int>()
+                for (t in viewmodel.alertMap.values) {
+                    if (t.isAlert && !targets.containsKey(t.model)) {
+                        targets[t.model] = t.model
+                    }
+                }
+
+                if (targets.isNotEmpty()) {
+                    mBinding.btnAlert.setImageResource(R.drawable.onalert_ic)
+                } else {
+                    mBinding.btnAlert.setImageResource(R.drawable.nonalert_ic)
+                }
+                delay(100)
+            }
+        }
+
+        Log.d("MainFrag", "updateJob id : ${updateJob}")
+    }
+
+    private fun stopUpdateTask() {
+        updateJob?.cancel()
     }
 }

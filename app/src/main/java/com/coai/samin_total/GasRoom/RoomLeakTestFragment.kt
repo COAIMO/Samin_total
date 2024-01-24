@@ -23,7 +23,11 @@ import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
 import com.coai.samin_total.databinding.FragmentRoomLeakTestBinding
 import com.github.mikephil.charting.data.Entry
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -56,10 +60,10 @@ class RoomLeakTestFragment : Fragment() {
     private val viewmodel by activityViewModels<MainViewModel>()
     private lateinit var recycleAdapter: GasRoomLeakTest_RecycleAdapter
     lateinit var itemSpace: SpacesItemDecoration
-    private val lockobj = object {}
+//    private val lockobj = object {}
     private val newgasRoomViewData = arrayListOf<SetGasRoomViewData>()
     lateinit var alertdialogFragment: AlertDialogFragment
-    private var taskRefresh: Thread? = null
+//    private var taskRefresh: Thread? = null
 //    private var isOnTaskRefesh: Boolean = true
     private val isOnTaskRefesh = AtomicBoolean(true)
 
@@ -68,6 +72,9 @@ class RoomLeakTestFragment : Fragment() {
     private val graphData = CopyOnWriteArrayList<ChartDatas>()
     val END_LEAKTEST = 1
     val CREATE_FILE = 2
+
+    private var updateJob: Job? = null
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = getActivity() as MainActivity
@@ -84,6 +91,9 @@ class RoomLeakTestFragment : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressed)
+
+        isOnTaskRefesh.set(true)
+        startUpdateTask()
     }
 
     override fun onDetach() {
@@ -100,6 +110,9 @@ class RoomLeakTestFragment : Fragment() {
         gasRoomViewData.clear()
         activity = null
         onBackPressed.remove()
+
+        isOnTaskRefesh.set(false)
+        stopUpdateTask()
     }
 
 
@@ -113,116 +126,7 @@ class RoomLeakTestFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-//        for (t in leakTestview_data_Hashmap){
-//            t.value.procTimeLimit(viewmodel.isLeakTestTime)
-//        }
         recycleAdapter.setLeakTestTime(viewmodel.isLeakTestTime)
-
-//        isOnTaskRefesh = true
-        isOnTaskRefesh.set(true)
-        taskRefresh = Thread() {
-            try {
-                var lastupdate: Long = System.currentTimeMillis()
-                var lastupdate2: Long = System.currentTimeMillis()
-                val lstvalue = mutableListOf<Int>()
-                var startmill: Long = System.currentTimeMillis()
-                var testTime: Float
-                val collectTime: Int = Math.max(1000f, viewmodel.isLeakTestTime * 60 * 1000 / 600f).toInt()
-
-//                val hashmapPsi = hashMapOf<Int, ArrayList<PSIData>>()
-//                var firstChk = true
-                var heartbeatCount: UByte = 0u
-
-                while (isOnTaskRefesh.get()) {
-                    lstvalue.clear()
-                    heartbeatCount++
-                    try {
-                        for (t in newgasRoomViewData) {
-                            val idx = newgasRoomViewData.indexOf(t)
-                            val tmp = gasRoomViewData[idx]
-//
-                            if (idx > -1) {
-                                if (tmp.pressure != t.pressure ||
-                                    tmp.isAlert != t.isAlert ||
-                                    tmp.unit != t.unit ||
-                                    tmp.isSlopeAlert != t.isSlopeAlert ||
-                                    tmp.isPressAlert != t.isPressAlert
-                                ) {
-                                    if (!lstvalue.contains(idx))
-                                        lstvalue.add(idx)
-                                }
-
-                                if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
-                                    if (t.isAlert) {
-                                        if (!lstvalue.contains(idx))
-                                            lstvalue.add(idx)
-                                    }
-                                }
-                                t.heartbeatCount = heartbeatCount
-                                gasRoomViewData[idx] = t.copy()
-                            }
-                        }
-
-                        testTime = ((System.currentTimeMillis() - startmill) / 1000f)
-                        if (lastupdate2 <= System.currentTimeMillis() - collectTime) {
-                            if (viewmodel.isLeakTestTime * 60 > testTime) {
-                                for (t in graphData) {
-                                    val idx = graphData.indexOf(t)
-                                    t.data.add(
-                                        Entry(
-                                            testTime,
-                                            newgasRoomViewData[idx].pressure
-                                        )
-                                    )
-                                }
-                            }
-                            lastupdate2 = System.currentTimeMillis()
-                        }
-
-                        val baseTime = System.currentTimeMillis() - 1000 * 2
-                        if (lastupdate < baseTime) {
-                            lastupdate = System.currentTimeMillis()
-                            for (t in newgasRoomViewData) {
-                                val idx = newgasRoomViewData.indexOf(t)
-                                gasRoomViewData[idx] = t.copy()
-                            }
-
-//                            synchronized(lockobj) {
-                                activity?.runOnUiThread {
-                                    recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-                                }
-//                            }
-                        }
-                        else {
-
-
-                            val rlist = Utils.ToIntRange(lstvalue, gasRoomViewData.size)
-                            if (rlist != null) {
-//                                synchronized(lockobj) {
-                                    activity?.runOnUiThread() {
-                                        rlist.forEach {
-                                            recycleAdapter.notifyItemRangeChanged(
-                                                it.lower,
-                                                1 + it.upper - it.lower
-                                            )
-                                        }
-                                    }
-//                                }
-                            } else {
-
-                            }
-                        }
-                    } catch (ex: Exception) {
-                        ex.printStackTrace()
-                    }
-
-                    Thread.sleep(50)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        taskRefresh?.start()
     }
 
     override fun onCreateView(
@@ -231,7 +135,6 @@ class RoomLeakTestFragment : Fragment() {
     ): View? {
         mBinding = FragmentRoomLeakTestBinding.inflate(inflater, container, false)
         itemSpace = SpacesItemDecoration(50)
-//        initGridLayout()
         initRecycler()
         initView()
         setButtonClickEvent()
@@ -248,12 +151,9 @@ class RoomLeakTestFragment : Fragment() {
             if (!viewmodel.roomViewZoomState){
                 layoutManager =
                     GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-//                itemSpace.changeSpace(20, 20, 20, 20)
-//                itemSpace.changeSpace(150, 60, 150, 60)
             }else{
                 layoutManager =
                     GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
-//                itemSpace.changeSpace(150, 60, 150, 60)
             }
             itemSpace.changeSpace(60, 60, 60, 60)
             addItemDecoration(itemSpace)
@@ -261,7 +161,6 @@ class RoomLeakTestFragment : Fragment() {
             recycleAdapter = GasRoomLeakTest_RecycleAdapter()
             adapter = recycleAdapter
         }
-//        (mBinding.gasRoomRecyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
         mBinding.gasRoomLeakTestRecyclerView.itemAnimator = null
         mBinding.gasRoomLeakTestRecyclerView.animation = null
     }
@@ -318,23 +217,21 @@ class RoomLeakTestFragment : Fragment() {
     }
 
     private fun zoomInAndOut(zoomState: Boolean) {
-//        synchronized(lockobj) {
-            mBinding.gasRoomLeakTestRecyclerView.apply {
-                if (zoomState) {
-                    mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
+        mBinding.gasRoomLeakTestRecyclerView.apply {
+            if (zoomState) {
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
 
-                    viewmodel.roomViewZoomState = false
-                    layoutManager =
-                        GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-                }
-                else {
-                    mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
-                    viewmodel.roomViewZoomState = true
-                    layoutManager =
-                        GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
-                }
+                viewmodel.roomViewZoomState = false
+                layoutManager =
+                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
             }
-//        }
+            else {
+                mBinding.btnZoomInout.setImageResource(R.drawable.screen_decrease_ic)
+                viewmodel.roomViewZoomState = true
+                layoutManager =
+                    GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
+            }
+        }
     }
 
     private fun initView() {
@@ -373,11 +270,9 @@ class RoomLeakTestFragment : Fragment() {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
 
-//        synchronized(lockobj) {
-            activity?.runOnUiThread {
-                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
-            }
-//        }
+        activity?.runOnUiThread {
+            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+        }
     }
 
     private fun updateAlert() {
@@ -393,20 +288,103 @@ class RoomLeakTestFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-//        isOnTaskRefesh = false
-        isOnTaskRefesh.set(false)
-        taskRefresh?.interrupt()
-        taskRefresh?.join()
+    }
+
+    private fun startUpdateTask() {
+        updateJob = CoroutineScope(Dispatchers.Main).launch {
+            var lastupdate: Long = System.currentTimeMillis()
+            var lastupdate2: Long = System.currentTimeMillis()
+            val lstvalue = mutableListOf<Int>()
+            var startmill: Long = System.currentTimeMillis()
+            var testTime: Float
+            val collectTime: Int = Math.max(1000f, viewmodel.isLeakTestTime * 60 * 1000 / 600f).toInt()
+            var heartbeatCount: UByte = 0u
+
+            while(isOnTaskRefesh.get()) {
+                lstvalue.clear()
+                heartbeatCount++
+                try {
+                    for (t in newgasRoomViewData) {
+                        val idx = newgasRoomViewData.indexOf(t)
+                        val tmp = gasRoomViewData[idx]
+                        if (idx > -1) {
+                            if (tmp.pressure != t.pressure ||
+                                tmp.isAlert != t.isAlert ||
+                                tmp.unit != t.unit ||
+                                tmp.isSlopeAlert != t.isSlopeAlert ||
+                                tmp.isPressAlert != t.isPressAlert
+                            ) {
+                                if (!lstvalue.contains(idx))
+                                    lstvalue.add(idx)
+                            }
+
+                            if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
+                                if (t.isAlert) {
+                                    if (!lstvalue.contains(idx))
+                                        lstvalue.add(idx)
+                                }
+                            }
+                            t.heartbeatCount = heartbeatCount
+                            gasRoomViewData[idx] = t.copy()
+                        }
+                    }
+
+                    testTime = ((System.currentTimeMillis() - startmill) / 1000f)
+                    if (lastupdate2 <= System.currentTimeMillis() - collectTime) {
+                        if (viewmodel.isLeakTestTime * 60 > testTime) {
+                            for (t in graphData) {
+                                val idx = graphData.indexOf(t)
+                                t.data.add(
+                                    Entry(
+                                        testTime,
+                                        newgasRoomViewData[idx].pressure
+                                    )
+                                )
+                            }
+                        }
+                        lastupdate2 = System.currentTimeMillis()
+                    }
+
+                    val baseTime = System.currentTimeMillis() - 1000 * 2
+                    if (lastupdate < baseTime) {
+                        lastupdate = System.currentTimeMillis()
+                        for (t in newgasRoomViewData) {
+                            val idx = newgasRoomViewData.indexOf(t)
+                            gasRoomViewData[idx] = t.copy()
+                        }
+
+                        recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+                    }
+                    else {
+                        val rlist = Utils.ToIntRange(lstvalue, gasRoomViewData.size)
+                        if (rlist != null) {
+                            rlist.forEach {
+                                recycleAdapter.notifyItemRangeChanged(
+                                    it.lower,
+                                    1 + it.upper - it.lower
+                                )
+                            }
+                        }
+                    }
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
+
+                delay(50)
+            }
+        }
+    }
+
+    private fun stopUpdateTask() {
+        updateJob?.cancel()
     }
 
     val handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 END_LEAKTEST -> {
-//                    isOnTaskRefesh = false
                     isOnTaskRefesh.set(false)
-                    taskRefresh?.interrupt()
-                    taskRefresh?.join()
+                    stopUpdateTask()
 
                     if (viewmodel.isSaveLeakTestData.get()) {
                         val current = LocalDateTime.now()
