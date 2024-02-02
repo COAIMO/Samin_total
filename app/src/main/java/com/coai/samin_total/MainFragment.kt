@@ -252,8 +252,10 @@ class MainFragment : Fragment() {
         mBinding.steamerMainStatusLayout.visibility = View.GONE
 
         invalidateView()
-        if (!shared.loadHashMap().isNullOrEmpty()) {
-            shared.loadHashMap().forEach { (key, value) ->
+        val loadhashmap = shared.loadHashMap()
+        Log.d("MainFrag", "loadhashmap : ${loadhashmap.size}")
+        if (!loadhashmap.isNullOrEmpty()) {
+            loadhashmap.forEach { (key, value) ->
                 viewmodel.modelMap[key] = value
                 var id = when {
                     key.equals("GasDock") -> 1

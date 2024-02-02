@@ -48,12 +48,13 @@ class SaminSharedPreference(context: Context) {
         val mapString: String = Gson().toJson(hashMap)
         boardSetDataSharedPreference.edit().apply {
             putString("model_IDs", mapString)
-            apply()
+            commit()
         }
     }
 
     fun loadHashMap(): HashMap<String, ByteArray> {
         val value = boardSetDataSharedPreference.getString("model_IDs", "")
+        Log.d("loadHashMap", " loadHashMap : 로드가 문제인가? ================ ${value}")
         val token = object : TypeToken<HashMap<String, ByteArray>>() {}.type
         var map: HashMap<String, ByteArray> = hashMapOf()
         if (!value.isNullOrBlank()) {
@@ -66,7 +67,7 @@ class SaminSharedPreference(context: Context) {
         val listString = Gson().toJson(data)
         boardSetDataSharedPreference.edit().apply {
             putString("GasStorage", listString)
-            apply()
+            commit()
         }
     }
 
@@ -86,63 +87,63 @@ class SaminSharedPreference(context: Context) {
                 val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
                     putString(key, listString)
-                    apply()
+                    commit()
                 }
             }
             "GasRoom" -> {
                 val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
                     putString(key, listString)
-                    apply()
+                    commit()
                 }
             }
             "WasteLiquor" -> {
                 val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
                     putString(key, listString)
-                    apply()
+                    commit()
                 }
             }
             "Oxygen" -> {
                 val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
                     putString(key, listString)
-                    apply()
+                    commit()
                 }
             }
             "Steamer" -> {
                 val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
                     putString(key, listString)
-                    apply()
+                    commit()
                 }
             }
             "Control" -> {
                 val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
                     putString(key, listString)
-                    apply()
+                    commit()
                 }
             }
             "MasterOxygen" -> {
                 val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
                     putString(key, listString)
-                    apply()
+                    commit()
                 }
             }
             "TempHum" -> {
                 val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
                     putString(key, listString)
-                    apply()
+                    commit()
                 }
             }
             "Baudrate" -> {
                 val listString = Gson().toJson(data)
                 boardSetDataSharedPreference.edit().apply {
                     putString(key, listString)
-                    apply()
+                    commit()
                 }
             }
         }
@@ -237,7 +238,7 @@ class SaminSharedPreference(context: Context) {
     fun removeBoardSetData(key: String) {
         boardSetDataSharedPreference.edit().apply {
             remove(key)
-            apply()
+            commit()
         }
     }
 
@@ -245,7 +246,7 @@ class SaminSharedPreference(context: Context) {
         val listString = Gson().toJson(data)
         boardSetDataSharedPreference.edit().apply {
             putString(key, listString)
-            apply()
+            commit()
         }
     }
 
@@ -262,7 +263,7 @@ class SaminSharedPreference(context: Context) {
     fun SavecheckTimeOutState(value: Boolean) {
         boardSetDataSharedPreference.edit().apply {
             putBoolean(TIMEOUTSTATE, value)
-            apply()
+            commit()
         }
     }
 
@@ -273,7 +274,7 @@ class SaminSharedPreference(context: Context) {
     fun SaveFeedbackTiming(time: Long) {
         boardSetDataSharedPreference.edit().apply {
             putLong(FEEDBACKTIMING, time)
-            apply()
+            commit()
         }
     }
 
@@ -289,7 +290,7 @@ class SaminSharedPreference(context: Context) {
     fun saveAlarmSound(value: Boolean) {
         boardSetDataSharedPreference.edit().apply {
             putBoolean(ALARMSOUND, value)
-            apply()
+            commit()
         }
     }
 
@@ -304,7 +305,7 @@ class SaminSharedPreference(context: Context) {
     fun setFragment(value: Int) {
         boardSetDataSharedPreference.edit().apply {
             putInt(LASTFRAGMENT, value)
-            apply()
+            commit()
         }
     }
 
@@ -314,7 +315,7 @@ class SaminSharedPreference(context: Context) {
     fun setNoSerialCount(value: Int) {
         boardSetDataSharedPreference.edit().apply {
             putInt(NOSERIALCOUNT, value)
-            apply()
+            commit()
         }
     }
 }

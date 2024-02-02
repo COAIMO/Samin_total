@@ -2,14 +2,17 @@ package com.coai.samin_total
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.app.ProgressDialog
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -18,6 +21,7 @@ import android.os.Message
 import android.os.Messenger
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -157,6 +161,8 @@ class MainActivity : AppCompatActivity() {
     val mainTAG = "태그"
     val isFirstRun = AtomicBoolean(true)
 
+    val isSharingSetting = AtomicBoolean(false)
+
 //    val isReStartApp = AtomicBoolean(false)
 //    val restartCount = AtomicInteger(0)
 //    private val executorService = Executors.newSingleThreadScheduledExecutor()
@@ -239,13 +245,24 @@ class MainActivity : AppCompatActivity() {
 
         // 예를 들어, 알람에 사용된 BroadcastReceiver의 클래스 이름이 MyAlarmReceiver라고 가정
         val intent = Intent(context, AppRestartReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         alarmManager.cancel(pendingIntent)
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            if (alarmManager?.canScheduleExactAlarms() == false) {
+                Intent().also { intent ->
+                    intent.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+                    startActivity(intent)
+                }
+            }
+        }
+
         cancelAllAlarms(this)
         setRestartAlarm(this)
 
@@ -276,12 +293,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
         db = SaminDataBase.getIstance(applicationContext)!!
         callbackThread = Thread()
-        shared = SaminSharedPreference(this)
-        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        shared = SaminSharedPreference(this@MainActivity)
+        mainViewModel = ViewModelProvider(this@MainActivity).get(MainViewModel::class.java)
         mainViewModel.controlData =
             shared.loadBoardSetData(SaminSharedPreference.CONTROL) as ControlData
         tmp = AQDataParser(mainViewModel)
@@ -685,7 +703,7 @@ class MainActivity : AppCompatActivity() {
 
                             val usbdetach = mainViewModel.usbdetachetime.get()
                             if (usbdetach != 0L) {
-                                if ((usbdetach + 1000L * 15) < System.currentTimeMillis()) {
+                                if ((usbdetach + 1000L * 30) < System.currentTimeMillis()) {
                                     Log.d(
                                         "usbdetachetime",
                                         "=================== Time : ${mainViewModel.usbdetachetime.get()} current : ${System.currentTimeMillis()}"
@@ -1357,6 +1375,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun getBase64Decode(arg: ByteArray): ByteArray {
+        return Base64.decode(arg, 0)
+    }
     val dateformat: SimpleDateFormat =
         SimpleDateFormat("yyyy-MM-dd kk:mm:ss", Locale("ko", "KR"))
     private val serialSVCIPCHandler = object : Handler(Looper.getMainLooper()) {
@@ -1513,8 +1534,42 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 SerialService.MSG_SHARE_SETTING -> {
+                    if (!mainViewModel.controlData.isMirrorMode)
+                        return
+
                     val buff = msg.data.getByteArray("")
-                    Log.d(mainTAG, "datahandler : \n${HexDump.dumpHexString(buff)}")
+//                    Log.d(mainTAG,"===================================================================================")
+//                    Log.d(mainTAG, "datahandler : \n${HexDump.dumpHexString(buff)}")
+                    if (!isSharingSetting.get()) {
+                        isSharingSetting.set(true)
+                        val progress_Dialog = ProgressDialog(this@MainActivity)
+                        progress_Dialog.setTitle("설정 복제 중") //팝업창 타이틀 지정
+                        progress_Dialog.setIcon(R.mipmap.samin_launcher_ic) //팝업창 아이콘 지정
+                        progress_Dialog.setMessage(
+                            "잠시만 기다려주세요 ...\n" +
+                                "진행 중입니다 ...\n" +
+                            "1분 이상 팝업이 유지되면 설정 복제를 다시 하시기 바랍니다."
+                        ) //팝업창 내용 지정
+                        progress_Dialog.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
+                        progress_Dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER) //프로그레스 원형 표시 설정
+                        progress_Dialog.setButton(
+                            /* whichButton = */ DialogInterface.BUTTON_POSITIVE,
+                            /* text = */ "취소",
+                        ) { _, _ ->
+                            try {
+                                progress_Dialog.dismiss()
+                                progress_Dialog.cancel()
+                                isSharingSetting.set(false)
+                            } catch (e: Exception) {
+                            }
+                        }
+
+                        try {
+                            progress_Dialog.show()
+                        } catch (progesse: Exception) {
+                            progesse.printStackTrace()
+                        }
+                    }
                     if (buff != null) {
                         when (buff[2]) {
                             0x11.toByte() -> {
@@ -1558,13 +1613,25 @@ class MainActivity : AppCompatActivity() {
                                 // 가스독 설정 복원
                                 var tmpgas = ByteArray(0)
                                 val sortGas = sortMapByKey(recvGasStorageBuffers)
+//                                tmpgas = tmpgas.plus(255.toByte())
                                 for (t in sortGas.values) {
                                     tmpgas = tmpgas.plus(t.sliceArray(8 until t.size))
                                 }
-                                //                            Log.d(mainTAG, "tmpgas : ${HexDump.dumpHexString(tmpgas)}")
+
+                                Log.d(mainTAG, "tmpgas : ${HexDump.dumpHexString(tmpgas)}")
+                                try {
+                                    tmpgas = getBase64Decode(tmpgas)
+                                } catch (ee: Exception) {
+                                    tmpgas = ByteArray(0)
+                                    allDone = false
+                                }
+                                Log.d(mainTAG, "tmpgas : ${HexDump.dumpHexString(tmpgas)}")
+                                Log.d(mainTAG, "설정 데이터 전송 완료 ================ 1")
+
                                 try {
                                     @OptIn(ExperimentalSerializationApi::class)
-                                    val objgas = ProtoBuf.decodeFromByteArray<List<SetGasStorageViewData>>(
+                                    val objgas =
+                                        ProtoBuf.decodeFromByteArray<List<SetGasStorageViewData>>(
                                             tmpgas
                                         )
                                     mainViewModel.GasStorageDataLiveList.clear(true)
@@ -1582,23 +1649,33 @@ class MainActivity : AppCompatActivity() {
                                     for (i in mainViewModel.GasStorageDataLiveList.value!!) {
                                         tmpbuff.add(i)
                                     }
-                                    shared.saveBoardSetData(SaminSharedPreference.GASSTORAGE, tmpbuff)
-
+                                    shared.saveBoardSetData(
+                                        SaminSharedPreference.GASSTORAGE,
+                                        tmpbuff
+                                    )
                                 } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
-
+                                Log.d(mainTAG, "설정 데이터 전송 완료 ================ 2")
                                 // 가스룸 설정 복원
                                 var tmpgasroom = ByteArray(0)
                                 val sortGasroom = sortMapByKey(recvGasRoomBuffers)
                                 for (t in sortGasroom.values) {
                                     tmpgasroom = tmpgasroom.plus(t.sliceArray(8 until t.size))
                                 }
-                                //                            Log.d(mainTAG, "tmpgasroom : ${HexDump.dumpHexString(tmpgasroom)}")
+                                Log.d(mainTAG, "tmpgasroom : ${HexDump.dumpHexString(tmpgasroom)}")
+                                try {
+                                    tmpgasroom = getBase64Decode(tmpgasroom)
+                                } catch (ee: Exception) {
+                                    tmpgasroom = ByteArray(0)
+                                    allDone = false
+                                }
+                                Log.d(mainTAG, "tmpgasroom : ${HexDump.dumpHexString(tmpgasroom)}")
                                 try {
                                     @OptIn(ExperimentalSerializationApi::class)
-                                    val objgas = ProtoBuf.decodeFromByteArray<List<SetGasRoomViewData>>(
+                                    val objgas =
+                                        ProtoBuf.decodeFromByteArray<List<SetGasRoomViewData>>(
                                             tmpgasroom
                                         )
                                     mainViewModel.GasRoomDataLiveList.clear(true)
@@ -1607,17 +1684,23 @@ class MainActivity : AppCompatActivity() {
                                         t.isAlert = false
                                         t.heartbeatCount = 0u
                                         mainViewModel.GasRoomDataLiveList.add(t)
+                                        Log.d(mainTAG, "${t.gasName} ${t.gasColor}")
                                     }
                                     val tmpbuff = mutableListOf<SetGasRoomViewData>()
-                                    for (i in mainViewModel.GasRoomDataLiveList.value!!) {
+                                    for (i in mainViewModel.GasRoomDataLiveList.value!!)
+                                    {
+                                        Log.d(mainTAG, "${i.gasName} ${i.gasColor}")
                                         tmpbuff.add(i)
                                     }
-                                    shared.saveBoardSetData(SaminSharedPreference.GASROOM, tmpbuff)
+                                    shared.saveBoardSetData(
+                                        SaminSharedPreference.GASROOM,
+                                        tmpbuff
+                                    )
                                 } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
-
+                                Log.d(mainTAG, "설정 데이터 전송 완료 ================ 3")
                                 // 폐액통 설정 복원
                                 var tmpwaste = ByteArray(0)
                                 val sortWaste = sortMapByKey(recvWasteBuffers)
@@ -1626,8 +1709,16 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 Log.d(mainTAG, "tmpwaste : ${HexDump.dumpHexString(tmpwaste)}")
                                 try {
+                                    tmpwaste = getBase64Decode(tmpwaste)
+                                } catch (ee: Exception) {
+                                    tmpwaste = ByteArray(0)
+                                    allDone = false
+                                }
+                                Log.d(mainTAG, "tmpwaste : ${HexDump.dumpHexString(tmpwaste)}")
+                                try {
                                     @OptIn(ExperimentalSerializationApi::class)
-                                    val objgas = ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(
+                                    val objgas =
+                                        ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(
                                             tmpwaste
                                         )
                                     mainViewModel.WasteLiquorDataLiveList.clear(true)
@@ -1640,23 +1731,33 @@ class MainActivity : AppCompatActivity() {
                                     for (i in mainViewModel.WasteLiquorDataLiveList.value!!) {
                                         tmpbuff.add(i)
                                     }
-                                    shared.saveBoardSetData(SaminSharedPreference.WASTELIQUOR, tmpbuff)
-
+                                    shared.saveBoardSetData(
+                                        SaminSharedPreference.WASTELIQUOR,
+                                        tmpbuff
+                                    )
                                 } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
-
+                                Log.d(mainTAG, "설정 데이터 전송 완료 ================ 4")
                                 // 산소농도 설정 복원
                                 var tmpOxygen = ByteArray(0)
                                 val sortOxygen = sortMapByKey(recvOxygenBuffers)
                                 for (t in sortOxygen.values) {
                                     tmpOxygen = tmpOxygen.plus(t.sliceArray(8 until t.size))
                                 }
-                                //                            Log.d(mainTAG, "tmpOxygen : ${HexDump.dumpHexString(tmpOxygen)}")
+                                Log.d(mainTAG, "tmpOxygen : ${HexDump.dumpHexString(tmpOxygen)}")
+                                try {
+                                    tmpOxygen = getBase64Decode(tmpOxygen)
+                                } catch (ee: Exception) {
+                                    tmpOxygen = ByteArray(0)
+                                    allDone = false
+                                }
+                                Log.d(mainTAG, "tmpOxygen : ${HexDump.dumpHexString(tmpOxygen)}")
                                 try {
                                     @OptIn(ExperimentalSerializationApi::class)
-                                    val objgas = ProtoBuf.decodeFromByteArray<List<SetOxygenViewData>>(
+                                    val objgas =
+                                        ProtoBuf.decodeFromByteArray<List<SetOxygenViewData>>(
                                             tmpOxygen
                                         )
                                     mainViewModel.OxygenDataLiveList.clear(true)
@@ -1670,22 +1771,33 @@ class MainActivity : AppCompatActivity() {
                                     for (i in mainViewModel.OxygenDataLiveList.value!!) {
                                         tmpbuff.add(i)
                                     }
-                                    shared.saveBoardSetData(SaminSharedPreference.OXYGEN, tmpbuff)
+                                    shared.saveBoardSetData(
+                                        SaminSharedPreference.OXYGEN,
+                                        tmpbuff
+                                    )
                                 } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
-
+                                Log.d(mainTAG, "설정 데이터 전송 완료 ================ 5")
                                 // 스팀기 설정 복원
                                 var tmpSteamer = ByteArray(0)
                                 val sortSteamer = sortMapByKey(recvSteamerBuffers)
                                 for (t in sortSteamer.values) {
                                     tmpSteamer = tmpSteamer.plus(t.sliceArray(8 until t.size))
                                 }
-                                //                            Log.d(mainTAG, "tmpSteamer : ${HexDump.dumpHexString(tmpSteamer)}")
+                                Log.d(mainTAG, "tmpSteamer : ${HexDump.dumpHexString(tmpSteamer)}")
+                                try {
+                                    tmpSteamer = getBase64Decode(tmpSteamer)
+                                } catch (ee: Exception) {
+                                    tmpSteamer = ByteArray(0)
+                                    allDone = false
+                                }
+                                Log.d(mainTAG, "tmpSteamer : ${HexDump.dumpHexString(tmpSteamer)}")
                                 try {
                                     @OptIn(ExperimentalSerializationApi::class)
-                                    val objgas = ProtoBuf.decodeFromByteArray<List<SetSteamerViewData>>(
+                                    val objgas =
+                                        ProtoBuf.decodeFromByteArray<List<SetSteamerViewData>>(
                                             tmpSteamer
                                         )
                                     mainViewModel.SteamerDataLiveList.clear(true)
@@ -1700,22 +1812,34 @@ class MainActivity : AppCompatActivity() {
                                     for (i in mainViewModel.SteamerDataLiveList.value!!) {
                                         tmpbuff.add(i)
                                     }
-                                    shared.saveBoardSetData(SaminSharedPreference.STEAMER, tmpbuff)
+                                    shared.saveBoardSetData(
+                                        SaminSharedPreference.STEAMER,
+                                        tmpbuff
+                                    )
                                 } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
-
+                                Log.d(mainTAG, "설정 데이터 전송 완료 ================ 6")
                                 // 온습도 설정 복원
                                 var tmpTempHum = ByteArray(0)
                                 val sortTempHum = sortMapByKey(recvTempHumBuffers)
                                 for (t in sortTempHum.values) {
                                     tmpTempHum = tmpTempHum.plus(t.sliceArray(8 until t.size))
                                 }
-                                //                            Log.d(mainTAG, "tmpSteamer : ${HexDump.dumpHexString(tmpSteamer)}")
+//                                tmpTempHum = Base64.getDecoder().decode(tmpTempHum)
+                                Log.d(mainTAG, "tmpSteamer : ${HexDump.dumpHexString(tmpSteamer)}")
+                                try {
+                                    tmpTempHum = getBase64Decode(tmpTempHum)
+                                } catch (ee: Exception) {
+                                    tmpTempHum = ByteArray(0)
+                                    allDone = false
+                                }
+                                Log.d(mainTAG, "tmpSteamer : ${HexDump.dumpHexString(tmpSteamer)}")
                                 try {
                                     @OptIn(ExperimentalSerializationApi::class)
-                                    val objgas = ProtoBuf.decodeFromByteArray<List<SetTempHumViewData>>(
+                                    val objgas =
+                                        ProtoBuf.decodeFromByteArray<List<SetTempHumViewData>>(
                                             tmpTempHum
                                         )
                                     mainViewModel.TempHumDataLiveList.clear(true)
@@ -1732,48 +1856,71 @@ class MainActivity : AppCompatActivity() {
                                     for (i in mainViewModel.TempHumDataLiveList.value!!) {
                                         tmpbuff.add(i)
                                     }
-                                    shared.saveBoardSetData(SaminSharedPreference.TEMPHUM, tmpbuff)
+                                    shared.saveBoardSetData(
+                                        SaminSharedPreference.TEMPHUM,
+                                        tmpbuff
+                                    )
                                 } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
 
-
+                                Log.d(mainTAG, "설정 데이터 전송 완료 ================ 7")
                                 var tmpModemap = ByteArray(0)
                                 val sortModemap = sortMapByKey(recvModemapBuffers)
                                 for (t in sortModemap.values) {
                                     tmpModemap = tmpModemap.plus(t.sliceArray(8 until t.size))
                                 }
-                                mainViewModel.modelMap.clear()
+                                Log.d(mainTAG, "tmpModemap : ${HexDump.dumpHexString(tmpModemap)}")
+                                try {
+                                    tmpModemap = getBase64Decode(tmpModemap)
+                                } catch (ee: Exception) {
+                                    tmpModemap = ByteArray(0)
+                                    allDone = false
+                                }
+                                Log.d(mainTAG, "tmpModemap : ${HexDump.dumpHexString(tmpModemap)}")
+//                                mainViewModel.modelMap.clear()
+                                val modelMap = HashMap<String, ByteArray>()
                                 try {
                                     @OptIn(ExperimentalSerializationApi::class)
-                                    val objgas = ProtoBuf.decodeFromByteArray<HashMap<String, ByteArray>>(
+                                    val objgas =
+                                        ProtoBuf.decodeFromByteArray<HashMap<String, ByteArray>>(
                                             tmpModemap
                                         )
                                     for (t in objgas) {
-                                        mainViewModel.modelMap[t.key] = t.value
+                                        modelMap[t.key] = t.value
                                         val id = when (t.key) {
-                                          "GasDock" -> 1
-                                          "GasRoom" -> 2
-                                          "WasteLiquor" -> 3
-                                          "Oxygen" -> 4
-                                          "Steamer" -> 5
-                                          "TempHum" -> 6
-                                          else -> 1
+                                            "GasDock" -> 1
+                                            "GasRoom" -> 2
+                                            "WasteLiquor" -> 3
+                                            "Oxygen" -> 4
+                                            "Steamer" -> 5
+                                            "TempHum" -> 6
+                                            else -> 1
                                         }
-
-                                        mainViewModel.modelMapInt[id] = t.value.clone()
+//                                        mainViewModel.modelMapInt[id] = t.value.clone()
                                     }
-                                    shared.saveHashMap(mainViewModel.modelMap)
+
+                                    shared.saveHashMap(modelMap)
+                                    val tmp = shared.loadHashMap()
+                                    Log.d(mainTAG, "설정 데이터 전송 완료 ================ loadHashMap ${tmp.size}")
                                 } catch (e: Exception) {
                                     e.printStackTrace()
                                     allDone = false
                                 }
 
+                                Log.d(mainTAG, "설정 데이터 전송 완료 ================ 8")
                                 var tmpLabname = ByteArray(0)
                                 val sortLabname = sortMapByKey(recvLabNameBuffers)
                                 for (t in sortLabname.values) {
                                     tmpLabname = tmpLabname.plus(t.sliceArray(8 until t.size))
+                                }
+//                                tmpLabname = Base64.getDecoder().decode(tmpLabname)
+                                try {
+                                    tmpLabname = getBase64Decode(tmpLabname)
+                                } catch (ee: Exception) {
+                                    tmpLabname = ByteArray(0)
+                                    allDone = false
                                 }
                                 try {
                                     @OptIn(ExperimentalSerializationApi::class)
@@ -1786,32 +1933,50 @@ class MainActivity : AppCompatActivity() {
                                     e.printStackTrace()
                                     allDone = false
                                 }
+                                Log.d(mainTAG, "설정 데이터 전송 완료 ================ 9")
+//                                tmp.LoadSetting()
+//                                discallFeedback()
+//                                discallTimemout()
 
-                                discallFeedback()
-                                discallTimemout()
-
-                                tmp.LoadSetting()
-//                                tmp.hmapLastedDate.keys.forEach{
-//                                    mainViewModel.hasKey.put(it, it)
+//                                tmp.LoadSetting()
+////                                tmp.hmapLastedDate.keys.forEach{
+////                                    mainViewModel.hasKey.put(it, it)
+////                                }
+//                                for (tmp in tmp.hmapLastedDate.keys) {
+//                                    mainViewModel.hasKey.put(tmp, tmp)
 //                                }
-                                for (tmp in tmp.hmapLastedDate.keys) {
-                                    mainViewModel.hasKey.put(tmp, tmp)
-                                }
 
-                                callFeedback()
-                                callTimemout()
+//                                CoroutineScope(Dispatchers.IO).launch {
+//                                    Log.d(mainTAG, "설정 데이터 전송 완료 ================ 코루틴 실행")
+//                                    val intent = Intent(applicationContext, AppRestartReceiver::class.java)
+//                                    val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent,
+//                                        PendingIntent.FLAG_IMMUTABLE)
+//                                    pendingIntent.send()
+//                                }
+
+//                                val intent =
+//                                    Intent(applicationContext, AppRestartReceiver::class.java)
+//                                val pendingIntent = PendingIntent.getBroadcast(
+//                                    applicationContext, 0, intent,
+//                                    PendingIntent.FLAG_IMMUTABLE
+//                                )
+//                                pendingIntent.send()
+//
+//                                android.os.Process.killProcess(android.os.Process.myPid())
+//                                System.exit(10)
 
                                 if (allDone) {
-                                    recvGasStorageBuffers.clear()
-                                    recvGasRoomBuffers.clear()
-                                    recvWasteBuffers.clear()
-                                    recvOxygenBuffers.clear()
-                                    recvSteamerBuffers.clear()
-                                    recvOxygenMSTBuffers.clear()
-                                    recvModemapBuffers.clear()
-                                    recvTempHumBuffers.clear()
-                                    onFragmentChange(MainViewModel.MAINSETTINGFRAGMENT)
+                                    val restartIntent =
+                                        Intent(applicationContext, MainActivity::class.java).apply {
+                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                        }
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        applicationContext.startActivity(restartIntent)
+                                        android.os.Process.killProcess(android.os.Process.myPid())
+                                        System.exit(10)
+                                    }
                                 }
+                                Log.d(mainTAG, "설정 데이터 전송 완료 ================ 종료")
                             }
                         }
                     }

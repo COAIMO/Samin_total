@@ -9,10 +9,20 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
-import android.os.*
+import android.os.Binder
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
+import android.os.Message
+import android.os.Messenger
 import android.util.Log
 import com.coai.samin_total.BuildConfig
-import com.coai.samin_total.Logic.*
+import com.coai.samin_total.Logic.ParsingData
+import com.coai.samin_total.Logic.SaminProtocol
+import com.coai.samin_total.Logic.SaminProtocolMode
+import com.coai.samin_total.Logic.SaminSVCSharedPreference
 import com.hoho.android.usbserial.driver.UsbSerialDriver
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
@@ -22,10 +32,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.lang.RuntimeException
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
+
 
 class SerialService : Service(), SerialInputOutputManager.Listener {
     //    SerialInputOutputManager.Listener
@@ -163,9 +173,11 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //            clients.forEach {
 //                it.send(msg)
 //            }
-            weakClients.get()?.forEach {
-                it.send(msg)
-            }
+            try {
+                weakClients.get()?.forEach {
+                    it.send(msg)
+                }
+            } catch (ex: Exception) {}
         }
     }
 
@@ -346,10 +358,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     private fun findUSBSerialDevice(hasPermission: Boolean = false) {
         usbManager = getSystemService(Context.USB_SERVICE) as UsbManager
-        if (usbManager.deviceList.isEmpty()) {
-            incomingHandler?.sendMSG_NO_SERIAL()
-            return
-        }
+//        if (usbManager.deviceList.isEmpty()) {
+//            incomingHandler?.sendMSG_NO_SERIAL()
+//            return
+//        }
         usbDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
         if (usbDrivers == null) {
             incomingHandler?.sendMSG_NO_SERIAL()
@@ -360,11 +372,19 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             device = usbDriver.device
 
             if (!hasPermission) {
+                val flags =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_MUTABLE else 0
                 val intent: PendingIntent =
-                    PendingIntent.getBroadcast(this, 0, Intent(INTENT_ACTION_GRANT_USB), 0)
+                    PendingIntent.getBroadcast(this, 0, Intent(INTENT_ACTION_GRANT_USB), flags)
                 usbManager.requestPermission(device, intent)
             } else {
-                serialPortConnect()
+                while (true) {
+                    try {
+                        serialPortConnect()
+                        break;
+                    } catch (e: Exception) {
+                    }
+                }
                 incomingHandler?.sendConnected()
             }
         } else {

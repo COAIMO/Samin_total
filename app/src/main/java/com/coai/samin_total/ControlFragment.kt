@@ -8,6 +8,7 @@ import android.content.DialogInterface
 import android.content.Intent
 //import android.content.Intent
 import android.os.Bundle
+import android.util.Base64
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,8 +22,14 @@ import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.Logic.*
 import com.coai.samin_total.databinding.FragmentControlBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
+//import java.util.Base64
+
 //import kotlin.system.exitProcess
 
 // TODO: Rename parameter arguments, choose names that match
@@ -229,6 +236,7 @@ class ControlFragment : Fragment() {
                 )
                 sendProtocolToSerial(protocol.mProtocol.clone())
                 idx++
+                Thread.sleep(55)
             }
         } else {
             protocol.buildProtocol(model, 0.toByte(), SaminProtocolMode.SettingShare.byte, null)
@@ -236,12 +244,17 @@ class ControlFragment : Fragment() {
         }
     }
 
+    private fun getBase64byteArray(arg: ByteArray): ByteArray {
+//        return Base64.getEncoder().encodeToString(arg).toByteArray()
+        return Base64.encode(arg, 0)
+    }
+
     private fun sendSettingValues() {
         getProgressShow()
         sendThread = Thread {
 //            activity?.isAnotherJob = true
             activity?.isAnotherJob?.set(true)
-            Thread.sleep(100)
+            Thread.sleep(500)
             try {
                 var bytes: ByteArray? = null
                 var byteRoom: ByteArray? = null
@@ -254,39 +267,41 @@ class ControlFragment : Fragment() {
                 var byteTemphum: ByteArray? = null
                 val labname = SaminSharedPreference(requireContext()).loadLabNameData()
 
-                byteModelmap = ProtoBuf.encodeToByteArray(viewmodel.modelMap)
+                byteModelmap = getBase64byteArray(ProtoBuf.encodeToByteArray(viewmodel.modelMap))
 
                 viewmodel.GasStorageDataLiveList.value?.let {
-                    bytes = ProtoBuf.encodeToByteArray(it.toList())
+                    bytes = getBase64byteArray(ProtoBuf.encodeToByteArray(it.toList()))
                 }
 
                 viewmodel.GasRoomDataLiveList.value?.let {
-                    byteRoom = ProtoBuf.encodeToByteArray(it.toList())
+                    byteRoom = getBase64byteArray(ProtoBuf.encodeToByteArray(it.toList()))
                 }
 
                 viewmodel.WasteLiquorDataLiveList.value?.let {
-                    byteWaste = ProtoBuf.encodeToByteArray(it.toList())
+                    byteWaste = getBase64byteArray(ProtoBuf.encodeToByteArray(it.toList()))
                     //                var ttt = ProtoBuf.decodeFromByteArray<List<SetWasteLiquorViewData>>(byteWaste!!)
                     //                println(ttt)
                 }
 
                 viewmodel.OxygenDataLiveList.value?.let {
-                    byteOxyzen = ProtoBuf.encodeToByteArray(it.toList())
+                    byteOxyzen = getBase64byteArray(ProtoBuf.encodeToByteArray(it.toList()))
                 }
 
                 viewmodel.SteamerDataLiveList.value?.let {
-                    byteSteamer = ProtoBuf.encodeToByteArray(it.toList())
+                    byteSteamer = getBase64byteArray(ProtoBuf.encodeToByteArray(it.toList()))
                 }
 
 //                viewmodel.oxygenMasterData?.let {
 //                    byteOxyzenMst = ProtoBuf.encodeToByteArray(it)
 //                }
                 viewmodel.TempHumDataLiveList.value?.let {
-                    byteTemphum = ProtoBuf.encodeToByteArray(it.toList())
+                    byteTemphum = getBase64byteArray(ProtoBuf.encodeToByteArray(it.toList()))
                 }
-                byteLabName = ProtoBuf.encodeToByteArray(labname)
+                byteLabName = getBase64byteArray(ProtoBuf.encodeToByteArray(labname))
 
-                for (i in 0..50) {
+                progress_Dialog?.incrementProgressBy(40)
+
+                for (i in 0..5) {
                     // 가스 스토리지
                     bytes.let {
                         sendMultipartSend((16 + 1).toByte(), it)
@@ -334,10 +349,13 @@ class ControlFragment : Fragment() {
                     byteLabName.let {
                         sendMultipartSend((16 + 8).toByte(), it)
                     }
-                    Thread.sleep(100)
+                    Thread.sleep(200)
+                    progress_Dialog?.incrementProgressBy(10)
                 }
                 sendMultipartSend(32.toByte())
+
                 Thread.sleep(100)
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -363,7 +381,7 @@ class ControlFragment : Fragment() {
             progress_Dialog.setIcon(R.mipmap.samin_launcher_ic) //팝업창 아이콘 지정
             progress_Dialog.setMessage(str_message) //팝업창 내용 지정
             progress_Dialog.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
-            progress_Dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER) //프로그레스 원형 표시 설정
+            progress_Dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL) //프로그레스 원형 표시 설정
             progress_Dialog.setButton(
                 /* whichButton = */ DialogInterface.BUTTON_POSITIVE,
                 /* text = */ str_buttonOK,
