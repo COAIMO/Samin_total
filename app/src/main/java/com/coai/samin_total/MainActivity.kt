@@ -654,6 +654,7 @@ class MainActivity : AppCompatActivity() {
 //    var isSending = false
     var isSending = AtomicBoolean(false)
     val isAnotherJob = AtomicBoolean(false)
+    val isAnotherSettingJob = AtomicBoolean(false)
 
     fun feedBackThreadInterrupt() {
 //        isSending = false
@@ -737,15 +738,22 @@ class MainActivity : AppCompatActivity() {
 
     private fun discallFeedback() {
         isSending.set(false)
-        callbackThread?.join()
+        isAnotherSettingJob.set(false)
+        isAnotherJob.set(false)
+        callbackThread?.interrupt()
+//        callbackThread?.join()
     }
 
     fun callFeedback() {
         isSending.set(false)
+        isAnotherSettingJob.set(false)
+        isAnotherJob.set(false)
         callbackThread?.interrupt()
-        callbackThread?.join()
+//        callbackThread?.join()
 
         isSending.set(true)
+        isAnotherSettingJob.set(false)
+        isAnotherJob.set(false)
 
         callbackThread = Thread {
             protocolBuffers.clear()
@@ -759,14 +767,21 @@ class MainActivity : AppCompatActivity() {
                     while (isAnotherJob.get()) {
                         Thread.sleep(10)
                     }
+
+                    while (isAnotherSettingJob.get()) {
+                        Thread.sleep(10)
+                    }
+
                     mainViewModel.setCurrnetDate(LocalDateTime.now())
                     val processMils = measureTimeMillis {
                         for ((md, ids) in mainViewModel.modelMapInt) {
                             for (index in ids.indices) {
-                                if (isAnotherJob.get()) {
-                                    while (isAnotherJob.get()) {
-                                        Thread.sleep(10)
-                                    }
+                                while (isAnotherJob.get()) {
+                                    Thread.sleep(10)
+                                }
+
+                                while (isAnotherSettingJob.get()) {
+                                    Thread.sleep(10)
                                 }
 
                                 val model = md.toByte()
@@ -883,6 +898,10 @@ class MainActivity : AppCompatActivity() {
                 val currentLedState = HashMap<Short, Byte>()
 
                 while (isrunthAlert.get()) {
+
+                    while (isAnotherSettingJob.get()) {
+                        Thread.sleep(10)
+                    }
 
                     val elapsed: Long = measureTimeMillis {
                         val diffkeys = mainViewModel.portAlertMapLed.keys.toMutableList()

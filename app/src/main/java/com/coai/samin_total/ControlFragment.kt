@@ -253,7 +253,7 @@ class ControlFragment : Fragment() {
         getProgressShow()
         sendThread = Thread {
 //            activity?.isAnotherJob = true
-            activity?.isAnotherJob?.set(true)
+            activity?.isAnotherSettingJob?.set(true)
             Thread.sleep(500)
             try {
                 var bytes: ByteArray? = null
@@ -362,8 +362,8 @@ class ControlFragment : Fragment() {
 
 
 //            activity?.isAnotherJob = false
-            activity?.isAnotherJob?.set(false)
             getProgressHidden()
+            activity?.isAnotherSettingJob?.set(false)
         }
 
         sendThread?.start()

@@ -134,7 +134,9 @@ class ScanAlertDialogFragment : DialogFragment() {
                 }
 
 //                viewmodel.isScanmode = true
+                activity?.isAnotherSettingJob?.set(true)
                 viewmodel.isScanmode.set(true)
+                Thread.sleep(500)
                 activity?.deleteExDataSet()
                 activity?.feedBackThreadInterrupt()
                 for (model in 1..6) {
@@ -151,6 +153,7 @@ class ScanAlertDialogFragment : DialogFragment() {
                 Thread.sleep(400)
 //                viewmodel.isScanmode = false
                 viewmodel.isScanmode.set(false)
+                activity?.isAnotherSettingJob?.set(false)
 
             } catch (e: Exception) {
                 e.printStackTrace()
