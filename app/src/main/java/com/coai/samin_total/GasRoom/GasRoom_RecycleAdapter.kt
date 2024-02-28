@@ -1,22 +1,12 @@
 package com.coai.samin_total.GasRoom
 
-import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.coai.samin_total.Logic.AutoUpdatableAdapter
 import com.coai.samin_total.R
 import com.coai.uikit.samin.status.GasRoomView
-import com.coai.uikit.samin.status.GasStorageView
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.LineData
-import kotlin.properties.Delegates
 
 class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AutoUpdatableAdapter {
@@ -52,18 +42,31 @@ class GasRoom_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             view.findViewById<GasRoomView>(R.id.gas_room_view)
 
         fun bind(setGasRoomViewData: SetGasRoomViewData) {
-            gasRoomView.setGasName(setGasRoomViewData.gasName)
-            gasRoomView.setGasColor(setGasRoomViewData.gasColor)
-            gasRoomView.setPressure(setGasRoomViewData.pressure)
-            gasRoomView.setPressureMax(setGasRoomViewData.pressure_Max)
-            gasRoomView.setGasUnit(setGasRoomViewData.unit)
-            gasRoomView.setGasIndex(setGasRoomViewData.gasIndex)
+            if (!gasRoomView.getGasName().equals(setGasRoomViewData.gasName))
+                gasRoomView.setGasName(setGasRoomViewData.gasName)
+            if (!gasRoomView.getGasColor().equals(setGasRoomViewData.gasColor))
+                gasRoomView.setGasColor(setGasRoomViewData.gasColor)
+            if (!gasRoomView.getPressure().equals(setGasRoomViewData.pressure))
+                gasRoomView.setPressure(setGasRoomViewData.pressure)
+            if (!gasRoomView.getPressureMax().equals(setGasRoomViewData.pressure_Max))
+                gasRoomView.setPressureMax(setGasRoomViewData.pressure_Max)
+            if (!gasRoomView.getGasUnit().equals(setGasRoomViewData.unit))
+                gasRoomView.setGasUnit(setGasRoomViewData.unit)
+            if (!gasRoomView.getGasIndex().equals(setGasRoomViewData.gasIndex))
+                gasRoomView.setGasIndex(setGasRoomViewData.gasIndex)
+
+            if(!gasRoomView.isAlert().equals(setGasRoomViewData.isAlert))
+                gasRoomView.setAlert(setGasRoomViewData.isAlert)
+            if (!gasRoomView.mLimitMax.equals(setGasRoomViewData.limit_max))
+                gasRoomView.setLimitMax(setGasRoomViewData.limit_max)
+            if (!gasRoomView.mLimitMin.equals(setGasRoomViewData.limit_min))
+                gasRoomView.setLimitMin(setGasRoomViewData.limit_min)
+            if (!gasRoomView.mSlopeAlert.equals(setGasRoomViewData.isSlopeAlert))
+                gasRoomView.setSlopeAlert(setGasRoomViewData.isSlopeAlert)
+            if (!gasRoomView.mPressureAlert.equals(setGasRoomViewData.isPressAlert))
+                gasRoomView.setPressureAlert(setGasRoomViewData.isPressAlert)
+
             gasRoomView.heartBeat(setGasRoomViewData.heartbeatCount)
-            gasRoomView.setAlert(setGasRoomViewData.isAlert)
-            gasRoomView.setLimitMax(setGasRoomViewData.limit_max)
-            gasRoomView.setLimitMin(setGasRoomViewData.limit_min)
-            gasRoomView.setSlopeAlert(setGasRoomViewData.isSlopeAlert)
-            gasRoomView.setPressureAlert(setGasRoomViewData.isPressAlert)
         }
     }
 }

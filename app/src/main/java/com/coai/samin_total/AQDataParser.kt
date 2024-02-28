@@ -13,11 +13,10 @@ import com.coai.samin_total.Steamer.SetSteamerViewData
 import com.coai.samin_total.TempHum.SetTempHumViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.Random
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.Exception
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 import kotlin.math.roundToInt
 
 class AQDataParser(private val viewModel: MainViewModel) {
@@ -1615,7 +1614,7 @@ class AQDataParser(private val viewModel: MainViewModel) {
 
     fun getLatest_time(time: Long): String {
         val dateformat: SimpleDateFormat =
-            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("ko", "KR"))
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale("ko", "KR"))
         val date: Date = Date(time)
         return dateformat.format(date)
     }

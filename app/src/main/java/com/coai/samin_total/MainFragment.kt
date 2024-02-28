@@ -1,27 +1,19 @@
 package com.coai.samin_total
 
-import android.app.Activity
-import android.app.ProgressDialog
 import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.core.app.ActivityCompat
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
-import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
@@ -33,8 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicBoolean
 
 
@@ -81,8 +71,9 @@ class MainFragment : Fragment() {
                     return
                 }
                 if (System.currentTimeMillis() <= backKeyPressedTime + 2500) {
-                    ActivityCompat.finishAffinity(activity!!)
-                    System.exit(0)
+                    activity?.finishAndRemoveTask()
+//                    ActivityCompat.finishAffinity(activity!!)
+//                    System.exit(0)
                 }
             }
         }

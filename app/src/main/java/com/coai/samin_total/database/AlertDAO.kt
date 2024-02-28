@@ -6,8 +6,8 @@ import androidx.room.Query
 
 @Dao
 interface  AlertDAO {
-    @Query("select * from AlertData order by id DESC LIMIT :loadSize OFFSET :index * :loadSize")
-    fun getPage(index : Int, loadSize : Int) : List<AlertData>
+    @Query("select * from AlertData order by id DESC LIMIT 10 OFFSET (:index * 10)")
+    fun getPage(index : Int) : List<AlertData>
 
     @Insert
     fun insertData(data : AlertData)

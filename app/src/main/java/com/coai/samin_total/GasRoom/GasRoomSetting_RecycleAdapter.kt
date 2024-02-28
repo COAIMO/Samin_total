@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.R
 
 class GasRoomSetting_RecycleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
@@ -75,9 +74,12 @@ class GasRoomSetting_RecycleAdapter : RecyclerView.Adapter<RecyclerView.ViewHold
         private val sensorNum = view.findViewById<TextView>(R.id.input_sensorNum_tv)
 
         fun bind(gasRoomInfo: SetGasRoomViewData) {
-            modelNum.text = gasRoomInfo.model.toString()
-            idNum.text = gasRoomInfo.id.toString()
-            sensorNum.text = gasRoomInfo.port.toString()
+            if (!modelNum.text.equals(gasRoomInfo.model.toString()))
+                modelNum.text = gasRoomInfo.model.toString()
+            if (!idNum.text.equals(gasRoomInfo.id.toString()))
+                idNum.text = gasRoomInfo.id.toString()
+            if (!sensorNum.text.equals(gasRoomInfo.port.toString()))
+                sensorNum.text = gasRoomInfo.port.toString()
         }
     }
 }

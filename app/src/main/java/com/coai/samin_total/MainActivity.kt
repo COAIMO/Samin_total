@@ -72,7 +72,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromByteArray
@@ -192,9 +191,9 @@ class MainActivity : AppCompatActivity() {
     private var isrunthUIError = AtomicBoolean(true)
     private var updateErrorJob: Job? = null
 
-    private var alertJob: Job? = null
+//    private var alertJob: Job? = null
 //    private var callbackJob: Job? = null
-    private var callTimeoutJob: Job? = null
+//    private var callTimeoutJob: Job? = null
 
 //    fun scheduleAppRestart(context: Context) {
 //        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -211,6 +210,355 @@ class MainActivity : AppCompatActivity() {
 //            pendingIntent
 //        )
 //    }
+    private var isCallMainJob = AtomicBoolean(true)
+    private var mainJob: Job? = null
+    fun callMainJob() {
+        mainJob?.cancel()
+
+        isCallMainJob.set(true)
+
+        mainJob = CoroutineScope(Job() + Dispatchers.IO).launch {
+            try {
+                protocolBuffers.clear()
+                val protocol = SaminProtocol()
+                val isMirrorMode = mainViewModel.controlData.isMirrorMode
+
+                var lastCallback = System.currentTimeMillis()
+                var lastMakeProtocol = System.currentTimeMillis()
+                var lastSendAlert = System.currentTimeMillis()
+//                var lastWriteAlert = System.currentTimeMillis()
+                var indexProtocol = 0
+
+                val ledchanged = ArrayList<Short>()
+                val alertchanged = ArrayList<Short>()
+                val alertchangedRemind = ArrayList<Short>()
+                val currentLedState = HashMap<Short, Byte>()
+
+                while (isCallMainJob.get()) {
+                    try {
+                        if ((lastMakeProtocol + 1000L) < System.currentTimeMillis()) {
+                            lastMakeProtocol = System.currentTimeMillis()
+                            protocolBuffers.clear()
+                            indexProtocol = 0
+                            val processMils = measureTimeMillis {
+                                for ((md, ids) in mainViewModel.modelMapInt) {
+                                    for (index in ids.indices) {
+                                        val model = md.toByte()
+                                        val id = ids.get(index)
+                                        val key = littleEndianConversion(byteArrayOf(model, id)).toShort()
+
+                                        if (!protocolBuffers.containsKey(key)) {
+                                            protocol.feedBack(model, id)
+                                            protocolBuffers[key] = protocol.mProtocol.clone()
+                                        }
+                                    }
+                                }
+                            }
+//                            Log.d("callMainJob", "processMils : $processMils ms")
+
+                            lastMakeProtocol = System.currentTimeMillis()
+                        }
+
+                        if (mainViewModel.isDoneLoading.get()) {
+                            if (mainViewModel.isCheckTimeOut.get()) {
+                                tmp.timeoutAQCheckStep()
+                                val usbdetach = mainViewModel.usbdetachetime.get()
+                                if (usbdetach != 0L) {
+                                    if ((usbdetach + 1000L * 30) < System.currentTimeMillis()) {
+                                        Log.d(
+                                            "usbdetachetime",
+                                            "===================AQ ERROR Time : ${mainViewModel.usbdetachetime.get()} current : ${System.currentTimeMillis()}"
+                                        )
+
+                                        val intent = Intent(
+                                            applicationContext,
+                                            AppRestartReceiver::class.java
+                                        )
+                                        val pendingIntent = PendingIntent.getBroadcast(
+                                            applicationContext, 0, intent,
+                                            PendingIntent.FLAG_IMMUTABLE
+                                        )
+                                        pendingIntent.send()
+                                        break
+                                    }
+                                }
+                            }
+                        }
+
+                        val diffkeys = mainViewModel.portAlertMapLed.keys.toMutableList()
+                        if ((lastSendAlert + 200) < System.currentTimeMillis()) {
+                            lastSendAlert = System.currentTimeMillis()
+
+                            if (isrunthAlert.get() && !isAnotherSettingJob.get()) {
+                                val elapsed: Long = measureTimeMillis {
+                                    ledchanged.clear()
+                                    alertchanged.clear()
+                                    alertchangedRemind.clear()
+                                    currentLedState.clear()
+
+                                    for ((key, value) in mainViewModel.alertMap) {
+                                        val aqInfo = HexDump.toByteArray(key)
+                                        val model = aqInfo[3]
+                                        val id = aqInfo[2]
+                                        val port = aqInfo[1]
+
+                                        val ledkey = littleEndianConversion(byteArrayOf(model, id)).toShort()
+
+                                        // 경고 로그 DB저장
+                                        if (!exLastErorr[key].equals(value.time)) {
+                                            exLastErorr[key] = value.time
+                                            addLogs(
+                                                value.time,
+                                                value.model,
+                                                value.id,
+                                                value.content,
+                                                value.port,
+                                                value.isAlert
+                                            )
+                                        }
+
+                                        if (model == 6.toByte()) {
+                                            if (!value.isAlert) {
+                                                if (mainViewModel.portAlertMapLed.size == 0)
+                                                    continue
+
+                                                var tmpBits =
+                                                    mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+                                                Log.d("LED", "tmpBits 1 = ${tmpBits}")
+                                                Log.d("alertstate", "alertstate  = ${value.alertState}")
+
+                                                tmpBits = tmpBits and value.humtempAlertBit
+                                                Log.d("tmpBits 제거", "${tmpBits}")
+                                                if (tmpBits == 16.toByte()) {
+                                                    tmpBits = 0b00000.toByte()
+                                                }
+                                                currentLedState[ledkey] = tmpBits
+                                                mainViewModel.portAlertMapLed[ledkey] = tmpBits
+
+                                                if (!ledchanged.contains(ledkey))
+                                                    ledchanged.add(ledkey)
+
+                                                continue
+                                            }
+                                            // LED 켜짐 유무 확인
+                                            // 기존 경고와의 차이점 식별 가능
+                                            var tmpBits = currentLedState[ledkey] ?: 0b10000.toByte()
+
+                                            diffkeys.remove(ledkey)
+
+                                            tmpBits = tmpBits or value.humtempAlertBit
+                                            Log.d("tmpBits 알람", "${tmpBits}")
+
+                                            currentLedState[ledkey] = tmpBits
+
+                                        } else {
+                                            //isAlert 1개 해결된것을 제외
+                                            if (!value.isAlert) {
+                                                if (mainViewModel.portAlertMapLed.size == 0)
+                                                    continue
+
+                                                var tmpBits =
+                                                    mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
+                                                if (tmpBits and (1 shl (port - 1)).toByte() > 0 && model != 6.toByte()) {
+                                                    tmpBits = tmpBits xor (1 shl (port - 1)).toByte()
+                                                    currentLedState[ledkey] = tmpBits
+                                                    mainViewModel.portAlertMapLed[ledkey] = tmpBits
+
+                                                    diffkeys.remove(ledkey)
+                                                    if (!ledchanged.contains(ledkey))
+                                                        ledchanged.add(ledkey)
+                                                }
+                                                continue
+                                            }
+
+                                            // LED 켜짐 유무 확인
+                                            // 기존 경고와의 차이점 식별 가능
+                                            var tmpBits = currentLedState[ledkey] ?: 0b10000.toByte()
+
+                                            diffkeys.remove(ledkey)
+
+                                            if (model == 4.toByte()) {
+                                                tmpBits = 0b11111
+                                            } else if (model == 5.toByte()) {
+                                                tmpBits = tmpBits or (3 shl (port - 1)).toByte()
+
+                                            } else {
+                                                tmpBits = tmpBits or (1 shl (port - 1)).toByte()
+                                            }
+                                            if (id == 8.toByte())
+                                                continue
+
+                                            currentLedState[ledkey] = tmpBits
+                                        }
+                                    }
+                                }
+//                                Log.d("callMainJob", "elapsed : $elapsed ms")
+                            }
+
+                            if (currentLedState.size > 0) {
+                                delay(FEEDBACK_SLEEP.get())
+
+                                var model: Byte
+                                var id: Byte
+                                try {
+                                    for ((k, v) in currentLedState) {
+                                        id = (k.toInt() shr 8 and 0xFF).toByte()
+                                        model = (k and 0xFF).toByte()
+                                        val tmplast =
+                                            mainViewModel.portAlertMapLed[k] ?: 0b10000.toByte()
+
+                                        if (v > tmplast) {
+                                            for (cnt in 0..1) {
+                                                protocol.led_AlertStateByte(model, id, v)
+                                                sendProtocolToSerial(protocol.mProtocol.clone())
+                                                delay(writesleep.get())
+                                            }
+
+                                            if (!model.equals((4.toByte())))
+                                                tabletSoundAlertOn()
+
+                                            if (mainViewModel.isSoundAlert && !model.equals(4.toByte())) {
+                                                protocol.buzzer_On(model, id)
+                                                for (cnt in 0..1) {
+                                                    sendProtocolToSerial(protocol.mProtocol.clone())
+                                                    delay(writesleep.get())
+                                                }
+                                            }
+                                            if (model.equals(4.toByte())) {
+                                                for (t in 0..7) {
+                                                    for (cnt in 0..1) {
+                                                        protocol.buzzer_On(4, t.toByte())
+                                                        sendProtocolToSerial(protocol.mProtocol.clone())
+                                                        delay(writesleep.get())
+                                                    }
+                                                }
+                                            }
+
+                                            mainViewModel.portAlertMapLed[k] = v
+                                        } else if (alertBoardsendLastTime[k] == null || alertBoardsendLastTime[k]!! < (System.currentTimeMillis() - 1000 * 60)) {
+                                            alertchangedRemind.add(k)
+                                            alertBoardsendLastTime[k] = System.currentTimeMillis()
+                                        }
+                                    }
+                                } catch (ex: Exception) {
+                                    Log.d("MainActivity", ex.toString())
+                                }
+
+                                try {
+                                    // 경고 상태 재 전송
+                                    for (tmp in alertchangedRemind) {
+                                        id = (tmp.toInt() shr 8 and 0xFF).toByte()
+                                        model = (tmp and 0xFF).toByte()
+
+                                        val tmplast = mainViewModel.portAlertMapLed[tmp] ?: 0b10000.toByte()
+                                        for (cnt in 0..1) {
+                                            protocol.led_AlertStateByte(model, id, tmplast)
+                                            sendProtocolToSerial(protocol.mProtocol.clone())
+                                            delay(writesleep.get())
+                                        }
+                                    }
+                                } catch (ex: Exception) {
+                                    Log.d("MainActivity", ex.toString())
+                                }
+                            }
+
+                            if (ledchanged.size > 0) {
+                                delay(FEEDBACK_SLEEP.get())
+
+                                var model: Byte
+                                var id: Byte
+                                var tmpBits: Byte
+                                for (tmp in ledchanged) {
+                                    id = (tmp.toInt() shr 8 and 0xFF).toByte()
+                                    model = (tmp and 0xFF).toByte()
+
+                                    tmpBits = currentLedState[tmp] ?: 0b10000.toByte()
+                                    Log.d("ledtest", "model = ${model}, id = ${id}tmpBits = ${tmpBits}")
+                                    for (cnt in 0..1) {
+                                        protocol.led_AlertStateByte(model, id, tmpBits)
+                                        sendProtocolToSerial(protocol.mProtocol.clone())
+                                        delay(writesleep.get())
+                                    }
+                                    mainViewModel.portAlertMapLed[tmp] = tmpBits
+                                }
+
+                                isAnotherJob.set(false)
+                            }
+
+                            if (diffkeys.size > 0) {
+                                delay(FEEDBACK_SLEEP.get())
+                                for (tmp in diffkeys) {
+                                    val aqInfo = HexDump.toByteArray(tmp)
+                                    val model = aqInfo[1]
+                                    val id = aqInfo[0]
+                                    Log.d("diffkeys", "model = ${model}, id = ${id}")
+                                    mainViewModel.portAlertMapLed.remove(tmp)
+                                    if (id == 8.toByte())
+                                        continue
+
+                                    if (!model.equals(4.toByte())) {
+                                        for (cnt in 0..1) {
+                                            protocol.buzzer_Off(model, id)
+                                            sendProtocolToSerial(protocol.mProtocol.clone())
+                                            delay(writesleep.get())
+                                        }
+                                    }
+
+                                    for (cnt in 0..1) {
+                                        protocol.led_AlertStateByte(model, id, 0.toByte())
+                                        sendProtocolToSerial(protocol.mProtocol.clone())
+                                        delay(writesleep.get())
+                                    }
+                                }
+                                isAnotherJob.set(false)
+                            }
+
+                            val targets = java.util.HashMap<Int, Int>()
+                            for (t in mainViewModel.alertMap.values) {
+                                if (t.isAlert && !targets.containsKey(t.model)) {
+                                    targets[t.model] = t.model
+                                }
+                            }
+
+                            if (targets.size == 0) {
+                                tabletSoundAlertOff()
+                            }
+
+                            lastSendAlert = System.currentTimeMillis()
+                        }
+
+                        if((lastCallback + FEEDBACK_SLEEP.get()) < System.currentTimeMillis()) {
+                            lastCallback = System.currentTimeMillis()
+
+                            if (!isMirrorMode && isSending.get() && !isAnotherJob.get() && !isAnotherSettingJob.get()) {
+                                if (protocolBuffers.size > 0) {
+                                    val tmpidx: Short = ((indexProtocol++ % protocolBuffers.size) + 1).toShort()
+                                    val tmpdata = protocolBuffers.get(tmpidx)
+
+                                    tmpdata?.let {
+                                        sendFeedbackProtocolToSerial(it)
+                                    }
+                                }
+                            }
+                            lastCallback = System.currentTimeMillis()
+                        }
+                    } catch (e : Exception) {
+                        e.printStackTrace()
+                    }
+                    delay(10)
+                }
+            } catch(ex: CancellationException) {
+                ex.printStackTrace()
+            }
+        }
+
+    }
+
+    fun disCallMainJob() {
+        isCallMainJob.set(false)
+        mainJob?.cancel()
+    }
+
 
     fun setRestartAlarm(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -249,7 +597,6 @@ class MainActivity : AppCompatActivity() {
 
         alarmManager.cancel(pendingIntent)
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -293,11 +640,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
         db = SaminDataBase.getIstance(applicationContext)!!
-        callbackThread = Thread()
+//        callbackThread = Thread()
         shared = SaminSharedPreference(this@MainActivity)
         mainViewModel = ViewModelProvider(this@MainActivity).get(MainViewModel::class.java)
         mainViewModel.controlData =
@@ -369,6 +715,8 @@ class MainActivity : AppCompatActivity() {
         val restartIntent = Intent(applicationContext, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
+
+        callMainJob()
 
         Thread.setDefaultUncaughtExceptionHandler { _, ex ->
             try {
@@ -496,12 +844,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-
         discallFeedback()
         // alertTask
         tabletSoundAlertOff()
         // callTimeoutThread
         discallTimemout()
+
+        disCallMainJob()
 
 /*
         isrunthUIError.set(true)
@@ -513,7 +862,7 @@ class MainActivity : AppCompatActivity() {
         //alertThread
         isrunthAlert.set(false)
 //        alertThread?.join()
-        alertJob?.cancel()
+//        alertJob?.cancel()
 
         // popUpThread
         popUpThreadInterrupt()
@@ -649,7 +998,8 @@ class MainActivity : AppCompatActivity() {
             or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
     }
 
-    var callbackThread: Thread? = null
+//    var callbackThread: Thread? = null
+
 //    var callTimeoutThread: Thread? = null
 //    var isSending = false
     var isSending = AtomicBoolean(false)
@@ -659,8 +1009,7 @@ class MainActivity : AppCompatActivity() {
     fun feedBackThreadInterrupt() {
 //        isSending = false
         isSending.set(false)
-        callbackThread?.interrupt()
-        callbackThread?.join()
+//        callbackThread?.interrupt()
     }
 
     fun deleteExDataSet() {
@@ -685,17 +1034,17 @@ class MainActivity : AppCompatActivity() {
     fun discallTimemout() {
 //        isCallTimeout = false
         isCallTimeout.set(false)
-        callTimeoutJob?.cancel()
+//        callTimeoutJob?.cancel()
     }
 
     private fun triggerException() {
         val result = 2 / 0 // 이 코드는 ArithmeticException을 발생시킵니다.
     }
     fun callTimemout() {
-        callTimeoutJob?.cancel()
+//        callTimeoutJob?.cancel()
 
         isCallTimeout.set(true)
-        if (mainViewModel.isCheckTimeOut.get()) {
+        /*if (mainViewModel.isCheckTimeOut.get()) {
             callTimeoutJob = CoroutineScope(Dispatchers.Default).launch {
                 try {
                     while (isCallTimeout.get()) {
@@ -733,29 +1082,27 @@ class MainActivity : AppCompatActivity() {
             }
 
             Log.d("MainAct", "callTimeoutJob id : ${callTimeoutJob}")
-        }
+        }*/
     }
 
     private fun discallFeedback() {
         isSending.set(false)
         isAnotherSettingJob.set(false)
         isAnotherJob.set(false)
-        callbackThread?.interrupt()
-//        callbackThread?.join()
+//        callbackThread?.interrupt()
     }
 
     fun callFeedback() {
         isSending.set(false)
         isAnotherSettingJob.set(false)
         isAnotherJob.set(false)
-        callbackThread?.interrupt()
-//        callbackThread?.join()
+//        callbackThread?.interrupt()
 
         isSending.set(true)
         isAnotherSettingJob.set(false)
         isAnotherJob.set(false)
 
-        callbackThread = Thread {
+        /*callbackThread = Thread {
             protocolBuffers.clear()
             val protocol = SaminProtocol()
             while (isSending.get()) {
@@ -810,7 +1157,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        callbackThread?.start()
+        callbackThread?.start()*/
     }
 
     private var alertTask: Timer? = null
@@ -884,286 +1231,8 @@ class MainActivity : AppCompatActivity() {
 
     private var isrunthAlert = AtomicBoolean(true)
     private fun sendAlert() {
-
         isrunthAlert.set(false)
-        alertJob?.cancel()
-
         isrunthAlert.set(true)
-        alertJob = CoroutineScope(Dispatchers.Default).launch {
-            try {
-                val protocol = SaminProtocol()
-                val ledchanged = ArrayList<Short>()
-                val alertchanged = ArrayList<Short>()
-                val alertchangedRemind = ArrayList<Short>()
-                val currentLedState = HashMap<Short, Byte>()
-
-                while (isrunthAlert.get()) {
-
-                    while (isAnotherSettingJob.get()) {
-                        Thread.sleep(10)
-                    }
-
-                    val elapsed: Long = measureTimeMillis {
-                        val diffkeys = mainViewModel.portAlertMapLed.keys.toMutableList()
-
-                        ledchanged.clear()
-                        alertchanged.clear()
-                        alertchangedRemind.clear()
-                        currentLedState.clear()
-
-                        for ((key, value) in mainViewModel.alertMap) {
-                            val aqInfo = HexDump.toByteArray(key)
-                            val model = aqInfo[3]
-                            val id = aqInfo[2]
-                            val port = aqInfo[1]
-
-                            val ledkey = littleEndianConversion(byteArrayOf(model, id)).toShort()
-
-                            // 경고 로그 DB저장
-                            if (!exLastErorr[key].equals(value.time)) {
-                                exLastErorr[key] = value.time
-                                addLogs(
-                                    value.time,
-                                    value.model,
-                                    value.id,
-                                    value.content,
-                                    value.port,
-                                    value.isAlert
-                                )
-                            }
-
-                            if (model == 6.toByte()) {
-                                if (!value.isAlert) {
-                                    if (mainViewModel.portAlertMapLed.size == 0)
-                                        continue
-
-                                    var tmpBits =
-                                        mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
-                                    Log.d("LED", "tmpBits 1 = ${tmpBits}")
-                                    Log.d("alertstate", "alertstate  = ${value.alertState}")
-
-                                    tmpBits = tmpBits and value.humtempAlertBit
-                                    Log.d("tmpBits 제거", "${tmpBits}")
-                                    if (tmpBits == 16.toByte()) {
-                                        tmpBits = 0b00000.toByte()
-                                    }
-                                    currentLedState[ledkey] = tmpBits
-                                    mainViewModel.portAlertMapLed[ledkey] = tmpBits
-
-                                    if (!ledchanged.contains(ledkey))
-                                        ledchanged.add(ledkey)
-
-                                    continue
-                                }
-                                // LED 켜짐 유무 확인
-                                // 기존 경고와의 차이점 식별 가능
-                                var tmpBits = currentLedState[ledkey] ?: 0b10000.toByte()
-
-                                diffkeys.remove(ledkey)
-
-                                tmpBits = tmpBits or value.humtempAlertBit
-                                Log.d("tmpBits 알람", "${tmpBits}")
-
-                                currentLedState[ledkey] = tmpBits
-
-                            } else {
-                                //isAlert 1개 해결된것을 제외
-                                if (!value.isAlert) {
-                                    if (mainViewModel.portAlertMapLed.size == 0)
-                                        continue
-
-                                    var tmpBits =
-                                        mainViewModel.portAlertMapLed[ledkey] ?: 0b10000.toByte()
-                                    if (tmpBits and (1 shl (port - 1)).toByte() > 0 && model != 6.toByte()) {
-                                        tmpBits = tmpBits xor (1 shl (port - 1)).toByte()
-                                        currentLedState[ledkey] = tmpBits
-                                        mainViewModel.portAlertMapLed[ledkey] = tmpBits
-
-                                        diffkeys.remove(ledkey)
-                                        if (!ledchanged.contains(ledkey))
-                                            ledchanged.add(ledkey)
-                                    }
-                                    continue
-                                }
-
-                                // LED 켜짐 유무 확인
-                                // 기존 경고와의 차이점 식별 가능
-                                var tmpBits = currentLedState[ledkey] ?: 0b10000.toByte()
-
-                                diffkeys.remove(ledkey)
-
-                                if (model == 4.toByte()) {
-                                    tmpBits = 0b11111
-                                } else if (model == 5.toByte()) {
-                                    tmpBits = tmpBits or (3 shl (port - 1)).toByte()
-
-                                } else {
-                                    tmpBits = tmpBits or (1 shl (port - 1)).toByte()
-                                }
-                                if (id == 8.toByte())
-                                    continue
-
-                                currentLedState[ledkey] = tmpBits
-                            }
-                        }
-
-                        // 경고 처리
-                        if (currentLedState.size > 0) {
-                            isAnotherJob.set(true)
-//                        Thread.sleep(FEEDBACK_SLEEP.get())
-                            delay(FEEDBACK_SLEEP.get())
-                            var model: Byte
-                            var id: Byte
-                            try {
-                                for ((k, v) in currentLedState) {
-                                    id = (k.toInt() shr 8 and 0xFF).toByte()
-                                    model = (k and 0xFF).toByte()
-                                    val tmplast =
-                                        mainViewModel.portAlertMapLed[k] ?: 0b10000.toByte()
-
-                                    if (v > tmplast) {
-                                        for (cnt in 0..1) {
-                                            protocol.led_AlertStateByte(model, id, v)
-                                            sendProtocolToSerial(protocol.mProtocol.clone())
-//                                        Thread.sleep(writesleep.get())
-                                            delay(writesleep.get())
-                                        }
-
-                                        if (!model.equals((4.toByte())))
-                                            tabletSoundAlertOn()
-
-                                        if (mainViewModel.isSoundAlert && !model.equals(4.toByte())) {
-                                            protocol.buzzer_On(model, id)
-                                            for (cnt in 0..1) {
-                                                sendProtocolToSerial(protocol.mProtocol.clone())
-//                                            Thread.sleep(writesleep.get())
-                                                delay(writesleep.get())
-                                            }
-                                        }
-                                        if (model.equals(4.toByte())) {
-                                            for (t in 0..7) {
-                                                for (cnt in 0..1) {
-                                                    protocol.buzzer_On(4, t.toByte())
-                                                    sendProtocolToSerial(protocol.mProtocol.clone())
-//                                                Thread.sleep(writesleep.get())
-                                                    delay(writesleep.get())
-                                                }
-                                            }
-                                        }
-
-                                        mainViewModel.portAlertMapLed[k] = v
-                                    } else if (alertBoardsendLastTime[k] == null || alertBoardsendLastTime[k]!! < (System.currentTimeMillis() - 1000 * 60)) {
-                                        alertchangedRemind.add(k)
-                                        alertBoardsendLastTime[k] = System.currentTimeMillis()
-                                    }
-                                }
-                            } catch (ex: Exception) {
-                                Log.d("MainActivity", ex.toString())
-                            }
-
-                            try {
-                                // 경고 상태 재 전송
-                                for (tmp in alertchangedRemind) {
-                                    id = (tmp.toInt() shr 8 and 0xFF).toByte()
-                                    model = (tmp and 0xFF).toByte()
-
-                                    val tmplast =
-                                        mainViewModel.portAlertMapLed[tmp] ?: 0b10000.toByte()
-                                    for (cnt in 0..1) {
-                                        protocol.led_AlertStateByte(model, id, tmplast)
-                                        sendProtocolToSerial(protocol.mProtocol.clone())
-//                                    Thread.sleep(writesleep.get())
-                                        delay(writesleep.get())
-                                    }
-                                }
-                            } catch (ex: Exception) {
-                                Log.d("MainActivity", ex.toString())
-                            }
-                            isAnotherJob.set(false)
-                        }
-
-                        // 일부 LED 정상화
-                        if (ledchanged.size > 0) {
-                            isAnotherJob.set(true)
-//                        Thread.sleep(FEEDBACK_SLEEP.get())
-                            delay(FEEDBACK_SLEEP.get())
-
-                            var model: Byte
-                            var id: Byte
-                            var tmpBits: Byte
-                            for (tmp in ledchanged) {
-                                id = (tmp.toInt() shr 8 and 0xFF).toByte()
-                                model = (tmp and 0xFF).toByte()
-
-                                tmpBits = currentLedState[tmp] ?: 0b10000.toByte()
-                                Log.d("ledtest", "model = ${model}, id = ${id}tmpBits = ${tmpBits}")
-                                for (cnt in 0..1) {
-                                    protocol.led_AlertStateByte(model, id, tmpBits)
-                                    sendProtocolToSerial(protocol.mProtocol.clone())
-//                                Thread.sleep(writesleep.get())
-                                    delay(writesleep.get())
-                                }
-                                mainViewModel.portAlertMapLed[tmp] = tmpBits
-                            }
-
-                            isAnotherJob.set(false)
-                        }
-
-                        // 에러가 사라진 AQ 찾기
-                        if (diffkeys.size > 0) {
-                            isAnotherJob.set(true)
-//                        Thread.sleep(FEEDBACK_SLEEP.get())
-                            delay(FEEDBACK_SLEEP.get())
-                            for (tmp in diffkeys) {
-                                val aqInfo = HexDump.toByteArray(tmp)
-                                val model = aqInfo[1]
-                                val id = aqInfo[0]
-                                Log.d("diffkeys", "model = ${model}, id = ${id}")
-                                mainViewModel.portAlertMapLed.remove(tmp)
-                                if (id == 8.toByte())
-                                    continue
-
-                                if (!model.equals(4.toByte())) {
-                                    for (cnt in 0..1) {
-                                        protocol.buzzer_Off(model, id)
-                                        sendProtocolToSerial(protocol.mProtocol.clone())
-//                                    Thread.sleep(writesleep.get())
-                                        delay(writesleep.get())
-                                    }
-                                }
-
-                                for (cnt in 0..1) {
-                                    protocol.led_AlertStateByte(model, id, 0.toByte())
-                                    sendProtocolToSerial(protocol.mProtocol.clone())
-//                                Thread.sleep(writesleep.get())
-                                    delay(writesleep.get())
-                                }
-                            }
-                            isAnotherJob.set(false)
-                        }
-
-                        val targets = java.util.HashMap<Int, Int>()
-                        for (t in mainViewModel.alertMap.values) {
-                            if (t.isAlert && !targets.containsKey(t.model)) {
-                                targets[t.model] = t.model
-                            }
-                        }
-
-                        if (targets.size == 0) {
-                            tabletSoundAlertOff()
-                        }
-                    }
-
-//                Thread.sleep(200)
-                    delay(200)
-                }
-            }
-            catch(ex: CancellationException) {
-                ex.printStackTrace()
-            }
-        }
-
-        Log.d("MainAct", "alertJob id : ${alertJob}")
     }
 
 
@@ -1373,16 +1442,24 @@ class MainActivity : AppCompatActivity() {
                 val date = Date(System.currentTimeMillis())
                 val latesttime: String = dateformat.format(date)
                 mainViewModel.usbdetachetime.set(System.currentTimeMillis())
-                mainViewModel.addAlertInfo(
+//                mainViewModel.addAlertInfo(
+//                    0,
+//                    SetAlertData(
+//                        latesttime,
+//                        0,
+//                        0,
+//                        e.message.toString(),
+//                        0,
+//                        true
+//                    )
+//                )
+                addLogs(
+                    latesttime,
                     0,
-                    SetAlertData(
-                        latesttime,
-                        0,
-                        0,
-                        e.message.toString(),
-                        0,
-                        true
-                    )
+                    0,
+                    e.message.toString(),
+                    0,
+                    true
                 )
 
             } catch (ex: Exception) {}
@@ -1398,9 +1475,10 @@ class MainActivity : AppCompatActivity() {
         return Base64.decode(arg, 0)
     }
     val dateformat: SimpleDateFormat =
-        SimpleDateFormat("yyyy-MM-dd kk:mm:ss", Locale("ko", "KR"))
+        SimpleDateFormat("yyyy-MM-dd kk:mm:ss.SSS", Locale("ko", "KR"))
     private val serialSVCIPCHandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
+            super.handleMessage(msg)
             when (msg.what) {
                 SerialService.MSG_SERIAL_CONNECT-> {
                     Log.d(mainTAG, "MSG_SERIAL_CONNECT ===========================!!!!!!!!!!!!")
@@ -1471,8 +1549,6 @@ class MainActivity : AppCompatActivity() {
 //                    )
                 }
                 SerialService.MSG_NO_SERIAL -> {
-
-
                     val noserialcount = shared.getNoSerialCount()
                     shared.setNoSerialCount(min(noserialcount + 1, 10))
 
@@ -1490,11 +1566,10 @@ class MainActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-
-                    CoroutineScope(Dispatchers.IO).launch {
+                    if (shared.getNoSerialCount() == 1) {
                         val date = Date(System.currentTimeMillis())
                         val latesttime: String = dateformat.format(date)
-                        val data = AlertData(
+                        addLogs(
                             latesttime,
                             0,
                             0,
@@ -1502,9 +1577,22 @@ class MainActivity : AppCompatActivity() {
                             0,
                             true
                         )
-
-                        dao.insertData(data)
                     }
+
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        val date = Date(System.currentTimeMillis())
+//                        val latesttime: String = dateformat.format(date)
+//                        val data = AlertData(
+//                            latesttime,
+//                            0,
+//                            0,
+//                            "연결할 수 있는 시리얼 통신이 없습니다.\n전원 스위치를 껏다켜면 문제가 해결될 수 있습니다.(USBHUB)",
+//                            0,
+//                            true
+//                        )
+//
+//                        dao.insertData(data)
+//                    }
                 }
                 SerialService.MSG_CHECK_VERSION -> {
                     Toast.makeText(this@MainActivity, "펌웨어 버전 : ${msg.arg1}", Toast.LENGTH_SHORT)
@@ -2001,21 +2089,21 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 SerialService.MSG_GASDOCK -> {
-                    val recvdata = (msg.data.getSerializable("") as ParsingData)
-                    val id = recvdata.id
-//                    val model = recvdata.model
-                    val time = recvdata.time
-                    val datas = recvdata.datas
-
+                    val bundle = msg.data
+                    bundle.classLoader = ParsingData::class.java.classLoader
+                    val (id, model, time, datas) = msg.data.getParcelable<ParsingData>("")!!
+//                    val (id, model, time, datas) = msg.obj as SerialDataInfo
+//                    val (id, model, time, datas) = msg.data.getSerializable("") as ParsingData
+//                    val (id, model, time, datas) = ProtoBuf.decodeFromByteArray<ParsingData>(msg.data.getByteArray("") as ByteArray)
                     tmp.ParserGas(id, datas, time)
+                    mainViewModel.setCurrnetDate(LocalDateTime.now())
                 }
                 SerialService.MSG_GASROOM -> {
-                    val recvdata = (msg.data.getSerializable("") as ParsingData)
-                    val id = recvdata.id
-                    val model = recvdata.model
-                    val time = recvdata.time
-                    val datas = recvdata.datas
-
+                    val bundle = msg.data
+                    bundle.classLoader = ParsingData::class.java.classLoader
+                    val (id, model, time, datas) = msg.data.getParcelable<ParsingData>("")!!
+//                    val (id, model, time, datas) = msg.data.getSerializable("") as ParsingData
+//                    val (id, model, time, datas) = ProtoBuf.decodeFromByteArray<ParsingData>(msg.data.getByteArray("") as ByteArray)
                     var loop = 1
                     for (t in datas) {
                         //아이디 1개당 포트 4개 추가
@@ -2026,14 +2114,14 @@ class MainActivity : AppCompatActivity() {
                         tmp.hmapLastedDate[key] = time
                         tmp.ProcessGasRoom(key, t)
                     }
+                    mainViewModel.setCurrnetDate(LocalDateTime.now())
                 }
                 SerialService.MSG_WASTE -> {
-                    val recvdata = (msg.data.getSerializable("") as ParsingData)
-                    val id = recvdata.id
-                    val model = recvdata.model
-                    val time = recvdata.time
-                    val datas = recvdata.datas
-
+                    val bundle = msg.data
+                    bundle.classLoader = ParsingData::class.java.classLoader
+                    val (id, model, time, datas) = msg.data.getParcelable<ParsingData>("")!!
+//                    val (id, model, time, datas) = msg.data.getSerializable("") as ParsingData
+//                    val (id, model, time, datas) = ProtoBuf.decodeFromByteArray<ParsingData>(msg.data.getByteArray("") as ByteArray)
                     var loop = 1
                     for (t in datas) {
                         //아이디 1개당 포트 4개 추가
@@ -2044,26 +2132,27 @@ class MainActivity : AppCompatActivity() {
                         tmp.hmapLastedDate[key] = time
                         tmp.ProcessWasteLiquor(key, t)
                     }
+                    mainViewModel.setCurrnetDate(LocalDateTime.now())
+
                 }
                 SerialService.MSG_OXYGEN -> {
-                    val recvdata = (msg.data.getSerializable("") as ParsingData)
-                    val id = recvdata.id
-                    val model = recvdata.model
-                    val time = recvdata.time
-                    val datas = recvdata.datas
-
+                    val bundle = msg.data
+                    bundle.classLoader = ParsingData::class.java.classLoader
+                    val (id, model, time, datas) = msg.data.getParcelable<ParsingData>("")!!
+//                    val (id, model, time, datas) = msg.data.getSerializable("") as ParsingData
+//                    val (id, model, time, datas) = ProtoBuf.decodeFromByteArray<ParsingData>(msg.data.getByteArray("") as ByteArray)
                     val port = 1.toByte()
                     val key = littleEndianConversion(byteArrayOf(model, id, port))
                     tmp.hmapLastedDate[key] = time
                     tmp.ProcessOxygen(key, datas[0])
+                    mainViewModel.setCurrnetDate(LocalDateTime.now())
                 }
                 SerialService.MSG_STEMER -> {
-                    val recvdata = (msg.data.getSerializable("") as ParsingData)
-                    val id = recvdata.id
-                    val model = recvdata.model
-                    val time = recvdata.time
-                    val datas = recvdata.datas
-
+                    val bundle = msg.data
+                    bundle.classLoader = ParsingData::class.java.classLoader
+                    val (id, model, time, datas) = msg.data.getParcelable<ParsingData>("")!!
+//                    val (id, model, time, datas) = msg.data.getSerializable("") as ParsingData
+//                    val (id, model, time, datas) = ProtoBuf.decodeFromByteArray<ParsingData>(msg.data.getByteArray("") as ByteArray)
                     for (loop in 1..2) {
                         val tempData = datas[loop - 1]
                         val levelData = datas[loop + 1]
@@ -2078,20 +2167,21 @@ class MainActivity : AppCompatActivity() {
                         tmp.hmapLastedDate[key] = time
                         tmp.ProcessSteamer(key, tempData, levelData)
                     }
+                    mainViewModel.setCurrnetDate(LocalDateTime.now())
                 }
                 SerialService.MSG_TEMPHUM -> {
-                    val recvdata = (msg.data.getSerializable("") as ParsingData)
-                    val id = recvdata.id
-                    val model = recvdata.model
-                    val time = recvdata.time
-                    val datas = recvdata.datas
-
+                    val bundle = msg.data
+                    bundle.classLoader = ParsingData::class.java.classLoader
+                    val (id, model, time, datas) = msg.data.getParcelable<ParsingData>("")!!
+//                    val (id, model, time, datas) = msg.data.getSerializable("") as ParsingData
+//                    val (id, model, time, datas) = ProtoBuf.decodeFromByteArray<ParsingData>(msg.data.getByteArray("") as ByteArray)
                     val port = 1.toByte()
                     val key = littleEndianConversion(byteArrayOf(model, id, port))
                     tmp.hmapLastedDate[key] = time
                     val hum = String.format("%.1f", (datas[0].toFloat() / 1000000f)).toFloat()
                     val temp = String.format("%.1f", (datas[1].toFloat() / 1000000f)).toFloat()
                     tmp.ProcessTempHum(key, temp, hum)
+                    mainViewModel.setCurrnetDate(LocalDateTime.now())
                 }
                 SerialService.MSG_ERROR -> {
 
@@ -2117,7 +2207,10 @@ class MainActivity : AppCompatActivity() {
 
                 }
 
-                else -> super.handleMessage(msg)
+                else -> {
+//                    super.handleMessage(msg)
+                    Log.d("MSG_ERROR", " MSG_ERROR ================================================================================")
+                }
             }
         }
     }
@@ -2323,6 +2416,7 @@ class MainActivity : AppCompatActivity() {
         isPopup.set(false)
         updatePopupJob?.cancel()
     }
+
 
 }
 

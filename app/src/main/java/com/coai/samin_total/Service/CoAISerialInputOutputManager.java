@@ -212,10 +212,18 @@ public class CoAISerialInputOutputManager implements Runnable {
         synchronized (mWriteBufferLock) {
             mWriteFeedbackBuffers.offer(ByteBuffer.wrap(data));
 
-            if (mWriteFeedbackBuffers.size() > 20) {
+            if (mWriteFeedbackBuffers.size() > 2) {
+
                 Log.i(TAG, "mWriteFeedbackBuffers.size : " + mWriteFeedbackBuffers.size());
                 mWriteFeedbackBuffers.clear();
             }
+        }
+    }
+
+    public void clearBuffers() {
+        synchronized (mWriteBufferLock) {
+            mWriteBuffers.clear();
+            mWriteFeedbackBuffers.clear();
         }
     }
 

@@ -1,5 +1,6 @@
 package com.coai.samin_total.database
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 
@@ -17,7 +18,8 @@ open class PagingSourc(private  val alertDAO: AlertDAO): PagingSource<Int, Alert
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AlertData> {
         val position = params.key ?: INIT_PAGE_INDEX
-        val loadData = alertDAO.getPage(position, params.loadSize)
+        val loadData = alertDAO.getPage(position)
+        Log.d("load", " load =============params.key : ${params.key} params.loadSize: ${params.loadSize} position : $position loadData : ${loadData.size}============ load")
 
         return LoadResult.Page(
             data = loadData,

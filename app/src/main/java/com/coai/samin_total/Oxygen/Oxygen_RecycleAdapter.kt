@@ -1,14 +1,11 @@
 package com.coai.samin_total.Oxygen
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.coai.samin_total.Logic.AutoUpdatableAdapter
 import com.coai.samin_total.R
-import com.coai.uikit.samin.status.GasRoomView
-import com.coai.uikit.samin.status.GasStorageView
 import com.coai.uikit.samin.status.OxyzenView
 
 class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
@@ -60,11 +57,15 @@ class Oxygen_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
 
         fun bind(setOxygenViewData: SetOxygenViewData) {
             oxygenView.id = setOxygenViewData.id
-            oxygenView.setAlert(setOxygenViewData.isAlert)
-            oxygenView.setOxyzenData(setOxygenViewData.setValue)
-            oxygenView.setMinOxyzen(setOxygenViewData.setMinValue)
+            if (!oxygenView.isAlert().equals(setOxygenViewData.isAlert))
+                oxygenView.setAlert(setOxygenViewData.isAlert)
+            if (!oxygenView.isOxyzenData().equals(setOxygenViewData.setValue))
+                oxygenView.setOxyzenData(setOxygenViewData.setValue)
+            if (!oxygenView.isMinOxyzen().equals(setOxygenViewData.setMinValue))
+                oxygenView.setMinOxyzen(setOxygenViewData.setMinValue)
+            if (oxygenView.getName() == null || !oxygenView.getName()!!.equals(setOxygenViewData.name))
+                oxygenView.setName(setOxygenViewData.name)
             oxygenView.heartBeat(setOxygenViewData.heartbeatCount)
-            oxygenView.setName(setOxygenViewData.name)
         }
 
     }

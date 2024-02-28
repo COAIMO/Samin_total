@@ -4,17 +4,18 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.*
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.GridLayout
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import com.coai.samin_total.CustomView.LeakTestView
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SpacesItemDecoration
 import com.coai.samin_total.Logic.Utils
@@ -35,10 +36,8 @@ import java.io.IOException
 import java.io.OutputStreamWriter
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.collections.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -270,7 +269,10 @@ class RoomLeakTestFragment : Fragment() {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
 
-        activity?.runOnUiThread {
+//        activity?.runOnUiThread {
+//            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+//        }
+        CoroutineScope(Dispatchers.Main).launch {
             recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
         }
     }
@@ -356,7 +358,7 @@ class RoomLeakTestFragment : Fragment() {
                         recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                     }
                     else {
-                        val rlist = Utils.ToIntRange(lstvalue, gasRoomViewData.size)
+/*                        val rlist = Utils.ToIntRange(lstvalue, gasRoomViewData.size)
                         if (rlist != null) {
                             rlist.forEach {
                                 recycleAdapter.notifyItemRangeChanged(
@@ -364,6 +366,12 @@ class RoomLeakTestFragment : Fragment() {
                                     1 + it.upper - it.lower
                                 )
                             }
+                        }*/
+                        Utils.ToIntRange(lstvalue, gasRoomViewData.size)?.forEach {
+                            recycleAdapter.notifyItemRangeChanged(
+                                it.lower,
+                                1 + it.upper - it.lower
+                            )
                         }
                     }
                 } catch (ex: Exception) {

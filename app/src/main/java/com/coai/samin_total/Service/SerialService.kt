@@ -1,5 +1,6 @@
 package com.coai.samin_total.Service
 
+//import com.coai.samin_total.BuildConfig
 import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -27,7 +28,10 @@ import com.hoho.android.usbserial.driver.UsbSerialDriver
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
 import com.hoho.android.usbserial.util.SerialInputOutputManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -35,6 +39,7 @@ import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.coroutines.cancellation.CancellationException
 
 
 class SerialService : Service(), SerialInputOutputManager.Listener {
@@ -72,6 +77,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     private lateinit var messenger: Messenger
     var currentBaudrate: Int = 1000000
+    private var mainJob: Job? = null
 
     inner class IncomingHandler(
         service: Service,
@@ -86,6 +92,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             when (msg.what) {
                 MSG_BIND_CLIENT -> clients.add(msg.replyTo)
                 MSG_UNBIND_CLIENT -> {
+                    Log.d("로그", "MSG_UNBIND_CLIENT====================== ================= ======")
                     clients.remove(msg.replyTo)
                     disconnect()
                 }
@@ -185,7 +192,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
     val binder = SerialServiceBinder()
     private var usbSerialPort: UsbSerialPort? = null
-    var serialPortConnected = false
+//    var serialPortConnected = false
     lateinit var usbManager: UsbManager
     lateinit var usbDriver: UsbSerialDriver
     var usbDrivers: List<UsbSerialDriver>? = null
@@ -193,8 +200,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     var usbConnection: UsbDeviceConnection? = null
     private var usbIoManager: CoAISerialInputOutputManager? = null
     var mHandler = Handler()
-    lateinit var checkThread: Thread
-    private var isruncheckThread = AtomicBoolean(true)
+//    lateinit var checkThread: Thread
+    private val isruncheckThread = AtomicBoolean(true)
+    private val connectionTime = AtomicLong(0)
+    private val isConnected = AtomicBoolean(false)
 
     val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -210,7 +219,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                     context?.sendBroadcast(grantedIntent)
                 }
             } else if (intent?.action == UsbManager.ACTION_USB_DEVICE_ATTACHED) {
-                if (!serialPortConnected) {
+                if (!isConnected.get()) {
                     findUSBSerialDevice()
                 }
                 incomingHandler?.sendMSG_SERIAL_CONNECT();
@@ -220,9 +229,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 val detachedIntent = Intent(ACTION_USB_DEVICE_DETACHED)
                 context?.sendBroadcast(detachedIntent)
                 try {
-                    if (serialPortConnected) {
+                    if (isConnected.get()) {
                         usbSerialPort?.close()
-                        serialPortConnected = false
+                        isConnected.set(false)
+//                        serialPortConnected = false
                     }
                 } catch ( ex: Exception ){
 
@@ -283,7 +293,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
         GlobalScope.launch {
             delay(1000L)
             findUSBSerialDevice()
-            if (serialPortConnected) {
+            if (isConnected.get()) {
                 cancel()
             }
         }
@@ -295,7 +305,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //        }, 1000 * 30)
 
         lastRecvProtocol.set(System.currentTimeMillis())
-        checkThread = Thread {
+        /*checkThread = Thread {
             while (isruncheckThread.get()) {
                 try {
                     val lastrecv = lastRecvProtocol.get()
@@ -312,11 +322,60 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                     }
                     Thread.sleep(10)
                 } catch (ex: Exception) {
-
+                    ex.printStackTrace()
                 }
             }
         }
-        checkThread.start()
+        checkThread.start()*/
+        mainJob = CoroutineScope(Job() + Dispatchers.IO).launch {
+            try {
+
+                while (isruncheckThread.get()) {
+                    try {
+                        val lastrecv = lastRecvProtocol.get()
+                        if ((lastrecv + 1000L * 30) < System.currentTimeMillis()) {
+                            Log.d(
+                                "Serial Fail",
+                                "================= Time : $lastrecv current : ${System.currentTimeMillis()} ===================="
+                            )
+                            disconnect()
+                            delay(1000)
+                            findUSBSerialDevice()
+                            Log.d(
+                                "Serial reconnect",
+                                "Serial reconnect ====================================="
+                            )
+                            lastRecvProtocol.set(System.currentTimeMillis())
+                        }
+
+                        if (isConnected.get()) {
+                            if ((connectionTime.get() + 1000L * 60 * 60 * 12 ) < System.currentTimeMillis()) {
+//                            if ((connectionTime.get() + 1000L * 60) < System.currentTimeMillis()) {
+                                Log.d(
+                                    "Serial disconnect",
+                                    "Serial disconnect ====================================="
+                                )
+                                disconnect()
+                                delay(1000)
+                                findUSBSerialDevice()
+                                Log.d(
+                                    "Serial reconnect",
+                                    "Serial reconnect ====================================="
+                                )
+                                connectionTime.set(System.currentTimeMillis())
+                                lastRecvProtocol.set(System.currentTimeMillis())
+                            }
+                        }
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
+                    }
+
+                    delay(10)
+                }
+            } catch(ex: CancellationException) {
+                ex.printStackTrace()
+            }
+        }
 
 //        val memoutThread = Thread {
 //            val largeList = mutableListOf<String>()
@@ -333,8 +392,10 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     override fun onDestroy() {
         unregisterReceiver(broadcastReceiver)
         isruncheckThread.set(false)
-        checkThread.interrupt()
-        checkThread.join()
+//        checkThread.interrupt()
+//        checkThread.join()
+        mainJob?.cancel()
+
         super.onDestroy()
         Log.d("Service", "SerialService : onDestroy")
     }
@@ -367,6 +428,7 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
             incomingHandler?.sendMSG_NO_SERIAL()
             return
         }
+
         if (usbDrivers!!.count() > 0) {
             usbDriver = getFirstDevice(usbDrivers!!)
             device = usbDriver.device
@@ -381,9 +443,11 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 while (true) {
                     try {
                         serialPortConnect()
+                        connectionTime.set(System.currentTimeMillis())
                         break;
                     } catch (e: Exception) {
                     }
+                    Thread.sleep(100)
                 }
                 incomingHandler?.sendConnected()
             }
@@ -419,22 +483,31 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 //            usbIoManager!!.readBufferSize = 1000
             usbIoManager!!.setBaudrate(currentBaudrate)
             usbIoManager!!.start()
-            serialPortConnected = true
-
+//            serialPortConnected = true
+            isConnected.set(true)
         }
     }
 
     private fun disconnect() {
-        serialPortConnected = false
-        if (usbIoManager != null) {
-            usbIoManager?.clearWriteBuff()
-            usbIoManager?.listener = null
-            usbIoManager?.stop()
+//        serialPortConnected = false
+        isConnected.set(false)
+//        if (usbIoManager != null) {
+//            usbIoManager?.clearWriteBuff()
+//            usbIoManager?.listener = null
+//            usbIoManager?.stop()
+//        }
+        usbIoManager?.let {
+            it.clearBuffers()
+            it.stop()
+            it.listener = null
         }
 
         usbIoManager = null
         try {
-            usbSerialPort?.close()
+            usbSerialPort?.let {
+                it.close()
+            }
+//            usbSerialPort?.close()
 //            usbSerialPort!!.close()
         } catch (ignored: IOException) {
         }
@@ -444,11 +517,15 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
     private fun sendData(data: ByteArray) {
         if (usbSerialPort?.isOpen == true)
             usbIoManager?.writeAsync(data)
+        else
+            usbIoManager?.clearBuffers()
     }
 
     private fun sendFeedbackData(data: ByteArray) {
         if (usbSerialPort?.isOpen == true)
             usbIoManager?.writeFeedbackAsync(data)
+        else
+            usbIoManager?.clearBuffers()
     }
 
     fun checkModelandID() {
@@ -520,8 +597,18 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                 datas.add(littleEndianConversion(arg,13, 14))
             }
 
+            //TODO : 수치 데이터 변화에 대한 반응 확인
             if (model == 1.toByte() || model == 2.toByte() || model == 5.toByte()) {
                 for (t in 0..3) {
+/*                    datas[t] = getLPF(
+                        datas[t] + Random.nextInt(-40, 11) , littleEndianConversion(
+                            byteArrayOf(
+                                model,
+                                id.toByte(),
+                                (t + 1).toByte()
+                            )
+                        )
+                    )*/
                     datas[t] = getLPF(
                         datas[t], littleEndianConversion(
                             byteArrayOf(
@@ -540,15 +627,25 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                     }
                 }
             }
-
-            val tmp: ParsingData = ParsingData(
+//
+            val tmp = ParsingData(
                 id,
                 model,
                 time,
                 datas
             )
+//            val tmp = SerialDataInfo(
+//                id,
+//                model,
+//                time,
+//                datas.getOrNull(0),
+//                datas.getOrNull(1),
+//                datas.getOrNull(2),
+//                datas.getOrNull(3),
+//            )
             val bundle = Bundle()
-            bundle.putSerializable("", tmp)
+//            bundle.putSerializable("", tmp)
+            bundle.putParcelable("", tmp)
 
             incomingHandler?.let {
                 val msgType = when(model) {
@@ -561,8 +658,15 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                     // 다른 모델에 대한 메시지 타입 매핑
                     else -> MSG_GASDOCK
                 }
-                val message = Message.obtain(null, msgType)
-                message.data = bundle
+                val message = Message.obtain().apply {
+                    what = msgType
+                    data = bundle
+                }
+
+//                val message = Message.obtain().apply {
+//                    what = msgType
+//                    obj = tmp
+//                }
                 it.sendMSG(message)
             }
         } catch (e: Exception) {

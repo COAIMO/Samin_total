@@ -88,15 +88,36 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
         private val gasDcokView = view.findViewById<GasStorageView>(R.id.gas_storage_single_view)
 
         fun bind(setGasStorageViewData: SetGasStorageViewData) {
-            gasDcokView.setGasName(setGasStorageViewData.gasName!!)
-            gasDcokView.setGasColor(setGasStorageViewData.gasColor!!)
-            setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
-            setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
-            setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
+            if (!gasDcokView.getGasName().equals(setGasStorageViewData.gasName!!))
+                gasDcokView.setGasName(setGasStorageViewData.gasName!!)
+            if (!gasDcokView.getGasColor().equals(setGasStorageViewData.gasColor!!))
+                gasDcokView.setGasColor(setGasStorageViewData.gasColor!!)
+            setGasStorageViewData.pressure_Min?.let {
+                if (!gasDcokView.getPressureMin().equals(it))
+                    gasDcokView.setPressureMin(it)
+            }
+            setGasStorageViewData.pressure_Max?.let {
+                if (!gasDcokView.getPressureMax().equals(it))
+                    gasDcokView.setPressureMax(it)
+            }
+            setGasStorageViewData.gasIndex?.let {
+                if (!gasDcokView.getGasIndex().equals(it))
+                    gasDcokView.setGasIndex(it)
+            }
+
             gasDcokView.setLowLeftPressAlert(setGasStorageViewData.isLowLeftPressAlert)
-            setGasStorageViewData.isAlert?.let { gasDcokView.setAlert(it) }
-            setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
-            gasDcokView.setGasUnit(setGasStorageViewData.unit)
+
+            setGasStorageViewData.isAlert?.let {
+                if (!gasDcokView.isAlert().equals(it))
+                    gasDcokView.setAlert(it)
+            }
+            setGasStorageViewData.pressure?.let {
+                if (!gasDcokView.getPressure().equals(it))
+                    gasDcokView.setPressure(it)
+            }
+            if (!gasDcokView.getGasUnit().equals(setGasStorageViewData.unit))
+                gasDcokView.setGasUnit(setGasStorageViewData.unit)
+
             gasDcokView.heartBeat(setGasStorageViewData.heartbeatCount)
         }
     }
@@ -105,20 +126,49 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
         private val gasDcokView = view.findViewById<GasStorageView>(R.id.gas_storage_dual_view)
 
         fun bind(setGasStorageViewData: SetGasStorageViewData) {
-            gasDcokView.setGasName(setGasStorageViewData.gasName!!)
-            gasDcokView.setGasColor(setGasStorageViewData.gasColor!!)
-            setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
-            setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
-            setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
+            if (!gasDcokView.getGasName().equals(setGasStorageViewData.gasName!!))
+                gasDcokView.setGasName(setGasStorageViewData.gasName!!)
+            if (!gasDcokView.getGasColor().equals(setGasStorageViewData.gasColor!!))
+                gasDcokView.setGasColor(setGasStorageViewData.gasColor!!)
+
+            setGasStorageViewData.pressure_Min?.let {
+                if (!gasDcokView.getPressureMin().equals(it))
+                    gasDcokView.setPressureMin(it)
+            }
+            setGasStorageViewData.pressure_Max?.let {
+                if (!gasDcokView.getPressureMax().equals(it))
+                    gasDcokView.setPressureMax(it)
+            }
+            setGasStorageViewData.gasIndex?.let {
+                if (!gasDcokView.getGasIndex().equals(it))
+                    gasDcokView.setGasIndex(it)
+            }
             gasDcokView.setLowLeftPressAlert(setGasStorageViewData.isLowLeftPressAlert)
             gasDcokView.setLowRightPressAlert(setGasStorageViewData.isLowRightPressAlert)
-            setGasStorageViewData.isAlert?.let { gasDcokView.setAlert(it) }
-            setGasStorageViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
-            setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
+            setGasStorageViewData.isAlert?.let {
+                if (!gasDcokView.isAlert().equals(it))
+                    gasDcokView.setAlert(it)
+            }
+            setGasStorageViewData.isAlertLeft?.let {
+                if (!gasDcokView.isAlertLeft().equals(it))
+                    gasDcokView.setAlertLeft(it)
+            }
+            setGasStorageViewData.isAlertRight?.let {
+                if(!gasDcokView.isAlertRight().equals(it))
+                    gasDcokView.setAlertRight(it)
+            }
 //            setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
-            setGasStorageViewData.pressureLeft?.let { gasDcokView.setPressureLeft(it) }
-            setGasStorageViewData.pressureRight?.let { gasDcokView.setPressureRight(it) }
-            gasDcokView.setGasUnit(setGasStorageViewData.unit)
+            setGasStorageViewData.pressureLeft?.let {
+                if (!gasDcokView.getPressureLeft().equals(it))
+                    gasDcokView.setPressureLeft(it)
+            }
+            setGasStorageViewData.pressureRight?.let {
+                if (!gasDcokView.getPressureRight().equals(it))
+                    gasDcokView.setPressureRight(it)
+            }
+            if (!gasDcokView.getGasUnit().equals(setGasStorageViewData.unit))
+                gasDcokView.setGasUnit(setGasStorageViewData.unit)
+
             gasDcokView.heartBeat(setGasStorageViewData.heartbeatCount)
 
         }
@@ -143,20 +193,51 @@ class GasStorage_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder
             view.findViewById<GasStorageView>(R.id.gas_storage_autochanger_view)
 
         fun bind(setGasStorageViewData: SetGasStorageViewData) {
-            gasDcokView.setGasName(setGasStorageViewData.gasName!!)
-            gasDcokView.setGasColor(setGasStorageViewData.gasColor!!)
-            setGasStorageViewData.pressure_Min?.let { gasDcokView.setPressureMin(it) }
-            setGasStorageViewData.pressure_Max?.let { gasDcokView.setPressureMax(it) }
-            setGasStorageViewData.gasIndex?.let { gasDcokView.setGasIndex(it) }
+            if (!gasDcokView.getGasName().equals(setGasStorageViewData.gasName!!))
+                gasDcokView.setGasName(setGasStorageViewData.gasName!!)
+            if (!gasDcokView.getGasColor().equals(setGasStorageViewData.gasColor!!))
+                gasDcokView.setGasColor(setGasStorageViewData.gasColor!!)
+
+            setGasStorageViewData.pressure_Min?.let {
+                if (!gasDcokView.getPressureMin().equals(it))
+                    gasDcokView.setPressureMin(it)
+            }
+            setGasStorageViewData.pressure_Max?.let {
+                if (!gasDcokView.getPressureMax().equals(it))
+                    gasDcokView.setPressureMax(it)
+            }
+            setGasStorageViewData.gasIndex?.let {
+                if (!gasDcokView.getGasIndex().equals(it))
+                    gasDcokView.setGasIndex(it)
+            }
+
             gasDcokView.setLowLeftPressAlert(setGasStorageViewData.isLowLeftPressAlert)
             gasDcokView.setLowRightPressAlert(setGasStorageViewData.isLowRightPressAlert)
-            setGasStorageViewData.isAlert?.let { gasDcokView.setAlert(it) }
-            setGasStorageViewData.isAlertLeft?.let { gasDcokView.setAlertLeft(it) }
-            setGasStorageViewData.isAlertRight?.let { gasDcokView.setAlertRight(it) }
+
+            setGasStorageViewData.isAlert?.let {
+                if (!gasDcokView.isAlert().equals(it))
+                    gasDcokView.setAlert(it)
+            }
+            setGasStorageViewData.isAlertLeft?.let {
+                if (!gasDcokView.isAlertLeft().equals(it))
+                    gasDcokView.setAlertLeft(it)
+            }
+            setGasStorageViewData.isAlertRight?.let {
+                if(!gasDcokView.isAlertRight().equals(it))
+                    gasDcokView.setAlertRight(it)
+            }
 //            setGasStorageViewData.pressure?.let { gasDcokView.setPressure(it) }
-            setGasStorageViewData.pressureLeft?.let { gasDcokView.setPressureLeft(it) }
-            setGasStorageViewData.pressureRight?.let { gasDcokView.setPressureRight(it) }
-            gasDcokView.setGasUnit(setGasStorageViewData.unit)
+            setGasStorageViewData.pressureLeft?.let {
+                if (!gasDcokView.getPressureLeft().equals(it))
+                    gasDcokView.setPressureLeft(it)
+            }
+            setGasStorageViewData.pressureRight?.let {
+                if (!gasDcokView.getPressureRight().equals(it))
+                    gasDcokView.setPressureRight(it)
+            }
+            if (!gasDcokView.getGasUnit().equals(setGasStorageViewData.unit))
+                gasDcokView.setGasUnit(setGasStorageViewData.unit)
+
             gasDcokView.heartBeat(setGasStorageViewData.heartbeatCount)
         }
     }

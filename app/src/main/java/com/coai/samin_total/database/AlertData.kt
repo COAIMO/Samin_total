@@ -10,7 +10,6 @@ data class AlertData(
     @ColumnInfo val apId: Int,
     @ColumnInfo val content: String,
     @ColumnInfo val port: Int,
-    @ColumnInfo var isAlert: Boolean
-){
+    @ColumnInfo var isAlert: Boolean,
     @PrimaryKey(autoGenerate = true)var id: Int =0
-}
+)

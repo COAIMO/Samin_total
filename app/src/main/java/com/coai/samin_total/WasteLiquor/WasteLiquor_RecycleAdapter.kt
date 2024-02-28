@@ -1,14 +1,11 @@
 package com.coai.samin_total.WasteLiquor
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.coai.samin_total.Logic.AutoUpdatableAdapter
 import com.coai.samin_total.R
-import com.coai.uikit.samin.status.GasRoomView
-import com.coai.uikit.samin.status.GasStorageView
 import com.coai.uikit.samin.status.WastebottleView
 
 class WasteLiquor_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
@@ -47,8 +44,12 @@ class WasteLiquor_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolde
             view.findViewById<WastebottleView>(R.id.waste_liquor_view)
 
         fun bind(setWasteLiquorViewData: SetWasteLiquorViewData) {
-            wasteLiquorView.setWasteName(setWasteLiquorViewData.liquidName)
-            wasteLiquorView.setAlert(setWasteLiquorViewData.isAlert)
+            if (!wasteLiquorView.getWasteName().equals(setWasteLiquorViewData.liquidName))
+                wasteLiquorView.setWasteName(setWasteLiquorViewData.liquidName)
+
+            if (!wasteLiquorView.isAlert().equals(setWasteLiquorViewData.isAlert))
+                wasteLiquorView.setAlert(setWasteLiquorViewData.isAlert)
+
             wasteLiquorView.heartBeat(setWasteLiquorViewData.heartbeatCount)
         }
     }

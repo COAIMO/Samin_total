@@ -8,7 +8,7 @@ class Utils {
          * 숫자 배열 -> Range
          */
         fun ToIntRange(lstvalue : List<Int>, size: Int) : List<Range<Int>>? {
-            if (lstvalue.size == 0) {
+            if (lstvalue.isEmpty()) {
                 return null
             }
             val refreshList = ArrayList<Range<Int>>()

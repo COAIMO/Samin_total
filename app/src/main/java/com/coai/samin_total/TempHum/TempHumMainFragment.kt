@@ -2,14 +2,13 @@ package com.coai.samin_total.TempHum
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import com.coai.samin_total.AlertLog_RecyclerAdapter
 import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpacesItemDecoration
@@ -17,8 +16,6 @@ import com.coai.samin_total.Logic.Utils
 import com.coai.samin_total.MainActivity
 import com.coai.samin_total.MainViewModel
 import com.coai.samin_total.R
-import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
-import com.coai.samin_total.WasteLiquor.WasteLiquor_RecycleAdapter
 import com.coai.samin_total.databinding.FragmentTempHumMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -215,7 +212,10 @@ class TempHumMainFragment : Fragment() {
                 }
             }
 
-            activity?.runOnUiThread {
+//            activity?.runOnUiThread {
+//                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+//            }
+            CoroutineScope(Dispatchers.Main).launch {
                 recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
             }
         }
@@ -279,7 +279,10 @@ class TempHumMainFragment : Fragment() {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
 
-        activity?.runOnUiThread {
+//        activity?.runOnUiThread {
+//            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+//        }
+        CoroutineScope(Dispatchers.Main).launch {
             recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
         }
     }
@@ -359,14 +362,11 @@ class TempHumMainFragment : Fragment() {
 
                         recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                     } else {
-                        val rlist = Utils.ToIntRange(lstvalue, temphumViewData.size)
-                        if (rlist != null) {
-                            rlist.forEach {
-                                recycleAdapter.notifyItemRangeChanged(
-                                    it.lower,
-                                    1 + it.upper - it.lower
-                                )
-                            }
+                        Utils.ToIntRange(lstvalue, temphumViewData.size)?.forEach {
+                            recycleAdapter.notifyItemRangeChanged(
+                                it.lower,
+                                1 + it.upper - it.lower
+                            )
                         }
                     }
                 }

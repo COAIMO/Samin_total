@@ -6,18 +6,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Process
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.databinding.FragmentLoadingscreenBinding
-import kotlin.system.exitProcess
 
 /**
  * An example full-screen fragment that shows and hides the system UI (i.e.
@@ -49,6 +45,11 @@ class LoadingscreenFragment : Fragment() {
   ): View? {
     _binding = FragmentLoadingscreenBinding.inflate(inflater, container, false)
     viewmodel.scanDone.observe(viewLifecycleOwner) {
+      Log.d(
+        "usbdetachetime",
+        "===================scanDone ==================="
+      )
+      viewmodel.isDoneLoading.set(true)
       if (activity?.shared?.getFragment() != null) {
         activity?.let { it1 ->
           it1.shared?.let {it2 ->
@@ -69,7 +70,7 @@ class LoadingscreenFragment : Fragment() {
   override fun onResume() {
     super.onResume()
     activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-    handler.postDelayed(runnable, 6000)
+    handler.postDelayed(runnable, 30000)
 
 
   }

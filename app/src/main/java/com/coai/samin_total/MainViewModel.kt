@@ -1,13 +1,9 @@
 package com.coai.samin_total
 
-import android.app.Application
 import android.graphics.Color
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.room.Room
 import com.coai.libmodbus.service.SaminModbusService
 import com.coai.libsaminmodbus.model.KeyUtils
 import com.coai.libsaminmodbus.model.ModelMonitorValues
@@ -16,19 +12,12 @@ import com.coai.samin_total.Dialog.AlertDialogFragment
 import com.coai.samin_total.Dialog.SetAlertData
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
-import com.coai.samin_total.GasRoom.TimePSI
-import com.coai.samin_total.Logic.*
+import com.coai.samin_total.Logic.ControlData
+import com.coai.samin_total.Logic.MutableListLiveData
 import com.coai.samin_total.Oxygen.SetOxygenViewData
 import com.coai.samin_total.Steamer.SetSteamerViewData
-import com.coai.samin_total.Steamer.SteamerSettingFragment
 import com.coai.samin_total.TempHum.SetTempHumViewData
 import com.coai.samin_total.WasteLiquor.SetWasteLiquorViewData
-import com.coai.samin_total.database.AlertData
-import com.coai.samin_total.database.AlertDatabase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
@@ -226,6 +215,7 @@ class MainViewModel : ViewModel() {
 
     fun addAlertInfo(id: Int, arg: SetAlertData) {
         try {
+            Log.d("addAlertInfo", "==== ${arg.content}")
             alertInfo.add(arg)
             alertInfo.notifyChange()
         } catch (e: Exception) {
@@ -582,6 +572,7 @@ class MainViewModel : ViewModel() {
     val errorlivelist = mutableListOf<SetAlertData>()
     val scanDone: MutableLiveData<Boolean> = MutableLiveData()
 
-    val usbdetachetime: AtomicLong = AtomicLong(0);
+    val usbdetachetime: AtomicLong = AtomicLong(0)
+    val isDoneLoading: AtomicBoolean = AtomicBoolean(false)
 }
 

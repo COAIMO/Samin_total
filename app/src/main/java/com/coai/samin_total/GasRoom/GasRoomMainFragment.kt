@@ -4,11 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.coai.samin_total.Dialog.AlertDialogFragment
@@ -24,7 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
@@ -139,14 +138,11 @@ class GasRoomMainFragment : Fragment() {
                     recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
                 }
                 else {
-                    val rlist = Utils.ToIntRange(lstvalue, gasRoomViewData.size)
-                    if (rlist != null) {
-                        rlist.forEach {
-                            recycleAdapter.notifyItemRangeChanged(
-                                it.lower,
-                                1 + it.upper - it.lower
-                            )
-                        }
+                    Utils.ToIntRange(lstvalue, gasRoomViewData.size)?.forEach {
+                        recycleAdapter.notifyItemRangeChanged(
+                            it.lower,
+                            1 + it.upper - it.lower
+                        )
                     }
                 }
 
@@ -198,7 +194,10 @@ class GasRoomMainFragment : Fragment() {
                         itemSpace.changeSpace(20, 150, 20, 150)
                     }
             }
-            activity?.runOnUiThread {
+//            activity?.runOnUiThread {
+//                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+//            }
+            CoroutineScope(Dispatchers.Main).launch {
                 recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
             }
         }
@@ -288,7 +287,10 @@ class GasRoomMainFragment : Fragment() {
             mBinding.btnZoomInout.setImageResource(R.drawable.screen_increase_ic)
         }
 
-        activity?.runOnUiThread {
+//        activity?.runOnUiThread {
+//            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
+//        }
+        CoroutineScope(Dispatchers.Main).launch {
             recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
         }
     }

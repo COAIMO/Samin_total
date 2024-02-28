@@ -15,8 +15,6 @@ class AlertLog_RecyclerAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() 
             LayoutInflater.from(parent.context)
                 .inflate(R.layout.alertlog_view, parent, false)
         )
-
-
     }
 
     override fun getItemCount(): Int {
@@ -46,9 +44,6 @@ class AlertLog_RecyclerAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() 
             tv_time.text = setAlertData.time
             tv_port.text = setAlertData.port.toString()
         }
-
-
     }
-
 }
 

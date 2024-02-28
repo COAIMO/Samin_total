@@ -1,7 +1,8 @@
 package com.coai.samin_total.database
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.coai.samin_total.databinding.ListItemBinding
