@@ -658,15 +658,33 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
                     // 다른 모델에 대한 메시지 타입 매핑
                     else -> MSG_GASDOCK
                 }
+
+//                if (model == 0x04.toByte()) {
+//                    datas[0] = 2330
+//                    val tmp1 = ParsingData(
+//                        id,
+//                        model,
+//                        time,
+//                        datas
+//                    )
+//                    bundle.putParcelable("", tmp1)
+//                    val message = Message.obtain().apply {
+//                        what = msgType
+//                        data = bundle
+//                    }
+//                    it.sendMSG(message)
+//                }
+//                else {
+//                    val message = Message.obtain().apply {
+//                        what = msgType
+//                        data = bundle
+//                    }
+//                    it.sendMSG(message)
+//                }
                 val message = Message.obtain().apply {
                     what = msgType
                     data = bundle
                 }
-
-//                val message = Message.obtain().apply {
-//                    what = msgType
-//                    obj = tmp
-//                }
                 it.sendMSG(message)
             }
         } catch (e: Exception) {

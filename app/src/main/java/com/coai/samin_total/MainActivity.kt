@@ -532,8 +532,9 @@ class MainActivity : AppCompatActivity() {
 
                             if (!isMirrorMode && isSending.get() && !isAnotherJob.get() && !isAnotherSettingJob.get()) {
                                 if (protocolBuffers.size > 0) {
-                                    val tmpidx: Short = ((indexProtocol++ % protocolBuffers.size) + 1).toShort()
-                                    val tmpdata = protocolBuffers.get(tmpidx)
+                                    val tmpidx = ((indexProtocol++ % protocolBuffers.size))
+                                    val idxs = protocolBuffers.keys().toList()
+                                    val tmpdata = protocolBuffers.get(idxs.get(tmpidx))
 
                                     tmpdata?.let {
                                         sendFeedbackProtocolToSerial(it)
