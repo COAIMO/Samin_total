@@ -1428,10 +1428,10 @@ class AQDataParser(private val viewModel: MainViewModel) {
         bro.isHumAlert = tmp.isHumAlert
         bro.isAlert = tmp.isAlert
 
-        Log.d(
-            "temphum2",
-            "bro.temp:  ${bro.temp} bro.hum : ${bro.hum} bro.isTempAlert : ${bro.isTempAlert} bro.isHumAlert: ${bro.isHumAlert} bro.isAlert: ${bro.isAlert}"
-        )
+//        Log.d(
+//            "temphum2",
+//            "bro.temp:  ${bro.temp} bro.hum : ${bro.hum} bro.isTempAlert : ${bro.isTempAlert} bro.isHumAlert: ${bro.isHumAlert} bro.isAlert: ${bro.isAlert}"
+//        )
 
         val idx = KeyUtils.getIndex(
             tmp.modelByte.toInt(),
@@ -1669,6 +1669,9 @@ class AQDataParser(private val viewModel: MainViewModel) {
     val lostConnectAQs = HashMap<Int, Boolean>()
 
 
+    /**
+     * AQ 신호가 늦어지는 것을 확인한다.
+     */
     fun timeoutAQCheckStep() {
         val baseTime = System.currentTimeMillis() - 1000 * 10
         //기존의 가지고있던 키와 다른 키가 들어올경우 삭제(가비지 데이터땜에)

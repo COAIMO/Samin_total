@@ -175,6 +175,19 @@ class MainActivity : AppCompatActivity() {
 
     private var isCallMainJob = AtomicBoolean(true)
     private var mainJob: Job? = null
+    private val currentLedState = ConcurrentHashMap<Short, Byte>()
+    private val lastLedState = ConcurrentHashMap<Short, Byte>()
+
+    private val isNeoAlertOn = AtomicBoolean(false)
+    private val isOxygenOn = AtomicBoolean(false)
+    private val isOxygenInclude = AtomicBoolean(false)
+
+    private val  lastOxygenSendAlert =  AtomicLong(System.currentTimeMillis())
+    private val  lastNeoSendAlert = AtomicLong(System.currentTimeMillis())
+
+    private val notAlert: Array<Byte> = arrayOf(1.toByte(), 2.toByte(), 3.toByte(), 4.toByte(), 5.toByte(), 6.toByte())
+    private val neoAlerts: Array<Byte> = arrayOf(1.toByte(), 2.toByte(), 3.toByte(), 5.toByte(), 6.toByte())
+
     fun callMainJob() {
         mainJob?.cancel()
 
@@ -191,24 +204,13 @@ class MainActivity : AppCompatActivity() {
                 var lastSendAlert = System.currentTimeMillis()
 //                var lastWriteAlert = System.currentTimeMillis()
 
-                var lastOxygenSendAlert = System.currentTimeMillis()
-                var lastNeoSendAlert = System.currentTimeMillis()
-
                 var indexProtocol = 0
 
                 val ledchanged = ArrayList<Short>()
                 val alertchanged = ArrayList<Short>()
                 val alertchangedRemind = ArrayList<Short>()
-                val currentLedState = HashMap<Short, Byte>()
-                var isOxygenOn = false
-                var isOxygenInclude = false
 
-                var isNeoAlertOn = false
-
-                val notAlert: Array<Byte> = arrayOf(1.toByte(), 2.toByte(), 3.toByte(), 4.toByte(), 5.toByte(), 6.toByte())
-                val neoAlerts: Array<Byte> = arrayOf(1.toByte(), 2.toByte(), 3.toByte(), 5.toByte(), 6.toByte())
-
-                val removeList = ArrayList<Int>()
+                var lastTimeoutAQProcess = System.currentTimeMillis()
 
                 while (isCallMainJob.get()) {
                     try {
@@ -217,20 +219,7 @@ class MainActivity : AppCompatActivity() {
                             protocolBuffers.clear()
                             indexProtocol = 0
                             val processMils = measureTimeMillis {
-                                for ((md, ids) in mainViewModel.modelMapInt) {
-                                    for (index in ids.indices) {
-                                        val model = md.toByte()
-                                        val id = ids.get(index)
-                                        val key = littleEndianConversion(byteArrayOf(model, id)).toShort()
-                                        if (model == 4.toByte())
-                                            isOxygenInclude = true
-
-                                        if (!protocolBuffers.containsKey(key)) {
-                                            protocol.feedBack(model, id)
-                                            protocolBuffers[key] = protocol.mProtocol.clone()
-                                        }
-                                    }
-                                }
+                                makeGenProtocols()
                             }
                             Log.d("callMainJob", "feedback processMils : $processMils ms")
                             lastMakeProtocol = System.currentTimeMillis()
@@ -238,15 +227,22 @@ class MainActivity : AppCompatActivity() {
 
                         if (mainViewModel.isDoneLoading.get()) {
                             if (mainViewModel.isCheckTimeOut.get()) {
-                                val processMils = measureTimeMillis {
-                                    try {
-                                        tmp.timeoutAQCheckStep()
-                                    } catch (eee: Exception) {
-                                        Log.e("alertstate2", eee.toString())
-                                        eee.printStackTrace()
+                                if ((lastTimeoutAQProcess + 5000L) < System.currentTimeMillis()) {
+                                    lastTimeoutAQProcess = System.currentTimeMillis()
+                                    val processMils = measureTimeMillis {
+                                        try {
+                                            tmp.timeoutAQCheckStep()
+                                        } catch (eee: Exception) {
+                                            Log.e("alertstate2", eee.toString())
+                                            eee.printStackTrace()
+                                        }
                                     }
+                                    Log.d(
+                                        "callMainJob",
+                                        "timeoutAQCheckStep processMils : $processMils ms"
+                                    )
+                                    lastTimeoutAQProcess = System.currentTimeMillis()
                                 }
-                                Log.d("callMainJob", "timeoutAQCheckStep processMils : $processMils ms")
 //                                 TODO 안 에러 상태 발생을 위해 임시로 해제
                             }
                         }
@@ -548,120 +544,13 @@ class MainActivity : AppCompatActivity() {
                             lastCallback = System.currentTimeMillis()
                         }
 
-                        for ((k, v) in currentLedState) {
-                            val id = (k.toInt() shr 8 and 0xFF).toByte()
-                            val model = (k and 0xFF).toByte()
+                        processNeoAlertLed()
 
-//                            if (model.equals(3.toByte())) {
-                            if(v > 0) {
-                                if (neoAlerts.contains((model))) {
-                                    if (mainViewModel.NeoAlertMap[k.toInt()] !== true) {
-                                        mainViewModel.NeoAlertMap[k.toInt()] = true
-//                                    mainViewModel.wasteBuzzAlertMap[k.toInt()] = true
-                                        lastNeoSendAlert = System.currentTimeMillis() - 1001
-                                    }
-                                }
-
-                                if (model.equals(4.toByte())) {
-                                    if (mainViewModel.oxygenAlertMap[k.toInt()] !== true) {
-                                        mainViewModel.oxygenAlertMap[k.toInt()] = true
-                                        lastOxygenSendAlert = System.currentTimeMillis() - 1001
-                                    }
-                                }
-                            } else {
-
-                            }
-                        }
-
-                        if ((lastNeoSendAlert + 1000) < System.currentTimeMillis()) {
-                            lastNeoSendAlert = System.currentTimeMillis()
+                        if ((lastNeoSendAlert.get() + 1000) < System.currentTimeMillis()) {
+                            lastNeoSendAlert.set(System.currentTimeMillis())
 
                             val processMils = measureTimeMillis {
-                                var model: Byte
-                                var id: Byte
-                                var isOn = false
-
-                                for ((k, v) in mainViewModel.NeoAlertMap) {
-                                    isOn = true
-                                    id = (k.toInt() shr 8 and 0xFF).toByte()
-                                    model = (k and 0xFF).toByte()
-
-                                    Log.d(
-                                        "ledtest",
-                                        "k : $k id: $id model : $model"
-                                    )
-
-                                    if (isNeoAlertOn) {
-//                                    val value = currentLedState[k.toShort()] ?:0
-//                                    val tmpled = 0b10000 or (0b1111 and value.toInt())
-                                        for (cnt in 0..1) {
-                                            if (mainViewModel.isSoundAlert) {
-                                                protocol.buzzer_On(model, id)
-                                                sendProtocolToSerial(protocol.mProtocol.clone())
-                                                delay(writesleep.get())
-                                            }
-                                        }
-                                    } else {
-                                        for (cnt in 0..1) {
-                                            protocol.buzzer_Off(model, id)
-                                            sendProtocolToSerial(protocol.mProtocol.clone())
-                                            delay(writesleep.get())
-                                        }
-                                    }
-
-                                    if (v === true) {
-                                        if (isNeoAlertOn) {
-
-                                            val value = currentLedState[k.toShort()] ?: 0
-                                            val tmpled = 0b10000 or (0b1111 and value.toInt())
-                                            for (cnt in 0..1) {
-                                                protocol.led_AlertStateByte(
-                                                    model,
-                                                    id,
-                                                    tmpled.toByte()
-                                                )
-                                                sendProtocolToSerial(protocol.mProtocol.clone())
-                                                delay(writesleep.get())
-                                            }
-
-                                            Log.d(
-                                                "ledtest",
-                                                "currentLedState[k.toShort()] = ${currentLedState[k.toShort()]}, id = ${id}, mainViewModel.NeoAlertMap[k] = ${mainViewModel.NeoAlertMap[k]}"
-                                            )
-//                                        currentLedState[k.toShort()]
-                                        } else {
-                                            for (cnt in 0..1) {
-                                                protocol.led_AlertStateByte(model, id, 16.toByte())
-                                                sendProtocolToSerial(protocol.mProtocol.clone())
-                                                delay(writesleep.get())
-                                            }
-                                        }
-                                    } else {
-                                        for (cnt in 0..1) {
-                                            protocol.buzzer_Off(model, id)
-                                            sendProtocolToSerial(protocol.mProtocol.clone())
-                                            delay(writesleep.get())
-
-                                            protocol.led_AlertStateByte(model, id, 0.toByte())
-                                            sendProtocolToSerial(protocol.mProtocol.clone())
-                                            delay(writesleep.get())
-                                        }
-//                                    mainViewModel.NeoAlertMap.remove(k)
-//                                    mainViewModel.wasteBuzzAlertMap.remove(k)
-                                        removeList.add(k)
-
-                                        Log.d(
-                                            "ledtest",
-                                            "currentLedState[k.toShort()] = ${currentLedState[k.toShort()]}, id = ${id}, Size: ${mainViewModel.NeoAlertMap.keys.size}"
-                                        )
-                                    }
-                                    isNeoAlertOn = !isNeoAlertOn
-
-//                                Log.d(
-//                                    "ledtest",
-//                                    "On ========> model = ${model}, id = ${id}tmpBits = ${v}"
-//                                )
-                                }
+                                val removeList = processNeoAlert()
 
                                 removeList.forEach {
                                     mainViewModel.NeoAlertMap.remove(it)
@@ -670,92 +559,22 @@ class MainActivity : AppCompatActivity() {
                             }
                             Log.d("callMainJob", "neo sendalert processMils : $processMils ms")
 
-                            lastNeoSendAlert = System.currentTimeMillis()
+                            lastNeoSendAlert.set(System.currentTimeMillis())
                         }
 
-                        if ((lastOxygenSendAlert + 1000) < System.currentTimeMillis()) {
-                            lastOxygenSendAlert = System.currentTimeMillis()
+                        if ((lastOxygenSendAlert.get() + 1000) < System.currentTimeMillis()) {
+                            lastOxygenSendAlert.set(System.currentTimeMillis())
 
                             val processMils = measureTimeMillis {
-                                var model: Byte
-                                var id: Byte
-                                var isOn = false
+                                alertOxygenProcess()
 
-                                for ((k, v) in mainViewModel.oxygenAlertMap) {
-                                    isOn = true
-                                    id = (k.toInt() shr 8 and 0xFF).toByte()
-                                    model = (k and 0xFF).toByte()
-
-                                    if (isOxygenOn) {
-                                        for (cnt in 0..1) {
-                                            for (t in 0..7) {
-                                                protocol.buzzer_On(model, t.toByte())
-                                                sendProtocolToSerial(protocol.mProtocol.clone())
-                                                delay(writesleep.get())
-                                            }
-
-                                            if (currentLedState[k.toShort()] == 31.toByte()) {
-                                                protocol.led_AlertStateByte(
-                                                    model,
-                                                    id,
-                                                    0b00110.toByte()
-                                                )
-                                                sendProtocolToSerial(protocol.mProtocol.clone())
-                                                delay(writesleep.get())
-                                            }
-                                        }
-                                    } else {
-                                        for (cnt in 0..1) {
-                                            for (t in 0..7) {
-                                                protocol.buzzer_Off(model, t.toByte())
-                                                sendProtocolToSerial(protocol.mProtocol.clone())
-                                                delay(writesleep.get())
-                                            }
-                                            if (currentLedState[k.toShort()] == 31.toByte()) {
-                                                protocol.led_AlertStateByte(
-                                                    model,
-                                                    id,
-                                                    0b01001.toByte()
-                                                )
-                                                sendProtocolToSerial(protocol.mProtocol.clone())
-                                                delay(writesleep.get())
-                                            }
-                                        }
-                                    }
-                                    isOxygenOn = !isOxygenOn
-
-                                    Log.d(
-                                        "ledtest",
-                                        "On ========> model = ${model}, id = ${id}tmpBits = ${v}"
-                                    )
-                                }
-
-                                if (isOxygenInclude) {
-                                    for (t in 0..7) {
-                                        val key = littleEndianConversion(
-                                            byteArrayOf(
-                                                4,
-                                                t.toByte(),
-                                                1.toByte()
-                                            )
-                                        )
-                                        if (currentLedState[key.toShort()] !== 31.toByte()) {
-                                            for (cnt in 0..1) {
-                                                protocol.led_AlertStateByte(
-                                                    4,
-                                                    t.toByte(),
-                                                    0.toByte()
-                                                )
-                                                sendProtocolToSerial(protocol.mProtocol.clone())
-                                                delay(writesleep.get())
-                                            }
-                                        }
-                                    }
+                                if (isOxygenInclude.get()) {
+                                    LedAlertOxygen()
                                 }
                             }
                             Log.d("callMainJob", "neo sendalert processMils : $processMils ms")
-                            
-                            lastOxygenSendAlert = System.currentTimeMillis()
+
+                            lastOxygenSendAlert.set(System.currentTimeMillis())
                         }
                     } catch (e : Exception) {
                         e.printStackTrace()
@@ -767,6 +586,246 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    /**
+     * 경고 전파
+     */
+    private fun processNeoAlertLed() {
+        for ((k, v) in currentLedState) {
+            val model = (k and 0xFF).toByte()
+
+            if (v > 0) {
+                if (neoAlerts.contains((model))) {
+                    if (mainViewModel.NeoAlertMap[k.toInt()] !== true) {
+                        mainViewModel.NeoAlertMap[k.toInt()] = true
+                        lastNeoSendAlert.set(System.currentTimeMillis() - 1001)
+                    }
+                }
+
+                if (model.equals(4.toByte())) {
+                    if (mainViewModel.oxygenAlertMap[k.toInt()] !== true) {
+                        mainViewModel.oxygenAlertMap[k.toInt()] = true
+                        lastOxygenSendAlert.set(System.currentTimeMillis() - 1001)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 소비전류 저감 경고 처리
+     */
+    private suspend fun processNeoAlert(): ArrayList<Int> {
+        var model: Byte
+        var id: Byte
+        val removeList = ArrayList<Int>()
+        val protocol = SaminProtocol()
+
+        for ((k, v) in mainViewModel.NeoAlertMap) {
+            id = (k.toInt() shr 8 and 0xFF).toByte()
+            model = (k and 0xFF).toByte()
+
+            Log.d(
+                "ledtest",
+                "k : $k id: $id model : $model currentLedState: ${currentLedState[k.toShort()]}"
+            )
+
+            val current = currentLedState[k.toShort()] ?: 0.toByte()
+            val last = lastLedState[k.toShort()] ?: 0.toByte()
+            if (current > last) {
+                for (cnt in 0..1) {
+                    protocol.led_AlertStateByte(model, id, 0.toByte())
+                    sendProtocolToSerial(protocol.mProtocol.clone())
+                    delay(writesleep.get())
+                }
+                delay(writesleep.get())
+
+                lastLedState[k.toShort()] = current
+                Log.d(
+                    "lastLedState",
+                     "currentLedState: ${currentLedState[k.toShort()]}"
+                )
+            } else {
+                Log.d(
+                    "lastLedState",
+                    "currentLedState: ${current} lastLedState[k.toShort()] : ${lastLedState[k.toShort()]}"
+                )
+                lastLedState[k.toShort()] = current
+            }
+
+            if (isNeoAlertOn.get()) {
+                for (cnt in 0..1) {
+                    if (mainViewModel.isSoundAlert) {
+                        protocol.buzzer_On(model, id)
+                        sendProtocolToSerial(protocol.mProtocol.clone())
+                        delay(writesleep.get())
+                    }
+                }
+            } else {
+                for (cnt in 0..1) {
+                    protocol.buzzer_Off(model, id)
+                    sendProtocolToSerial(protocol.mProtocol.clone())
+                    delay(writesleep.get())
+                }
+            }
+
+            if (v === true) {
+                if (isNeoAlertOn.get()) {
+                    val value = currentLedState[k.toShort()] ?: 0
+                    val tmpled = 0b10000 or (0b1111 and value.toInt())
+                    for (cnt in 0..1) {
+                        protocol.led_AlertStateByte(
+                            model,
+                            id,
+                            tmpled.toByte()
+                        )
+                        sendProtocolToSerial(protocol.mProtocol.clone())
+                        delay(writesleep.get())
+                    }
+
+                    Log.d(
+                        "ledtest",
+                        "currentLedState[k.toShort()] = ${currentLedState[k.toShort()]}, id = ${id}, mainViewModel.NeoAlertMap[k] = ${mainViewModel.NeoAlertMap[k]}"
+                    )
+                } else {
+                    for (cnt in 0..1) {
+                        protocol.led_AlertStateByte(model, id, 16.toByte())
+                        sendProtocolToSerial(protocol.mProtocol.clone())
+                        delay(writesleep.get())
+                    }
+                }
+            } else {
+                for (cnt in 0..1) {
+                    protocol.buzzer_Off(model, id)
+                    sendProtocolToSerial(protocol.mProtocol.clone())
+                    delay(writesleep.get())
+
+                    protocol.led_AlertStateByte(model, id, 0.toByte())
+                    sendProtocolToSerial(protocol.mProtocol.clone())
+                    delay(writesleep.get())
+                }
+
+                removeList.add(k)
+
+                Log.d(
+                    "ledtest",
+                    "currentLedState[k.toShort()] = ${currentLedState[k.toShort()]}, id = ${id}, Size: ${mainViewModel.NeoAlertMap.keys.size}"
+                )
+            }
+
+            isNeoAlertOn.set(!isNeoAlertOn.get())
+        }
+
+        return removeList
+    }
+
+    /**
+     * 산소센서 LED제어
+     */
+    private suspend fun LedAlertOxygen() {
+        val protocol = SaminProtocol()
+        for (t in 0..7) {
+            val key = littleEndianConversion(
+                byteArrayOf(
+                    4,
+                    t.toByte(),
+                    1.toByte()
+                )
+            )
+            if (currentLedState[key.toShort()] !== 31.toByte()) {
+                for (cnt in 0..1) {
+                    protocol.led_AlertStateByte(
+                        4,
+                        t.toByte(),
+                        0.toByte()
+                    )
+                    sendProtocolToSerial(protocol.mProtocol.clone())
+                    delay(writesleep.get())
+                }
+            }
+        }
+    }
+
+    /**
+     * 산소센서 저감 경고 처리
+     */
+    private suspend fun alertOxygenProcess() {
+        var model: Byte
+        var id: Byte
+        var isOn = false
+        val protocol = SaminProtocol()
+
+        for ((k, v) in mainViewModel.oxygenAlertMap) {
+            isOn = true
+            id = (k.toInt() shr 8 and 0xFF).toByte()
+            model = (k and 0xFF).toByte()
+
+            if (isOxygenOn.get()) {
+                for (cnt in 0..1) {
+                    for (t in 0..7) {
+                        protocol.buzzer_On(model, t.toByte())
+                        sendProtocolToSerial(protocol.mProtocol.clone())
+                        delay(writesleep.get())
+                    }
+
+                    if (currentLedState[k.toShort()] == 31.toByte()) {
+                        protocol.led_AlertStateByte(
+                            model,
+                            id,
+                            0b00110.toByte()
+                        )
+                        sendProtocolToSerial(protocol.mProtocol.clone())
+                        delay(writesleep.get())
+                    }
+                }
+            } else {
+                for (cnt in 0..1) {
+                    for (t in 0..7) {
+                        protocol.buzzer_Off(model, t.toByte())
+                        sendProtocolToSerial(protocol.mProtocol.clone())
+                        delay(writesleep.get())
+                    }
+                    if (currentLedState[k.toShort()] == 31.toByte()) {
+                        protocol.led_AlertStateByte(
+                            model,
+                            id,
+                            0b01001.toByte()
+                        )
+                        sendProtocolToSerial(protocol.mProtocol.clone())
+                        delay(writesleep.get())
+                    }
+                }
+            }
+            isOxygenOn.set(!isOxygenOn.get())
+
+            Log.d(
+                "ledtest",
+                "On ========> model = ${model}, id = ${id}tmpBits = ${v}"
+            )
+        }
+    }
+
+    /**
+     * 프로토콜을 생성한다.
+     */
+    private fun makeGenProtocols() {
+        val protocol = SaminProtocol()
+
+        for ((md, ids) in mainViewModel.modelMapInt) {
+            for (index in ids.indices) {
+                val model = md.toByte()
+                val id = ids.get(index)
+                val key = littleEndianConversion(byteArrayOf(model, id)).toShort()
+                if (model == 4.toByte())
+                    isOxygenInclude.set(true)
+
+                if (!protocolBuffers.containsKey(key)) {
+                    protocol.feedBack(model, id)
+                    protocolBuffers[key] = protocol.mProtocol.clone()
+                }
+            }
+        }
     }
 
     fun oxygenAlertClear() {
