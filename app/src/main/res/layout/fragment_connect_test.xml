@@ -170,6 +170,19 @@
                 android:layout_gravity="center"
                 android:gravity="center"/>
 
+<!--            <androidx.appcompat.widget.AppCompatButton-->
+<!--                android:id="@+id/btn_waste_alert_off"-->
+<!--                android:layout_marginTop="30dp"-->
+<!--                android:layout_width="480dp"-->
+<!--                android:layout_height="60dp"-->
+<!--                android:text="폐액통 알람 끄기"-->
+<!--                android:background="@color/black"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="30sp"-->
+<!--                android:textStyle="bold"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:gravity="center"/>-->
+
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_oxygen_alert_off"
                 android:layout_marginTop="30dp"

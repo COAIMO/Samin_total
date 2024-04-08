@@ -9,6 +9,7 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class CoAISerialInputOutputManager implements Runnable {
     private static final String TAG = SerialInputOutputManager.class.getSimpleName();
@@ -265,6 +266,7 @@ public class CoAISerialInputOutputManager implements Runnable {
             }
             mState = SerialInputOutputManager.State.RUNNING;
         }
+//        testTime.set(System.currentTimeMillis());
         Log.i(TAG, "Running ...");
         try {
             if(mThreadPriority != Process.THREAD_PRIORITY_DEFAULT)
@@ -291,6 +293,7 @@ public class CoAISerialInputOutputManager implements Runnable {
         }
     }
 
+//    private AtomicLong testTime = new AtomicLong();
     private void step() throws IOException {
         // Handle incoming data.
         byte[] buffer;
@@ -309,6 +312,10 @@ public class CoAISerialInputOutputManager implements Runnable {
 //                Log.d(TAG, HexDump.dumpHexString(data));
             }
         }
+
+//        if ((testTime.get() + 1000L * 30) < System.currentTimeMillis()) {
+//            throw new IOException("일부로 만듦");
+//        }
 
         // Handle outgoing data.
         buffer = null;

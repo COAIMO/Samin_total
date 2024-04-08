@@ -43,7 +43,9 @@
             android:process=":remote"
             android:exported="true">
         </service>
-
+<!--        <service-->
+<!--            android:name=".Service.SerialService">-->
+<!--        </service>-->
         <service android:name="com.coai.libmodbus.service.SaminModbusService"
             android:exported="true">
         </service>

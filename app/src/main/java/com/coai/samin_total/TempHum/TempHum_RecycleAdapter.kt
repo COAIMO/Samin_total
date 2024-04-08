@@ -1,5 +1,6 @@
 package com.coai.samin_total.TempHum
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,12 +59,17 @@ class TempHum_RecycleAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>()
                 tempHumView.setHumMin(setTempHumViewData.setHumMin)
             if (!tempHumView.isTempAlert().equals(setTempHumViewData.isTempAlert))
                 tempHumView.setTempAlert(setTempHumViewData.isTempAlert)
-            if (!tempHumView.isHumAlert().equals(setTempHumViewData.isTempAlert))
+            if (!tempHumView.isHumAlert().equals(setTempHumViewData.isHumAlert))
                 tempHumView.setHumAlert(setTempHumViewData.isHumAlert)
             if (!tempHumView.isAlert().equals(setTempHumViewData.isAlert))
                 tempHumView.setAlert(setTempHumViewData.isAlert)
             if (!tempHumView.getName().equals(setTempHumViewData.temphumName))
                 tempHumView.setName(setTempHumViewData.temphumName)
+
+            Log.d(
+                "temphum2",
+                "isTempAlert:  ${tempHumView.isTempAlert()}, isHumAlert: ${tempHumView.isHumAlert()}, isAlert: ${tempHumView.isAlert()}"
+            )
 
             tempHumView.heartBeat(setTempHumViewData.heartbeatCount)
         }

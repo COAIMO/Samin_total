@@ -20,24 +20,24 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 
 class AQDataParser(private val viewModel: MainViewModel) {
-    val hmapErrorOxygen = HashMap<Int, Boolean>()
-    val hmapAQPortSettings = HashMap<Int, Any>()
+    val hmapErrorOxygen = ConcurrentHashMap<Int, Boolean>()
+    val hmapAQPortSettings = ConcurrentHashMap<Int, Any>()
 //    val viewModel: MainViewModel = viewModel
-    val setAQport = HashMap<Int, Any>()
+    val setAQport = ConcurrentHashMap<Int, Any>()
 
 
     // 최종 숫신시간
     val hmapLastedDate = ConcurrentHashMap<Int, Long>()
 
     //    var hmapIDLastedDate = HashMap<Short, Long>()
-    val hmapPsis = HashMap<Int, ArrayList<TimePSI>>()
+    val hmapPsis = ConcurrentHashMap<Int, ArrayList<TimePSI>>()
 
-    val alertBase = HashMap<Int, Float>()
-    val alertMap = HashMap<Int, Boolean>()
-    val alertMap2 = HashMap<Int, Boolean>()
-    val pressStateMap = HashMap<Int, Int>()
-    val tempStateMap = HashMap<Int, Int>()
-    val humStateMap = HashMap<Int, Int>()
+    val alertBase = ConcurrentHashMap<Int, Float>()
+    val alertMap = ConcurrentHashMap<Int, Boolean>()
+    val alertMap2 = ConcurrentHashMap<Int, Boolean>()
+    val pressStateMap = ConcurrentHashMap<Int, Int>()
+    val tempStateMap = ConcurrentHashMap<Int, Int>()
+    val humStateMap = ConcurrentHashMap<Int, Int>()
 
     private fun alertMapClear() {
         alertBase.clear()
@@ -902,7 +902,7 @@ class AQDataParser(private val viewModel: MainViewModel) {
         val preError = hmapErrorOxygen[id] ?: false
         val tmp = (tmp1 as SetOxygenViewData)
         var oxygenValue = data / 100f
-        if (oxygenValue <= 0f || oxygenValue > 100f) {
+        if ( oxygenValue > 100f) {
             return
         }
         oxygenValue += (tmp.zeroPoint ?: 0f)
@@ -1252,14 +1252,14 @@ class AQDataParser(private val viewModel: MainViewModel) {
         }
         tmp.temp = ((temp + tmp.setTempZeroPoint) * 100.0).roundToInt() / 100.0f
         tmp.hum = ((hum + tmp.setHumZeroPoint) * 100.0).roundToInt() / 100.0f
-        Log.d(
-            "temphum",
-            "setTempZeroPoint : ${tmp.setTempZeroPoint}, temp : ${temp} , result:${tmp.temp}"
-        )
-        Log.d(
-            "temphum",
-            "setHumZeroPoint : ${tmp.setHumZeroPoint}, hum : ${hum} , result:${tmp.hum}"
-        )
+//        Log.d(
+//            "temphum",
+//            "setTempZeroPoint : ${tmp.setTempZeroPoint}, temp : ${temp} , result:${tmp.temp}"
+//        )
+//        Log.d(
+//            "temphum",
+//            "setHumZeroPoint : ${tmp.setHumZeroPoint}, hum : ${hum} , result:${tmp.hum}"
+//        )
 
         if (tmp.temp > tmp.setTempMax) {
             tmp.isTempAlert = true
@@ -1279,6 +1279,10 @@ class AQDataParser(private val viewModel: MainViewModel) {
                         0b10001.toByte()
                     )
                 )
+                Log.d(
+                    "temphum2",
+                    "id:  ${id} 온도 상한 값 초과"
+                )
             }
         } else if (tmp.temp < tmp.setTempMin) {
             tmp.isTempAlert = true
@@ -1297,6 +1301,10 @@ class AQDataParser(private val viewModel: MainViewModel) {
                         2,
                         0b10010.toByte()
                     )
+                )
+                Log.d(
+                    "temphum2",
+                    "id:  ${id} 온도 하한 값 초과"
                 )
             }
         } else {
@@ -1321,6 +1329,11 @@ class AQDataParser(private val viewModel: MainViewModel) {
                 if (tempStateMap.containsKey(id)) {
                     tempStateMap.remove(id)
                 }
+
+                Log.d(
+                    "temphum2",
+                    "id:  ${id} 온도 정상"
+                )
             }
         }
 
@@ -1342,6 +1355,11 @@ class AQDataParser(private val viewModel: MainViewModel) {
                         0b10100.toByte()
                     )
                 )
+
+                Log.d(
+                    "temphum2",
+                    "id:  ${id + 65536} 습도 상한 값 초과"
+                )
             }
         } else if (tmp.hum < tmp.setHumMin) {
             tmp.isHumAlert = true
@@ -1361,9 +1379,19 @@ class AQDataParser(private val viewModel: MainViewModel) {
                         0b11000.toByte()
                     )
                 )
+                Log.d(
+                    "temphum2",
+                    "id:  ${id + 65536} 습도 하한 값 초과"
+                )
             }
         } else {
             tmp.isHumAlert = false
+
+//            Log.d(
+//                "temphum2",
+//                "습도 정상 alertMap2.containsKey(id) : ${alertMap2.containsKey(id)}"
+//            )
+
             if (alertMap2.containsKey(id)) {
                 viewModel.addAlertInfo(
                     id + 65536,
@@ -1384,20 +1412,14 @@ class AQDataParser(private val viewModel: MainViewModel) {
                 if (humStateMap.containsKey(id)) {
                     humStateMap.remove(id)
                 }
+
+                Log.d(
+                    "temphum2",
+                    "id:  ${id + 65536} 습도 정상"
+                )
             }
         }
 
-//        if (tmp.isTempAlert && tmp.isHumAlert) {
-//            viewModel.temphumAlertState = 2
-//        } else {
-//            if (tmp.isTempAlert && !tmp.isHumAlert) {
-//                viewModel.temphumAlertState = 0
-//            } else if (!tmp.isTempAlert && tmp.isHumAlert) {
-//                viewModel.temphumAlertState = 1
-//            } else {
-//                viewModel.temphumAlertState = -1
-//            }
-//        }
         tmp.isAlert = tmp.isHumAlert || tmp.isTempAlert
         val bro = setAQport[id] as SetTempHumViewData
         bro.temp = tmp.temp
@@ -1405,6 +1427,11 @@ class AQDataParser(private val viewModel: MainViewModel) {
         bro.isTempAlert = tmp.isTempAlert
         bro.isHumAlert = tmp.isHumAlert
         bro.isAlert = tmp.isAlert
+
+        Log.d(
+            "temphum2",
+            "bro.temp:  ${bro.temp} bro.hum : ${bro.hum} bro.isTempAlert : ${bro.isTempAlert} bro.isHumAlert: ${bro.isHumAlert} bro.isAlert: ${bro.isAlert}"
+        )
 
         val idx = KeyUtils.getIndex(
             tmp.modelByte.toInt(),
@@ -1652,18 +1679,6 @@ class AQDataParser(private val viewModel: MainViewModel) {
         }
 //        val starttime = System.currentTimeMillis()
         val oldDatas = hmapLastedDate.filter { it.value < baseTime }
-//        val measuretime =  System.currentTimeMillis() - starttime
-//        Log.d("hmapLastedDate", "hmapLastedDate filter : $measuretime")
-
-//        val starttime1 = System.currentTimeMillis()
-////        val lsttmp = ArrayList<Map.Entry<Int, Long>>()
-////        val oldDatas2 = hmapLastedDate.filter { it.value < baseTime }
-//        val tmps = hmapLastedDate.forEach{
-//            if (it.value < baseTime) it
-//        }
-//        val measuretime1 =  System.currentTimeMillis() - starttime1
-//        Log.d("hmapLastedDate", "hmapLastedDate foreach : $measuretime1")
-//
 
         val lastaqs = lostConnectAQs.keys.toMutableList()
         for (tmp in oldDatas) {
@@ -1806,6 +1821,11 @@ class AQDataParser(private val viewModel: MainViewModel) {
                     viewModel.temphumAlertState = -1
                 }
             }
+
+            Log.d(
+                "temphum2",
+                "tmp:  ${tmp} tmp"
+            )
 //            alertMapClear()
             alertMap.remove(tmp)
             alertMap2.remove(tmp)

@@ -334,14 +334,15 @@ class TempHumMainFragment : Fragment() {
                                 temphumViewData[idx].isTempAlert != t.isTempAlert ||
                                 temphumViewData[idx].isHumAlert != t.isHumAlert||
                                 temphumViewData[idx].temp != t.temp ||
-                                temphumViewData[idx].hum != t.hum
+                                temphumViewData[idx].hum != t.hum ||
+                                temphumViewData[idx].isAlert != t.isAlert
                             ) {
                                 if (!lstvalue.contains(idx))
                                     lstvalue.add(idx)
                             }
 
                             if ((((heartbeatCount / 10u) % 2u) == 0u) != ((((heartbeatCount - 1u) / 10u) % 2u) == 0u)) {
-                                if (t.isTempAlert || t.isHumAlert) {
+                                if (t.isAlert) {
                                     if (!lstvalue.contains(idx))
                                         lstvalue.add(idx)
                                 }

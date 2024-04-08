@@ -574,5 +574,12 @@ class MainViewModel : ViewModel() {
 
     val usbdetachetime: AtomicLong = AtomicLong(0)
     val isDoneLoading: AtomicBoolean = AtomicBoolean(false)
+
+    val oxygenAlertMap = ConcurrentHashMap<Int, Boolean>()
+    val NeoAlertMap = ConcurrentHashMap<Int, Boolean>()
+
+//    val wasteBuzzAlertMap = ConcurrentHashMap<Int, Boolean>()
+
+
 }
 

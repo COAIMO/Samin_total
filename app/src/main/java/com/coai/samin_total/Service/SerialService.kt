@@ -350,7 +350,6 @@ class SerialService : Service(), SerialInputOutputManager.Listener {
 
                         if (isConnected.get()) {
                             if ((connectionTime.get() + 1000L * 60 * 60 * 12 ) < System.currentTimeMillis()) {
-//                            if ((connectionTime.get() + 1000L * 60) < System.currentTimeMillis()) {
                                 Log.d(
                                     "Serial disconnect",
                                     "Serial disconnect ====================================="

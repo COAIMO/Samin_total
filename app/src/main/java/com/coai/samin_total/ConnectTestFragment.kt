@@ -1,10 +1,9 @@
 package com.coai.samin_total
 
-import android.app.AlertDialog
 //import android.app.ProgressDialog
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +11,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
 import com.coai.samin_total.Logic.SaminProtocol
 import com.coai.samin_total.databinding.FragmentConnectTestBinding
 
@@ -198,22 +198,45 @@ class ConnectTestFragment : Fragment() {
             activity?.isAnotherJob?.set(false)
         }
 
+//        mBinding.btnWasteAlertOff.setOnClickListener {
+//            activity?.isAnotherJob?.set(true)
+//
+//            activity?.wasteBuzzOff()
+//
+//            val protocol = SaminProtocol()
+//            for (cnt in 0..1) {
+//                for (t in 0..7) {
+//                    protocol.buzzer_Off(3, t.toByte())
+//                    activity?.sendProtocolToSerial(protocol.mProtocol.clone())
+//                    Thread.sleep(2)
+//                }
+//            }
+//            Thread.sleep(1000)
+//
+//            activity?.isAnotherJob?.set(false)
+//        }
+
         mBinding.btnOxygenAlertOff.setOnClickListener {
 //            activity?.isAnotherJob = true
             activity?.isAnotherJob?.set(true)
             Thread.sleep(100)
 
-            val protocol = SaminProtocol()
-            for (t in 0..7) {
-                val model: Byte = 4
-                val id: Byte = t.toByte()
 
-                for (cnt in 0..1) {
-                    protocol.buzzer_Off(model, id)
+            activity?.oxygenAlertClear()
+
+            val protocol = SaminProtocol()
+
+            for (cnt in 0..1) {
+//                protocol.buzzer_Off(4, 255.toByte())
+//                activity?.sendProtocolToSerial(protocol.mProtocol.clone())
+//                Thread.sleep(2)
+                for (t in 0..7) {
+                    protocol.buzzer_Off(4, t.toByte())
                     activity?.sendProtocolToSerial(protocol.mProtocol.clone())
-                    Thread.sleep(5)
+                    Thread.sleep(2)
                 }
             }
+            Thread.sleep(1000)
 
 //            activity?.isAnotherJob = false
             activity?.isAnotherJob?.set(false)
