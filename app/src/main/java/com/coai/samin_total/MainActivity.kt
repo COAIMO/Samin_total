@@ -1523,6 +1523,7 @@ class MainActivity : AppCompatActivity() {
     val dateformat: SimpleDateFormat =
         SimpleDateFormat("yyyy-MM-dd kk:mm:ss.SSS", Locale("ko", "KR"))
     private val serialSVCIPCHandler = object : Handler(Looper.getMainLooper()) {
+        val connect = AtomicBoolean(true)
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
             when (msg.what) {
@@ -1532,19 +1533,22 @@ class MainActivity : AppCompatActivity() {
                     shared.setNoSerialCount(0)
                     mainViewModel.scanDone.value = true
                     mainViewModel.usbdetachetime.set(0)
-                    val date = Date(System.currentTimeMillis())
-                    val latesttime: String = dateformat.format(date)
-                    mainViewModel.addAlertInfo(
-                        0,
-                        SetAlertData(
-                            latesttime,
+                    if (!connect.get()) {
+                        val date = Date(System.currentTimeMillis())
+                        val latesttime: String = dateformat.format(date)
+                        mainViewModel.addAlertInfo(
                             0,
-                            0,
-                            "시리얼 통신 연결이 되었습니다.",
-                            0,
-                            false
+                            SetAlertData(
+                                latesttime,
+                                0,
+                                0,
+                                "시리얼 통신 연결이 되었습니다.",
+                                0,
+                                false
+                            )
                         )
-                    )
+                        connect.set(true)
+                    }
                 }
                 SerialService.MSG_SERIAL_RECV -> {
                     val buff = msg.data.getByteArray("")
@@ -1571,6 +1575,7 @@ class MainActivity : AppCompatActivity() {
                             true
                         )
                     )
+                    connect.set(false)
 
                 }
                 SerialService.MSG_NO_SERIAL -> {
