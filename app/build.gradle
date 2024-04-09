@@ -32,8 +32,8 @@ android {
         minSdk 26
 
         targetSdk 33
-        versionCode 63
-        versionName "1.63"
+        versionCode 64
+        versionName "1.64"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release

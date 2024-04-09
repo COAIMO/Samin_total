@@ -379,6 +379,8 @@ class MainActivity : AppCompatActivity() {
                                                         ?: 0b10000.toByte()
 
                                                 if (v > tmplast) {
+                                                    tabletSoundAlertOn()
+
                                                     if (!notAlert.contains(model)) {
                                                         for (cnt in 0..1) {
                                                             protocol.led_AlertStateByte(
@@ -389,8 +391,6 @@ class MainActivity : AppCompatActivity() {
                                                             sendProtocolToSerial(protocol.mProtocol.clone())
                                                             delay(writesleep.get())
                                                         }
-
-                                                        tabletSoundAlertOn()
 
                                                         if (mainViewModel.isSoundAlert) {
                                                             protocol.buzzer_On(model, id)
@@ -622,6 +622,11 @@ class MainActivity : AppCompatActivity() {
         val removeList = ArrayList<Int>()
         val protocol = SaminProtocol()
 
+        Log.d(
+            "alerts",
+            "mainViewModel.NeoAlertMap: ${mainViewModel.NeoAlertMap.keys.size}"
+        )
+
         for ((k, v) in mainViewModel.NeoAlertMap) {
             id = (k.toInt() shr 8 and 0xFF).toByte()
             model = (k and 0xFF).toByte()
@@ -713,10 +718,8 @@ class MainActivity : AppCompatActivity() {
                     "currentLedState[k.toShort()] = ${currentLedState[k.toShort()]}, id = ${id}, Size: ${mainViewModel.NeoAlertMap.keys.size}"
                 )
             }
-
-            isNeoAlertOn.set(!isNeoAlertOn.get())
         }
-
+        isNeoAlertOn.set(!isNeoAlertOn.get())
         return removeList
     }
 

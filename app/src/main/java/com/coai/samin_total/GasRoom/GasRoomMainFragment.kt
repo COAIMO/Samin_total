@@ -271,8 +271,10 @@ class GasRoomMainFragment : Fragment() {
 
         newgasRoomViewData.clear()
         for(tmp in mm){
-            if (tmp.usable)
+            if (tmp.usable) {
+                tmp.pressure = 0f
                 newgasRoomViewData.add(tmp)
+            }
         }
         gasRoomViewData.clear()
         for (tmp in newgasRoomViewData) {

@@ -4,12 +4,12 @@ import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.coai.samin_total.GasDock.SetGasStorageViewData
 import com.coai.samin_total.GasRoom.SetGasRoomViewData
@@ -117,16 +117,16 @@ class ScanAlertDialogFragment : DialogFragment() {
                 var feedbacks:Long = 20
                 when(baudrate) {
                     Baudrate.BPS_2400 -> {
-                        feedbacks = Math.max(200, shared.getFeedbackTiming())
+                        feedbacks = Math.max(250, shared.getFeedbackTiming())
                     }
                     Baudrate.BPS_4800 -> {
-                        feedbacks = Math.max(100, shared.getFeedbackTiming())
+                        feedbacks = Math.max(150, shared.getFeedbackTiming())
                     }
                     Baudrate.BPS_9600 -> {
-                        feedbacks = Math.max(60, shared.getFeedbackTiming())
+                        feedbacks = Math.max(100, shared.getFeedbackTiming())
                     }
                     Baudrate.BPS_14400 -> {
-                        feedbacks = Math.max(40, shared.getFeedbackTiming())
+                        feedbacks = Math.max(60, shared.getFeedbackTiming())
                     }
                     else -> {
                         feedbacks = Math.max(40, shared.getFeedbackTiming())
