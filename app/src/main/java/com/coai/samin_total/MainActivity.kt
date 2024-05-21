@@ -2122,7 +2122,7 @@ class MainActivity : AppCompatActivity() {
                     val (id, model, time, datas) = msg.data.getParcelable<ParsingData>("")!!
                     val port = 1.toByte()
                     val key = littleEndianConversion(byteArrayOf(model, id, port))
-                    tmp.hmapLastedDate[key] = time
+//                    tmp.hmapLastedDate[key] = time
                     tmp.ProcessOxygen(key, datas[0])
                     mainViewModel.setCurrnetDate(LocalDateTime.now())
                     Log.d("MSG_OXYGEN", "datas[0]: ${datas[0]}");
