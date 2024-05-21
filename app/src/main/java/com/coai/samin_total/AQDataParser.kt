@@ -902,9 +902,10 @@ class AQDataParser(private val viewModel: MainViewModel) {
         val preError = hmapErrorOxygen[id] ?: false
         val tmp = (tmp1 as SetOxygenViewData)
         var oxygenValue = data / 100f
-        if ( oxygenValue > 100f) {
+        if (oxygenValue <= 0f || oxygenValue > 100f) {
             return
         }
+        hmapLastedDate[id] = System.currentTimeMillis()
         oxygenValue += (tmp.zeroPoint ?: 0f)
         tmp.setValue = oxygenValue
 
@@ -976,51 +977,6 @@ class AQDataParser(private val viewModel: MainViewModel) {
             }
         }
 
-//        else {
-//            if (tmp.setMaxValue < oxygenValue) {
-//                if (!preError) {
-//                    hmapErrorOxygen[id] = true
-//                    return
-//                }
-//
-//                tmp.isAlert = true
-//                if (alertMap[id] == null) {
-//                    alertMap.put(id, true)
-//                    viewModel.addAlertInfo(
-//                        id,
-//                        SetAlertData(
-//                            getLatest_time(hmapLastedDate[id]!!),
-//                            tmp.modelByte.toInt(),
-//                            tmp.id,
-//                            "산소농도 상한 값 ($oxygenValue)",
-//                            tmp.port,
-//                            true
-//                        )
-//                    )
-//                }
-//            } else {
-//                tmp.isAlert = false
-//                hmapErrorOxygen.remove(id)
-//
-//                if (alertMap.containsKey(id)) {
-//                    viewModel.addAlertInfo(
-//                        id,
-//                        SetAlertData(
-//                            getLatest_time(hmapLastedDate[id]!!),
-//                            tmp.modelByte.toInt(),
-//                            tmp.id,
-//                            "산소농도 정상",
-//                            tmp.port,
-//                            false
-//                        )
-//                    )
-//                    if (alertMap.containsKey(id)) {
-//                        alertMap.remove(id)
-//                    }
-//                }
-//            }
-//        }
-
         val bro = setAQport[id] as SetOxygenViewData
         bro.setValue = tmp.setValue
         bro.isAlert = tmp.isAlert
@@ -1041,89 +997,6 @@ class AQDataParser(private val viewModel: MainViewModel) {
             tmp.setValue.toInt().toShort()
         )
         viewModel.mModelMonitorValues.setErrorsOxygen(idx, false)
-
-//        val oxygenAQ = setAQport.filter {
-//            HexDump.toByteArray(it.key).get(3) == 4.toByte()
-//        }
-
-//        val masterKey = littleEndianConversion(
-//            byteArrayOf(
-//                4.toByte(),
-//                11.toByte(),
-//                11.toByte()
-//            )
-//        )
-//        val oxygenLastValueList = mutableListOf<Float>()
-//        for ((key, value) in oxygenAQ) {
-//            val oxydata = (value as SetOxygenViewData)
-//
-//            viewModel.oxygensData.put(key, oxydata)
-//            if (oxydata.setValue == 0f) {
-//                continue
-//            } else {
-//                oxygenLastValueList.add(oxydata.setValue)
-//            }
-//        }
-
-//        var tmpavg = oxygenLastValueList.average()
-//        if(tmpavg.isNaN()) tmpavg = 0.0
-//        if (viewModel.oxygenMasterData == null)
-//            return
-//
-//        viewModel.oxygenMasterData!!.setValue = tmpavg.toFloat()
-//        if (viewModel.oxygenMasterData!!.setMinValue > viewModel.oxygenMasterData!!.setValue) {
-//            viewModel.oxygenMasterData!!.isAlert = true
-//            if (alertMap[masterKey] == null) {
-//                alertMap.put(masterKey, true)
-//                viewModel.addAlertInfo(
-//                    masterKey,
-//                    SetAlertData(
-//                        getLatest_time(hmapLastedDate[id]!!),
-//                        4,
-//                        8,
-//                        "[평균]산소농도 하한 값 (${viewModel.oxygenMasterData!!.setValue})",
-//                        8,
-//                        true
-//                    )
-//                )
-//            }
-//        } else {
-//            if (viewModel.oxygenMasterData!!.setMaxValue < viewModel.oxygenMasterData!!.setValue) {
-//                viewModel.oxygenMasterData!!.isAlert = true
-//                if (alertMap[masterKey] == null) {
-//                    alertMap.put(masterKey, true)
-//                    viewModel.addAlertInfo(
-//                        masterKey,
-//                        SetAlertData(
-//                            getLatest_time(hmapLastedDate[id]!!),
-//                            4,
-//                            8,
-//                            "[평균]산소농도 상한 값(${viewModel.oxygenMasterData!!.setValue})",
-//                            8,
-//                            true
-//                        )
-//                    )
-//                }
-//            } else {
-//                viewModel.oxygenMasterData!!.isAlert = false
-//                if (alertMap.containsKey(masterKey)) {
-//                    viewModel.addAlertInfo(
-//                        masterKey,
-//                        SetAlertData(
-//                            getLatest_time(hmapLastedDate[id]!!),
-//                            4,
-//                            8,
-//                            "[평균]산소농도 정상",
-//                            8,
-//                            false
-//                        )
-//                    )
-//                    if (alertMap.containsKey(masterKey)) {
-//                        alertMap.remove(masterKey)
-//                    }
-//                }
-//            }
-//        }
     }
 
     fun ProcessSteamer(id: Int, temp: Int, level: Int) {
