@@ -28,6 +28,7 @@ class AQDataParser(private val viewModel: MainViewModel) {
 
     // 최종 숫신시간
     val hmapLastedDate = ConcurrentHashMap<Int, Long>()
+    val hmapLastedOxygenDate = ConcurrentHashMap<Int, Long>()
 
     //    var hmapIDLastedDate = HashMap<Short, Long>()
     val hmapPsis = ConcurrentHashMap<Int, ArrayList<TimePSI>>()
@@ -65,6 +66,7 @@ class AQDataParser(private val viewModel: MainViewModel) {
             hmapAQPortSettings.clear()
             setAQport.clear()
             hmapLastedDate.clear()
+            hmapLastedOxygenDate.clear()
             alertBase.clear()
             alertMap.clear()
             alertMap2.clear()
@@ -135,6 +137,7 @@ class AQDataParser(private val viewModel: MainViewModel) {
             hmapAQPortSettings[key] = tmp.copy()
             setAQport[key] = tmp
             hmapLastedDate[key] = System.currentTimeMillis()
+            hmapLastedOxygenDate[key] = System.currentTimeMillis()
         }
 
         for (tmp in viewModel.SteamerDataLiveList.value!!) {
@@ -905,7 +908,7 @@ class AQDataParser(private val viewModel: MainViewModel) {
         if (oxygenValue <= 0f || oxygenValue > 100f) {
             return
         }
-        hmapLastedDate[id] = System.currentTimeMillis()
+        hmapLastedOxygenDate[id] = System.currentTimeMillis()
         oxygenValue += (tmp.zeroPoint ?: 0f)
         tmp.setValue = oxygenValue
 
@@ -1547,16 +1550,26 @@ class AQDataParser(private val viewModel: MainViewModel) {
      */
     fun timeoutAQCheckStep() {
         val baseTime = System.currentTimeMillis() - 1000 * 10
+        val baseTimeOxygen = System.currentTimeMillis() - 1000 * 120
         //기존의 가지고있던 키와 다른 키가 들어올경우 삭제(가비지 데이터땜에)
         for (i in hmapLastedDate) {
             if (!viewModel.hasKey.containsKey(i.key)) {
                 hmapLastedDate.remove(i.key)
             }
         }
+
+        for (i in hmapLastedOxygenDate) {
+            if (!viewModel.hasKey.containsKey(i.key)) {
+                hmapLastedOxygenDate.remove(i.key)
+            }
+        }
+
 //        val starttime = System.currentTimeMillis()
         val oldDatas = hmapLastedDate.filter { it.value < baseTime }
+        val oldOxygenDatas = hmapLastedOxygenDate.filter { it.value < baseTimeOxygen }
 
         val lastaqs = lostConnectAQs.keys.toMutableList()
+//        val oxygenTimeout = System.currentTimeMillis() - 1000 * 120;
         for (tmp in oldDatas) {
             if (lostConnectAQs.containsKey(tmp.key)) {
                 lastaqs.remove(tmp.key)
@@ -1565,12 +1578,17 @@ class AQDataParser(private val viewModel: MainViewModel) {
 
             // 경고 전달
             val current = setAQport[tmp.key]
+//
+//            if (current is SetOxygenViewData) {
+//                if (hmapLastedDate[tmp.key]!! > oxygenTimeout) {
+//                    continue
+//                }
+//            }
 
             val aqInfo = HexDump.toByteArray(tmp.key)
             val model = aqInfo[3].toInt()
             val id = aqInfo[2].toInt()
             val port = aqInfo[1].toInt()
-
 
             val idx = KeyUtils.getIndex(
                 model.toInt(),
@@ -1662,6 +1680,48 @@ class AQDataParser(private val viewModel: MainViewModel) {
                     }
                 }
             }
+
+            lostConnectAQs[tmp.key] = true
+        }
+
+        for (tmp in oldOxygenDatas) {
+            if (lostConnectAQs.containsKey(tmp.key)) {
+                lastaqs.remove(tmp.key)
+                continue
+            }
+
+            val current = setAQport[tmp.key]
+            val aqInfo = HexDump.toByteArray(tmp.key)
+            val model = aqInfo[3].toInt()
+            val id = aqInfo[2].toInt()
+            val port = aqInfo[1].toInt()
+
+            val idx = KeyUtils.getIndex(
+                model.toInt(),
+                id.toByte(),
+                port.toByte()
+            )
+
+            if (current is SetOxygenViewData) {
+                (current as SetOxygenViewData).isAlert = true
+                if (current.usable)
+                    viewModel.mModelMonitorValues.setErrorsOxygen(idx, true)
+                else
+                    continue
+            }
+
+            viewModel.addAlertInfo(
+                tmp.key,
+                SetAlertData(
+                    getLatest_time(System.currentTimeMillis()),
+                    model,
+                    id,
+                    "산소센서 초기화 이상(수신불가)",
+                    port,
+                    true,
+                    4
+                )
+            )
 
             lostConnectAQs[tmp.key] = true
         }
