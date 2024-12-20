@@ -274,6 +274,7 @@ class ScanAlertDialogFragment : DialogFragment() {
 //            activity?.isSending = true
 //            activity?.isSending?.set(true)
             activity?.tmp?.LoadSetting()
+            viewmodel.alertMap.clear()
             activity?.callFeedback()
             activity?.callTimemout()
 

@@ -1,12 +1,9 @@
 package com.coai.samin_total.GasDock
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,16 +12,18 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.coai.samin_total.*
 import com.coai.samin_total.CustomView.SpaceDecoration
 import com.coai.samin_total.Logic.SaminSharedPreference
 import com.coai.samin_total.Logic.SpinnerColorAdapter
 import com.coai.samin_total.Logic.SpinnerColorItem
+import com.coai.samin_total.MainActivity
+import com.coai.samin_total.MainViewModel
+import com.coai.samin_total.R
 import com.coai.samin_total.Service.HexDump
 import com.coai.samin_total.databinding.FragmentGasStorageSettingBinding
-import org.json.JSONArray
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -428,8 +427,13 @@ class GasStorageSettingFragment : Fragment() {
                     mBinding.gasStorageBoardSettingView.mRewardValue_Et.setText(selectedSensor!!.left_rewardValue.toString())
                     mBinding.gasStorageBoardSettingView.mZeroPoint_Et.setText(selectedSensor!!.left_zeroPoint.toString())
                 } else {
-                    mBinding.gasStorageBoardSettingView.mRewardValue_Et.setText(selectedSensor!!.right_rewardValue.toString())
-                    mBinding.gasStorageBoardSettingView.mZeroPoint_Et.setText(selectedSensor!!.right_zeroPoint.toString())
+                    if (selectedSensor?.ViewType == 0) {
+                        mBinding.gasStorageBoardSettingView.mRewardValue_Et.setText(selectedSensor!!.left_rewardValue.toString())
+                        mBinding.gasStorageBoardSettingView.mZeroPoint_Et.setText(selectedSensor!!.left_zeroPoint.toString())
+                    } else {
+                        mBinding.gasStorageBoardSettingView.mRewardValue_Et.setText(selectedSensor!!.right_rewardValue.toString())
+                        mBinding.gasStorageBoardSettingView.mZeroPoint_Et.setText(selectedSensor!!.right_zeroPoint.toString())
+                    }
                 }
 //                mBinding.gasStorageBoardSettingView.mRewardValue_Et.setText(selectedSensor!!.rewardValue.toString())
 //                mBinding.gasStorageBoardSettingView.mZeroPoint_Et.setText(selectedSensor!!.zeroPoint.toString())
